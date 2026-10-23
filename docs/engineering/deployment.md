@@ -6,13 +6,26 @@
 
 ## 1. Vercel
 
-1. Crea un repository GitHub con il progetto.
-2. Importalo in Vercel.
+Repo GitHub: **https://github.com/doublelayerprints/layercost** (privata).
+
+1. Apri [vercel.com/new](https://vercel.com/new).
+2. Importa `doublelayerprints/layercost`.
 3. Framework preset: **Vite**.
 4. Build command: `npm run build`.
 5. Output directory: `dist`.
 6. Node: 22.x.
 7. Nessuna variabile d'ambiente obbligatoria.
+8. Deploy.
+
+In alternativa, dal repository:
+
+```bash
+npx vercel login
+npx vercel link
+npx vercel --prod
+```
+
+Il deploy automatico su ogni push si ottiene collegando il repository GitHub al progetto Vercel.
 
 Il routing è **hash-based**: non servono rewrite per le SPA. La build è statica e portabile.
 
@@ -87,7 +100,10 @@ Vercel Hobby è pensato per uso personale. Se LayerCost diventa parte di un'atti
 
 ## 11. Stato attuale
 
-- Repository locale: `3dCosts` (nome directory).
+- Repository locale: `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`.
 - Nome prodotto: **LayerCost**.
-- Repo suggerito: `layercost`.
-- Nessun deploy Vercel è stato ancora creato da questo ambiente.
+- Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
+- `vercel.json` pronto.
+- Vercel CLI non è autenticato in questo ambiente.
+- Un deploy temporaneo anonimo è stato creato, ma l'accesso è stato bloccato da Vercel; non è utilizzabile come deploy definitivo.
+- Prossimo passo: importare il repo in Vercel dal dashboard, oppure eseguire `npx vercel login` e poi `npx vercel link && npx vercel --prod`.

@@ -55,6 +55,10 @@ I valori di partenza di prezzi, potenze e vita utile sono **stime modificabili**
 
 ## Deploy
 
+Repo GitHub: **https://github.com/doublelayerprints/layercost** (privata).
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/doublelayerprints/layercost)
+
 Il progetto è una SPA statica con hash routing. Su Vercel:
 
 - Framework preset: Vite
