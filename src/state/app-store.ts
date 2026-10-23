@@ -1,0 +1,623 @@
+import { create } from 'zustand'
+import type {
+  CostConfig,
+  Extra,
+  JobCosts,
+  Material,
+  PrintLine,
+  Printer,
+  Quote,
+  QuotePricing,
+  Settings,
+} from '@/domain/types'
+import { calculateQuote } from '@/domain/cost/quote'
+import { ENGINE_VERSION } from '@/domain/version'
+import { nowIso } from '@/lib/date'
+import { newId } from '@/lib/id'
+import { createEmptyDraft, createEmptyLine, createSeedConfig } from '@/data/seed'
+import { SCHEMA_VERSION, type AppData } from '@/data/storage'
+import { localRepository } from '@/data/repository'
+
+function toAppData(state: Pick<AppState, 'config' | 'quotes' | 'draft'>): AppData {
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    config: state.config,
+    quotes: state.quotes,
+    draft: state.draft,
+  }
+}
+
+function recomputeQuote(quote: Quote, fallbackConfig: CostConfig): Quote {
+  const config = quote.snapshot?.config ?? fallbackConfig
+  try {
+    const result = calculateQuote({ ...quote, snapshot: undefined, result: undefined }, config)
+    return { ...quote, result, engineVersion: result.engineVersion }
+  } catch {
+    return { ...quote, result: undefined, engineVersion: undefined }
+  }
+}
+
+function recomputeQuotes(quotes: Quote[], config: CostConfig): Quote[] {
+  return quotes.map((quote) =>
+    quote.result && quote.engineVersion === ENGINE_VERSION ? quote : recomputeQuote(quote, config),
+  )
+}
+
+function cloneLineWithNewIds(line: PrintLine): PrintLine {
+  return {
+    ...structuredClone(line),
+    id: newId(),
+    materials: line.materials.map((usage) => ({ ...usage })),
+  }
+}
+
+function cloneQuoteForDraft(quote: Quote, suffix: string): Quote {
+  const now = nowIso()
+  return {
+    ...structuredClone(quote),
+    id: newId(),
+    name: `${quote.name}${suffix}`,
+    status: 'draft',
+    lines: quote.lines.map(cloneLineWithNewIds),
+    snapshot: undefined,
+    result: undefined,
+    engineVersion: undefined,
+    createdAt: now,
+    updatedAt: now,
+  }
+}
+
+export interface AppState {
+  config: CostConfig
+  quotes: Quote[]
+  draft: Quote
+  hydrated: boolean
+  warning?: string
+
+  hydrate: () => void
+  persist: () => void
+  setWarning: (warning?: string) => void
+
+  updateSettings: (patch: Partial<Settings>) => void
+
+  addTariff: (input: Omit<Settings['tariffs'][number], 'id'> & { id?: string }) => void
+  updateTariff: (id: string, patch: Partial<Settings['tariffs'][number]>) => void
+  removeTariff: (id: string) => void
+
+  addPrinter: (input: Omit<Printer, 'id'> & { id?: string }) => void
+  updatePrinter: (id: string, patch: Partial<Printer>) => void
+  archivePrinter: (id: string) => void
+
+  addMaterial: (input: Omit<Material, 'id'> & { id?: string }) => void
+  updateMaterial: (id: string, patch: Partial<Material>) => void
+  archiveMaterial: (id: string) => void
+
+  addExtra: (input: Omit<Extra, 'id'> & { id?: string }) => void
+  updateExtra: (id: string, patch: Partial<Extra>) => void
+  archiveExtra: (id: string) => void
+
+  updateDraftMeta: (patch: Partial<Pick<Quote, 'name' | 'quoteDate' | 'customer'>>) => void
+  updatePricing: (patch: Partial<QuotePricing>) => void
+  updateJob: (patch: Partial<JobCosts>) => void
+  toggleJobExtra: (extraId: string) => void
+
+  updateLine: (lineId: string, patch: Partial<PrintLine>) => void
+  addLine: () => void
+  duplicateLine: (lineId: string) => void
+  removeLine: (lineId: string) => void
+  updateLineMaterial: (
+    lineId: string,
+    index: number,
+    patch: Partial<PrintLine['materials'][number]>,
+  ) => void
+  addLineMaterial: (lineId: string) => void
+  removeLineMaterial: (lineId: string, index: number) => void
+  toggleLineExtra: (lineId: string, extraId: string) => void
+
+  saveDraft: () => { quote?: Quote; error?: string }
+  duplicateQuote: (quoteId: string) => void
+  refreshQuote: (quoteId: string) => void
+  archiveQuote: (quoteId: string) => void
+  deleteQuote: (quoteId: string) => void
+  importSharedQuote: (quote: Quote) => string
+
+  importData: (data: AppData) => void
+  exportData: () => void
+  reset: () => void
+  completeOnboarding: () => void
+  newDraft: () => void
+}
+
+const initialData = (() => {
+  const config = createSeedConfig()
+  return {
+    config,
+    quotes: [] as Quote[],
+    draft: createEmptyDraft(config),
+  }
+})()
+
+export const useAppStore = create<AppState>()((set, get) => ({
+  ...initialData,
+  hydrated: false,
+  warning: undefined,
+
+  hydrate: () => {
+    if (get().hydrated) return
+    const { data, warning } = localRepository.load()
+    set({
+      config: data.config,
+      quotes: recomputeQuotes(data.quotes, data.config),
+      draft: data.draft,
+      hydrated: true,
+      warning,
+    })
+  },
+
+  persist: () => {
+    try {
+      localRepository.save(toAppData(get()))
+    } catch (error) {
+      set({
+        warning: error instanceof Error ? error.message : 'Impossibile salvare i dati nel browser.',
+      })
+    }
+  },
+
+  setWarning: (warning) => set({ warning }),
+
+  updateSettings: (patch) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        settings: { ...state.config.settings, ...patch },
+      },
+    }))
+    get().persist()
+  },
+
+  addTariff: (input) => {
+    const tariff = { ...input, id: input.id ?? newId() }
+    set((state) => ({
+      config: {
+        ...state.config,
+        settings: {
+          ...state.config.settings,
+          tariffs: [...state.config.settings.tariffs, tariff],
+        },
+      },
+    }))
+    get().persist()
+  },
+
+  updateTariff: (id, patch) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        settings: {
+          ...state.config.settings,
+          tariffs: state.config.settings.tariffs.map((tariff) =>
+            tariff.id === id ? { ...tariff, ...patch } : tariff,
+          ),
+        },
+      },
+    }))
+    get().persist()
+  },
+
+  removeTariff: (id) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        settings: {
+          ...state.config.settings,
+          tariffs: state.config.settings.tariffs.filter((tariff) => tariff.id !== id),
+        },
+        printers: state.config.printers.map((printer) =>
+          printer.energyTariffId === id ? { ...printer, energyTariffId: undefined } : printer,
+        ),
+      },
+    }))
+    get().persist()
+  },
+
+  addPrinter: (input) => {
+    const printer = { ...input, id: input.id ?? newId() }
+    set((state) => ({
+      config: { ...state.config, printers: [...state.config.printers, printer] },
+    }))
+    get().persist()
+  },
+
+  updatePrinter: (id, patch) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        printers: state.config.printers.map((printer) =>
+          printer.id === id ? { ...printer, ...patch } : printer,
+        ),
+      },
+    }))
+    get().persist()
+  },
+
+  archivePrinter: (id) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        printers: state.config.printers.map((printer) =>
+          printer.id === id ? { ...printer, archived: !printer.archived } : printer,
+        ),
+      },
+    }))
+    get().persist()
+  },
+
+  addMaterial: (input) => {
+    const material = { ...input, id: input.id ?? newId() }
+    set((state) => ({
+      config: { ...state.config, materials: [...state.config.materials, material] },
+    }))
+    get().persist()
+  },
+
+  updateMaterial: (id, patch) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        materials: state.config.materials.map((material) =>
+          material.id === id ? { ...material, ...patch } : material,
+        ),
+      },
+    }))
+    get().persist()
+  },
+
+  archiveMaterial: (id) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        materials: state.config.materials.map((material) =>
+          material.id === id ? { ...material, archived: !material.archived } : material,
+        ),
+      },
+    }))
+    get().persist()
+  },
+
+  addExtra: (input) => {
+    const extra = { ...input, id: input.id ?? newId() }
+    set((state) => ({
+      config: { ...state.config, extras: [...state.config.extras, extra] },
+    }))
+    get().persist()
+  },
+
+  updateExtra: (id, patch) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        extras: state.config.extras.map((extra) =>
+          extra.id === id ? { ...extra, ...patch } : extra,
+        ),
+      },
+    }))
+    get().persist()
+  },
+
+  archiveExtra: (id) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        extras: state.config.extras.map((extra) =>
+          extra.id === id ? { ...extra, archived: !extra.archived } : extra,
+        ),
+      },
+    }))
+    get().persist()
+  },
+
+  updateDraftMeta: (patch) => {
+    set((state) => ({
+      draft: { ...state.draft, ...patch, updatedAt: nowIso() },
+    }))
+    get().persist()
+  },
+
+  updatePricing: (patch) => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        pricing: { ...state.draft.pricing, ...patch },
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  updateJob: (patch) => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        job: { ...state.draft.job, ...patch },
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  toggleJobExtra: (extraId) => {
+    set((state) => {
+      const ids = state.draft.job.extraIds
+      return {
+        draft: {
+          ...state.draft,
+          job: {
+            ...state.draft.job,
+            extraIds: ids.includes(extraId)
+              ? ids.filter((id) => id !== extraId)
+              : [...ids, extraId],
+          },
+          updatedAt: nowIso(),
+        },
+      }
+    })
+    get().persist()
+  },
+
+  updateLine: (lineId, patch) => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        lines: state.draft.lines.map((line) => (line.id === lineId ? { ...line, ...patch } : line)),
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  addLine: () => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        lines: [...state.draft.lines, createEmptyLine(state.config)],
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  duplicateLine: (lineId) => {
+    set((state) => {
+      const index = state.draft.lines.findIndex((line) => line.id === lineId)
+      const line = state.draft.lines[index]
+      if (!line) return state
+      const copy = cloneLineWithNewIds(line)
+      copy.name = `${line.name} (copia)`
+      const lines = [...state.draft.lines]
+      lines.splice(index + 1, 0, copy)
+      return {
+        draft: { ...state.draft, lines, updatedAt: nowIso() },
+      }
+    })
+    get().persist()
+  },
+
+  removeLine: (lineId) => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        lines: state.draft.lines.filter((line) => line.id !== lineId),
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  updateLineMaterial: (lineId, index, patch) => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        lines: state.draft.lines.map((line) =>
+          line.id === lineId
+            ? {
+                ...line,
+                materials: line.materials.map((usage, usageIndex) =>
+                  usageIndex === index ? { ...usage, ...patch } : usage,
+                ),
+              }
+            : line,
+        ),
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  addLineMaterial: (lineId) => {
+    set((state) => {
+      const material =
+        state.config.materials.find((candidate) => !candidate.archived) ?? state.config.materials[0]
+      if (!material) return state
+      return {
+        draft: {
+          ...state.draft,
+          lines: state.draft.lines.map((line) =>
+            line.id === lineId
+              ? {
+                  ...line,
+                  materials: [
+                    ...line.materials,
+                    {
+                      materialId: material.id,
+                      grams: 0 as PrintLine['materials'][number]['grams'],
+                    },
+                  ],
+                }
+              : line,
+          ),
+          updatedAt: nowIso(),
+        },
+      }
+    })
+    get().persist()
+  },
+
+  removeLineMaterial: (lineId, index) => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        lines: state.draft.lines.map((line) =>
+          line.id === lineId
+            ? {
+                ...line,
+                materials: line.materials.filter((_, usageIndex) => usageIndex !== index),
+              }
+            : line,
+        ),
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  toggleLineExtra: (lineId, extraId) => {
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        lines: state.draft.lines.map((line) =>
+          line.id === lineId
+            ? {
+                ...line,
+                extraIds: line.extraIds.includes(extraId)
+                  ? line.extraIds.filter((id) => id !== extraId)
+                  : [...line.extraIds, extraId],
+              }
+            : line,
+        ),
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  saveDraft: () => {
+    const state = get()
+    if (!state.draft.name.trim()) {
+      return { error: 'Il nome del preventivo è obbligatorio.' }
+    }
+    const unnamedLine = state.draft.lines.find((line) => !line.name.trim())
+    if (unnamedLine) {
+      return { error: 'Ogni riga deve avere un nome.' }
+    }
+    try {
+      const result = calculateQuote(state.draft, state.config)
+      const now = nowIso()
+      const quote: Quote = {
+        ...structuredClone(state.draft),
+        status: 'saved',
+        snapshot: {
+          config: structuredClone(state.config),
+          capturedAt: now,
+          engineVersion: result.engineVersion,
+        },
+        result,
+        engineVersion: result.engineVersion,
+        updatedAt: now,
+        archived: false,
+      }
+      set((current) => ({
+        quotes: [quote, ...current.quotes.filter((candidate) => candidate.id !== quote.id)],
+        draft: createEmptyDraft(current.config),
+      }))
+      get().persist()
+      return { quote }
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Impossibile salvare il preventivo.',
+      }
+    }
+  },
+
+  duplicateQuote: (quoteId) => {
+    const state = get()
+    const quote = state.quotes.find((candidate) => candidate.id === quoteId)
+    if (!quote) return
+    set({ draft: cloneQuoteForDraft(quote, ' (copia)') })
+    get().persist()
+  },
+
+  refreshQuote: (quoteId) => {
+    const state = get()
+    const quote = state.quotes.find((candidate) => candidate.id === quoteId)
+    if (!quote) return
+    set({ draft: cloneQuoteForDraft(quote, ' (prezzi aggiornati)') })
+    get().persist()
+  },
+
+  archiveQuote: (quoteId) => {
+    set((state) => ({
+      quotes: state.quotes.map((quote) =>
+        quote.id === quoteId ? { ...quote, archived: !quote.archived } : quote,
+      ),
+    }))
+    get().persist()
+  },
+
+  deleteQuote: (quoteId) => {
+    set((state) => ({
+      quotes: state.quotes.filter((quote) => quote.id !== quoteId),
+    }))
+    get().persist()
+  },
+
+  importSharedQuote: (quote) => {
+    const now = nowIso()
+    const imported: Quote = {
+      ...structuredClone(quote),
+      id: newId(),
+      name: `${quote.name} (importato)`,
+      status: 'saved',
+      archived: false,
+      createdAt: now,
+      updatedAt: now,
+    }
+    set((state) => ({ quotes: [imported, ...state.quotes] }))
+    get().persist()
+    return imported.id
+  },
+
+  importData: (data) => {
+    const quotes = data.quotes.map((quote) => recomputeQuote(quote, data.config))
+    set({
+      config: data.config,
+      quotes,
+      draft: data.draft,
+      warning: undefined,
+    })
+    get().persist()
+  },
+
+  exportData: () => {
+    localRepository.export(toAppData(get()))
+  },
+
+  reset: () => {
+    const data = localRepository.reset()
+    set({
+      config: data.config,
+      quotes: data.quotes,
+      draft: data.draft,
+      warning: undefined,
+    })
+  },
+
+  completeOnboarding: () => {
+    get().updateSettings({ onboardingComplete: true })
+  },
+
+  newDraft: () => {
+    set((state) => ({ draft: createEmptyDraft(state.config) }))
+    get().persist()
+  },
+}))
