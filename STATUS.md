@@ -3,6 +3,7 @@
 **Data:** 23 ottobre 2026
 **Versione:** 0.1.0 — MVP funzionale
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
+**Live:** https://layercost.vercel.app
 **Locale:** `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`
 **Branch:** `main`
 
@@ -89,19 +90,14 @@ npm run test:e2e
 
 ## 5. Deploy
 
-- `vercel.json` pronto (framework Vite, output `dist`, header di sicurezza).
-- Pulsante “Deploy with Vercel” nel README.
-- Repo GitHub collegabile a Vercel.
-- Vercel CLI non è autenticato in questo ambiente.
-- Un deploy temporaneo anonimo è stato creato, ma Vercel lo ha bloccato con 403; non è usabile come deploy definitivo.
+- **Live:** https://layercost.vercel.app
+- Progetto Vercel collegato alla repo GitHub; il commit `e625454` ha ricevuto lo status Vercel “Deployment has completed”.
+- `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
+- Deploy automatico su push su `main` (verificato dallo status check Vercel).
+- Header verificati: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Robots-Tag: noindex`.
+- `robots.txt` presente.
 
-Per completare il deploy:
-
-1. Importare `doublelayerprints/layercost` da https://vercel.com/new.
-2. Framework: Vite; build `npm run build`; output `dist`.
-3. Deploy.
-
-Oppure:
+Il deploy manuale resta possibile da dashboard o con:
 
 ```bash
 npx vercel login
@@ -120,17 +116,15 @@ npx vercel --prod
 - Nessun audit automatico axe.
 - Migrazioni schema minime (v1; rifiuto versioni future).
 - Guida iniziale come checklist, non wizard multi-step.
-- Deploy Vercel permanente in attesa di autenticazione.
 
 ---
 
 ## 7. Prossimi passi
 
-1. Completare il deploy Vercel (login/import).
-2. Fase 4: direzione di design, design system, redesign schermate.
-3. Audit accessibilità e test visuali.
-4. Catena di migrazioni versionata con fixture.
-5. Backlog: sync, magazzino bobine, import slicer, PWA, inglese.
+1. Fase 4: direzione di design, design system, redesign schermate.
+2. Audit accessibilità e test visuali.
+3. Catena di migrazioni versionata con fixture.
+4. Backlog: sync, magazzino bobine, import slicer, PWA, inglese.
 
 ---
 

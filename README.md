@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/doublelayerprints/layercost/actions/workflows/ci.yml/badge.svg)](https://github.com/doublelayerprints/layercost/actions/workflows/ci.yml)
 
+**Live:** https://layercost.vercel.app
+
 Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **Anycubic Kobra 3** (senza multicolore) e **Anycubic Kobra X** (con ACE 2 Pro). Tutti i parametri economici sono configurabili: tariffa elettrica, prezzi dei materiali, potenza media, vita utile, manutenzione, manodopera, tasso guasti, ricarico, IVA e arrotondamento.
 
 ![Calcolatore LayerCost](docs/assets/calculator.png)
@@ -57,6 +59,8 @@ I valori di partenza di prezzi, potenze e vita utile sono **stime modificabili**
 
 ## Deploy
 
+**Live:** https://layercost.vercel.app
+
 Repo GitHub: **https://github.com/doublelayerprints/layercost** (privata).
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/doublelayerprints/layercost)
@@ -93,7 +97,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 - **Fuori v1:** sync cloud, magazzino bobine, import slicer, PWA, inglese.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
-- **Deploy Vercel:** configurazione pronta; manca l’autenticazione/import del progetto.
+- **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.
 
 La directory locale e il repository GitHub sono `layercost`; il nome del prodotto è **LayerCost**. Per lo stato aggiornato vedi `STATUS.md`.
 

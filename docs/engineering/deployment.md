@@ -6,6 +6,8 @@
 
 ## 1. Vercel
 
+**Live:** https://layercost.vercel.app
+
 Repo GitHub: **https://github.com/doublelayerprints/layercost** (privata).
 
 1. Apri [vercel.com/new](https://vercel.com/new).
@@ -104,7 +106,7 @@ Vercel Hobby è pensato per uso personale. Se LayerCost diventa parte di un'atti
 - Nome prodotto: **LayerCost**.
 - Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
 - CI GitHub: verde (`check` + `e2e`).
-- `vercel.json` pronto.
-- Vercel CLI non è autenticato in questo ambiente.
-- Un deploy temporaneo anonimo è stato creato, ma l'accesso è stato bloccato da Vercel; non è utilizzabile come deploy definitivo.
-- Prossimo passo: importare il repo in Vercel dal dashboard, oppure eseguire `npx vercel login` e poi `npx vercel link && npx vercel --prod`.
+- Deploy Vercel: **live su https://layercost.vercel.app**.
+- Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.
+- Header di sicurezza e `robots.txt` verificati.
+- Deploy manuale disponibile con `npx vercel login && npx vercel link && npx vercel --prod`.

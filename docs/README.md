@@ -12,7 +12,7 @@
 - Test: 16 unitari + 3 E2E.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
-- Deploy: build e `vercel.json` pronti; Vercel CLI non autenticato e progetto permanente da importare.
+- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub.
 
 ---
 

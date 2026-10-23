@@ -21,6 +21,7 @@ Formato basato su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) e [Se
 - Test: 16 unitari/dati + 3 E2E.
 - CI GitHub Actions verde (`check` + `e2e`), configurazione Vercel, documentazione completa e 14 ADR.
 - Repo GitHub `doublelayerprints/layercost` (privata).
+- Deploy Vercel live su https://layercost.vercel.app.
 
 ### Known limitations
 
@@ -28,4 +29,3 @@ Formato basato su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) e [Se
 - Nessuna sincronizzazione cloud.
 - Nessun import diretto da slicer o presa intelligente.
 - Nessun audit automatico di accessibilità.
-- Deploy Vercel permanente in attesa di autenticazione/import del progetto.
