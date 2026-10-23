@@ -1,5 +1,7 @@
 # LayerCost
 
+[![CI](https://github.com/doublelayerprints/layercost/actions/workflows/ci.yml/badge.svg)](https://github.com/doublelayerprints/layercost/actions/workflows/ci.yml)
+
 Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **Anycubic Kobra 3** (senza multicolore) e **Anycubic Kobra X** (con ACE 2 Pro). Tutti i parametri economici sono configurabili: tariffa elettrica, prezzi dei materiali, potenza media, vita utile, manutenzione, manodopera, tasso guasti, ricarico, IVA e arrotondamento.
 
 ![Calcolatore LayerCost](docs/assets/calculator.png)

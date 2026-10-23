@@ -6,7 +6,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 23/10/2026:** Fase 0–3 implementata. Fase 4 (design) da iniziare. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (GitHub Actions, axe, stampa su più browser).
+**Stato al 23/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4 (design) da iniziare. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
 
 ---
 
@@ -75,15 +75,14 @@ Un task è chiuso solo se:
 ## T0.3 — CI GitHub Actions
 
 **Dipende da:** T0.2
-**Stato:** `[~]`
-
-**Nota:** Workflow CI creato; non è stato eseguito su GitHub in questo ambiente.
+**Stato:** `[x]`
 
 - Workflow su push e pull request.
 - Node 22, cache npm, `npm ci`, `npm run check`.
-- Upload del build come artifact.
+- Job E2E con Playwright/Chromium.
+- Upload degli artifact in caso di fallimento.
 
-**Accettazione:** workflow verde su una PR di prova; tempi ragionevoli (< 5 min).
+**Accettazione:** workflow verde su `doublelayerprints/layercost`; job `check` e `e2e` completati.
 
 ---
 
