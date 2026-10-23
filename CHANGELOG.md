@@ -19,7 +19,8 @@ Formato basato su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) e [Se
 - Stampa/PDF tramite stylesheet dedicato.
 - Formattazione italiana, layout responsive, focus e label di base.
 - Test: 16 unitari/dati + 3 E2E.
-- CI GitHub Actions, configurazione Vercel, documentazione completa e 14 ADR.
+- CI GitHub Actions verde (`check` + `e2e`), configurazione Vercel, documentazione completa e 14 ADR.
+- Repo GitHub `doublelayerprints/layercost` (privata).
 
 ### Known limitations
 
@@ -27,4 +28,4 @@ Formato basato su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) e [Se
 - Nessuna sincronizzazione cloud.
 - Nessun import diretto da slicer o presa intelligente.
 - Nessun audit automatico di accessibilità.
-- Nessun deploy Vercel creato da questo ambiente.
+- Deploy Vercel permanente in attesa di autenticazione/import del progetto.

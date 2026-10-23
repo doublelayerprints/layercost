@@ -74,6 +74,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 | File                          | Contenuto                               |
 | ----------------------------- | --------------------------------------- |
+| `STATUS.md`                   | Stato attuale, test, deploy e limiti    |
 | `PLAN.md`                     | Visione, scope, architettura, roadmap   |
 | `TASKS.md`                    | Task e stato di avanzamento             |
 | `AGENTS.md`                   | Regole per il coding agent              |
@@ -90,9 +91,11 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 - **MVP funzionale:** fasi 0–3 del piano.
 - **Prossimo:** redesign UI con la skill di design (fase 4).
 - **Fuori v1:** sync cloud, magazzino bobine, import slicer, PWA, inglese.
-- **Nessun deploy Vercel** è stato creato da questo ambiente.
+- **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
+- **CI:** verde su GitHub (`check` + `e2e`).
+- **Deploy Vercel:** configurazione pronta; manca l’autenticazione/import del progetto.
 
-Il nome della directory locale è ancora `3dCosts`; il nome del prodotto e il repository suggerito sono **LayerCost** / `layercost`.
+La directory locale e il repository GitHub sono `layercost`; il nome del prodotto è **LayerCost**. Per lo stato aggiornato vedi `STATUS.md`.
 
 ## Licenza
 

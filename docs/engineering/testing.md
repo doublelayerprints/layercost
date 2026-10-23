@@ -59,6 +59,8 @@ Sono candidati per la fase 4 o per il backlog.
 - `npm run check`;
 - `npm run build` + Playwright con Chromium.
 
+Stato al 23/10/2026: **verde su GitHub** per i job `check` ed `e2e`.
+
 ## 7. Come aggiungere un test
 
 - Per una formula: aggiungi un caso in `cost.test.ts` e il golden case nel doc.

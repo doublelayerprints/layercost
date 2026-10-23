@@ -1,6 +1,7 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); design pending
+**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel pending; design pending
+**Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 23 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 

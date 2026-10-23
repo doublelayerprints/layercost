@@ -20,14 +20,15 @@ Lingua: UI e documentazione in italiano; codice, tipi, funzioni e commenti tecni
 Prima di toccare il codice:
 
 1. `README.md`
-2. `AGENTS.md` (questo file)
-3. `PLAN.md`
-4. `TASKS.md`
-5. `docs/domain/cost-model.md`
-6. `docs/domain/data-model.md`
-7. gli ADR rilevanti in `docs/adr/`
-8. `docs/engineering/architecture.md`, `persistence.md`, `testing.md`, `deployment.md`
-9. `docs/design/ui-brief.md` solo per task UI
+2. `STATUS.md`
+3. `AGENTS.md` (questo file)
+4. `PLAN.md`
+5. `TASKS.md`
+6. `docs/domain/cost-model.md`
+7. `docs/domain/data-model.md`
+8. gli ADR rilevanti in `docs/adr/`
+9. `docs/engineering/architecture.md`, `persistence.md`, `testing.md`, `deployment.md`
+10. `docs/design/ui-brief.md` solo per task UI
 
 Se due documenti si contraddicono, fermati e segnala: non scegliere a caso.
 

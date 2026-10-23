@@ -1,14 +1,14 @@
 # LayerCost — Piano di prodotto e tecnico
 
-**Stato:** MVP funzionale implementato (fasi 0–3); design da fare
+**Stato:** MVP funzionale implementato (fasi 0–3); CI verde su GitHub; deploy Vercel in attesa di autenticazione; design da fare
 **Data:** 23 ottobre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
 **Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione rimandata; preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel
 
 ## Stato implementazione
 
-- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI, documentazione e ADR.
-- **Da fare:** redesign UI con la skill di design, audit accessibilità automatico, deploy Vercel reale, eventuale sincronizzazione cloud.
+- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, documentazione e ADR.
+- **Da fare:** deploy Vercel permanente (login/import), redesign UI con la skill di design, audit accessibilità automatico, eventuale sincronizzazione cloud.
 - **Non fatto:** import diretto da slicer, magazzino bobine, PWA, inglese.
 
 ---
@@ -53,7 +53,7 @@ Il progetto deve essere:
 | ID    | Storia                                                                   | Criterio di accettazione                                          |
 | ----- | ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
 | US-01 | Configurare una stampante con prezzo, vita utile, potenza e manutenzione | Vedo il costo orario di usura e posso modificarlo in ogni momento |
-| US-02 | Configurare un materiale con prezzo al kg e peso netto                    | Vedo il prezzo al grammo e il costo del materiale in tempo reale  |
+| US-02 | Configurare un materiale con prezzo al kg e peso netto                   | Vedo il prezzo al grammo e il costo del materiale in tempo reale  |
 | US-03 | Aggiornare la tariffa elettrica                                          | I nuovi calcoli usano la nuova tariffa; i preventivi salvati no   |
 | US-04 | Calcolare una stampa con due materiali                                   | Vedo il costo per materiale, il tempo e il totale                 |
 | US-05 | Calcolare un lotto di 5 stampe                                           | Vedo costo per riga, costo unitario, costo pieno e totale         |
@@ -121,7 +121,7 @@ Il progetto deve essere:
 | ID    | Requisito                                                                                                                                                   |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | FR-01 | CRUD stampanti con prezzo di acquisto, valore residuo, vita utile, manutenzione €/h, potenza media per famiglia, minuti di avvio, multicolore, volume, note |
-| FR-02 | CRUD materiali con famiglia, prezzo al kg, peso netto informativo, fornitore, colore, note                                                                     |
+| FR-02 | CRUD materiali con famiglia, prezzo al kg, peso netto informativo, fornitore, colore, note                                                                  |
 | FR-03 | Tariffe energia con etichetta, prezzo €/kWh, data di decorrenza; selezione della tariffa corrente per data                                                  |
 | FR-04 | Tariffa globale con override opzionale per stampante                                                                                                        |
 | FR-05 | CRUD costi extra con importo e unità (`perUnit`, `perJob`)                                                                                                  |
@@ -322,7 +322,7 @@ La specifica completa è in `docs/domain/data-model.md`.
 | `Settings`     | tariffe energia, manodopera €/h, tasso guasti, maggiorazione tempo, modalità prezzo, ricarico/margine, arrotondamento, IVA, ripartizione, preferenze backup                      |
 | `EnergyTariff` | id, etichetta, prezzo µ€/kWh, `effectiveFrom`, note                                                                                                                              |
 | `Printer`      | id, nome, modello, prezzo, valore residuo, vita utile ore, manutenzione €/h, profili potenza per famiglia, minuti avvio, multicolore, volume, tariffa override, note, archiviata |
-| `Material`     | id, nome, famiglia, prezzo al kg, peso netto, fornitore, colore, tasso guasti override, note, archiviato                                                                        |
+| `Material`     | id, nome, famiglia, prezzo al kg, peso netto, fornitore, colore, tasso guasti override, note, archiviato                                                                         |
 | `Extra`        | id, nome, importo, unità (`perUnit`/`perJob`), categoria, archiviato                                                                                                             |
 | `PrintLine`    | id, nome, stampante, tempo slicer, materiali (materiale + grammi), quantità, finitura secondi/unità, extra, override, note                                                       |
 | `Quote`        | id, nome, data, cliente opzionale, stato, righe, costi di lavoro, impostazioni prezzo, snapshot, risultato, versione motore, timestamp                                           |
@@ -369,6 +369,7 @@ Il progetto adotta una documentazione "docs-as-code": ogni decisione, formula e 
 | File                               | Ruolo                                                 |
 | ---------------------------------- | ----------------------------------------------------- |
 | `README.md`                        | Cos'è, come si avvia, come si deploya                 |
+| `STATUS.md`                        | Stato attuale, verifiche, deploy, limiti              |
 | `AGENTS.md`                        | Regole operative per il coding agent                  |
 | `docs/README.md`                   | Struttura e regole della documentazione               |
 | `PLAN.md`                          | Visione, scope, architettura, roadmap, rischi         |

@@ -103,6 +103,7 @@ Vercel Hobby è pensato per uso personale. Se LayerCost diventa parte di un'atti
 - Repository locale: `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`.
 - Nome prodotto: **LayerCost**.
 - Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
+- CI GitHub: verde (`check` + `e2e`).
 - `vercel.json` pronto.
 - Vercel CLI non è autenticato in questo ambiente.
 - Un deploy temporaneo anonimo è stato creato, ma l'accesso è stato bloccato da Vercel; non è utilizzabile come deploy definitivo.

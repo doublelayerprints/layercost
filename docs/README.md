@@ -10,7 +10,9 @@
 - Fase 4 (design) non iniziata.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
 - Test: 16 unitari + 3 E2E.
-- Deploy: build statica pronta; nessun deploy Vercel creato da questo ambiente.
+- Repo GitHub: `doublelayerprints/layercost` (privata).
+- CI: verde su GitHub (`check` + `e2e`).
+- Deploy: build e `vercel.json` pronti; Vercel CLI non autenticato e progetto permanente da importare.
 
 ---
 
@@ -45,6 +47,7 @@
 ```text
 /
 ├── README.md
+├── STATUS.md
 ├── AGENTS.md
 ├── PLAN.md
 ├── TASKS.md
