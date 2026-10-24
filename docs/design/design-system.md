@@ -316,7 +316,7 @@ In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia"
 - Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
 - Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non è stato verificato in questa sessione (nessun binario WebKit locale): resta il residuo di T3.8.
-- Produzione Vercel: deploy `a0960d3` (T4.7) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN) e con preferenza scura persistita. Le preview deployment sono protette da SSO; la produzione è pubblica.
+- Produzione Vercel: deploy `759ed0f` (T4.5) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN); prezzo 3,70 € con il nuovo seed, conferma della bozza e alert di salvataggio verificati. Le preview deployment sono protette da SSO; la produzione è pubblica.
 - `font-not-dealt` è un redraw documentato (Geist → Archivo + Source Serif 4); il gate si esegue con `--allow font-not-dealt`.
 
 ### 7.3 Comandi
@@ -396,6 +396,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Archiviati e disabilitati.** Badge testuali e azioni di ripristino restano; le entità referenziate non si cancellano. I pulsanti disabilitati hanno il motivo nel contesto (dati incompleti, ultima tariffa).
 - **Loading e movimento.** Nessuna operazione asincrona oltre a import/export locali: nessuno spinner decorativo. Solo feedback; `prefers-reduced-motion` invariato.
 - **Verifiche.** 42 unitari/dati, 8 E2E, gate 0 FAIL/1 WARN, nessun overflow a 390 px. Nessun cambiamento a dominio, formule, `engineVersion`, snapshot o schema.
+- **Merge:** PR #3, squash `759ed0f`; deploy di produzione verificato il 24/10/2026 con prezzo 3,70 €, conferma della bozza e alert di salvataggio.
 
 ---
 

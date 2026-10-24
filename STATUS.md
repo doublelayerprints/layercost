@@ -71,8 +71,8 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 | Test unitari/dati | 42 superati                                   |
 | Test E2E          | 8 superati                                    |
 | Build produzione  | verde (~509 KB JS, ~147 KB gzip; ~58 KB font) |
-| CI GitHub `check` | verde su `main` (`a0960d3`)                   |
-| CI GitHub `e2e`   | verde su `main` (`a0960d3`)                   |
+| CI GitHub `check` | verde su `main` (`759ed0f`)                   |
+| CI GitHub `e2e`   | verde su `main` (`759ed0f`)                   |
 | Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN   |
 
 Comandi:
@@ -99,7 +99,7 @@ npm run test:e2e
 
 - **Live:** https://layercost.vercel.app
 - Progetto Vercel collegato alla repo GitHub.
-- Ultimo deploy verificato: commit `a0960d3` (T4.7, PR #2) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky). La produzione serve il tema scuro (token `#141413`, preferenza persistita, `<meta name="theme-color">` aggiornato) e la sezione Aspetto ha le tre radio. I commit successivi di sola documentazione ridistribuiscono lo stesso build.
+- Ultimo deploy verificato: commit `759ed0f` (T4.5, PR #3) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky). La produzione serve il prezzo aggiornato con il nuovo seed (3,70 €), la conferma prima di scartare la bozza e l’alert “Preventivo salvato”, che non si ripete al reload. I commit successivi di sola documentazione ridistribuiscono lo stesso build.
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
@@ -140,11 +140,11 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** T4.5 (stati e rifiniture) implementata e verificata. Prossimo task: **T4.6 — Review e release v1.0**.
+- **Stato:** `main` pulito e allineato a `origin/main` su `759ed0f`; T4.5 è in produzione. Prossimo task: **T4.6 — Review e release v1.0**.
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.6), `docs/design/design-system.md` §8.3–8.5, `docs/design/ui-brief.md` §5.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
 - **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.
-- **Branch remoti:** `feat/t4.4-screens` e `feat/t4.7-dark-mode` sono stati eliminati dopo il merge; su `origin` resta solo `main`.
+- **Branch remoti:** `feat/t4.4-screens`, `feat/t4.7-dark-mode` e `feat/t4.5-states` sono stati eliminati dopo il merge; su `origin` resta solo `main`.
 - **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. La preferenza del tema resta fuori da `AppData`.
 
 ---
