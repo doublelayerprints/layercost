@@ -312,7 +312,7 @@ In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia"
 - Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
 - Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non è stato verificato in questa sessione (nessun binario WebKit locale): resta il residuo di T3.8.
-- Produzione Vercel: deploy `42e60b7` (T4.4) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN). Le preview deployment sono protette da SSO; la produzione è pubblica.
+- Produzione Vercel: deploy `a0960d3` (T4.7) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN) e con preferenza scura persistita. Le preview deployment sono protette da SSO; la produzione è pubblica.
 - `font-not-dealt` è un redraw documentato (Geist → Archivo + Source Serif 4); il gate si esegue con `--allow font-not-dealt`.
 
 ### 7.3 Comandi
@@ -382,6 +382,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - Applicazione prima del primo render e fallback CSS per il sistema scuro; `ThemeController` segue `prefers-color-scheme`; `<meta name="theme-color">` si aggiorna dal token.
 - Stampa sempre chiara: in `@media print` i token tornano a nero su bianco, anche partendo dal tema scuro.
 - Verifiche: 36 unitari/dati, 6 E2E, gate visivo scuro 0 FAIL/1 WARN, contrasti AA, PDF A4 scuro verificato. Nessun cambiamento a formule, `engineVersion`, snapshot o schema (v1).
+- **Merge:** PR #2, squash `a0960d3`; deploy di produzione verificato il 24/10/2026 con tema scuro persistito e gate 0 FAIL/1 WARN.
 
 ---
 

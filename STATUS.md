@@ -70,8 +70,8 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 | Test unitari/dati | 36 superati                                   |
 | Test E2E          | 6 superati                                    |
 | Build produzione  | verde (~505 KB JS, ~146 KB gzip; ~58 KB font) |
-| CI GitHub `check` | verde su `main` (`42e60b7`)                   |
-| CI GitHub `e2e`   | verde su `main` (`42e60b7`)                   |
+| CI GitHub `check` | verde su `main` (`a0960d3`)                   |
+| CI GitHub `e2e`   | verde su `main` (`a0960d3`)                   |
 | Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN   |
 
 Comandi:
@@ -98,7 +98,7 @@ npm run test:e2e
 
 - **Live:** https://layercost.vercel.app
 - Progetto Vercel collegato alla repo GitHub.
-- Ultimo deploy verificato con il redesign: commit `42e60b7` (T4.4, PR #1) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky); la homepage serve il redesign Strato. I commit successivi di sola documentazione ridistribuiscono lo stesso build.
+- Ultimo deploy verificato: commit `a0960d3` (T4.7, PR #2) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky). La produzione serve il tema scuro (token `#141413`, preferenza persistita, `<meta name="theme-color">` aggiornato) e la sezione Aspetto ha le tre radio. I commit successivi di sola documentazione ridistribuiscono lo stesso build.
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
@@ -139,7 +139,7 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** dark mode (T4.7) implementata e verificata; prossimo task: **T4.5 — Stati e rifiniture**.
+- **Stato:** `main` pulito e allineato a `origin/main` su `a0960d3`; T4.7 è in produzione. Prossimo task: **T4.5 — Stati e rifiniture**.
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.5 e T4.7), `docs/design/design-system.md` §8.3–8.4, `docs/design/ui-brief.md` §5.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
 - **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.

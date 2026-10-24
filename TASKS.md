@@ -745,7 +745,7 @@ Un task è chiuso solo se:
 **Dipende da:** T4.4
 **Stato:** `[x]`
 
-**Nota:** anticipata rispetto alla v1 su richiesta del committente (ADR-0016, che supera il punto 6 di ADR-0015). Preferenza **Sistema / Chiaro / Scuro** in Impostazioni → Aspetto, salvata in `layercost:theme` fuori da `AppData`; palette grafite calda con token dedicati, scrim nero, stampa sempre chiara. Applicazione prima del primo render, sincronizzazione con `prefers-color-scheme` e `meta theme-color`. Nessun cambio a formule, `engineVersion`, snapshot o schema (resta v1). Test: 7 unitari, 1 E2E; gate visivo in tema scuro 0 FAIL, 1 WARN (`ragged-row`); contrasti AA verificati.
+**Nota:** anticipata rispetto alla v1 su richiesta del committente (ADR-0016, che supera il punto 6 di ADR-0015). Preferenza **Sistema / Chiaro / Scuro** in Impostazioni → Aspetto, salvata in `layercost:theme` fuori da `AppData`; palette grafite calda con token dedicati, scrim nero, stampa sempre chiara. Applicazione prima del primo render, sincronizzazione con `prefers-color-scheme` e `meta theme-color`. Nessun cambio a formule, `engineVersion`, snapshot o schema (resta v1). Test: 7 unitari, 1 E2E; gate visivo in tema scuro 0 FAIL, 1 WARN (`ragged-row`); contrasti AA verificati. **Merge:** PR #2, squash `a0960d3`; deploy di produzione verificato il 24/10/2026 con tema scuro persistito.
 
 - Tema di sistema, chiaro e scuro.
 - Persistenza della preferenza separata dai dati.

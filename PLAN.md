@@ -7,7 +7,7 @@
 
 ## Stato implementazione
 
-- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016.
+- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato).
 - **Da fare:** stati e rifiniture (T4.5), review e release v1.0 (T4.6), audit accessibilità automatico, eventuale sincronizzazione cloud.
 - **Non fatto:** import diretto da slicer, magazzino bobine, PWA, inglese.
 
