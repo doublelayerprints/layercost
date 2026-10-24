@@ -28,14 +28,9 @@ async function screenshot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready)
   await page.mouse.move(0, 0)
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
-  // Native date inputs follow the OS locale; mask them so baselines are locale-independent.
-  const dateInputs = page.locator('input[type="date"]')
-  const mask = (await dateInputs.count()) > 0 ? [dateInputs] : []
-  await expect(page).toHaveScreenshot(name, {
-    animations: 'disabled',
-    mask,
-    maskColor: '#f4f3f1',
-  })
+  // Native date inputs follow the OS locale; hide their text so baselines stay locale-independent.
+  await page.addStyleTag({ content: 'input[type="date"] { color: transparent !important; }' })
+  await expect(page).toHaveScreenshot(name, { animations: 'disabled' })
 }
 
 for (const viewport of viewports) {
