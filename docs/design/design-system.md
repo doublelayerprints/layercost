@@ -384,7 +384,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - Palette grafite calda con token dedicati, scrim nero al 70%, pill scure, ombra del dialogo più profonda. Gli stessi componenti funzionano nei due temi senza varianti `dark:` sparse.
 - Applicazione prima del primo render e fallback CSS per il sistema scuro; `ThemeController` segue `prefers-color-scheme`; `<meta name="theme-color">` si aggiorna dal token.
 - Stampa sempre chiara: in `@media print` i token tornano a nero su bianco, anche partendo dal tema scuro.
-- Verifiche: 36 unitari/dati, 6 E2E, gate visivo scuro 0 FAIL/1 WARN, contrasti AA, PDF A4 scuro verificato. Nessun cambiamento a formule, `engineVersion`, snapshot o schema (v1).
+- Verifiche: 36 unitari/dati e 6 E2E al momento di T4.7 (oggi 42/8), gate visivo scuro 0 FAIL/1 WARN, contrasti AA, PDF A4 scuro verificato. Nessun cambiamento a formule, `engineVersion`, snapshot o schema (v1).
 - **Merge:** PR #2, squash `a0960d3`; deploy di produzione verificato il 24/10/2026 con tema scuro persistito e gate 0 FAIL/1 WARN.
 
 ### 8.5 Stati e rifiniture — esito (T4.5)

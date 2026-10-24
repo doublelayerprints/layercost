@@ -58,6 +58,7 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 - Anycubic Kobra X (260 × 260 × 260 mm, ACE 2 Pro).
 - Materiali PLA, PETG, TPU, ABS, ASA, PLA-CF, PETG-CF, PVA.
 - Tariffa energia €0,20/kWh, manutenzione €0,01/h, guasti 5%, ricarico 30%, arrotondamento €0,10, IVA disattivata.
+- Vita utile 15.000 h (Kobra 3) e 20.000 h (Kobra X), valore residuo 20%, avvio 5 min.
 - Valori marcati come stime dove non verificati.
 
 ---
@@ -71,8 +72,8 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 | Test unitari/dati | 42 superati                                   |
 | Test E2E          | 8 superati                                    |
 | Build produzione  | verde (~509 KB JS, ~147 KB gzip; ~58 KB font) |
-| CI GitHub `check` | verde su `main` (`759ed0f`)                   |
-| CI GitHub `e2e`   | verde su `main` (`759ed0f`)                   |
+| CI GitHub `check` | verde su `main`                               |
+| CI GitHub `e2e`   | verde su `main`                               |
 | Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN   |
 
 Comandi:
@@ -140,7 +141,7 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** `main` pulito e allineato a `origin/main` su `759ed0f`; T4.5 è in produzione. Prossimo task: **T4.6 — Review e release v1.0**.
+- **Stato:** `main` pulito e allineato a `origin/main`; T4.5 è in produzione. Prossimo task: **T4.6 — Review e release v1.0**.
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.6), `docs/design/design-system.md` §8.3–8.5, `docs/design/ui-brief.md` §5.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
 - **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.

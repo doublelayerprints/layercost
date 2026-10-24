@@ -105,7 +105,7 @@ Vercel Hobby è pensato per uso personale. Se LayerCost diventa parte di un'atti
 - Repository locale: `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`.
 - Nome prodotto: **LayerCost**.
 - Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
-- CI GitHub: verde (`check` + `e2e`) su `main` (`759ed0f`).
+- CI GitHub: verde (`check` + `e2e`) su `main`.
 - Deploy Vercel: **live su https://layercost.vercel.app**.
 - Ultimo deploy di produzione verificato: `759ed0f` (T4.5, PR #3) del 24/10/2026; gate visivo sulla homepage pubblica 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, conferma della bozza e alert di salvataggio verificati con Playwright.
 - Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.

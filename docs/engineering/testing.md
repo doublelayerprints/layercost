@@ -58,7 +58,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
-Sono candidati per T4.5/T4.6 o per il backlog.
+Sono candidati per T4.6 o per il backlog.
 
 ## 6. CI
 
