@@ -19,6 +19,7 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Salva preventivi con snapshot dei prezzi usati; “Aggiorna prezzi” crea una copia.
 - Confronta Kobra 3 e Kobra X sullo stesso lavoro.
 - Esporta/importa JSON, condivide un preventivo via link, stampa il PDF dal browser.
+- Tema chiaro, scuro o di sistema, con stampa sempre in nero su bianco.
 - Funziona interamente nel browser: nessun backend, nessun account, nessun analytics.
 
 ## Stack
@@ -49,7 +50,7 @@ npm run check        # typecheck + lint + test + build
 
 ## Dati e backup
 
-I dati vivono in `localStorage` (`layercost:data`). Svuotare i dati del browser cancella anche i preventivi.
+I dati vivono in `localStorage` (`layercost:data`). Svuotare i dati del browser cancella anche i preventivi. La preferenza del tema è separata (`layercost:theme`) e non entra nei backup.
 
 - **Esporta backup** da Impostazioni: file `layercost-backup-YYYY-MM-DD.json`.
 - **Importa backup** sostituisce i dati, ma prima scarica automaticamente una copia di quelli correnti.

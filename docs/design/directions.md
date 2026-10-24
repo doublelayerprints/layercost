@@ -57,7 +57,7 @@ Restano nell'ADR come alternative considerate, non come direzioni da sviluppare.
 - Snapshot, immutabilità dei preventivi, export/import, migrazioni.
 - Hash routing e build statica.
 - Nessun backend, account, analytics o cookie.
-- Nessuna dark mode in v1; nessuna animazione oltre il feedback.
+- Dark mode aggiunta in T4.7 con ADR-0016; nessuna animazione oltre il feedback.
 - Nessuna libreria di componenti o di grafici.
 - I font sono self-hosted: niente CDN di Google Fonts.
 
@@ -580,7 +580,7 @@ La decisione è registrata in `docs/adr/0015-direzione-visiva.md`. `TASKS.md` ch
 
 ### 8.3 Cosa non entra in T4.3/T4.4 senza un nuovo task
 
-- Dark mode, animazioni d'ingresso, grafici di trend.
+- Animazioni d'ingresso, grafici di trend. La dark mode è stata aggiunta in T4.7 (ADR-0016).
 - Nuove entità, campi, formule, migrazioni.
 - Librerie UI o di grafici.
 - Cambi al flusso di import/export o al routing.

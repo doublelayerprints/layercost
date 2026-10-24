@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.4 chiusi e in produzione
+**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.4 e T4.7 chiusi e in produzione
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 24 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3 e T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate), mergiati in `main` con la PR #1 e distribuiti in produzione. Restano T4.5 e T4.6. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
+**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3 e T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate), mergiati in `main` con la PR #1 e distribuiti in produzione. T4.7 (dark mode, ADR-0016) è chiuso. Restano T4.5 e T4.6. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
 
 ---
 
@@ -694,7 +694,7 @@ Un task è chiuso solo se:
 - Calcolatore, risultati, preventivi, anagrafiche, impostazioni, confronto, share.
 - Dettagli in `docs/design/design-system.md` §8; wireframe in `docs/design/directions.md` §3.4 e §4.4.
 - Calcolatore 7/12 + 5/12 con risultato sticky a ≥ 1024 px; stack e `Price` nel dettaglio e in stampa; tabelle mobile; una sola azione primaria per schermata.
-- Responsive; dark mode fuori scope v1 (ADR-0015).
+- Responsive; dark mode aggiunta in T4.7 (ADR-0016).
 - Eseguire il gate visivo `inspect.mjs --app` a 1440/768/390 e la critique.
 
 **Nota:** applicata la direzione A a tutte le schermate; confronto rapido nel pannello risultato; stampa A4 rifinita. Corretto un difetto di visualizzazione dello stack con quantità > 1 (bande × quantità, importi in centesimi allocati) e l’arrotondamento dei centesimi in `formatCurrency`: nessun cambio a formule, `engineVersion`, snapshot o persistenza. Gate: `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`ragged-row` sulla rail sticky); nessun overflow a 390 px; dialogo con Esc e focus restituito; PDF A4 verificato su Chrome. Critique in `docs/design/design-system.md` §8.2 (round 1 → 2, 8,2). Safari e axe restano in T3.8/T3.11. **Merge:** PR #1, squash `42e60b7`; deploy di produzione verificato il 24/10/2026 con lo stesso gate (0 FAIL, 1 WARN).
@@ -709,6 +709,7 @@ Un task è chiuso solo se:
 **Stato:** `[ ]`
 
 **Nota di partenza (dopo T4.4):**
+
 - Vuoti: presenti su preventivi, materiali, stampanti, extra, tariffe, calcolatore e pagine di errore; verificare che ogni vuoto abbia la prossima azione.
 - Errori: calcolo, salvataggio, import, link non valido e reset sono coperti da `Alert`; manca una revisione dei messaggi meno frequenti.
 - Successo: import e reset hanno un messaggio; il salvataggio naviga al dettaglio. Valutare un riscontro più esplicito.
@@ -736,6 +737,22 @@ Un task è chiuso solo se:
 - Tag `v1.0.0` e deploy.
 
 **Accettazione:** checklist completa; deploy Vercel; CHANGELOG aggiornato.
+
+---
+
+## T4.7 — Dark mode
+
+**Dipende da:** T4.4
+**Stato:** `[x]`
+
+**Nota:** anticipata rispetto alla v1 su richiesta del committente (ADR-0016, che supera il punto 6 di ADR-0015). Preferenza **Sistema / Chiaro / Scuro** in Impostazioni → Aspetto, salvata in `layercost:theme` fuori da `AppData`; palette grafite calda con token dedicati, scrim nero, stampa sempre chiara. Applicazione prima del primo render, sincronizzazione con `prefers-color-scheme` e `meta theme-color`. Nessun cambio a formule, `engineVersion`, snapshot o schema (resta v1). Test: 7 unitari, 1 E2E; gate visivo in tema scuro 0 FAIL, 1 WARN (`ragged-row`); contrasti AA verificati.
+
+- Tema di sistema, chiaro e scuro.
+- Persistenza della preferenza separata dai dati.
+- Stampa sempre chiara.
+- Contrasti e focus verificati in entrambi i temi.
+
+**Accettazione:** la scelta persiste al reload; “Sistema” segue il dispositivo; nessun lampo di tema; stampa leggibile; nessuna regressione.
 
 ---
 

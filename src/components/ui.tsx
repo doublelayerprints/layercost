@@ -351,7 +351,7 @@ export function Modal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-3 sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-3 sm:items-center">
       <div
         ref={dialogRef}
         role="dialog"

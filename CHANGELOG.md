@@ -7,13 +7,15 @@
 - Direzione visiva **A — Strato** (ADR-0015) e specifiche in `docs/design/directions.md`.
 - Design system Strato: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
 - Redesign T4.4 delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only e stampa A4.
-- Test design: 29 unitari, 5 E2E, inspector 0 FAIL/1 WARN motivato.
+- Dark mode T4.7 (ADR-0016): preferenza Sistema/Chiaro/Scuro in Impostazioni → Aspetto, palette grafite calda con token dedicati, stampa sempre chiara; la preferenza vive in `layercost:theme` e non entra in snapshot o backup.
+- Test: 36 unitari, 6 E2E, inspector 0 FAIL/1 WARN motivato.
 
 ### Changed
 
 - Tariffa energia di default: **€0,20/kWh** (era €0,25/kWh).
 - Manutenzione di default: **€0,01/h** per Kobra 3 e Kobra X (era €0,03/h).
 - Stampa A4 ridisegnata: intestazione, meta, righe, composizione in grigi, totali, note e footer.
+- Tema scuro: la stampa riporta sempre i token ai valori chiari, anche se lo schermo è scuro.
 
 ### Fixed
 

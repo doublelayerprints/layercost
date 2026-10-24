@@ -18,7 +18,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 - configurazione, persistenza locale, export/import;
 - UI funzionale, storico, condivisione, stampa/PDF e confronto.
 
-La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system) e T4.4 (redesign delle schermate) sono chiusi, mergiati in `main` con la PR #1 (squash `42e60b7`) e distribuiti in produzione. Restano T4.5 (stati e rifiniture) e T4.6 (review e release v1.0).
+La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system), T4.4 (redesign delle schermate) e T4.7 (dark mode, ADR-0016) sono chiusi, mergiati in `main` e distribuiti in produzione. Restano T4.5 (stati e rifiniture) e T4.6 (review e release v1.0).
 
 ---
 
@@ -48,6 +48,7 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 - Layout responsive, label, focus e unità.
 - Design system **Strato**: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
 - Redesign delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra le due stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only, stampa A4.
+- Tema chiaro, scuro o di sistema (ADR-0016), con preferenza salvata sul dispositivo e stampa sempre chiara.
 - Stampa: intestazione, meta, righe, composizione in grigi, totali e note; PDF A4 verificato su Chrome.
 
 ### Seed
@@ -66,9 +67,9 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 | ----------------- | --------------------------------------------- |
 | TypeScript strict | verde                                         |
 | oxlint            | verde                                         |
-| Test unitari/dati | 29 superati                                   |
-| Test E2E          | 5 superati                                    |
-| Build produzione  | verde (~502 KB JS, ~145 KB gzip; ~58 KB font) |
+| Test unitari/dati | 36 superati                                   |
+| Test E2E          | 6 superati                                    |
+| Build produzione  | verde (~505 KB JS, ~146 KB gzip; ~58 KB font) |
 | CI GitHub `check` | verde su `main` (`42e60b7`)                   |
 | CI GitHub `e2e`   | verde su `main` (`42e60b7`)                   |
 | Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN   |
@@ -85,6 +86,7 @@ npm run test:e2e
 ## 4. Dati e privacy
 
 - Dati in `localStorage`, chiave `layercost:data`.
+- Preferenza del tema in `layercost:theme`, separata dai dati e non inclusa nei backup.
 - Nessun backend, account o analytics.
 - Export/import JSON; backup automatico prima dell'import.
 - Link condivisi = copia compressa del preventivo nell'URL.
@@ -137,12 +139,12 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** `main` pulito e allineato a `origin/main`; T4.4 è in produzione. Prossimo task: **T4.5 — Stati e rifiniture**.
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.5), `docs/design/design-system.md` §8.3, `docs/design/ui-brief.md` §5.
+- **Stato:** dark mode (T4.7) implementata e verificata; prossimo task: **T4.5 — Stati e rifiniture**.
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.5 e T4.7), `docs/design/design-system.md` §8.3–8.4, `docs/design/ui-brief.md` §5.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
 - **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoto:** `feat/t4.4-screens` è ancora su `origin` dopo il merge e può essere eliminato con `git push origin --delete feat/t4.4-screens`.
-- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati.
+- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. La preferenza del tema resta fuori da `AppData`.
 
 ---
 

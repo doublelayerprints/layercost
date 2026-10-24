@@ -1,8 +1,8 @@
 # Design system — Strato
 
-**Stato:** T4.3 e T4.4 implementati; T4.5 da fare
+**Stato:** T4.3, T4.4 e T4.7 implementati; T4.5 da fare
 **Data:** 24 ottobre 2026
-**Direzione:** A — Strato (`achromatic-ledger`), ADR-0015
+**Direzione:** A — Strato (`achromatic-ledger`), ADR-0015 · tema scuro ADR-0016
 **Ambito:** token, tipografia, componenti, accessibilità e stampa. La composizione delle schermate è stata applicata in T4.4.
 
 ---
@@ -14,7 +14,7 @@
 3. **Un solo blu di dato.** Il chrome è ink e grigio; `--color-data` segna la banda più grande dello stack e il focus.
 4. **Una scala tipografica di cinque passi.** 34 / 24 / 16 / 14 / 12 px. Source Serif 4 solo per il denaro e il documento.
 5. **Focus immediato.** Anello 2 px `--color-data`, offset 2 px, nessuna transizione sull'outline.
-6. **Base chiara, movimento minimo.** Solo feedback; nessuna animazione d'ingresso; `prefers-reduced-motion` rispettato.
+6. **Due temi, movimento minimo.** Tema chiaro e scuro (ADR-0016), con preferenza Sistema/Chiaro/Scuro; la stampa resta sempre chiara. Solo feedback; nessuna animazione d'ingresso; `prefers-reduced-motion` rispettato.
 7. **La stampa è un output di prima classe.** A4, niente chrome, testi e bordi leggibili in bianco e nero.
 8. **Semantica e accessibilità.** HTML semantico, label associate, errori con `aria-describedby`, target 44 px su touch.
 
@@ -24,31 +24,67 @@
 
 ### 2.1 Colore
 
-| Token                      | Valore    | Utility principali           | Uso                                                    |
-| -------------------------- | --------- | ---------------------------- | ------------------------------------------------------ |
-| `--color-ground`           | `#f4f3f1` | `bg-ground`                  | sfondo pagina, pietra calda a bassa croma              |
-| `--color-surface`          | `#ffffff` | `bg-surface`                 | card, campi, pannello risultato                        |
-| `--color-raised`           | `#efeeeb` | `bg-raised`                  | superfici secondarie, hover, voce attiva               |
-| `--color-line`             | `#e3e1dc` | `border-line`, `divide-line` | bordi non interattivi, separatori                      |
-| `--color-rule`             | `#eeede9` | `border-rule`                | righe di tabella                                       |
-| `--color-control`          | `#8a8a8a` | `border-control`             | bordo dei campi interattivi (3,45:1 su bianco)         |
-| `--color-ink`              | `#0a0a0a` | `text-ink`, `bg-ink`         | testo, numeri, azione primaria                         |
-| `--color-muted`            | `#6b6b6b` | `text-muted`                 | etichette, unità, testo secondario                     |
-| `--color-data`             | `#1d5fbf` | `text-data`, `bg-data`       | banda più grande dello stack, focus, stato informativo |
-| `--color-selection`        | `#c7d8f1` | `::selection`                | selezione del testo                                    |
-| `--color-positive`         | `#2e7d32` | `text-positive`              | successo, delta favorevole                             |
-| `--color-negative`         | `#c4242a` | `text-negative`              | errore, delta sfavorevole, azione distruttiva          |
-| `--color-warning`          | `#92400e` | `text-warning`               | stime, avvisi                                          |
-| `--color-pill-neutral-bg`  | `#eeeeee` | `bg-pill-neutral-bg`         | badge neutro                                           |
-| `--color-pill-neutral-ink` | `#3d3d3d` | `text-pill-neutral-ink`      | testo badge neutro                                     |
-| `--color-pill-success-bg`  | `#dcfae5` | `bg-pill-success-bg`         | badge di successo                                      |
-| `--color-pill-success-ink` | `#04250e` | `text-pill-success-ink`      | testo badge di successo                                |
-| `--color-pill-info-bg`     | `#e8f0fb` | `bg-pill-info-bg`            | badge informativo                                      |
-| `--color-pill-info-ink`    | `#1d5fbf` | `text-pill-info-ink`         | testo badge informativo                                |
-| `--color-pill-warning-bg`  | `#fffbeb` | `bg-pill-warning-bg`         | badge di avviso                                        |
-| `--color-pill-warning-ink` | `#92400e` | `text-pill-warning-ink`      | testo badge di avviso                                  |
-| `--color-pill-danger-bg`   | `#ffedea` | `bg-pill-danger-bg`          | badge di errore                                        |
-| `--color-pill-danger-ink`  | `#831c1e` | `text-pill-danger-ink`       | testo badge di errore                                  |
+| Token                      | Valore                | Utility principali           | Uso                                                    |
+| -------------------------- | --------------------- | ---------------------------- | ------------------------------------------------------ |
+| `--color-ground`           | `#f4f3f1`             | `bg-ground`                  | sfondo pagina, pietra calda a bassa croma              |
+| `--color-surface`          | `#ffffff`             | `bg-surface`                 | card, campi, pannello risultato                        |
+| `--color-raised`           | `#efeeeb`             | `bg-raised`                  | superfici secondarie, hover, voce attiva               |
+| `--color-line`             | `#e3e1dc`             | `border-line`, `divide-line` | bordi non interattivi, separatori                      |
+| `--color-rule`             | `#eeede9`             | `border-rule`                | righe di tabella                                       |
+| `--color-control`          | `#8a8a8a`             | `border-control`             | bordo dei campi interattivi (3,45:1 su bianco)         |
+| `--color-ink`              | `#0a0a0a`             | `text-ink`, `bg-ink`         | testo, numeri, azione primaria                         |
+| `--color-muted`            | `#6b6b6b`             | `text-muted`                 | etichette, unità, testo secondario                     |
+| `--color-data`             | `#1d5fbf`             | `text-data`, `bg-data`       | banda più grande dello stack, focus, stato informativo |
+| `--color-selection`        | `#c7d8f1`             | `::selection`                | selezione del testo                                    |
+| `--color-positive`         | `#2e7d32`             | `text-positive`              | successo, delta favorevole                             |
+| `--color-negative`         | `#c4242a`             | `text-negative`              | errore, delta sfavorevole, azione distruttiva          |
+| `--color-warning`          | `#92400e`             | `text-warning`               | stime, avvisi                                          |
+| `--color-scrim`            | `rgb(10 10 10 / 0.4)` | `bg-scrim`                   | velo del dialogo                                       |
+| `--color-pill-neutral-bg`  | `#eeeeee`             | `bg-pill-neutral-bg`         | badge neutro                                           |
+| `--color-pill-neutral-ink` | `#3d3d3d`             | `text-pill-neutral-ink`      | testo badge neutro                                     |
+| `--color-pill-success-bg`  | `#dcfae5`             | `bg-pill-success-bg`         | badge di successo                                      |
+| `--color-pill-success-ink` | `#04250e`             | `text-pill-success-ink`      | testo badge di successo                                |
+| `--color-pill-info-bg`     | `#e8f0fb`             | `bg-pill-info-bg`            | badge informativo                                      |
+| `--color-pill-info-ink`    | `#1d5fbf`             | `text-pill-info-ink`         | testo badge informativo                                |
+| `--color-pill-warning-bg`  | `#fffbeb`             | `bg-pill-warning-bg`         | badge di avviso                                        |
+| `--color-pill-warning-ink` | `#92400e`             | `text-pill-warning-ink`      | testo badge di avviso                                  |
+| `--color-pill-danger-bg`   | `#ffedea`             | `bg-pill-danger-bg`          | badge di errore                                        |
+| `--color-pill-danger-ink`  | `#831c1e`             | `text-pill-danger-ink`       | testo badge di errore                                  |
+
+### 2.1.1 Tema scuro
+
+Il tema scuro è un **grafite caldo**, non nero puro: conserva la famiglia cromatica della pietra. Si attiva con `data-theme="dark"` sull'elemento `html`; `color-scheme` passa a `dark` per i controlli nativi.
+
+| Token                      | Valore scuro       | Note                                     |
+| -------------------------- | ------------------ | ---------------------------------------- |
+| `--color-ground`           | `#141413`          | canvas, sidebar, sfondo pagina           |
+| `--color-surface`          | `#1c1c1a`          | card, campi, pannello risultato          |
+| `--color-raised`           | `#262624`          | hover, voce attiva, superfici secondarie |
+| `--color-line`             | `#3a3a35`          | bordi non interattivi                    |
+| `--color-rule`             | `#2b2b28`          | righe di tabella                         |
+| `--color-control`          | `#75756f`          | bordo dei campi (3,68:1 su surface)      |
+| `--color-ink`              | `#f3f2ef`          | testo, numeri, azione primaria invertita |
+| `--color-muted`            | `#a8a7a0`          | etichette e testo secondario             |
+| `--color-data`             | `#4f8fe0`          | dato, focus, link (5,15:1 su surface)    |
+| `--color-selection`        | `#2c4a75`          | selezione del testo                      |
+| `--color-positive`         | `#74c98a`          | successo e delta favorevoli              |
+| `--color-negative`         | `#ef8a85`          | errore e azioni distruttive              |
+| `--color-warning`          | `#e5b06a`          | stime e avvisi                           |
+| `--color-scrim`            | `rgb(0 0 0 / 0.7)` | velo del dialogo                         |
+| `--color-pill-neutral-bg`  | `#2c2c29`          | badge neutro                             |
+| `--color-pill-neutral-ink` | `#dedcd6`          | testo badge neutro                       |
+| `--color-pill-success-bg`  | `#17301d`          | badge di successo                        |
+| `--color-pill-success-ink` | `#a3dfae`          | testo badge di successo                  |
+| `--color-pill-info-bg`     | `#182a42`          | badge informativo                        |
+| `--color-pill-info-ink`    | `#a9c9f2`          | testo badge informativo                  |
+| `--color-pill-warning-bg`  | `#33260f`          | badge di avviso                          |
+| `--color-pill-warning-ink` | `#f2c98a`          | testo badge di avviso                    |
+| `--color-pill-danger-bg`   | `#351a1a`          | badge di errore                          |
+| `--color-pill-danger-ink`  | `#f4aaa7`          | testo badge di errore                    |
+
+- `--shadow-overlay` passa a `0 24px 64px rgb(0 0 0 / 0.6)`.
+- Il fondo del canvas è dipinto già prima del bundle per chi ha il sistema scuro (`@media (prefers-color-scheme: dark)` su `html`), così non c'è un lampo bianco.
+- `main.tsx` risolve la preferenza prima del primo render; `ThemeController` segue i cambi di `prefers-color-scheme` e aggiorna `<meta name="theme-color">` leggendo `--color-ground`.
 
 ### 2.2 Tipografia
 
@@ -89,7 +125,7 @@
 ### 2.5 Eccezioni ammesse
 
 - `src/index.css`: definizione dei token e i colori `#fff`/`#000` della stampa.
-- `public/favicon.svg` e `<meta name="theme-color">`: colori statici dell'asset, fuori dai componenti.
+- `public/favicon.svg`: colore statico dell'asset, fuori dai componenti. `<meta name="theme-color">` parte da un valore statico in `index.html` e viene aggiornato leggendo `--color-ground`.
 - `QuotePrint`: dimensioni in `pt` e lockup del wordmark.
 - Nessun'altra eccezione: i componenti e le schermate usano solo token.
 
@@ -167,6 +203,10 @@ Marchio a tre strati sfalsati, 28 × 28, `currentColor`; wordmark Archivo 600 co
 
 Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la spiegazione. Non introdurre tooltip custom.
 
+### 3.15 Selettore del tema
+
+In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia") e tre radio native — Sistema, Chiaro, Scuro — dentro etichette-card. La radio è visibile e usa `accent-data`; la card selezionata ha bordo `--color-data` e fondo `--color-raised`. Il focus è quello nativo del controllo, quindi resta visibile anche senza classi aggiuntive. Non usare un toggle a due stati: la terza opzione "Sistema" è necessaria.
+
 ---
 
 ## 4. Accessibilità
@@ -191,6 +231,27 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 | badge info (ink su bg)                   | 5,31:1   | AA     |
 | badge neutral (ink su bg)                | 9,36:1   | AA/AAA |
 
+**Tema scuro (ADR-0016).**
+
+| Coppia                                   | Rapporto | Esito  |
+| ---------------------------------------- | -------- | ------ |
+| ink su ground                            | 16,47:1  | AA/AAA |
+| ink su surface                           | 15,25:1  | AA/AAA |
+| muted su ground                          | 7,64:1   | AA/AAA |
+| muted su surface                         | 7,07:1   | AA/AAA |
+| data su surface                          | 5,15:1   | AA     |
+| data su ground                           | 5,56:1   | AA     |
+| positive su surface                      | 8,50:1   | AA/AAA |
+| negative su surface                      | 7,03:1   | AA/AAA |
+| warning su surface                       | 8,74:1   | AA/AAA |
+| bordo campo `--color-control` su surface | 3,68:1   | 1.4.11 |
+| badge success (ink su bg)                | 9,29:1   | AA/AAA |
+| badge danger (ink su bg)                 | 8,49:1   | AA/AAA |
+| badge warning (ink su bg)                | 9,47:1   | AA/AAA |
+| badge info (ink su bg)                   | 8,51:1   | AA/AAA |
+| badge neutral (ink su bg)                | 10,21:1  | AA/AAA |
+| ink su selection                         | 8,00:1   | AA/AAA |
+
 - `--color-border` e `--color-rule` sono separatori non informativi: non devono raggiungere 3:1.
 - Il bordo dei campi è stato corretto rispetto al sheet (`#d4d4d4` → `#8a8a8a`) per WCAG 1.4.11.
 - Il focus ring è `--color-data` con offset 2 px; su ink/surface il contrasto è ≥ 5,5:1.
@@ -204,6 +265,7 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 - Zero e valori mancanti sono onesti: `0` e `—`, non celle vuote.
 - Le tabelle larghe scorrono dentro `Table`, non fanno scorrere la pagina.
 - Il colore non è mai l'unica informazione: stati con testo, stack con legenda, delta con segno.
+- Il tema scuro non è un filtro: usa token propri, mantiene i contrasti e non dipende dal colore per comunicare lo stato. La scelta del tema è esplicita e non cambia mai i dati.
 
 ---
 
@@ -212,6 +274,7 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 - A4, margini 14 mm, corpo 11 pt, piccolo 9 pt, totale 18 pt. Il layout stampa è in `QuotePrint`; il wrapper di `Layout` ha `print:pl-0` per togliere il rientro della sidebar.
 - Niente sidebar, header, pulsanti, ombre o sfondi colorati. Font Archivo per il testo; Source Serif 4 per il totale/titolo del documento dove previsto.
 - I colori diventano neri/grigi: lo stack usa toni di grigio + legenda con importi; nessuna informazione affidata al colore.
+- La stampa è sempre chiara, anche con tema scuro: `@media print` riporta i token ai valori chiari (`ink` nero, `muted` `#525252`, `surface` bianco, `data` nero) prima di stampare.
 - `print:hidden` e `.no-print` nascondono la UI; `break-inside: avoid` protegge le righe.
 - Le dimensioni in `pt` sono l'unica eccezione alla scala in `px`: appartengono al mezzo stampa.
 
@@ -230,18 +293,22 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 
 ### 7.1 Automatizzati
 
+- `src/lib/theme.test.ts` — 3 test: valori ammessi, risoluzione di sistema, scelta esplicita che vince sulla preferenza del dispositivo.
+- `src/data/theme.test.ts` — 4 test: default, valore non valido, roundtrip della preferenza, storage bloccato.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
 - `src/lib/cost-details.test.ts` — 4 test: componenti che sommano al costo diretto, costo pieno da diretto + quota fissa, totali di colonna, prezzo allocato.
 - `src/lib/format.test.ts` — 3 test: arrotondamento dei centesimi simmetrico, roundtrip dei centesimi interi (property test), formattazione it-IT.
 - `tests/e2e/design-system.spec.ts` — 2 test:
   1. token e font caricati (`--color-ground`, `--color-data`, `--color-control`, Archivo, Source Serif 4);
   2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#1d5fbf`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright.
+- `tests/e2e/theme.spec.ts` — 1 test: tema esplicito scuro, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px.
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale: **36 unitari/dati, 6 E2E**.
 
 ### 7.2 Manuali
 
 - Screenshot a 1440, 768 e 390 px del calcolatore vuoto e compilato, del menu mobile, del dettaglio preventivo, del confronto, delle anagrafiche, delle impostazioni e della stampa.
-- `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN**. Il WARN è `ragged-row`: il pannello risultato è una rail sticky alta meno del form, come da wireframe §3.4 della direzione. Non è una coppia di card affiancate da bilanciare: mentre si scorre, il pannello resta in vista.
+- Tema scuro: screenshot di calcolatore, preventivi, impostazioni, materiali e confronto a 1440/768/390 px; nessuno scroll orizzontale a 390 px; `color-scheme: dark` sui controlli nativi; PDF A4 generato con tema scuro e token di stampa riportati al chiaro.
+- `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN** in tema chiaro (T4.4) e **0 FAIL, 1 WARN** con il sistema in tema scuro (T4.7). Il WARN è `ragged-row`: il pannello risultato è una rail sticky alta meno del form, come da wireframe §3.4 della direzione. Non è una coppia di card affiancate da bilanciare: mentre si scorre, il pannello resta in vista.
 - Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
 - Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non è stato verificato in questa sessione (nessun binario WebKit locale): resta il residuo di T3.8.
@@ -308,21 +375,36 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - Test visuali di regressione e checklist di release v1.0 (T4.6).
 - Nessun cambio a token, formule, unità, snapshot o persistenza senza un nuovo ADR/test.
 
+### 8.4 Dark mode — esito (T4.7)
+
+- Preferenza **Sistema / Chiaro / Scuro** in Impostazioni → Aspetto; default “Sistema”. La scelta è salvata in `layercost:theme`, separata da `layercost:data`.
+- Palette grafite calda con token dedicati, scrim nero al 70%, pill scure, ombra del dialogo più profonda. Gli stessi componenti funzionano nei due temi senza varianti `dark:` sparse.
+- Applicazione prima del primo render e fallback CSS per il sistema scuro; `ThemeController` segue `prefers-color-scheme`; `<meta name="theme-color">` si aggiorna dal token.
+- Stampa sempre chiara: in `@media print` i token tornano a nero su bianco, anche partendo dal tema scuro.
+- Verifiche: 36 unitari/dati, 6 E2E, gate visivo scuro 0 FAIL/1 WARN, contrasti AA, PDF A4 scuro verificato. Nessun cambiamento a formule, `engineVersion`, snapshot o schema (v1).
+
 ---
 
 ## 9. Mappa dei file
 
-| File                              | Contenuto                                                                                                                            |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/index.css`                   | `@font-face`, `@theme`, base, focus, `transition-feedback`, stampa                                                                   |
-| `src/components/ui.tsx`           | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, Table, Tabs |
-| `src/components/field-context.ts` | id di label/hint/error condivisi                                                                                                     |
-| `src/components/cost-stack.tsx`   | stack dei costi                                                                                                                      |
-| `src/lib/cost-bands.ts`           | raggruppamento delle bande e test                                                                                                    |
-| `src/lib/cost-details.ts`         | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                |
-| `src/lib/format.ts`               | formattazione it-IT e arrotondamento dei centesimi                                                                                   |
-| `src/lib/format.test.ts`          | test dei centesimi e della formattazione                                                                                             |
-| `src/components/logo.tsx`         | marchio a tre strati                                                                                                                 |
-| `src/assets/fonts/`               | WOFF2 self-hosted                                                                                                                    |
-| `public/fonts/`                   | licenze OFL                                                                                                                          |
-| `tests/e2e/design-system.spec.ts` | token, focus, responsive, menu                                                                                                       |
+| File                                     | Contenuto                                                                                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/index.css`                          | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                    |
+| `src/lib/theme.ts`                       | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                             |
+| `src/data/theme.ts`                      | chiave `layercost:theme`, load/save fuori da `AppData`                                                                               |
+| `src/state/theme-store.ts`               | stato Zustand della preferenza                                                                                                       |
+| `src/app/theme.ts`                       | applicazione del tema e `meta theme-color`                                                                                           |
+| `src/app/ThemeController.tsx`            | sincronizzazione con `prefers-color-scheme`                                                                                          |
+| `src/features/settings/SettingsPage.tsx` | sezione Aspetto con le tre radio                                                                                                     |
+| `src/components/ui.tsx`                  | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, Table, Tabs |
+| `src/components/field-context.ts`        | id di label/hint/error condivisi                                                                                                     |
+| `src/components/cost-stack.tsx`          | stack dei costi                                                                                                                      |
+| `src/lib/cost-bands.ts`                  | raggruppamento delle bande e test                                                                                                    |
+| `src/lib/cost-details.ts`                | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                |
+| `src/lib/format.ts`                      | formattazione it-IT e arrotondamento dei centesimi                                                                                   |
+| `src/lib/format.test.ts`                 | test dei centesimi e della formattazione                                                                                             |
+| `src/components/logo.tsx`                | marchio a tre strati                                                                                                                 |
+| `src/assets/fonts/`                      | WOFF2 self-hosted                                                                                                                    |
+| `public/fonts/`                          | licenze OFL                                                                                                                          |
+| `tests/e2e/design-system.spec.ts`        | token, focus, responsive, menu                                                                                                       |
+| `tests/e2e/theme.spec.ts`                | preferenza, persistenza, sistema, screenshot scuro                                                                                   |

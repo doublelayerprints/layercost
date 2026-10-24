@@ -10,6 +10,8 @@ import type { Settings } from '@/domain/types'
 import { asMicroEur } from '@/domain/units'
 import { Alert, Button, Card, Modal, PageHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
+import { useThemeStore } from '@/state/theme-store'
+import type { ThemePreference } from '@/lib/theme'
 import {
   allocationModeLabels,
   pricingModeLabels,
@@ -19,6 +21,16 @@ import {
 import { formatCents, formatCurrency, formatPercent } from '@/lib/format'
 
 const SAMPLE_COST = asMicroEur(5_000_000)
+
+const themeOptions: Array<{ value: ThemePreference; label: string; description: string }> = [
+  {
+    value: 'system',
+    label: 'Sistema',
+    description: 'Segue l’impostazione di macOS, Windows o del telefono.',
+  },
+  { value: 'light', label: 'Chiaro', description: 'Fondo chiaro, sempre.' },
+  { value: 'dark', label: 'Scuro', description: 'Fondo scuro con testo chiaro.' },
+]
 
 function samplePrice(settings: Settings) {
   const pricing = pricingFromSettings(settings)
@@ -41,6 +53,8 @@ export function SettingsPage() {
   const exportData = useAppStore((state) => state.exportData)
   const importData = useAppStore((state) => state.importData)
   const reset = useAppStore((state) => state.reset)
+  const themePreference = useThemeStore((state) => state.preference)
+  const setThemePreference = useThemeStore((state) => state.setPreference)
 
   const settings = config.settings
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -87,7 +101,7 @@ export function SettingsPage() {
     <div>
       <PageHeader
         title="Impostazioni"
-        description="Valori predefiniti per i nuovi preventivi. Ogni preventivo può poi sovrascrivere il prezzo."
+        description="Valori predefiniti per i nuovi preventivi e preferenze di questo browser. Ogni preventivo può poi sovrascrivere il prezzo."
       />
 
       <input
@@ -271,6 +285,50 @@ export function SettingsPage() {
 
         <section
           className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"
+          aria-labelledby="settings-aspetto"
+        >
+          <div>
+            <h2 id="settings-aspetto" className="text-base font-semibold text-ink">
+              Aspetto
+            </h2>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              Il tema si applica subito e resta su questo browser. La stampa usa sempre fondo bianco
+              e testo nero.
+            </p>
+          </div>
+          <fieldset>
+            <legend className="sr-only">Tema dell’interfaccia</legend>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {themeOptions.map((option) => (
+                <label
+                  key={option.value}
+                  className="flex cursor-pointer items-start gap-2.5 rounded-control border border-line bg-surface p-3 transition-feedback has-[:checked]:border-data has-[:checked]:bg-raised"
+                >
+                  <input
+                    type="radio"
+                    name="theme-preference"
+                    value={option.value}
+                    checked={themePreference === option.value}
+                    onChange={() => setThemePreference(option.value)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-data"
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-ink">{option.label}</span>
+                    <span className="block text-xs leading-snug text-muted">
+                      {option.description}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">
+              “Sistema” segue l’impostazione del dispositivo e si aggiorna quando cambia.
+            </p>
+          </fieldset>
+        </section>
+
+        <section
+          className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"
           aria-labelledby="settings-dati"
         >
           <div>
@@ -278,8 +336,8 @@ export function SettingsPage() {
               Dati e backup
             </h2>
             <p className="mt-1 text-sm leading-snug text-muted">
-              I dati vivono solo in questo browser. Un backup JSON è l’unica copia esterna: importarlo
-              sostituisce configurazione, preventivi e bozza.
+              I dati vivono solo in questo browser. Un backup JSON è l’unica copia esterna:
+              importarlo sostituisce configurazione, preventivi e bozza.
             </p>
             <p className="mt-2 text-xs text-muted">
               Schema v{SCHEMA_VERSION} · Motore v{ENGINE_VERSION}
@@ -312,10 +370,7 @@ export function SettingsPage() {
               <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
                 Importa JSON
               </Button>
-              <Button
-                variant="ghost"
-                onClick={() => updateSettings({ onboardingComplete: false })}
-              >
+              <Button variant="ghost" onClick={() => updateSettings({ onboardingComplete: false })}>
                 Rivedi la guida iniziale
               </Button>
             </div>

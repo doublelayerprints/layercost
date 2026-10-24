@@ -1,6 +1,6 @@
 # ADR-0015 — Direzione visiva: Strato
 
-**Stato:** Accettato
+**Stato:** Accettato; il punto 6 (base chiara, nessuna dark mode) è superato da ADR-0016
 **Data:** 24 ottobre 2026
 
 ## Contesto

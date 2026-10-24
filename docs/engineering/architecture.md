@@ -24,8 +24,8 @@ Dati (data/: repository, storage, schemi, seed)
 - **`data/`** — adapter locale, schemi Zod, seed, migrazioni. È l'unico punto che tocca `localStorage`.
 - **`features/`** — schermate e componenti di dominio UI.
 - **`components/`** — primitivi riutilizzabili, senza logica di costo.
-- **`lib/`** — formattazione, date, ID, condivisione.
-- **`app/`** — routing, layout, provider.
+- **`lib/`** — formattazione, date, ID, condivisione, preferenza del tema.
+- **`app/`** — routing, layout, provider, applicazione del tema.
 
 Se i casi d'uso cresceranno, le azioni dello store potranno essere estratte in `application/` senza cambiare il dominio.
 
@@ -39,6 +39,7 @@ Se i casi d'uso cresceranno, le azioni dello store potranno essere estratte in `
 - Lo storage non conosce React.
 - Le feature non accedono direttamente a `localStorage`.
 - I componenti non conoscono il repository.
+- La preferenza del tema vive in `layercost:theme`, fuori da `AppData`: `data/theme.ts` è l'unico punto che la legge e la scrive; `ThemeController` la applica al documento.
 
 ---
 
@@ -85,13 +86,13 @@ Il risultato è memorizzato in `Quote.result`. Il ricalcolo usa lo snapshot; “
 
 ```text
 src/
-  app/            Layout, routing
+  app/            Layout, routing, theme
   components/     ui.tsx, number-fields.tsx
-  data/           repository, storage, schemas, seed
+  data/           repository, storage, schemas, seed, theme
   domain/         units, money, types, version, cost/
   features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding
-  lib/            format, date, id, share, labels, cn
-  state/          app-store
+  lib/            format, date, id, share, labels, cn, theme
+  state/          app-store, theme-store
 ```
 
 ---

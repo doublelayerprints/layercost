@@ -71,7 +71,7 @@ Prima di aggiungerla:
 
 ## 7. Bundle
 
-Build v0.1 dopo T4.4: circa 502 KB JS (145 KB gzip), 31 KB CSS (7 KB gzip) e 58 KB di font WOFF2. È accettabile per una SPA di calcolo; il budget del piano è sotto i 500 KB gzip, quindi c'è margine. Se cresce, valutare code splitting per le pagine di configurazione.
+Build v0.1 dopo T4.7: circa 505 KB JS (146 KB gzip), 34 KB CSS (7,5 KB gzip) e 58 KB di font WOFF2. È accettabile per una SPA di calcolo; il budget del piano è sotto i 500 KB gzip, quindi c'è margine. Se cresce, valutare code splitting per le pagine di configurazione.
 
 ## 8. Comandi
 

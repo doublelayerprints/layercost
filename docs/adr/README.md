@@ -19,6 +19,7 @@ Le decisioni architetturali di LayerCost. Un ADR accettato non si riscrive: se c
 | 0013 | [oxlint al posto di ESLint in v0.1](0013-oxlint.md)                                      |
 | 0014 | [Snapshot completo e prezzi di riga al netto IVA](0014-full-snapshot-net-line-prices.md) |
 | 0015 | [Direzione visiva: Strato](0015-direzione-visiva.md)                                     |
+| 0016 | [Dark mode in v1](0016-dark-mode.md)                                                     |
 
 ---
 

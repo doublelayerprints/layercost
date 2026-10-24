@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/app/Layout'
+import { ThemeController } from '@/app/ThemeController'
 import { useAppStore } from '@/state/app-store'
 import { CalculatorPage } from '@/features/calculator/CalculatorPage'
 import { QuotesPage } from '@/features/quotes/QuotesPage'
@@ -22,22 +23,25 @@ export default function App() {
   }, [hydrate])
 
   return (
-    <HashRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<CalculatorPage />} />
-          <Route path="quotes" element={<QuotesPage />} />
-          <Route path="quotes/:id" element={<QuoteDetailPage />} />
-          <Route path="share" element={<SharePage />} />
-          <Route path="printers" element={<PrintersPage />} />
-          <Route path="materials" element={<MaterialsPage />} />
-          <Route path="tariffs" element={<TariffsPage />} />
-          <Route path="extras" element={<ExtrasPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="compare" element={<ComparePage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </HashRouter>
+    <>
+      <ThemeController />
+      <HashRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<CalculatorPage />} />
+            <Route path="quotes" element={<QuotesPage />} />
+            <Route path="quotes/:id" element={<QuoteDetailPage />} />
+            <Route path="share" element={<SharePage />} />
+            <Route path="printers" element={<PrintersPage />} />
+            <Route path="materials" element={<MaterialsPage />} />
+            <Route path="tariffs" element={<TariffsPage />} />
+            <Route path="extras" element={<ExtrasPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="compare" element={<ComparePage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </HashRouter>
+    </>
   )
 }
