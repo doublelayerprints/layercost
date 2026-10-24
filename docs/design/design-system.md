@@ -396,7 +396,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Vuoti.** La ricerca preventivi senza risultati offre “Azzera la ricerca”; se ci sono solo archiviati, “Mostra archiviati”. Il confronto con meno di due stampanti attive porta alle stampanti; senza materiali porta ai materiali.
 - **Archiviati e disabilitati.** Badge testuali e azioni di ripristino restano; le entità referenziate non si cancellano. I pulsanti disabilitati hanno il motivo nel contesto (dati incompleti, ultima tariffa).
 - **Loading e movimento.** Nessuna operazione asincrona oltre a import/export locali: nessuno spinner decorativo. Solo feedback; `prefers-reduced-motion` invariato.
-- **Verifiche.** 42 unitari/dati, 8 E2E al momento di T4.5 (oggi 42/17), gate 0 FAIL/1 WARN, nessun overflow a 390 px. Nessun cambiamento a dominio, formule, `engineVersion`, snapshot o schema.
+- **Verifiche.** 42 unitari/dati, 8 E2E al momento di T4.5 (oggi 42/18), gate 0 FAIL/1 WARN, nessun overflow a 390 px. Nessun cambiamento a dominio, formule, `engineVersion`, snapshot o schema.
 - **Merge:** PR #3, squash `759ed0f`; deploy di produzione verificato il 24/10/2026 con prezzo 3,70 €, conferma della bozza e alert di salvataggio.
 
 ### 8.6 Release v1.0.0 — esito (T4.6)
