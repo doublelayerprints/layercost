@@ -708,6 +708,16 @@ Un task è chiuso solo se:
 **Dipende da:** T4.4
 **Stato:** `[ ]`
 
+**Nota di partenza (dopo T4.4):**
+- Vuoti: presenti su preventivi, materiali, stampanti, extra, tariffe, calcolatore e pagine di errore; verificare che ogni vuoto abbia la prossima azione.
+- Errori: calcolo, salvataggio, import, link non valido e reset sono coperti da `Alert`; manca una revisione dei messaggi meno frequenti.
+- Successo: import e reset hanno un messaggio; il salvataggio naviga al dettaglio. Valutare un riscontro più esplicito.
+- Disabilitati e archiviati: pulsanti disabilitati con opacità e motivo nel contesto; archiviati con badge testuale. Nessuna cancellazione di entità referenziate.
+- Unsaved changes: da decidere e implementare; la bozza è persistita, quindi il banner “Modifiche non salvate” non va aggiunto per finta. Se serve, confrontare la bozza con l’ultimo preventivo salvato.
+- Loading: non ci sono operazioni asincrone oltre a import/export locali; non introdurre spinner decorativi.
+- Movimento: solo feedback, `prefers-reduced-motion` già rispettato; nessuna animazione d’ingresso.
+- Microcopy: italiano, diretto; rivedere unità, “quota del totale” e i messaggi di rischio.
+
 - Empty, loading, error, success, disabled, archived, unsaved changes.
 - Movimento ridotto.
 - Microcopy italiano.
