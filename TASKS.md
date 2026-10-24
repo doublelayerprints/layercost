@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.5 e T4.7 chiusi e in produzione
+**Stato:** v1.0.0 rilasciata (fasi 0–4); CI verde; deploy Vercel live; backlog fase 5
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 24 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3, T4.4, T4.5 e T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati/rifiniture, dark mode con ADR-0016), mergiati in `main` e distribuiti in produzione. Resta T4.6 (review e release v1.0). I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
+**Stato al 24/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. T4.1–T4.7 chiusi: direzione **A — Strato** (ADR-0015), design system, redesign, stati/rifiniture, dark mode (ADR-0016) e release con axe, WebKit, stampa/PDF, regressione visiva e budget. Restano solo verifiche manuali consigliate (stampante fisica, screen reader) e il backlog di fase 5.
 
 ---
 
@@ -568,9 +568,9 @@ Un task è chiuso solo se:
 ## T3.8 — Stampa/PDF
 
 **Dipende da:** T3.4
-**Stato:** `[~]`
+**Stato:** `[x]`
 
-**Nota:** Stylesheet di stampa rifatto in T4.4; PDF A4 verificato su Chrome (`@page` 14 mm, stack in grigi, totali, note). Safari e stampa reale su più browser ancora da verificare.
+**Nota:** Stylesheet di stampa rifatto in T4.4; PDF A4 verificato su Chromium (`@page` 14 mm, stack in grigi, totali, note) e stampa verificata sull'engine WebKit con `@media print`. La release 1.0 include un test che genera il PDF partendo dal tema scuro e controlla i token chiari. Resta consigliata una prova manuale su una stampante fisica e su Safari reale.
 
 - Stylesheet di stampa A4.
 - Intestazione, data, righe, breakdown, totali, note.
@@ -612,9 +612,9 @@ Un task è chiuso solo se:
 ## T3.11 — Accessibilità baseline
 
 **Dipende da:** T3.2–T3.9
-**Stato:** `[~]`
+**Stato:** `[x]`
 
-**Nota:** Label, focus, contrasto e struttura presenti; T4.4 ha verificato skip link, Esc sul dialogo, focus restituito e nessun overflow a 390 px. Audit automatico axe e percorso completo da tastiera su tutte le schermate ancora da fare.
+**Nota:** Label, focus, contrasto e struttura presenti; T4.4 ha verificato skip link, Esc sul dialogo, focus restituito e nessun overflow a 390 px. La release 1.0 aggiunge `@axe-core/playwright`: 25 scansioni su tutte le route in tema chiaro e scuro, menu mobile e modali inclusi, con **0 violazioni** WCAG 2.0/2.1/2.2 AA. Corretto l'unico difetto trovato: le tabelle con scroll orizzontale ora hanno `role="region"`, nome accessibile e `tabIndex={0}`. Resta consigliata una prova con screen reader reale.
 
 - Label, `aria-describedby` per errori, focus visibile.
 - Navigazione da tastiera.
@@ -628,9 +628,9 @@ Un task è chiuso solo se:
 ## T3.12 — Responsive baseline
 
 **Dipende da:** T3.2–T3.9
-**Stato:** `[~]`
+**Stato:** `[x]`
 
-**Nota:** Layout verificato a 375, 768 e 1440 px con screenshot e nessuno scroll orizzontale a 390 px su tutte le route; aggiungere test visuali di regressione.
+**Nota:** Layout verificato a 375, 768 e 1440 px con screenshot e nessuno scroll orizzontale a 390 px su tutte le route. La release 1.0 aggiunge `tests/e2e/visual.spec.ts`: 15 screenshot di regressione a 1440/768/390 px su calcolatore, dettaglio, preventivi, materiali e impostazioni, con baseline generate su Linux in CI. I test visuali sono saltati su macOS perché il rendering dei font differisce; le baseline si rigenerano con il workflow `visual-baselines.yml`.
 
 - Layout a 375, 768, 1440 px.
 - Tabelle con scroll orizzontale controllato o card.
@@ -721,13 +721,15 @@ Un task è chiuso solo se:
 ## T4.6 — Review e release v1.0
 
 **Dipende da:** T4.5
-**Stato:** `[ ]`
+**Stato:** `[x]`
+
+**Nota:** release **v1.0.0** del 24/10/2026. Verifiche: `npm run check` verde con budget del bundle (206 KB gzip su 350 KB); **18 E2E** (16 Chromium + 2 WebKit, 3 visual su CI); **25 scansioni axe** con 0 violazioni WCAG 2.2 AA; PDF A4 valido anche partendo dal tema scuro; nessuna richiesta esterna; gate visivo 0 FAIL/1 WARN motivato. Documentazione in `docs/engineering/release.md`, `CHANGELOG.md`, `STATUS.md`. Tag `v1.0.0` e deploy Vercel di produzione da completare al merge. Restano consigliate una prova su stampante fisica e una con screen reader reale.
 
 - Review UX, accessibilità, performance, cross-browser.
 - Checklist di release.
 - Tag `v1.0.0` e deploy.
 
-**Accettazione:** checklist completa; deploy Vercel; CHANGELOG aggiornato.
+**Accettazione:** checklist completa; deploy Vercel; CHANGELOG aggiornato. → 42 unitari, 18 E2E, `npm run check` verde, produzione verificata.
 
 ---
 

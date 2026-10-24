@@ -1,6 +1,6 @@
 # Persistenza e backup
 
-**Stato:** v0.1 — local-first
+**Stato:** v1.0.0 — local-first
 
 ---
 

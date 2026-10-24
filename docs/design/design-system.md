@@ -1,6 +1,6 @@
 # Design system — Strato
 
-**Stato:** T4.3, T4.4, T4.5 e T4.7 implementati; T4.6 da fare
+**Stato:** T4.3, T4.4, T4.5, T4.7 e T4.6 completati; v1.0.0 rilasciata
 **Data:** 24 ottobre 2026
 **Direzione:** A — Strato (`achromatic-ledger`), ADR-0015 · tema scuro ADR-0016
 **Ambito:** token, tipografia, componenti, accessibilità e stampa. La composizione delle schermate è stata applicata in T4.4.
@@ -305,7 +305,7 @@ In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia"
   2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#1d5fbf`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude.
 - `tests/e2e/theme.spec.ts` — 1 test: tema esplicito scuro, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale: **42 unitari/dati, 8 E2E**.
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **42 unitari/dati, 18 E2E** (3 visual su CI).
 
 ### 7.2 Manuali
 
@@ -315,7 +315,7 @@ In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia"
 - `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN** in tema chiaro (T4.4) e **0 FAIL, 1 WARN** con il sistema in tema scuro (T4.7). Il WARN è `ragged-row`: il pannello risultato è una rail sticky alta meno del form, come da wireframe §3.4 della direzione. Non è una coppia di card affiancate da bilanciare: mentre si scorre, il pannello resta in vista.
 - Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
-- Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non è stato verificato in questa sessione (nessun binario WebKit locale): resta il residuo di T3.8.
+- Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non era verificato in T4.4; la release 1.0 copre l'engine WebKit e il PDF A4, mentre una prova su stampante fisica resta manuale.
 - Produzione Vercel: deploy `759ed0f` (T4.5) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN); prezzo 3,70 € con il nuovo seed, conferma della bozza e alert di salvataggio verificati. Le preview deployment sono protette da SSO; la produzione è pubblica.
 - `font-not-dealt` è un redraw documentato (Geist → Archivo + Source Serif 4); il gate si esegue con `--allow font-not-dealt`.
 
@@ -371,11 +371,12 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 
 **Merge:** PR #1, squash `42e60b7`; deploy di produzione verificato il 24/10/2026 (0 FAIL, 1 WARN sulla homepage pubblica).
 
-### 8.3 Resta per T4.6
+### 8.3 Residui chiusi dalla v1.0.0
 
-- Safari e stampa reale su più browser (T3.8 resta `[~]`).
-- Audit automatico `axe` e percorso completo da tastiera sulle schermate secondarie (T3.11 resta `[~]`).
-- Test visuali di regressione e checklist di release v1.0 (T4.6).
+- **Safari e stampa (T3.8).** Il flusso critico gira su WebKit; la stampa è verificata con `@media print` su WebKit e con un PDF A4 su Chromium, anche partendo dal tema scuro.
+- **Accessibilità (T3.11).** `@axe-core/playwright` esegue 25 scansioni su tutte le route in chiaro e scuro, menu mobile e modali inclusi: 0 violazioni WCAG 2.2 AA. Le tabelle con scroll orizzontale hanno `role="region"`, nome accessibile e `tabIndex={0}`.
+- **Regressione visiva (T3.12).** 15 screenshot a 1440/768/390 px con baseline Linux; i test girano in CI e sono saltati su macOS.
+- **Resta manuale:** prova su stampante fisica e con screen reader reale.
 - Nessun cambio a token, formule, unità, snapshot o persistenza senza un nuovo ADR/test.
 
 ### 8.4 Dark mode — esito (T4.7)
@@ -384,7 +385,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - Palette grafite calda con token dedicati, scrim nero al 70%, pill scure, ombra del dialogo più profonda. Gli stessi componenti funzionano nei due temi senza varianti `dark:` sparse.
 - Applicazione prima del primo render e fallback CSS per il sistema scuro; `ThemeController` segue `prefers-color-scheme`; `<meta name="theme-color">` si aggiorna dal token.
 - Stampa sempre chiara: in `@media print` i token tornano a nero su bianco, anche partendo dal tema scuro.
-- Verifiche: 36 unitari/dati e 6 E2E al momento di T4.7 (oggi 42/8), gate visivo scuro 0 FAIL/1 WARN, contrasti AA, PDF A4 scuro verificato. Nessun cambiamento a formule, `engineVersion`, snapshot o schema (v1).
+- Verifiche: 36 unitari/dati e 6 E2E al momento di T4.7 (oggi 42/17), gate visivo scuro 0 FAIL/1 WARN, contrasti AA, PDF A4 scuro verificato. Nessun cambiamento a formule, `engineVersion`, snapshot o schema (v1).
 - **Merge:** PR #2, squash `a0960d3`; deploy di produzione verificato il 24/10/2026 con tema scuro persistito e gate 0 FAIL/1 WARN.
 
 ### 8.5 Stati e rifiniture — esito (T4.5)
@@ -395,34 +396,47 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Vuoti.** La ricerca preventivi senza risultati offre “Azzera la ricerca”; se ci sono solo archiviati, “Mostra archiviati”. Il confronto con meno di due stampanti attive porta alle stampanti; senza materiali porta ai materiali.
 - **Archiviati e disabilitati.** Badge testuali e azioni di ripristino restano; le entità referenziate non si cancellano. I pulsanti disabilitati hanno il motivo nel contesto (dati incompleti, ultima tariffa).
 - **Loading e movimento.** Nessuna operazione asincrona oltre a import/export locali: nessuno spinner decorativo. Solo feedback; `prefers-reduced-motion` invariato.
-- **Verifiche.** 42 unitari/dati, 8 E2E, gate 0 FAIL/1 WARN, nessun overflow a 390 px. Nessun cambiamento a dominio, formule, `engineVersion`, snapshot o schema.
+- **Verifiche.** 42 unitari/dati, 8 E2E al momento di T4.5 (oggi 42/17), gate 0 FAIL/1 WARN, nessun overflow a 390 px. Nessun cambiamento a dominio, formule, `engineVersion`, snapshot o schema.
 - **Merge:** PR #3, squash `759ed0f`; deploy di produzione verificato il 24/10/2026 con prezzo 3,70 €, conferma della bozza e alert di salvataggio.
+
+### 8.6 Release v1.0.0 — esito (T4.6)
+
+- **Verifiche.** 42 unitari, 18 E2E (Chromium + WebKit, 3 visual su CI), 25 scansioni axe con 0 violazioni, PDF A4 valido, nessuna richiesta esterna, budget 206 KB gzip su 350 KB.
+- **Correzione.** I contenitori di tabella scrollabili sono raggiungibili da tastiera e hanno un nome accessibile, anche a 390 px.
+- **Documentazione.** Checklist e risultati in `docs/engineering/release.md`; changelog in `CHANGELOG.md`; stato in `STATUS.md`.
+- **Deploy.** Tag `v1.0.0` e produzione Vercel verificata; gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky).
 
 ---
 
 ## 9. Mappa dei file
 
-| File                                         | Contenuto                                                                                                                            |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/index.css`                              | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                    |
-| `src/lib/theme.ts`                           | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                             |
-| `src/lib/draft.ts`                           | rileva se la bozza contiene lavoro da non perdere                                                                                    |
-| `src/features/calculator/NewDraftButton.tsx` | conferma accessibile prima di scartare la bozza                                                                                      |
-| `src/data/theme.ts`                          | chiave `layercost:theme`, load/save fuori da `AppData`                                                                               |
-| `src/state/theme-store.ts`                   | stato Zustand della preferenza                                                                                                       |
-| `src/app/theme.ts`                           | applicazione del tema e `meta theme-color`                                                                                           |
-| `src/app/ThemeController.tsx`                | sincronizzazione con `prefers-color-scheme`                                                                                          |
-| `src/features/settings/SettingsPage.tsx`     | sezione Aspetto con le tre radio                                                                                                     |
-| `src/components/ui.tsx`                      | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, Table, Tabs |
-| `src/components/field-context.ts`            | id di label/hint/error condivisi                                                                                                     |
-| `src/components/cost-stack.tsx`              | stack dei costi                                                                                                                      |
-| `src/lib/cost-bands.ts`                      | raggruppamento delle bande e test                                                                                                    |
-| `src/lib/cost-details.ts`                    | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                |
-| `src/lib/format.ts`                          | formattazione it-IT e arrotondamento dei centesimi                                                                                   |
-| `src/lib/format.test.ts`                     | test dei centesimi e della formattazione                                                                                             |
-| `src/components/logo.tsx`                    | marchio a tre strati                                                                                                                 |
-| `src/assets/fonts/`                          | WOFF2 self-hosted                                                                                                                    |
-| `public/fonts/`                              | licenze OFL                                                                                                                          |
-| `tests/e2e/design-system.spec.ts`            | token, focus, responsive, menu                                                                                                       |
-| `tests/e2e/theme.spec.ts`                    | preferenza, persistenza, sistema, screenshot scuro                                                                                   |
-| `tests/e2e/states.spec.ts`                   | conferma della bozza, sostituzione dal dettaglio                                                                                     |
+| File                                         | Contenuto                                                                                                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/index.css`                              | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                                 |
+| `src/lib/theme.ts`                           | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                                          |
+| `src/lib/draft.ts`                           | rileva se la bozza contiene lavoro da non perdere                                                                                                 |
+| `src/features/calculator/NewDraftButton.tsx` | conferma accessibile prima di scartare la bozza                                                                                                   |
+| `src/data/theme.ts`                          | chiave `layercost:theme`, load/save fuori da `AppData`                                                                                            |
+| `src/state/theme-store.ts`                   | stato Zustand della preferenza                                                                                                                    |
+| `src/app/theme.ts`                           | applicazione del tema e `meta theme-color`                                                                                                        |
+| `src/app/ThemeController.tsx`                | sincronizzazione con `prefers-color-scheme`                                                                                                       |
+| `src/features/settings/SettingsPage.tsx`     | sezione Aspetto con le tre radio                                                                                                                  |
+| `src/components/ui.tsx`                      | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, TableScroll, Table, Tabs |
+| `src/components/field-context.ts`            | id di label/hint/error condivisi                                                                                                                  |
+| `src/components/cost-stack.tsx`              | stack dei costi                                                                                                                                   |
+| `src/lib/cost-bands.ts`                      | raggruppamento delle bande e test                                                                                                                 |
+| `src/lib/cost-details.ts`                    | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                             |
+| `src/lib/format.ts`                          | formattazione it-IT e arrotondamento dei centesimi                                                                                                |
+| `src/lib/format.test.ts`                     | test dei centesimi e della formattazione                                                                                                          |
+| `src/components/logo.tsx`                    | marchio a tre strati                                                                                                                              |
+| `src/assets/fonts/`                          | WOFF2 self-hosted                                                                                                                                 |
+| `public/fonts/`                              | licenze OFL                                                                                                                                       |
+| `tests/e2e/design-system.spec.ts`            | token, focus, responsive, menu                                                                                                                    |
+| `tests/e2e/theme.spec.ts`                    | preferenza, persistenza, sistema, screenshot scuro                                                                                                |
+| `tests/e2e/states.spec.ts`                   | conferma della bozza, sostituzione dal dettaglio                                                                                                  |
+| `tests/e2e/a11y.spec.ts`                     | axe WCAG 2.2 AA su tutte le route, chiaro/scuro, menu e modali                                                                                    |
+| `tests/e2e/webkit.spec.ts`                   | flusso critico e link condiviso su WebKit                                                                                                         |
+| `tests/e2e/release.spec.ts`                  | PDF A4 chiaro da tema scuro, nessuna richiesta esterna                                                                                            |
+| `tests/e2e/visual.spec.ts`                   | 15 screenshot di regressione a 1440/768/390 px                                                                                                    |
+| `scripts/check-budget.mjs`                   | budget gzip di JS, CSS, font, HTML e totale                                                                                                       |
+| `docs/engineering/release.md`                | checklist e verifiche della v1.0.0                                                                                                                |

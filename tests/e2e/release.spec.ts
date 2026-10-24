@@ -1,6 +1,38 @@
+import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 
 test.use({ colorScheme: 'light' })
+
+test('esporta e reimporta un backup completo', async ({ page }) => {
+  await page.goto('/#/')
+  await page.locator('input[aria-label="Ore"]').first().fill('10')
+  await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
+  await page.getByRole('button', { name: 'Salva preventivo' }).click()
+  await page.waitForURL(/#\/quotes\//)
+
+  await page.goto('/#/settings')
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Esporta JSON' }).click()
+  const download = await downloadPromise
+  const path = await download.path()
+  expect(path).not.toBeNull()
+
+  const backup = JSON.parse(await readFile(path!, 'utf8')) as {
+    schemaVersion: number
+    data: { quotes: unknown[] }
+  }
+  expect(backup.schemaVersion).toBe(1)
+  expect(backup.data.quotes).toHaveLength(1)
+
+  await page.setInputFiles('input[type="file"]', path!)
+  const dialog = page.getByRole('dialog', { name: 'Importare il backup?' })
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Importa e sostituisci' }).click()
+  await expect(page.getByText(/Backup importato/)).toBeVisible()
+
+  await page.goto('/#/quotes')
+  await expect(page.getByRole('link', { name: 'Nuovo preventivo' })).toBeVisible()
+})
 
 test('la stampa produce un PDF A4 chiaro anche con tema scuro', async ({ page }) => {
   await page.goto('/')

@@ -1,7 +1,7 @@
 # LayerCost — Stato del progetto
 
 **Data:** 24 ottobre 2026
-**Versione:** 0.1.0 — MVP funzionale
+**Versione:** 1.0.0 — prima release stabile
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
 **Locale:** `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`
@@ -11,14 +11,15 @@
 
 ## 1. Sintesi
 
-LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stampe 3D singole o di lotti. La v0.1 implementa le fasi 0–3 del piano:
+LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stampe 3D singole o di lotti. La **v1.0.0** completa le fasi 0–4 del piano:
 
 - fondamenta, tooling, CI e documentazione;
 - motore di costo e prezzo;
 - configurazione, persistenza locale, export/import;
-- UI funzionale, storico, condivisione, stampa/PDF e confronto.
+- UI funzionale, storico, condivisione, stampa/PDF e confronto;
+- direzione **A — Strato**, design system, dark mode, stati e verifiche di release.
 
-La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system), T4.4 (redesign delle schermate), T4.5 (stati e rifiniture) e T4.7 (dark mode, ADR-0016) sono chiusi, mergiati in `main` e distribuiti in produzione. Resta T4.6 (review e release v1.0).
+T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
 ---
 
@@ -50,7 +51,8 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 - Redesign delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra le due stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only, stampa A4.
 - Tema chiaro, scuro o di sistema (ADR-0016), con preferenza salvata sul dispositivo e stampa sempre chiara.
 - Stati e rifiniture (T4.5): conferma accessibile prima di scartare o sostituire la bozza; eliminazioni con `Modal`; alert “Preventivo salvato”; vuoti con azione; microcopy su bozza, storico e preventivo non ricalcolabile.
-- Stampa: intestazione, meta, righe, composizione in grigi, totali e note; PDF A4 verificato su Chrome.
+- Stampa: intestazione, meta, righe, composizione in grigi, totali e note; PDF A4 verificato su Chromium e stampa verificata sull'engine WebKit.
+- Verifiche 1.0: audit `axe` WCAG 2.2 AA su tutte le route (chiaro/scuro, desktop/mobile, menu e modali), test WebKit, regressione visiva a 1440/768/390 px, budget del bundle e nessuna richiesta esterna.
 
 ### Seed
 
@@ -65,22 +67,26 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 
 ## 3. Verifiche
 
-| Verifica          | Stato                                         |
-| ----------------- | --------------------------------------------- |
-| TypeScript strict | verde                                         |
-| oxlint            | verde                                         |
-| Test unitari/dati | 42 superati                                   |
-| Test E2E          | 8 superati                                    |
-| Build produzione  | verde (~509 KB JS, ~147 KB gzip; ~58 KB font) |
-| CI GitHub `check` | verde su `main`                               |
-| CI GitHub `e2e`   | verde su `main`                               |
-| Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN   |
+| Verifica          | Stato                                                     |
+| ----------------- | --------------------------------------------------------- |
+| TypeScript strict | verde                                                     |
+| oxlint            | verde                                                     |
+| Test unitari/dati | 42 superati                                               |
+| Test E2E          | 18 superati in CI (16 Chromium, 2 WebKit; 3 visual su CI) |
+| Accessibilità     | axe WCAG 2.2 AA: 25 scansioni, 0 violazioni               |
+| Build produzione  | verde (~509 KB JS, ~147 KB gzip; ~34 KB CSS; ~58 KB font) |
+| Budget bundle     | 206 KB gzip totali su 350 KB                              |
+| CI GitHub `check` | verde su `main`                                           |
+| CI GitHub `e2e`   | verde su `main`                                           |
+| Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN               |
 
 Comandi:
 
 ```bash
 npm run check
 npm run test:e2e
+npm run budget
+npm run test:visual   # solo con baseline Linux; in locale i test visual sono saltati
 ```
 
 ---
@@ -100,7 +106,7 @@ npm run test:e2e
 
 - **Live:** https://layercost.vercel.app
 - Progetto Vercel collegato alla repo GitHub.
-- Ultimo deploy verificato: commit `759ed0f` (T4.5, PR #3) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky). La produzione serve il prezzo aggiornato con il nuovo seed (3,70 €), la conferma prima di scartare la bozza e l’alert “Preventivo salvato”, che non si ripete al reload. I commit successivi di sola documentazione ridistribuiscono lo stesso build.
+- Release **v1.0.0** del 24/10/2026. Deploy di produzione verificato: commit di release (da compilare dopo il merge), `inspect.mjs --app` a 1440/768/390 con **0 FAIL, 1 WARN** (`ragged-row`, rail sticky). La produzione serve prezzo 3,70 € con il seed, bozza protetta, alert di salvataggio, tema scuro persistente e stampa chiara.
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
@@ -119,9 +125,9 @@ npx vercel --prod
 
 ## 6. Limiti noti
 
-- Stampa verificata su Chrome (PDF A4); Safari e stampa reale su più browser restano da verificare (T3.8).
-- Nessun audit automatico axe; verifica manuale di tastiera, focus e overflow a 390 px (T3.11).
-- Nessun test visuale di regressione (T3.12).
+- Stampa verificata su Chromium (PDF A4) e sull'engine WebKit; resta consigliata una prova su una stampante fisica e su Safari reale.
+- Audit `axe` automatico su tutte le route; resta consigliata una prova con screen reader reale (VoiceOver/NVDA).
+- Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
 - Nessuna sincronizzazione cloud.
 - Nessun import diretto da slicer o presa intelligente.
 - Nessun magazzino bobine.
@@ -132,20 +138,20 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. Fase 4: review e release v1.0 (T4.6).
-2. Audit accessibilità automatico (axe) e test visuali.
+1. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
+2. Prova manuale su stampante fisica e screen reader.
 3. Catena di migrazioni versionata con fixture.
-4. Backlog: sync, magazzino bobine, import slicer, PWA, inglese.
+4. Backlog fase 5: sync, magazzino bobine, import slicer, actual vs estimated, PWA, inglese.
 
 ---
 
 ## 8. Ripresa rapida
 
-- **Stato:** `main` pulito e allineato a `origin/main`; T4.5 è in produzione. Prossimo task: **T4.6 — Review e release v1.0**.
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.6), `docs/design/design-system.md` §8.3–8.5, `docs/design/ui-brief.md` §5.
-- **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
-- **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.
-- **Branch remoti:** `feat/t4.4-screens`, `feat/t4.7-dark-mode` e `feat/t4.5-states` sono stati eliminati dopo il merge; su `origin` resta solo `main`.
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Prossimo lavoro: backlog fase 5.
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/engineering/release.md`, `docs/design/design-system.md` §8.
+- **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
+- **Punti aperti:** prova su stampante fisica e screen reader; baseline visuali da rigenerare solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
 - **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. La preferenza del tema resta fuori da `AppData`.
 
 ---
@@ -157,6 +163,7 @@ npx vercel --prod
 - `TASKS.md` — task e stato.
 - `docs/domain/cost-model.md` — formule normative.
 - `docs/engineering/deployment.md` — deploy.
+- `docs/engineering/release.md` — checklist e verifiche della v1.0.0.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

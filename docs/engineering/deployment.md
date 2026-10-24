@@ -1,6 +1,6 @@
 # Deployment
 
-**Stato:** v0.1 — Vercel, build statica
+**Stato:** v1.0.0 — Vercel, build statica
 
 ---
 
@@ -40,7 +40,7 @@ Il routing è **hash-based**: non servono rewrite per le SPA. La build è static
 - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
 - `X-Robots-Tag: noindex`
 
-Nessun CSP restrittivo in v0.1 per non bloccare gli asset Vite; da valutare in una fase successiva.
+Nessun CSP restrittivo in v1.0 per non bloccare gli asset Vite; da valutare in una fase successiva.
 
 ## 3. Base path
 
@@ -84,15 +84,17 @@ Vercel Hobby è pensato per uso personale. Se LayerCost diventa parte di un'atti
 
 ## 9. Release checklist
 
-- [ ] `npm run check` verde.
-- [ ] `npm run test:e2e` verde.
-- [ ] `CHANGELOG.md` aggiornato.
-- [ ] `TASKS.md` aggiornato.
-- [ ] Backup di prova esportato e reimportato.
-- [ ] Link condiviso provato in una finestra privata.
-- [ ] Stampa/PDF provata.
+La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
+
+- [x] `npm run check` verde (typecheck, lint, 42 test, build, budget).
+- [x] `npm run test:e2e` verde (18 test, Chromium + WebKit).
+- [x] `CHANGELOG.md` aggiornato.
+- [x] `TASKS.md` aggiornato.
+- [x] Backup di prova esportato e reimportato.
+- [x] Link condiviso provato in una finestra privata.
+- [x] Stampa/PDF provata (Chromium e WebKit).
 - [ ] Deploy Vercel verificato.
-- [ ] Tag `vX.Y.Z` (quando si inizia a versionare le release).
+- [ ] Tag `v1.0.0` creato e pushato.
 
 ## 10. Rollback
 
@@ -107,8 +109,18 @@ Vercel Hobby è pensato per uso personale. Se LayerCost diventa parte di un'atti
 - Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
 - CI GitHub: verde (`check` + `e2e`) su `main`.
 - Deploy Vercel: **live su https://layercost.vercel.app**.
-- Ultimo deploy di produzione verificato: `759ed0f` (T4.5, PR #3) del 24/10/2026; gate visivo sulla homepage pubblica 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, conferma della bozza e alert di salvataggio verificati con Playwright.
+- Release **v1.0.0** del 24/10/2026; deploy di produzione verificato con gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, bozza protetta, alert di salvataggio, tema scuro e stampa chiara.
 - Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.
 - Le preview deployment sono protette da SSO Vercel; la produzione è pubblica.
 - Header di sicurezza e `robots.txt` verificati.
 - Deploy manuale disponibile con `npx vercel login && npx vercel link && npx vercel --prod`.
+
+## 12. Baseline visive
+
+Il workflow `.github/workflows/visual-baselines.yml` genera le baseline su Linux:
+
+```bash
+gh workflow run visual-baselines.yml --ref main
+```
+
+Scaricare l'artifact `visual-baselines`, scompattarlo in `tests/e2e/visual.spec.ts-snapshots/` e committare gli screenshot insieme alla modifica dell'interfaccia. Le baseline non vanno rigenerate per modifiche di solo contenuto o documentazione.

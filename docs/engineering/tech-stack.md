@@ -1,6 +1,6 @@
 # Stack tecnologico
 
-**Stato:** v0.1 — versioni dal `package.json`
+**Stato:** v1.0.0 — versioni dal `package.json`
 
 ---
 
@@ -21,14 +21,15 @@
 
 ## 2. Test e qualità
 
-| Area          | Scelta         | Versione |
-| ------------- | -------------- | -------- |
-| Unit test     | Vitest         | 4.1      |
-| Property test | fast-check     | 4.10     |
-| E2E           | Playwright     | ultima   |
-| Lint          | oxlint         | 1.88     |
-| Format        | Prettier       | 3.9      |
-| CI            | GitHub Actions | —        |
+| Area          | Scelta                 | Versione |
+| ------------- | ---------------------- | -------- |
+| Unit test     | Vitest                 | 4.1      |
+| Property test | fast-check             | 4.10     |
+| E2E           | Playwright             | ultima   |
+| Accessibilità | `@axe-core/playwright` | ultima   |
+| Lint          | oxlint                 | 1.88     |
+| Format        | Prettier               | 3.9      |
+| CI            | GitHub Actions         | —        |
 
 > Nota: il piano iniziale citava ESLint. In implementazione è stato scelto **oxlint** perché già integrato dallo scaffold Vite, più veloce e sufficiente per il progetto. La sostituzione è una deviazione consapevole, non un cambio di architettura.
 
@@ -43,7 +44,9 @@
 - **lz-string** — link condivisibili senza backend.
 - **Font self-hosted** — Archivo e Source Serif 4 in WOFF2 (OFL 1.1), nessun CDN, cifre tabulari per denaro e tabelle.
 - **Vitest + fast-check** — formule deterministiche e invarianti.
-- **Playwright** — flusso reale calcola → salva → ricarica → condivide.
+- **Playwright** — flusso reale calcola → salva → ricarica → condivide; progetti Chromium e WebKit.
+- **axe-core** — audit WCAG 2.2 AA automatico su tutte le route, in chiaro e scuro.
+- **Snapshot Playwright** — regressione visiva su 15 schermate, con baseline Linux in CI.
 
 ## 4. Dipendenze vietate in v1
 
@@ -71,7 +74,17 @@ Prima di aggiungerla:
 
 ## 7. Bundle
 
-Build v0.1 dopo T4.5: circa 509 KB JS (147 KB gzip), 34 KB CSS (7,5 KB gzip) e 58 KB di font WOFF2. È accettabile per una SPA di calcolo; il budget del piano è sotto i 500 KB gzip, quindi c'è margine. Se cresce, valutare code splitting per le pagine di configurazione.
+Build v1.0.0: circa 509 KB JS (147 KB gzip Vite; 142 KB con lo script di budget), 34 KB CSS (7,6 KB gzip) e 58 KB di font WOFF2.
+
+`scripts/check-budget.mjs` fallisce se supera:
+
+- 200 KB gzip di JavaScript;
+- 20 KB gzip di CSS;
+- 120 KB gzip di font;
+- 4 KB gzip di HTML;
+- 350 KB gzip totali.
+
+La build attuale è a 206 KB gzip totali, quindi c'è margine. Se cresce, valutare code splitting per le pagine di configurazione.
 
 ## 8. Comandi
 
@@ -83,5 +96,7 @@ npm run typecheck
 npm run lint
 npm run test
 npm run test:e2e
+npm run test:visual
+npm run budget
 npm run check
 ```

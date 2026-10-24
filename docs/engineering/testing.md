@@ -1,29 +1,34 @@
 # Testing
 
-**Stato:** v0.1 — 42 test unitari + 8 E2E
+**Stato:** v1.0.0 — 42 test unitari + 18 E2E (3 visual su CI)
 
 ---
 
 ## 1. Strategia
 
-| Livello  | Strumento           | Cosa copre                                                            |
-| -------- | ------------------- | --------------------------------------------------------------------- |
-| Unit     | Vitest              | Unità, arrotondamenti, formule, prezzi                                |
-| Property | fast-check          | Invarianti di ripartizione e scala                                    |
-| Dati     | Vitest              | Seed contro schema, versioni future, payload invalidi                 |
-| E2E      | Playwright          | Calcola → salva → ricarica → condivide → importa; design system; tema |
-| A11y     | manuale + checklist | Label, focus, tastiera, contrasto; test token/focus                   |
+| Livello  | Strumento             | Cosa copre                                                                        |
+| -------- | --------------------- | --------------------------------------------------------------------------------- |
+| Unit     | Vitest                | Unità, arrotondamenti, formule, prezzi                                            |
+| Property | fast-check            | Invarianti di ripartizione e scala                                                |
+| Dati     | Vitest                | Seed contro schema, versioni future, payload invalidi                             |
+| E2E      | Playwright / Chromium | Calcola → salva → ricarica → condivide → importa; tema; stati; backup; stampa/PDF |
+| E2E      | Playwright / WebKit   | Flusso critico e link condiviso sull'engine Safari                                |
+| A11y     | axe-core              | WCAG 2.2 AA su tutte le route, chiaro/scuro, mobile, menu e modali                |
+| Visual   | Playwright snapshots  | 15 schermate a 1440/768/390 px, baseline Linux                                    |
+| Budget   | Node + zlib           | Peso gzip di JS, CSS, font e HTML; nessuna richiesta esterna                      |
 
 ## 2. Comandi
 
 ```bash
 npm run test         # unit + data
 npm run test:watch
-npm run test:e2e     # build + Playwright
-npm run check        # typecheck + lint + test + build
+npm run test:e2e     # build + Playwright (Chromium + WebKit; visual saltati su macOS)
+npm run test:visual  # solo test visuali, richiede baseline Linux
+npm run budget       # controllo del peso della build
+npm run check        # typecheck + lint + test + build + budget
 ```
 
-Playwright usa Chrome locale (`channel: 'chrome'`); in CI usa Chromium.
+Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in CI usa Chromium bundled. WebKit usa il browser Playwright installato con `npx playwright install webkit`.
 
 ## 3. File
 
@@ -39,6 +44,10 @@ Playwright usa Chrome locale (`channel: 'chrome'`); in CI usa Chromium.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375 e menu mobile.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro esplicito, persistenza, “Sistema” che segue il dispositivo.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza, sostituzione della bozza dal dettaglio.
+- `tests/e2e/a11y.spec.ts` — 2 test: 25 scansioni axe su tutte le route, tema chiaro desktop e tema scuro mobile, menu e modali inclusi; 0 violazioni.
+- `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
+- `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con token chiari partendo dal tema scuro; nessuna richiesta esterna.
+- `tests/e2e/visual.spec.ts` — 3 test, 15 screenshot: calcolatore, dettaglio, preventivi, materiali e impostazioni a 1440/768/390 px. Saltati fuori dalla CI.
 
 ## 4. Golden case
 
@@ -51,24 +60,23 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 ## 5. Cosa non è coperto
 
-- Regressione screenshot pixel-perfect: i test design verificano token, font, focus e overflow, non fanno snapshot visivi.
-- Audit `axe` automatico.
-- Stampa/PDF reale su più browser.
+- Prova con screen reader reale (VoiceOver/NVDA) e su una stampante fisica.
+- Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
 - Import via file chooser (E2E).
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
-
-Sono candidati per T4.6 o per il backlog.
 
 ## 6. CI
 
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check`;
-- `npm run build` + Playwright con Chromium.
+- `npm run check` (typecheck, lint, 42 test, build, budget);
+- `npm run build` + Playwright con Chromium e WebKit.
 
-Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (42 unitari, 8 E2E).
+Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
+
+Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (42 unitari, 18 E2E).
 
 ## 7. Come aggiungere un test
 
@@ -76,5 +84,7 @@ Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (42 unitari,
 - Per uno schema: aggiungi un fixture valido/invalido in `storage.test.ts`.
 - Per un flusso UI: aggiungi un E2E in `tests/e2e`.
 - Per un token o un componente: aggiungi un test in `tests/e2e/design-system.spec.ts` (font, token, focus, touch, overflow).
+- Per una schermata: aggiungi la route in `tests/e2e/a11y.spec.ts` e, se è stabile, in `tests/e2e/visual.spec.ts`.
+- Per una modifica intenzionale dell'interfaccia: rigenera le baseline con `gh workflow run visual-baselines.yml --ref main`, scarica l'artifact e committa gli screenshot.
 - Non usare snapshot fragili per i numeri: asserisci i valori espliciti.
 - Per le proprietà, limita i range per mantenere i test veloci.

@@ -1,6 +1,6 @@
 # Modello dati
 
-**Stato:** implementazione v0.1
+**Stato:** implementazione v1.0.0
 **Codice:** `src/domain/types.ts`, `src/data/schemas.ts`, `src/data/storage.ts`
 
 ---
@@ -74,17 +74,17 @@ La tariffa corrente è quella con `effectiveFrom` più recente e ≤ data del pr
 
 ### 2.4 `Material`
 
-| Campo               | Tipo             | Note            |
-| ------------------- | ---------------- | --------------- |
-| `id`                | string           |                 |
-| `name`              | string           |                 |
-| `family`            | `MaterialFamily` | PLA, PETG, ABS… |
-| `pricePerKg`        | `MicroEur`       |                 |
+| Campo               | Tipo             | Note                        |
+| ------------------- | ---------------- | --------------------------- |
+| `id`                | string           |                             |
+| `name`              | string           |                             |
+| `family`            | `MaterialFamily` | PLA, PETG, ABS…             |
+| `pricePerKg`        | `MicroEur`       |                             |
 | `spoolNetWeightG`   | number           | Solo filamento; informativo |
-| `supplier`, `color` | string?          |                 |
-| `failureRateBp`     | `BasisPoints?`   | Override        |
-| `notes`             | string?          |                 |
-| `archived`          | boolean          |                 |
+| `supplier`, `color` | string?          |                             |
+| `failureRateBp`     | `BasisPoints?`   | Override                    |
+| `notes`             | string?          |                             |
+| `archived`          | boolean          |                             |
 
 ### 2.5 `Extra`
 
