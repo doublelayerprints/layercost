@@ -64,7 +64,6 @@ export function SettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Configurazione"
         title="Impostazioni"
         description="Valori predefiniti per i nuovi preventivi. Ogni preventivo può poi sovrascrivere il prezzo."
         actions={
@@ -106,8 +105,8 @@ export function SettingsPage() {
       </Alert>
 
       <Card className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-slate-800">Manodopera e rischio</h2>
-        <p className="mt-0.5 text-xs text-slate-500">
+        <h2 className="text-sm font-semibold text-ink">Manodopera e rischio</h2>
+        <p className="mt-0.5 text-xs text-muted">
           La manodopera è 0 per impostazione predefinita: attivala se vuoi conteggiare il tuo tempo.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -150,8 +149,8 @@ export function SettingsPage() {
       </Card>
 
       <Card className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-slate-800">Prezzo predefinito</h2>
-        <p className="mt-0.5 text-xs text-slate-500">
+        <h2 className="text-sm font-semibold text-ink">Prezzo predefinito</h2>
+        <p className="mt-0.5 text-xs text-muted">
           Questi valori vengono copiati nel nuovo preventivo; puoi modificarli caso per caso.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -216,7 +215,7 @@ export function SettingsPage() {
       </Card>
 
       <Card className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-slate-800">Dati e backup</h2>
+        <h2 className="text-sm font-semibold text-ink">Dati e backup</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <DataStat label="Stampanti" value={config.printers.length} />
           <DataStat label="Materiali" value={config.materials.length} />
@@ -234,13 +233,13 @@ export function SettingsPage() {
           </Button>
           <Button
             variant="ghost"
-            className="text-rose-600 hover:bg-rose-50"
+            className="text-negative hover:bg-raised"
             onClick={() => setResetOpen(true)}
           >
             Ripristina dati iniziali
           </Button>
         </div>
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-muted">
           Dati locali: schema v{SCHEMA_VERSION}, motore v{ENGINE_VERSION}. Svuotare i dati del
           browser cancella anche i preventivi.
         </p>
@@ -259,13 +258,13 @@ export function SettingsPage() {
           </>
         }
       >
-        <div className="space-y-3 text-sm text-slate-600">
+        <div className="space-y-3 text-sm text-muted">
           <p>
             L’importazione sostituisce la configurazione, i preventivi e la bozza corrente. Prima di
             procedere verrà scaricato un backup dei dati attuali.
           </p>
           {pendingImport ? (
-            <div className="rounded-lg bg-slate-50 p-3 text-xs">
+            <div className="rounded-control bg-raised p-3 text-xs">
               <p>Stampanti: {pendingImport.config.printers.length}</p>
               <p>Materiali: {pendingImport.config.materials.length}</p>
               <p>Preventivi: {pendingImport.quotes.length}</p>
@@ -289,7 +288,7 @@ export function SettingsPage() {
           </>
         }
       >
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           Verranno eliminati tutti i preventivi e le personalizzazioni. Esporta un backup prima di
           continuare.
         </p>
@@ -300,9 +299,9 @@ export function SettingsPage() {
 
 function DataStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2">
-      <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-800">{value}</p>
+    <div className="rounded-control border border-line bg-raised/60 px-3 py-2">
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <p className="mt-0.5 text-lg font-semibold tabular-nums text-ink">{value}</p>
     </div>
   )
 }

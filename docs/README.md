@@ -1,15 +1,15 @@
 # LayerCost — Documentazione
 
-**Stato:** v0.1 — MVP funzionale; direzione visiva scelta
+**Stato:** v0.1 — MVP funzionale; direzione e design system scelti
 **Data:** 24 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
-- Fase 4: T4.1 e T4.2 chiusi (direzione **A — Strato**, ADR-0015); design system e redesign da fare.
+- Fase 4: T4.1, T4.2 e T4.3 chiusi (direzione **A — Strato**, ADR-0015, design system); redesign schermate da fare.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 16 unitari + 3 E2E.
+- Test: 21 unitari + 5 E2E.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub.
@@ -69,7 +69,8 @@
 │   │   └── conventions.md
 │   ├── design/
 │   │   ├── ui-brief.md
-│   │   └── directions.md
+│   │   ├── directions.md
+│   │   └── design-system.md
 │   └── adr/
 │       ├── README.md
 │       ├── 0001-static-local-first.md
@@ -83,18 +84,19 @@
 
 ## 4. Normativo vs informativo
 
-| Documento                   | Tipo                           | Se diverge dal codice                   |
-| --------------------------- | ------------------------------ | --------------------------------------- |
-| `docs/domain/cost-model.md` | **Normativo**                  | Il codice è sbagliato; aprire un bug    |
-| `docs/domain/data-model.md` | **Normativo**                  | Il codice è sbagliato; migrazione o fix |
-| `docs/adr/*`                | **Normativo per le decisioni** | Serve un nuovo ADR che supersede        |
-| `PLAN.md`                   | Pianificazione                 | Aggiornare scope o roadmap              |
-| `TASKS.md`                  | Pianificazione                 | Aggiornare stato o criteri              |
-| `AGENTS.md`                 | Operativo                      | Aggiornare le regole                    |
-| `README.md`                 | Informativo                    | Aggiornare                              |
-| `docs/engineering/*`        | Descrittivo                    | Aggiornare se cambia l'architettura     |
-| `docs/design/ui-brief.md`   | Requisiti                      | Aggiornare prima del design             |
-| `CHANGELOG.md`              | Storico                        | Aggiornare a ogni release               |
+| Documento                      | Tipo                           | Se diverge dal codice                   |
+| ------------------------------ | ------------------------------ | --------------------------------------- |
+| `docs/domain/cost-model.md`    | **Normativo**                  | Il codice è sbagliato; aprire un bug    |
+| `docs/domain/data-model.md`    | **Normativo**                  | Il codice è sbagliato; migrazione o fix |
+| `docs/adr/*`                   | **Normativo per le decisioni** | Serve un nuovo ADR che supersede        |
+| `PLAN.md`                      | Pianificazione                 | Aggiornare scope o roadmap              |
+| `TASKS.md`                     | Pianificazione                 | Aggiornare stato o criteri              |
+| `AGENTS.md`                    | Operativo                      | Aggiornare le regole                    |
+| `README.md`                    | Informativo                    | Aggiornare                              |
+| `docs/engineering/*`           | Descrittivo                    | Aggiornare se cambia l'architettura     |
+| `docs/design/ui-brief.md`      | Requisiti                      | Aggiornare prima del design             |
+| `docs/design/design-system.md` | Normativo per la UI            | Aggiornare token o componente           |
+| `CHANGELOG.md`                 | Storico                        | Aggiornare a ogni release               |
 
 ---
 
@@ -439,7 +441,7 @@ Sezioni:
 
 **Aggiornare quando:** cambia un flusso o un requisito UI. Non contiene colori, font o moodboard: quelli arrivano dalla skill di design.
 
-Le direzioni visive sono in `docs/design/directions.md`: proposte con palette, tipografia, wireframe e criteri di scelta. La decisione è registrata in `docs/adr/0015-direzione-visiva.md`. Aggiornare quando cambia la direzione o il design system.
+Le direzioni visive sono in `docs/design/directions.md`: proposte con palette, tipografia, wireframe e criteri di scelta. La decisione è registrata in `docs/adr/0015-direzione-visiva.md`. Il design system implementato — token, font, componenti, accessibilità e stampa — è in `docs/design/design-system.md`. Aggiornare quando cambia la direzione o il design system.
 
 ---
 

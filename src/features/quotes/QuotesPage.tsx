@@ -45,7 +45,6 @@ export function QuotesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Archivio"
         title="Preventivi"
         description="Ogni preventivo conserva i prezzi usati al momento del salvataggio."
         actions={<Button onClick={() => navigate('/')}>Nuovo preventivo</Button>}
@@ -61,12 +60,12 @@ export function QuotesPage() {
               aria-label="Cerca preventivi"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-muted">
             <input
               type="checkbox"
               checked={showArchived}
               onChange={(event) => setShowArchived(event.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              className="h-4 w-4 rounded border-control accent-data"
             />
             Mostra archiviati
           </label>
@@ -90,20 +89,20 @@ export function QuotesPage() {
       ) : (
         <div className="grid gap-3">
           {filtered.map((quote) => (
-            <Card key={quote.id} className="p-4 transition hover:border-slate-300">
+            <Card key={quote.id} className="p-4 transition-feedback hover:border-control">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
                       to={`/quotes/${quote.id}`}
-                      className="truncate text-base font-semibold text-slate-900 hover:text-emerald-700"
+                      className="truncate text-base font-semibold text-ink hover:text-data"
                     >
                       {quote.name}
                     </Link>
                     {quote.archived ? <Badge tone="warning">Archiviato</Badge> : null}
                     {!quote.result ? <Badge tone="danger">Non ricalcolabile</Badge> : null}
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-muted">
                     {formatDateOnly(quote.quoteDate)}
                     {quote.customer ? ` · ${quote.customer}` : ''}
                     {' · '}
@@ -114,10 +113,10 @@ export function QuotesPage() {
 
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="mr-2 text-right">
-                    <p className="text-lg font-semibold tabular-nums text-slate-900">
+                    <p className="text-lg font-semibold tabular-nums text-ink">
                       {quote.result ? formatCents(quote.result.grossPriceCents) : '—'}
                     </p>
-                    <p className="text-[11px] text-slate-500">prezzo totale</p>
+                    <p className="text-xs text-muted">prezzo totale</p>
                   </div>
                   <Button
                     variant="secondary"
@@ -139,7 +138,7 @@ export function QuotesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(quote.id, quote.name)}
-                    className="text-rose-600 hover:bg-rose-50"
+                    className="text-negative hover:bg-raised"
                   >
                     Elimina
                   </Button>

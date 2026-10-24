@@ -6,17 +6,18 @@
 
 ## 1. Runtime e build
 
-| Area           | Scelta                      | Versione       |
-| -------------- | --------------------------- | -------------- |
-| Runtime        | Node                        | 22+ (`.nvmrc`) |
-| Build          | Vite                        | 8.3            |
-| UI             | React + React DOM           | 19.3           |
-| Linguaggio     | TypeScript strict           | 6.0            |
-| Stile          | Tailwind CSS                | 4.3            |
-| Routing        | React Router (`HashRouter`) | 7.18           |
-| Stato          | Zustand                     | 5.0            |
-| Validazione    | Zod                         | 4.6            |
-| Link condivisi | lz-string                   | 1.5            |
+| Area           | Scelta                      | Versione             |
+| -------------- | --------------------------- | -------------------- |
+| Runtime        | Node                        | 22+ (`.nvmrc`)       |
+| Build          | Vite                        | 8.3                  |
+| UI             | React + React DOM           | 19.3                 |
+| Linguaggio     | TypeScript strict           | 6.0                  |
+| Stile          | Tailwind CSS                | 4.3                  |
+| Routing        | React Router (`HashRouter`) | 7.18                 |
+| Stato          | Zustand                     | 5.0                  |
+| Validazione    | Zod                         | 4.6                  |
+| Link condivisi | lz-string                   | 1.5                  |
+| Font           | Archivo + Source Serif 4    | self-hosted, OFL 1.1 |
 
 ## 2. Test e qualità
 
@@ -40,6 +41,7 @@
 - **Zod** — un solo schema per form, storage e import.
 - **HashRouter** — portabilità su hosting statico senza rewrite.
 - **lz-string** — link condivisibili senza backend.
+- **Font self-hosted** — Archivo e Source Serif 4 in WOFF2 (OFL 1.1), nessun CDN, cifre tabulari per denaro e tabelle.
 - **Vitest + fast-check** — formule deterministiche e invarianti.
 - **Playwright** — flusso reale calcola → salva → ricarica → condivide.
 
@@ -69,7 +71,7 @@ Prima di aggiungerla:
 
 ## 7. Bundle
 
-Build v0.1: circa 480 KB JS (140 KB gzip) e 33 KB CSS (7 KB gzip). È accettabile per una SPA di calcolo; se cresce, valutare code splitting per le pagine di configurazione.
+Build v0.1: circa 480 KB JS (141 KB gzip), 30 KB CSS (6,6 KB gzip) e 58 KB di font WOFF2. È accettabile per una SPA di calcolo; se cresce, valutare code splitting per le pagine di configurazione.
 
 ## 8. Comandi
 

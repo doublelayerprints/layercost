@@ -27,7 +27,6 @@ export function MaterialsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Configurazione"
         title="Materiali"
         description="Prezzo al kg, peso netto della bobina e tasso guasti. I grammi si inseriscono dal totale dello slicer."
         actions={<Button onClick={() => setEditing('new')}>Aggiungi materiale</Button>}
@@ -48,14 +47,14 @@ export function MaterialsPage() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {materials.map((material) => (
             <Card key={material.id} className={material.archived ? 'opacity-70' : undefined}>
-              <div className="flex items-start justify-between gap-2 border-b border-slate-100 p-4">
+              <div className="flex items-start justify-between gap-2 border-b border-line p-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-semibold text-slate-900">{material.name}</h2>
+                    <h2 className="text-sm font-semibold text-ink">{material.name}</h2>
                     <Badge tone="neutral">{materialFamilyLabels[material.family]}</Badge>
                     {material.archived ? <Badge tone="warning">Archiviato</Badge> : null}
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-muted">
                     {material.supplier ?? 'Fornitore non indicato'}
                     {material.color ? ` · ${material.color}` : ''}
                   </p>
@@ -71,24 +70,20 @@ export function MaterialsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3 p-4">
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                    Prezzo
-                  </p>
-                  <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">
+                  <p className="text-xs font-medium text-muted">Prezzo</p>
+                  <p className="mt-0.5 text-lg font-semibold tabular-nums text-ink">
                     {formatCurrency(material.pricePerKg)}/kg
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-xs text-muted">
                     {formatCurrency(material.pricePerKg / 1000, 4)}/g
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                    Bobina
-                  </p>
-                  <p className="mt-0.5 text-sm font-medium text-slate-800">
+                  <p className="text-xs font-medium text-muted">Bobina</p>
+                  <p className="mt-0.5 text-sm font-medium text-ink">
                     {material.spoolNetWeightG} g netti
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-xs text-muted">
                     Guasti:{' '}
                     {material.failureRateBp === undefined
                       ? 'globale'
@@ -97,7 +92,7 @@ export function MaterialsPage() {
                 </div>
               </div>
               {material.notes ? (
-                <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">
+                <p className="border-t border-line px-4 py-2 text-xs text-muted">
                   {material.notes}
                 </p>
               ) : null}

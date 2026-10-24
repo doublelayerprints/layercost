@@ -1,7 +1,8 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppStore } from '@/state/app-store'
 import { Alert } from '@/components/ui'
+import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
 import { ENGINE_VERSION } from '@/domain/version'
 
@@ -9,78 +10,44 @@ const navGroups = [
   {
     label: 'Lavoro',
     items: [
-      { to: '/', label: 'Calcolatore', short: 'C' },
-      { to: '/quotes', label: 'Preventivi', short: 'P' },
-      { to: '/compare', label: 'Confronto', short: 'C' },
+      { to: '/', label: 'Calcolatore' },
+      { to: '/quotes', label: 'Preventivi' },
+      { to: '/compare', label: 'Confronto' },
     ],
   },
   {
     label: 'Configurazione',
     items: [
-      { to: '/printers', label: 'Stampanti', short: 'S' },
-      { to: '/materials', label: 'Materiali', short: 'M' },
-      { to: '/tariffs', label: 'Tariffe energia', short: 'T' },
-      { to: '/extras', label: 'Extra', short: 'E' },
-      { to: '/settings', label: 'Impostazioni', short: 'I' },
+      { to: '/printers', label: 'Stampanti' },
+      { to: '/materials', label: 'Materiali' },
+      { to: '/tariffs', label: 'Tariffe energia' },
+      { to: '/extras', label: 'Extra' },
+      { to: '/settings', label: 'Impostazioni' },
     ],
   },
 ]
 
-function Logo({ compact = false }: { compact?: boolean }) {
-  return (
-    <Link to="/" className="flex items-center gap-3">
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15">
-        <span className="flex flex-col items-center gap-[3px]">
-          <span className="h-[3px] w-5 rounded-full bg-emerald-400" />
-          <span className="h-[3px] w-4 rounded-full bg-emerald-400/80" />
-          <span className="h-[3px] w-6 rounded-full bg-emerald-400" />
-        </span>
-      </span>
-      {!compact ? (
-        <span>
-          <span className="block text-sm font-semibold tracking-tight text-white">LayerCost</span>
-          <span className="block text-[11px] text-slate-400">Costo e prezzo delle stampe 3D</span>
-        </span>
-      ) : null}
-    </Link>
-  )
-}
-
-function NavItems({ mobile = false }: { mobile?: boolean }) {
+function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   return (
     <>
       {navGroups.map((group) => (
-        <div key={group.label} className={mobile ? 'flex items-center gap-2' : 'space-y-1'}>
-          {!mobile ? (
-            <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-              {group.label}
-            </p>
-          ) : null}
+        <div key={group.label} className="space-y-0.5">
+          <p className="px-3 pb-1 pt-4 text-xs font-medium text-muted">{group.label}</p>
           {group.items.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === '/'}
+              onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
                   mobile
-                    ? 'flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition'
-                    : 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition',
-                  isActive
-                    ? mobile
-                      ? 'bg-emerald-50 text-emerald-800'
-                      : 'bg-white/10 text-white'
-                    : mobile
-                      ? 'bg-white text-slate-600 hover:bg-slate-50'
-                      : 'text-slate-400 hover:bg-white/5 hover:text-white',
+                    ? 'flex w-full items-center rounded-control px-3 py-2.5 text-sm font-medium transition-feedback'
+                    : 'flex items-center rounded-control px-3 py-2 text-sm transition-feedback',
+                  isActive ? 'bg-raised text-ink' : 'text-muted hover:bg-raised hover:text-ink',
                 )
               }
             >
-              {!mobile ? (
-                <span className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-white/5 text-[10px] font-semibold text-slate-300">
-                  {item.short}
-                </span>
-              ) : null}
               {item.label}
             </NavLink>
           ))}
@@ -98,45 +65,87 @@ function ScrollToTop() {
   return null
 }
 
+function MobileHeader() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  return (
+    <header className="no-print sticky top-0 z-30 border-b border-line bg-surface lg:hidden">
+      <div className="flex items-center justify-between gap-3 px-4 py-2">
+        <Logo />
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-expanded={menuOpen}
+          aria-controls={menuOpen ? 'mobile-navigation' : undefined}
+          className="inline-flex h-10 items-center rounded-control px-3 text-sm font-medium text-muted hover:bg-raised hover:text-ink"
+        >
+          {menuOpen ? 'Chiudi' : 'Menu'}
+        </button>
+      </div>
+      {menuOpen ? (
+        <nav
+          id="mobile-navigation"
+          className="border-t border-line px-4 pb-4 pt-3"
+          aria-label="Navigazione principale"
+        >
+          <NavItems mobile onNavigate={() => setMenuOpen(false)} />
+          <div className="mt-4 border-t border-line pt-3 text-xs text-muted">
+            <p>Dati salvati solo su questo browser.</p>
+            <Link
+              to="/settings"
+              onClick={() => setMenuOpen(false)}
+              className="mt-1 inline-block text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
+            >
+              Esporta un backup
+            </Link>
+            <p className="mt-2">Motore v{ENGINE_VERSION}</p>
+          </div>
+        </nav>
+      ) : null}
+    </header>
+  )
+}
+
 export function Layout() {
   const warning = useAppStore((state) => state.warning)
   const setWarning = useAppStore((state) => state.setWarning)
+  const { pathname } = useLocation()
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
-      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/5 bg-slate-950 px-4 py-5 lg:flex">
-        <Logo />
-        <nav className="mt-4 flex-1 overflow-y-auto">
+    <div className="min-h-screen bg-ground text-ink">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-ink"
+      >
+        Vai al contenuto
+      </a>
+
+      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-surface px-3 py-5 lg:flex">
+        <div className="px-2">
+          <Logo />
+        </div>
+        <nav className="mt-6 flex-1 overflow-y-auto" aria-label="Navigazione principale">
           <NavItems />
         </nav>
-        <div className="border-t border-white/10 pt-3 text-[11px] text-slate-500">
+        <div className="border-t border-line px-3 pt-3 text-xs text-muted">
           <p>Dati salvati solo su questo browser.</p>
-          <Link to="/settings" className="mt-1 inline-block text-slate-400 hover:text-white">
+          <Link
+            to="/settings"
+            className="mt-1 inline-block text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
+          >
             Esporta un backup
           </Link>
-          <p className="mt-2 text-slate-600">Motore v{ENGINE_VERSION}</p>
+          <p className="mt-2">Motore v{ENGINE_VERSION}</p>
         </div>
       </aside>
 
-      <div className="lg:pl-64">
-        <header className="no-print sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur lg:hidden">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="rounded-xl bg-slate-950 px-3 py-2">
-              <Logo />
-            </div>
-            <Link
-              to="/settings"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600"
-            >
-              Impostazioni
-            </Link>
-          </div>
-          <nav className="flex gap-2 overflow-x-auto px-4 pb-3">
-            <NavItems mobile />
-          </nav>
-        </header>
+      <div className="lg:pl-64 print:pl-0">
+        <MobileHeader key={pathname} />
 
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+        <main
+          id="main"
+          className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8 print:max-w-none print:p-0"
+        >
           <ScrollToTop />
           {warning ? (
             <div className="no-print mb-4">

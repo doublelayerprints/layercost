@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Direzione visiva **A — Strato** (ADR-0015) e specifiche in `docs/design/directions.md`.
+- Design system Strato: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
+- Test design: 21 unitari, 5 E2E, inspector 0 FAIL/1 WARN motivato.
+
 ### Changed
 
 - Tariffa energia di default: **€0,20/kWh** (era €0,25/kWh).

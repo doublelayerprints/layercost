@@ -1,5 +1,7 @@
 import type { Quote, QuoteResult } from '@/domain/types'
-import { Alert, Badge, Button, Card, Stat } from '@/components/ui'
+import { Alert, Badge, Button, Card, Price, Stat } from '@/components/ui'
+import { CostStack } from '@/components/cost-stack'
+import { costBands } from '@/lib/cost-bands'
 import { ShareQuoteButton } from '@/features/quotes/ShareQuoteButton'
 import { formatCents, formatCurrency, formatPercent } from '@/lib/format'
 
@@ -22,41 +24,6 @@ export function SummaryPanel({
   onNew: () => void
   saveError?: string
 }) {
-  const components = result
-    ? [
-        {
-          label: 'Materiale',
-          value: result.lines.reduce((sum, line) => sum + line.material, 0),
-          color: 'bg-emerald-500',
-        },
-        {
-          label: 'Energia',
-          value: result.lines.reduce((sum, line) => sum + line.energy, 0),
-          color: 'bg-sky-500',
-        },
-        {
-          label: 'Usura',
-          value: result.lines.reduce((sum, line) => sum + line.depreciation + line.maintenance, 0),
-          color: 'bg-violet-500',
-        },
-        {
-          label: 'Manodopera',
-          value: result.jobLabor + result.lines.reduce((sum, line) => sum + line.labor, 0),
-          color: 'bg-amber-500',
-        },
-        {
-          label: 'Extra',
-          value: result.jobExtras + result.lines.reduce((sum, line) => sum + line.extras, 0),
-          color: 'bg-orange-500',
-        },
-        {
-          label: 'Riserva guasti',
-          value: result.lines.reduce((sum, line) => sum + line.failure, 0),
-          color: 'bg-rose-400',
-        },
-      ].filter((component) => component.value > 0)
-    : []
-
   const totalHours = result
     ? result.lines.reduce((sum, line) => sum + line.effectiveSeconds, 0) / 3600
     : 0
@@ -65,14 +32,21 @@ export function SummaryPanel({
 
   return (
     <Card className="p-4 sm:p-5 xl:sticky xl:top-6">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            Riepilogo
-          </p>
-          <h2 className="mt-0.5 text-lg font-semibold text-slate-900">
-            {result ? formatCents(result.grossPriceCents) : 'Da completare'}
-          </h2>
+          <h2 className="text-sm font-medium text-muted">Riepilogo</h2>
+          <Price
+            value={result ? formatCents(result.grossPriceCents) : '—'}
+            hint={
+              result
+                ? result.vatCents > 0
+                  ? `di cui IVA ${formatCents(result.vatCents)}`
+                  : quote.pricing.vatMode === 'none'
+                    ? 'Nessuna IVA'
+                    : undefined
+                : undefined
+            }
+          />
         </div>
         <Badge tone={result ? 'success' : 'warning'}>{result ? 'Calcolato' : 'Bozza'}</Badge>
       </div>
@@ -87,72 +61,33 @@ export function SummaryPanel({
 
       {result ? (
         <>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <Stat label="Costo totale" value={formatCurrency(result.totalCost)} />
-            <Stat
-              label="Prezzo totale"
-              value={formatCents(result.grossPriceCents)}
-              hint={
-                result.vatCents > 0
-                  ? `di cui IVA ${formatCents(result.vatCents)}`
-                  : quote.pricing.vatMode === 'none'
-                    ? 'Nessuna IVA'
-                    : undefined
-              }
-              tone="accent"
-            />
+          <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
+            <Stat label="Costo pieno" value={formatCurrency(result.totalCost)} />
             <Stat
               label="Costo per ora"
               value={totalHours > 0 ? `${formatCurrency(result.totalCost / totalHours)}/h` : '—'}
-              hint="Costo pieno sulle ore effettive"
+              hint="Sulle ore effettive"
             />
             <Stat
               label="Materiale per kg"
               value={totalGramsKg > 0 ? `${formatCurrency(materialCost / totalGramsKg)}/kg` : '—'}
               hint="Solo materiale"
             />
+            <Stat
+              label="Margine effettivo"
+              value={formatPercent(result.effectiveMarginBp)}
+              hint="Sul prezzo netto"
+              tone={result.effectiveMarginBp < 0 ? 'warning' : 'default'}
+            />
           </div>
 
-          <div className="mt-4 rounded-lg bg-slate-50 px-3 py-2">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span>Margine effettivo</span>
-              <span className="font-semibold text-slate-700">
-                {formatPercent(result.effectiveMarginBp)}
-              </span>
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200">
-              <div
-                className="h-full rounded-full bg-emerald-500"
-                style={{ width: `${Math.max(0, Math.min(100, result.effectiveMarginBp / 100))}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 space-y-2">
-            {components.map((component) => {
-              const share = result.totalCost > 0 ? (component.value / result.totalCost) * 100 : 0
-              return (
-                <div key={component.label}>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-600">{component.label}</span>
-                    <span className="tabular-nums text-slate-700">
-                      {formatCurrency(component.value)}
-                      <span className="ml-1 text-slate-400">{share.toFixed(0)}%</span>
-                    </span>
-                  </div>
-                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className={`h-full rounded-full ${component.color}`}
-                      style={{ width: `${Math.max(0, Math.min(100, share))}%` }}
-                    />
-                  </div>
-                </div>
-              )
-            })}
+          <div className="mt-5">
+            <h3 className="text-xs font-medium text-muted">Composizione del costo</h3>
+            <CostStack bands={costBands(result)} className="mt-2" />
           </div>
         </>
       ) : (
-        <p className="mt-3 text-sm text-slate-500">
+        <p className="mt-3 text-sm text-muted">
           Inserisci stampante, tempo e grammi per vedere il costo e il prezzo.
         </p>
       )}
@@ -193,9 +128,9 @@ export function SummaryPanel({
       </div>
 
       {result ? (
-        <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+        <p className="mt-3 text-xs leading-relaxed text-muted">
           Il prezzo totale è quello mostrato. Il margine effettivo è calcolato sul prezzo netto. I
-          prezzi di riga nel dettaglio sono un’allocazione del totale.
+          prezzi di riga nel dettaglio sono una quota del totale.
         </p>
       ) : null}
     </Card>

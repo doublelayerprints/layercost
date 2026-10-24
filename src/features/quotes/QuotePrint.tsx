@@ -24,12 +24,12 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
         <div>
           <p className="text-[10pt] font-bold uppercase tracking-widest">LayerCost</p>
           <h1 className="mt-1 text-[20pt] font-semibold">{quote.name}</h1>
-          <p className="text-[10pt] text-gray-700">
+          <p className="text-[10pt] text-ink">
             Preventivo del {formatDateOnly(quote.quoteDate)}
             {quote.customer ? ` · ${quote.customer}` : ''}
           </p>
         </div>
-        <div className="text-right text-[9pt] text-gray-700">
+        <div className="text-right text-[9pt] text-ink">
           <p>Motore v{result.engineVersion}</p>
           <p>{result.lines.length} righe</p>
           <p>{formatGrams(totalGrams)} totali</p>
@@ -53,7 +53,7 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
           {result.lines.map((line) => {
             const grams = line.materialDetails.reduce((sum, detail) => sum + detail.grams, 0)
             return (
-              <tr key={line.lineId} className="border-b border-gray-300 align-top">
+              <tr key={line.lineId} className="border-b border-control align-top">
                 <td className="py-1.5 pr-2 font-medium">{line.name}</td>
                 <td className="py-1.5 pr-2">{line.printerName}</td>
                 <td className="py-1.5 pr-2">{formatDuration(line.effectiveSeconds)}</td>
@@ -73,7 +73,7 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
       </table>
 
       <div className="mt-5 grid grid-cols-2 gap-6">
-        <div className="rounded border border-gray-300 p-3 text-[9pt]">
+        <div className="rounded-card border border-control p-3 text-[9pt]">
           <p className="mb-2 font-semibold">Composizione del costo</p>
           <Row
             label="Materiale"
@@ -107,27 +107,27 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
             label="Riserva guasti"
             value={formatCurrency(result.lines.reduce((sum, line) => sum + line.failure, 0))}
           />
-          <div className="mt-2 border-t border-gray-400 pt-2">
+          <div className="mt-2 border-t border-ink pt-2">
             <Row label="Costo totale" value={formatCurrency(result.totalCost)} bold />
           </div>
         </div>
 
-        <div className="rounded border border-gray-300 p-3 text-[9pt]">
+        <div className="rounded-card border border-control p-3 text-[9pt]">
           <p className="mb-2 font-semibold">Prezzo</p>
           <Row label="Prezzo netto" value={formatCents(result.netPriceCents)} />
           <Row label="IVA" value={formatCents(result.vatCents)} />
           <Row label="Prezzo totale" value={formatCents(result.grossPriceCents)} bold />
           <Row label="Margine effettivo" value={formatPercent(result.effectiveMarginBp)} />
           {quote.customer ? (
-            <p className="mt-3 text-[8pt] text-gray-600">Cliente: {quote.customer}</p>
+            <p className="mt-3 text-[8pt] text-muted">Cliente: {quote.customer}</p>
           ) : null}
           {quote.job.notes ? (
-            <p className="mt-2 whitespace-pre-wrap text-[8pt] text-gray-600">{quote.job.notes}</p>
+            <p className="mt-2 whitespace-pre-wrap text-[8pt] text-muted">{quote.job.notes}</p>
           ) : null}
         </div>
       </div>
 
-      <p className="mt-6 text-[8pt] text-gray-500">
+      <p className="mt-6 text-[8pt] text-muted">
         Documento generato con LayerCost. I costi sono una stima basata sui parametri configurati.
       </p>
     </div>

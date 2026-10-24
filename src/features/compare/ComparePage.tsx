@@ -88,7 +88,6 @@ export function ComparePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Confronto"
         title="Kobra 3 vs Kobra X"
         description="Stesso lavoro, stessa quantità: confronta costo e prezzo tra due stampanti."
       />
@@ -140,7 +139,7 @@ export function ComparePage() {
             suffix="pz"
           />
         </div>
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-muted">
           Il confronto usa lo stesso tempo, gli stessi grammi e lo stesso materiale. Non include
           setup, progettazione o extra di lavoro.
         </p>
@@ -184,7 +183,7 @@ export function ComparePage() {
           </Card>
 
           <Card className="p-4 sm:p-5">
-            <h3 className="text-sm font-semibold text-slate-800">Differenza</h3>
+            <h3 className="text-sm font-semibold text-ink">Differenza</h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               <Delta
                 label="Costo totale"
@@ -196,21 +195,19 @@ export function ComparePage() {
                 value={deltaPerUnit ?? 0}
                 hint={`${formatCurrency(lineA.fullyLoadedUnitCost)} → ${formatCurrency(lineB.fullyLoadedUnitCost)}`}
               />
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                  Materiale
-                </p>
-                <p className="mt-0.5 text-sm font-semibold text-slate-800">
+              <div className="rounded-control border border-line bg-raised px-3 py-2">
+                <p className="text-xs font-medium text-muted">Materiale</p>
+                <p className="mt-0.5 text-sm font-semibold text-ink">
                   {formatGrams(gramsToCg(grams))} ·{' '}
                   {lineA.material === lineB.material ? formatCurrency(lineA.material) : 'diverso'}
                 </p>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-xs text-muted">
                   {formatDuration(lineA.effectiveSeconds)} · {lineA.avgWatts} W vs {lineB.avgWatts}{' '}
                   W
                 </p>
               </div>
             </div>
-            <p className="mt-3 text-xs text-slate-500">
+            <p className="mt-3 text-xs text-muted">
               {deltaCost === 0
                 ? 'Le due stampanti hanno lo stesso costo su questo lavoro.'
                 : `La ${deltaCost && deltaCost < 0 ? lineB.printerName : lineA.printerName} costa ${formatCurrency(Math.abs(deltaCost ?? 0))} in meno su questo lavoro.`}
@@ -235,20 +232,20 @@ function PrinterColumn({
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 ${
+      className={`rounded-card border p-4 ${
         highlight === 'cheaper'
-          ? 'border-emerald-300 bg-emerald-50/50'
-          : 'border-slate-200 bg-slate-50/50'
+          ? 'border-positive/40 bg-pill-success-bg/30'
+          : 'border-line bg-raised/50'
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-slate-900">{name}</h3>
+        <h3 className="text-sm font-semibold text-ink">{name}</h3>
         {highlight === 'cheaper' ? (
-          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+          <span className="rounded-full bg-pill-success-bg px-2 py-0.5 text-xs font-medium text-pill-success-ink">
             Più conveniente
           </span>
         ) : highlight === 'equal' ? (
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+          <span className="rounded-full bg-raised px-2 py-0.5 text-xs font-medium text-muted">
             Pari
           </span>
         ) : null}
@@ -271,10 +268,8 @@ function PrinterColumn({
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-slate-500">{label}</span>
-      <span
-        className={`tabular-nums ${strong ? 'font-semibold text-slate-900' : 'text-slate-800'}`}
-      >
+      <span className="text-muted">{label}</span>
+      <span className={`tabular-nums ${strong ? 'font-semibold text-ink' : 'text-ink'}`}>
         {value}
       </span>
     </div>
@@ -284,15 +279,15 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 function Delta({ label, value, hint }: { label: string; value: number; hint: string }) {
   const sign = value > 0 ? '+' : ''
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-      <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">{label}</p>
+    <div className="rounded-control border border-line bg-raised px-3 py-2">
+      <p className="text-xs font-medium text-muted">{label}</p>
       <p
-        className={`mt-0.5 text-lg font-semibold tabular-nums ${value > 0 ? 'text-rose-600' : value < 0 ? 'text-emerald-700' : 'text-slate-800'}`}
+        className={`mt-0.5 text-lg font-semibold tabular-nums ${value > 0 ? 'text-negative' : value < 0 ? 'text-positive' : 'text-ink'}`}
       >
         {sign}
         {formatCurrency(value)}
       </p>
-      <p className="text-[11px] text-slate-500">{hint}</p>
+      <p className="text-xs text-muted">{hint}</p>
     </div>
   )
 }

@@ -93,7 +93,7 @@ export function ShareQuoteButton({
           ) : null}
           {url ? (
             <>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted">
                 Il link contiene una copia del preventivo, non i tuoi dati di configurazione. Chi lo
                 riceve può leggerlo e importarlo nel proprio archivio.
               </p>

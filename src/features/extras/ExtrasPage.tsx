@@ -27,13 +27,12 @@ export function ExtrasPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Configurazione"
         title="Extra"
         description="Imballaggio, etichette, spedizione, calamite, viti: tutto ciò che si aggiunge al costo della stampa."
         actions={<Button onClick={() => setEditing('new')}>Aggiungi extra</Button>}
       />
 
-      <Card className="bg-slate-50 p-4 text-sm text-slate-600">
+      <Card className="bg-raised p-4 text-sm text-muted">
         Un extra “per pezzo” viene moltiplicato per la quantità della riga. Un extra “per lavoro”
         viene applicato una volta al preventivo, ad esempio la spedizione.
       </Card>
@@ -51,18 +50,16 @@ export function ExtrasPage() {
               <div className="flex items-start justify-between gap-2 p-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-semibold text-slate-900">{extra.name}</h2>
+                    <h2 className="text-sm font-semibold text-ink">{extra.name}</h2>
                     <Badge tone={extra.unit === 'perUnit' ? 'info' : 'neutral'}>
                       {labelExtraUnit(extra.unit)}
                     </Badge>
                     {extra.archived ? <Badge tone="warning">Archiviato</Badge> : null}
                   </div>
-                  <p className="mt-1 text-lg font-semibold tabular-nums text-slate-900">
+                  <p className="mt-1 text-lg font-semibold tabular-nums text-ink">
                     {formatCurrency(extra.amount)}
                   </p>
-                  {extra.category ? (
-                    <p className="text-xs text-slate-500">{extra.category}</p>
-                  ) : null}
+                  {extra.category ? <p className="text-xs text-muted">{extra.category}</p> : null}
                 </div>
                 <div className="flex flex-col gap-1">
                   <Button variant="ghost" size="sm" onClick={() => setEditing(extra)}>

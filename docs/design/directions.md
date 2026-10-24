@@ -169,7 +169,7 @@ Fessure di 2 px in `--surface` tra le bande. La legenda ripete nome e importo; i
 - Cinque dimensioni: 34 / 24 / 16 / 14 / 12. Niente altri livelli.
 - `font-variant-numeric: tabular-nums` su ogni numero che si aggiorna o si allinea; Source Serif 4 e Archivo hanno `tnum`.
 - Niente maiuscoletto spaziato; niente monospace fuori dal codice.
-- Font self-hosted, WOFF2, subset latin, `font-display: swap`, preload del serif e dell'UI. Licenze OFL 1.1 incluse in `public/fonts/`.
+- Font self-hosted, WOFF2, subset latin, `font-display: swap`, preload del serif e dell'UI. I file stanno in `src/assets/fonts/` (Vite li riscrive con il base path), le licenze OFL 1.1 in `public/fonts/`. Source Serif 4 è un'istanza statica 600 (subset latin, ~35 KB); Archivo è variabile 400–600 (~24 KB).
 
 ### 3.4 Layout
 
@@ -270,7 +270,7 @@ A 375 px il riepilogo è **in fondo alla colonna, non sticky**, come chiede il b
 
 Lo stack è il pezzo che appartiene solo a LayerCost: il nome e il modello di costo diventano la stessa forma.
 
-- **Cosa mostra.** Quattro bande: Materiale; Macchina (energia + ammortamento + manutenzione); Lavoro ed extra (manodopera + extra); Rischio e fissi (riserva guasti + quota costi fissi). È una sintesi, non il dettaglio: la tabella completa resta sotto.
+- **Cosa mostra.** Quattro bande: Materiale; Macchina (energia + ammortamento + manutenzione); Lavoro ed extra (manodopera e extra di riga e di lavoro); Rischio (riserva guasti). È una sintesi, non il dettaglio: la tabella completa resta sotto. Le quattro bande sommano esattamente al costo pieno.
 - **Come si calcola.** Le larghezze sono proporzionali agli importi in µ€; i pixel si arrotondano con il resto più grande, così la somma delle bande coincide con la larghezza totale. Nessun float per il denaro.
 - **Bande piccole.** Le bande sotto il 3% si accorpano in "Altro"; la tabella dettaglio le elenca tutte. Una banda a zero non ha stub: compare solo nella tabella, in grigio.
 - **La banda più grande prende il blu.** Se il materiale è l'86% del costo, è blu; se un lavoro è a forte manodopera, il blu passa sulla manodopera. Il colore dice "dove pesa il costo", non "materiale".

@@ -29,8 +29,8 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
     <Card className="p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Dettaglio costi</h3>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <h3 className="text-sm font-semibold text-ink">Dettaglio costi</h3>
+          <p className="mt-0.5 text-xs text-muted">
             Componenti per riga, costi fissi ripartiti e prezzo allocato.
           </p>
         </div>
@@ -38,10 +38,10 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
       </div>
 
       <div className="mt-4 overflow-x-auto">
-        <table className="min-w-full border-separate border-spacing-0 text-xs">
+        <table className="min-w-full border-separate border-spacing-0 text-sm">
           <thead>
-            <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="sticky left-0 bg-white py-2 pr-3 font-medium">Riga</th>
+            <tr className="text-left text-xs text-muted">
+              <th className="sticky left-0 bg-surface py-2 pr-3 font-medium">Riga</th>
               <th className="py-2 pr-3 text-right font-medium">Materiale</th>
               <th className="py-2 pr-3 text-right font-medium">Energia</th>
               <th className="py-2 pr-3 text-right font-medium">Usura</th>
@@ -56,14 +56,14 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
           </thead>
           <tbody>
             {result.lines.map((line) => (
-              <tr key={line.lineId} className="border-t border-slate-100 align-top">
-                <td className="sticky left-0 bg-white py-2.5 pr-3">
-                  <p className="font-medium text-slate-800">{line.name}</p>
-                  <p className="mt-0.5 text-[11px] text-slate-500">
+              <tr key={line.lineId} className="border-t border-line align-top">
+                <td className="sticky left-0 bg-surface py-2.5 pr-3">
+                  <p className="font-medium text-ink">{line.name}</p>
+                  <p className="mt-0.5 text-xs text-muted">
                     {line.printerName} · {line.quantity} pz ·{' '}
                     {formatDuration(line.effectiveSeconds)}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-slate-400">
+                  <p className="mt-0.5 text-xs text-muted">
                     {line.avgWatts} W · {line.tariffLabel} · guasti{' '}
                     {formatPercent(line.failureRateBp)}
                   </p>
@@ -96,10 +96,8 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
                   {formatCurrency(line.fullyLoadedLineCost)}
                 </td>
                 <td className="py-2.5 text-right tabular-nums">
-                  <span className="block font-medium text-slate-800">
-                    {formatCents(line.priceCents)}
-                  </span>
-                  <span className="block text-[11px] text-slate-400">
+                  <span className="block font-medium text-ink">{formatCents(line.priceCents)}</span>
+                  <span className="block text-xs text-muted">
                     {formatPricePerUnit(line.priceCents, line.quantity)}/pz
                   </span>
                 </td>
@@ -107,8 +105,8 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-slate-200 font-medium text-slate-800">
-              <td className="sticky left-0 bg-white py-3 pr-3">Totale</td>
+            <tr className="border-t border-line font-medium text-ink">
+              <td className="sticky left-0 bg-surface py-3 pr-3">Totale</td>
               <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalMaterial)}</td>
               <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalEnergy)}</td>
               <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalWear)}</td>
@@ -150,8 +148,8 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
       </div>
 
       {quote.job.notes ? (
-        <div className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-          <p className="font-medium text-slate-700">Note</p>
+        <div className="mt-4 rounded-control bg-raised px-3 py-2 text-xs text-muted">
+          <p className="font-medium text-ink">Note</p>
           <p className="mt-1 whitespace-pre-wrap">{quote.job.notes}</p>
         </div>
       ) : null}
@@ -161,10 +159,10 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
 
 function DetailBox({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold tabular-nums text-slate-800">{value}</p>
-      {hint ? <p className="mt-0.5 text-[11px] text-slate-500">{hint}</p> : null}
+    <div className="rounded-control border border-line bg-raised/60 px-3 py-2">
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <p className="mt-0.5 text-sm font-semibold tabular-nums text-ink">{value}</p>
+      {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
     </div>
   )
 }

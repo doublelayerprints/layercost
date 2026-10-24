@@ -46,21 +46,18 @@ export function TariffsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Configurazione"
         title="Tariffe energia"
         description="Una tariffa per ogni contratto o periodo. I preventivi salvati conservano il prezzo usato."
         actions={<Button onClick={() => setEditing('new')}>Aggiungi tariffa</Button>}
       />
 
-      <Card className="border-emerald-200 bg-emerald-50/50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-          Tariffa corrente
-        </p>
+      <Card className="border-data/30 bg-data/5 p-4">
+        <p className="text-xs font-semibold text-data">Tariffa corrente</p>
         {current ? (
           <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="text-lg font-semibold text-slate-900">{current.label}</p>
-              <p className="text-sm text-slate-600">
+              <p className="text-lg font-semibold text-ink">{current.label}</p>
+              <p className="text-sm text-muted">
                 {formatCurrency(current.pricePerKWh, 4)}/kWh · dal{' '}
                 {formatDateOnly(current.effectiveFrom)}
               </p>
@@ -68,7 +65,7 @@ export function TariffsPage() {
             <Badge tone="success">In uso</Badge>
           </div>
         ) : (
-          <p className="mt-1 text-sm text-rose-700">
+          <p className="mt-1 text-sm text-negative">
             Nessuna tariffa valida oggi: i calcoli non possono essere eseguiti.
           </p>
         )}
@@ -87,16 +84,14 @@ export function TariffsPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-semibold text-slate-900">{tariff.label}</h2>
+                    <h2 className="text-sm font-semibold text-ink">{tariff.label}</h2>
                     {current?.id === tariff.id ? <Badge tone="success">Corrente</Badge> : null}
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-muted">
                     {formatCurrency(tariff.pricePerKWh, 4)}/kWh · decorrenza{' '}
                     {formatDateOnly(tariff.effectiveFrom)}
                   </p>
-                  {tariff.notes ? (
-                    <p className="mt-1 text-xs text-slate-500">{tariff.notes}</p>
-                  ) : null}
+                  {tariff.notes ? <p className="mt-1 text-xs text-muted">{tariff.notes}</p> : null}
                 </div>
                 <div className="flex gap-1">
                   <Button variant="ghost" size="sm" onClick={() => setEditing(tariff)}>
@@ -107,7 +102,7 @@ export function TariffsPage() {
                     size="sm"
                     onClick={() => handleRemove(tariff)}
                     disabled={config.settings.tariffs.length <= 1}
-                    className="text-rose-600 hover:bg-rose-50"
+                    className="text-negative hover:bg-raised"
                   >
                     Elimina
                   </Button>
@@ -118,7 +113,7 @@ export function TariffsPage() {
         </div>
       )}
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted">
         Se una stampante è in una casa con un contratto diverso, assegnale una tariffa specifica
         dalla scheda della stampante. Altrimenti usa la tariffa globale.
       </p>

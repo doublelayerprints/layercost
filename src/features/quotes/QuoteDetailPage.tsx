@@ -21,7 +21,7 @@ export function QuoteDetailPage() {
   if (!quote) {
     return (
       <div className="space-y-6">
-        <PageHeader eyebrow="Preventivi" title="Preventivo non trovato" />
+        <PageHeader title="Preventivo non trovato" />
         <EmptyState
           title="Questo preventivo non esiste più"
           description="Potrebbe essere stato eliminato o il link non è corretto."
@@ -41,7 +41,6 @@ export function QuoteDetailPage() {
     <>
       <div className="print:hidden space-y-6">
         <PageHeader
-          eyebrow="Preventivo"
           title={quote.name}
           description={`${formatDateOnly(quote.quoteDate)}${
             quote.customer ? ` · ${quote.customer}` : ''
@@ -91,7 +90,7 @@ export function QuoteDetailPage() {
             variant="ghost"
             size="sm"
             onClick={handleDelete}
-            className="text-rose-600 hover:bg-rose-50"
+            className="text-negative hover:bg-raised"
           >
             Elimina
           </Button>

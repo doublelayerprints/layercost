@@ -21,8 +21,8 @@ export function PricingEditor({
     <Card className="p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Prezzo</h3>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <h3 className="text-sm font-semibold text-ink">Prezzo</h3>
+          <p className="mt-0.5 text-xs text-muted">
             Il prezzo si calcola sul costo totale. Lo sconto si applica prima dell’arrotondamento.
           </p>
         </div>
@@ -110,7 +110,7 @@ export function PricingEditor({
         />
       </div>
 
-      <div className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
+      <div className="mt-4 rounded-control bg-raised px-3 py-2 text-xs text-muted">
         Ripartizione costi fissi:{' '}
         <strong>
           {settings.allocationMode === 'proportional'

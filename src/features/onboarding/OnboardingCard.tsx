@@ -31,14 +31,11 @@ export function OnboardingCard() {
   if (settings.onboardingComplete) return null
 
   return (
-    <Card className="border-emerald-200 bg-emerald-50/50 p-4 sm:p-5">
+    <Card className="border-data/30 bg-data/5 p-4 sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            Primo avvio
-          </p>
-          <h2 className="mt-1 text-lg font-semibold text-slate-900">Configura LayerCost</h2>
-          <p className="mt-1 max-w-2xl text-sm text-slate-600">
+          <h2 className="text-lg font-semibold text-ink">Configura LayerCost</h2>
+          <p className="mt-1 max-w-2xl text-sm text-muted">
             I dati di partenza sono stime modificabili. Prima di fidarti dei numeri, conferma i
             quattro punti che contano davvero.
           </p>
@@ -47,10 +44,10 @@ export function OnboardingCard() {
               <Link
                 key={step.to}
                 to={step.to}
-                className="rounded-lg border border-emerald-200 bg-white/70 px-3 py-2 transition hover:bg-white"
+                className="rounded-control border border-line bg-surface/70 px-3 py-2 transition-feedback hover:bg-surface"
               >
-                <p className="text-sm font-medium text-slate-800">{step.title}</p>
-                <p className="mt-0.5 text-xs text-slate-500">{step.description}</p>
+                <p className="text-sm font-medium text-ink">{step.title}</p>
+                <p className="mt-0.5 text-xs text-muted">{step.description}</p>
               </Link>
             ))}
           </div>

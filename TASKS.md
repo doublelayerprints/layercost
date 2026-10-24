@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; direzione visiva scelta (T4.2)
+**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; direzione e design system scelti (T4.2–T4.3)
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 24 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1 e T4.2 chiusi (direzione **A — Strato**, ADR-0015); design system e redesign da fare. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
+**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2 e T4.3 chiusi (direzione **A — Strato**, ADR-0015, design system); redesign delle schermate da fare. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
 
 ---
 
@@ -673,13 +673,16 @@ Un task è chiuso solo se:
 ## T4.3 — Design system
 
 **Dipende da:** T4.2
-**Stato:** `[ ]`
+**Stato:** `[x]`
 
-- Token: colori, tipografia, spaziatura, raggi, ombre.
-- Componenti: bottoni, input, select, tabelle, dialog, tab, badge, empty state.
-- Contrasto AA.
+- Token in `src/index.css`: colore, tipografia, raggi, ombre, focus, movimento e stampa.
+- Font self-hosted **Archivo + Source Serif 4** (OFL 1.1, WOFF2, preload, `font-display: swap`).
+- Componenti: Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, Table, Tabs.
+- Firma di prodotto: **CostStack** a quattro bande, con legenda accessibile e raggruppamento sotto il 3%.
+- Shell e schermate migrate ai token senza cambiare la composizione; contrasto AA verificato; bordo campi a 3,45:1.
+- Test: 21 unitari (5 sul raggruppamento delle bande) + 5 E2E (2 sul design system); `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`tiny-text`).
 
-**Accettazione:** componenti documentati; nessuna eccezione hardcoded; test visuali di base.
+**Accettazione:** componenti documentati in `docs/design/design-system.md`; nessuna eccezione hardcoded nei componenti (restano solo le dimensioni `pt` della stampa e gli asset statici); test visuali di base verdi.
 
 ---
 
@@ -689,7 +692,7 @@ Un task è chiuso solo se:
 **Stato:** `[ ]`
 
 - Calcolatore, risultati, preventivi, anagrafiche, impostazioni, confronto, share.
-- Responsive e dark mode se prevista.
+- Responsive; dark mode fuori scope v1 (ADR-0015).
 
 **Accettazione:** tutti i flussi funzionano; test E2E verdi; nessuna regressione nei calcoli.
 

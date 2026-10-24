@@ -1,33 +1,35 @@
 import {
   useEffect,
   useId,
+  useRef,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type InputHTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
   type SelectHTMLAttributes,
+  type TableHTMLAttributes,
   type TextareaHTMLAttributes,
 } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/cn'
+import { FieldContext, useFieldIds, type FieldIds } from './field-context'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'subtle'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary:
-    'bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 focus-visible:ring-emerald-300',
-  secondary:
-    'border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:ring-slate-200',
-  ghost: 'text-slate-600 hover:bg-slate-100 focus-visible:ring-slate-200',
-  danger: 'bg-rose-600 text-white shadow-sm hover:bg-rose-700 focus-visible:ring-rose-300',
-  subtle: 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-200',
+  primary: 'bg-ink text-surface hover:bg-ink/90',
+  secondary: 'bg-raised text-ink hover:bg-line',
+  ghost: 'text-muted hover:bg-raised hover:text-ink',
+  danger: 'bg-negative text-surface hover:bg-negative/90',
+  subtle: 'text-data hover:bg-raised',
 }
 
 const buttonSizes: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs',
-  md: 'h-9 px-4 text-sm',
-  lg: 'h-10 px-5 text-sm',
+  sm: 'h-8 px-3 text-xs max-sm:h-10',
+  md: 'h-9 px-4 text-sm max-sm:h-11',
+  lg: 'h-10 px-5 text-sm max-sm:h-11',
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -46,7 +48,7 @@ export function Button({
     <button
       type={type}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50',
         buttonVariants[variant],
         buttonSizes[size],
         className,
@@ -57,22 +59,17 @@ export function Button({
 }
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn('rounded-2xl border border-slate-200 bg-white shadow-sm', className)}
-      {...props}
-    />
-  )
+  return <div className={cn('rounded-card border border-line bg-surface', className)} {...props} />
 }
 
 type BadgeTone = 'neutral' | 'success' | 'warning' | 'info' | 'danger'
 
 const badgeTones: Record<BadgeTone, string> = {
-  neutral: 'bg-slate-100 text-slate-700',
-  success: 'bg-emerald-50 text-emerald-700',
-  warning: 'bg-amber-50 text-amber-800',
-  info: 'bg-sky-50 text-sky-700',
-  danger: 'bg-rose-50 text-rose-700',
+  neutral: 'bg-pill-neutral-bg text-pill-neutral-ink',
+  success: 'bg-pill-success-bg text-pill-success-ink',
+  warning: 'bg-pill-warning-bg text-pill-warning-ink',
+  info: 'bg-pill-info-bg text-pill-info-ink',
+  danger: 'bg-pill-danger-bg text-pill-danger-ink',
 }
 
 export function Badge({
@@ -87,7 +84,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium',
+        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
         badgeTones[tone],
         className,
       )}
@@ -108,44 +105,77 @@ export interface FieldProps {
 }
 
 export function Field({ label, htmlFor, hint, error, required, className, children }: FieldProps) {
+  const baseId = useId()
+  const labelId = `${baseId}-label`
+  const errorId = error ? `${baseId}-error` : undefined
+  const hintId = !error && hint ? `${baseId}-hint` : undefined
+
   return (
-    <div className={cn('space-y-1.5', className)}>
-      {label ? (
-        <label htmlFor={htmlFor} className="block text-sm font-medium text-slate-700">
-          {label}
-          {required ? <span className="ml-0.5 text-rose-500">*</span> : null}
-        </label>
-      ) : null}
-      {children}
-      {error ? (
-        <p className="text-xs font-medium text-rose-600">{error}</p>
-      ) : hint ? (
-        <p className="text-xs text-slate-500">{hint}</p>
-      ) : null}
-    </div>
+    <FieldContext.Provider value={{ labelId, hintId, errorId }}>
+      <div className={cn('space-y-1.5', className)}>
+        {label ? (
+          htmlFor ? (
+            <label htmlFor={htmlFor} id={labelId} className="block text-sm font-medium text-ink">
+              {label}
+              {required ? (
+                <span className="ml-0.5 text-negative" aria-hidden="true">
+                  *
+                </span>
+              ) : null}
+            </label>
+          ) : (
+            <span id={labelId} className="block text-sm font-medium text-ink">
+              {label}
+              {required ? (
+                <span className="ml-0.5 text-negative" aria-hidden="true">
+                  *
+                </span>
+              ) : null}
+            </span>
+          )
+        ) : null}
+        {children}
+        {error ? (
+          <p id={errorId} role="alert" className="text-xs font-medium text-negative">
+            {error}
+          </p>
+        ) : hint ? (
+          <p id={hintId} className="text-xs text-muted">
+            {hint}
+          </p>
+        ) : null}
+      </div>
+    </FieldContext.Provider>
   )
 }
 
+function describedBy(ariaDescribedBy: string | undefined, ids: FieldIds): string | undefined {
+  return [ariaDescribedBy, ids.errorId, ids.hintId].filter(Boolean).join(' ') || undefined
+}
+
+const controlClasses =
+  'w-full rounded-control border border-control bg-surface px-3 text-sm text-ink transition-feedback placeholder:text-muted disabled:bg-raised disabled:text-muted'
+
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  const ids = useFieldIds()
   return (
     <input
-      className={cn(
-        'h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-50 disabled:text-slate-500',
-        className,
-      )}
       {...props}
+      aria-describedby={describedBy(props['aria-describedby'], ids)}
+      aria-invalid={ids.errorId ? true : props['aria-invalid']}
+      className={cn(controlClasses, 'h-9 max-sm:h-11', className)}
     />
   )
 }
 
 export function Select({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  const ids = useFieldIds()
   return (
     <select
-      className={cn(
-        'h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-50 disabled:text-slate-500',
-        className,
-      )}
       {...props}
+      aria-describedby={describedBy(props['aria-describedby'], ids)}
+      aria-invalid={ids.errorId ? true : props['aria-invalid']}
+      className={cn(controlClasses, 'h-9 max-sm:h-11', className)}
     >
       {children}
     </select>
@@ -153,13 +183,13 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
 }
 
 export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const ids = useFieldIds()
   return (
     <textarea
-      className={cn(
-        'min-h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100',
-        className,
-      )}
       {...props}
+      aria-describedby={describedBy(props['aria-describedby'], ids)}
+      aria-invalid={ids.errorId ? true : props['aria-invalid']}
+      className={cn(controlClasses, 'min-h-20 py-2', className)}
     />
   )
 }
@@ -187,12 +217,12 @@ export function Toggle({
           disabled={disabled}
           className="peer sr-only"
         />
-        <span className="absolute inset-0 rounded-full bg-slate-200 transition peer-checked:bg-emerald-500 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-300 peer-disabled:opacity-50" />
-        <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition peer-checked:translate-x-4" />
+        <span className="absolute inset-0 rounded-full bg-control transition-feedback peer-checked:bg-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-data peer-disabled:opacity-50" />
+        <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-surface transition-transform peer-checked:translate-x-4" />
       </span>
       <span>
-        <span className="block text-sm font-medium text-slate-700">{label}</span>
-        {description ? <span className="block text-xs text-slate-500">{description}</span> : null}
+        <span className="block text-sm font-medium text-ink">{label}</span>
+        {description ? <span className="block text-xs text-muted">{description}</span> : null}
       </span>
     </label>
   )
@@ -210,26 +240,31 @@ export function Alert({
   onClose?: () => void
 }) {
   const tones = {
-    info: 'border-sky-200 bg-sky-50 text-sky-900',
-    warning: 'border-amber-200 bg-amber-50 text-amber-900',
-    danger: 'border-rose-200 bg-rose-50 text-rose-900',
-    success: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+    info: 'border-l-data',
+    warning: 'border-l-warning',
+    danger: 'border-l-negative',
+    success: 'border-l-positive',
   }
   return (
-    <div className={cn('rounded-xl border px-3 py-2.5 text-sm', tones[tone])}>
+    <div
+      className={cn(
+        'rounded-card border border-l-4 border-line bg-surface px-4 py-3 text-sm text-ink',
+        tones[tone],
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           {title ? <p className="font-medium">{title}</p> : null}
-          {children ? <div className="mt-0.5 text-xs opacity-90">{children}</div> : null}
+          {children ? <div className="mt-1 text-sm text-ink">{children}</div> : null}
         </div>
         {onClose ? (
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-0.5 text-current opacity-60 hover:opacity-100"
+            className="-m-1 rounded-control p-1 text-muted hover:bg-raised hover:text-ink"
             aria-label="Chiudi avviso"
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
         ) : null}
       </div>
@@ -253,20 +288,58 @@ export function Modal({
   size?: 'sm' | 'md' | 'lg' | 'xl'
 }) {
   const titleId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     if (!open) return
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    const previous = document.body.style.overflow
+    const previousActive = document.activeElement as HTMLElement | null
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+
+    const focusable = () =>
+      Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((element) => element.offsetParent !== null)
+
+    focusable()[0]?.focus()
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onCloseRef.current()
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = focusable()
+      if (items.length === 0) {
+        event.preventDefault()
+        return
+      }
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last?.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = previous
+      document.body.style.overflow = previousOverflow
+      previousActive?.focus()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
@@ -278,32 +351,33 @@ export function Modal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 p-3 sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-3 sm:items-center">
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          'flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-2xl',
+          'flex max-h-[90vh] w-full flex-col overflow-hidden rounded-card bg-surface shadow-overlay',
           widths[size],
         )}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2 id={titleId} className="text-base font-semibold text-slate-900">
+        <div className="flex items-center justify-between border-b border-line px-5 py-4">
+          <h2 id={titleId} className="text-base font-semibold text-ink">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-control p-1.5 text-muted hover:bg-raised hover:text-ink"
             aria-label="Chiudi"
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
         {footer ? (
-          <div className="flex items-center justify-end gap-2 border-t border-slate-200 bg-slate-50 px-5 py-3">
+          <div className="flex items-center justify-end gap-2 border-t border-line bg-raised px-5 py-3">
             {footer}
           </div>
         ) : null}
@@ -323,13 +397,12 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
-        +
-      </div>
-      <p className="text-sm font-semibold text-slate-800">{title}</p>
-      {description ? <p className="mt-1 max-w-md text-sm text-slate-500">{description}</p> : null}
-      {action ? <div className="mt-4">{action}</div> : null}
+    <div className="rounded-card border border-line bg-surface px-6 py-10 text-center">
+      <p className="text-base font-semibold text-ink">{title}</p>
+      {description ? (
+        <p className="mx-auto mt-1 max-w-md text-sm text-muted">{description}</p>
+      ) : null}
+      {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
     </div>
   )
 }
@@ -346,27 +419,50 @@ export function Stat({
   tone?: 'default' | 'accent' | 'warning'
 }) {
   const valueTone =
-    tone === 'accent'
-      ? 'text-emerald-700'
-      : tone === 'warning'
-        ? 'text-amber-700'
-        : 'text-slate-900'
+    tone === 'accent' ? 'text-data' : tone === 'warning' ? 'text-warning' : 'text-ink'
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={cn('mt-1 text-lg font-semibold tabular-nums', valueTone)}>{value}</p>
-      {hint ? <p className="mt-0.5 text-xs text-slate-500">{hint}</p> : null}
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <p className={cn('mt-1 text-2xl font-medium tabular-nums', valueTone)}>{value}</p>
+      {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
+    </div>
+  )
+}
+
+export function Price({
+  label,
+  value,
+  hint,
+  size = 'lg',
+  className,
+}: {
+  label?: ReactNode
+  value: ReactNode
+  hint?: ReactNode
+  size?: 'md' | 'lg'
+  className?: string
+}) {
+  return (
+    <div className={className}>
+      {label ? <p className="text-xs font-medium text-muted">{label}</p> : null}
+      <p
+        className={cn(
+          'font-serif font-semibold tracking-price tabular-nums text-ink',
+          size === 'lg' ? 'text-price max-sm:text-price-sm' : 'text-2xl leading-tight',
+        )}
+      >
+        {value}
+      </p>
+      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
     </div>
   )
 }
 
 export function PageHeader({
-  eyebrow,
   title,
   description,
   actions,
 }: {
-  eyebrow?: string
   title: string
   description?: string
   actions?: ReactNode
@@ -374,15 +470,8 @@ export function PageHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        {eyebrow ? (
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
-        {description ? (
-          <p className="mt-1 max-w-2xl text-sm text-slate-500">{description}</p>
-        ) : null}
+        <h1 className="text-2xl font-semibold tracking-title text-ink">{title}</h1>
+        {description ? <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p> : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
@@ -393,10 +482,90 @@ export function InfoDot({ label }: { label: string }) {
   return (
     <span
       title={label}
-      className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-slate-300 text-[10px] font-bold text-slate-500"
+      className="inline-flex h-5 w-5 cursor-help items-center justify-center rounded-full border border-control text-xs font-semibold text-muted"
       aria-label={label}
     >
       i
     </span>
+  )
+}
+
+export function Table({
+  className,
+  containerClassName,
+  ...props
+}: TableHTMLAttributes<HTMLTableElement> & { containerClassName?: string }) {
+  return (
+    <div className={cn('overflow-x-auto', containerClassName)}>
+      <table className={cn('w-full border-collapse text-sm', className)} {...props} />
+    </div>
+  )
+}
+
+export interface TabItem {
+  id: string
+  label: string
+}
+
+export function Tabs({
+  items,
+  value,
+  onChange,
+  label,
+  className,
+}: {
+  items: TabItem[]
+  value: string
+  onChange: (id: string) => void
+  label: string
+  className?: string
+}) {
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>, index: number) => {
+    const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
+    if (!keys.includes(event.key)) return
+    event.preventDefault()
+    const next =
+      event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? items.length - 1
+          : event.key === 'ArrowRight'
+            ? (index + 1) % items.length
+            : (index - 1 + items.length) % items.length
+    const nextItem = items[next]
+    if (nextItem) {
+      onChange(nextItem.id)
+      document.getElementById(`tab-${nextItem.id}`)?.focus()
+    }
+  }
+
+  return (
+    <div
+      role="tablist"
+      aria-label={label}
+      className={cn('flex gap-4 overflow-x-auto border-b border-line', className)}
+    >
+      {items.map((item, index) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          id={`tab-${item.id}`}
+          aria-selected={value === item.id}
+          aria-controls={`panel-${item.id}`}
+          tabIndex={value === item.id ? 0 : -1}
+          onClick={() => onChange(item.id)}
+          onKeyDown={(event) => handleKeyDown(event, index)}
+          className={cn(
+            '-mb-px shrink-0 border-b-2 px-1 py-2 text-sm font-medium transition-feedback',
+            value === item.id
+              ? 'border-data text-ink'
+              : 'border-transparent text-muted hover:text-ink',
+          )}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
   )
 }

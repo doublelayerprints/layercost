@@ -94,7 +94,7 @@ export function TariffForm({
         placeholder="Fornitore, tipo di contratto, fasce…"
       />
 
-      <div className="flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
+      <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
         <Button variant="secondary" onClick={onCancel} type="button">
           Annulla
         </Button>

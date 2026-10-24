@@ -63,15 +63,15 @@ export function LineEditor({
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-b border-line bg-raised/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <input
             value={line.name}
             onChange={(event) => onUpdate({ name: event.target.value })}
             aria-label="Nome della stampa"
-            className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1 py-0.5 text-sm font-semibold text-slate-900 outline-none transition hover:border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+            className="min-w-0 flex-1 rounded-control border border-transparent bg-transparent px-1 py-0.5 text-sm font-semibold text-ink transition-feedback hover:border-line focus:border-data focus:bg-surface"
           />
-          <Badge tone={lineCost === undefined ? 'warning' : 'success'}>
+          <Badge tone={lineCost === undefined ? 'warning' : 'neutral'}>
             {lineCost === undefined ? 'Da completare' : formatCurrency(lineCost)}
           </Badge>
         </div>
@@ -121,11 +121,11 @@ export function LineEditor({
         />
       </div>
 
-      <div className="border-t border-slate-200 p-4">
+      <div className="border-t border-line p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h4 className="text-sm font-semibold text-slate-800">Materiali</h4>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <h4 className="text-sm font-semibold text-ink">Materiali</h4>
+            <p className="mt-0.5 text-xs text-muted">
               Usa il totale riportato dallo slicer: comprende supporti, brim, purge e prime tower.
             </p>
           </div>
@@ -136,7 +136,7 @@ export function LineEditor({
 
         <div className="mt-3 space-y-2">
           {line.materials.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-slate-300 px-3 py-4 text-center text-xs text-slate-500">
+            <p className="rounded-control border border-dashed border-control px-3 py-4 text-center text-xs text-muted">
               Nessun materiale. Aggiungine almeno uno.
             </p>
           ) : null}
@@ -181,29 +181,29 @@ export function LineEditor({
       </div>
 
       {perUnitExtras.length > 0 ? (
-        <div className="border-t border-slate-200 p-4">
-          <h4 className="text-sm font-semibold text-slate-800">Extra per pezzo</h4>
+        <div className="border-t border-line p-4">
+          <h4 className="text-sm font-semibold text-ink">Extra per pezzo</h4>
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
             {perUnitExtras.map((extra) => (
-              <label key={extra.id} className="flex items-center gap-2 text-sm text-slate-600">
+              <label key={extra.id} className="flex items-center gap-2 text-sm text-muted">
                 <input
                   type="checkbox"
                   checked={line.extraIds.includes(extra.id)}
                   onChange={() => onToggleExtra(extra.id)}
-                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-control accent-data"
                 />
                 <span>{extra.name}</span>
-                <span className="text-xs text-slate-400">{formatCurrency(extra.amount)}</span>
+                <span className="text-xs text-muted">{formatCurrency(extra.amount)}</span>
               </label>
             ))}
           </div>
         </div>
       ) : null}
 
-      <details className="group border-t border-slate-200 p-4">
-        <summary className="cursor-pointer list-none text-sm font-semibold text-slate-700 marker:hidden">
+      <details className="group border-t border-line p-4">
+        <summary className="cursor-pointer list-none text-sm font-semibold text-ink marker:hidden">
           Override avanzati
-          <span className="ml-1 text-xs font-normal text-slate-400">
+          <span className="ml-1 text-xs font-normal text-muted">
             potenza, energia misurata, tasso guasti
           </span>
         </summary>
@@ -256,20 +256,20 @@ export function LineEditor({
             }
           />
         </div>
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-muted">
           Lascia disattivato per usare i valori di stampante, materiale e impostazioni. L’energia
           misurata bypassa il modello di potenza.
         </p>
       </details>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-raised px-4 py-2 text-xs text-muted">
         <span>
           {formatGrams(totalGrams)}
           {result ? ` · ${formatDuration(result.effectiveSeconds)} effettivi` : ''}
         </span>
         <span>
           Costo diretto:{' '}
-          <strong className="text-slate-700">
+          <strong className="text-ink">
             {lineCost === undefined ? '—' : formatCurrency(lineCost)}
           </strong>
         </span>
@@ -297,13 +297,13 @@ function OverrideNumber({
 }) {
   const enabled = value !== undefined
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
-      <label className="flex items-center gap-2 text-xs font-medium text-slate-600">
+    <div className="rounded-control border border-line bg-raised/60 p-2.5">
+      <label className="flex items-center gap-2 text-xs font-medium text-muted">
         <input
           type="checkbox"
           checked={enabled}
           onChange={(event) => onChange(event.target.checked ? defaultValue : undefined)}
-          className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          className="h-4 w-4 rounded border-control accent-data"
         />
         {label}
       </label>
@@ -320,7 +320,7 @@ function OverrideNumber({
           />
         </div>
       ) : (
-        <p className="mt-2 text-xs text-slate-400">Automatico</p>
+        <p className="mt-2 text-xs text-muted">Automatico</p>
       )}
     </div>
   )
@@ -338,13 +338,13 @@ function OverrideFailure({
   const defaultValueBp = Math.round(defaultValue * 100)
   const enabled = value !== undefined
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
-      <label className="flex items-center gap-2 text-xs font-medium text-slate-600">
+    <div className="rounded-control border border-line bg-raised/60 p-2.5">
+      <label className="flex items-center gap-2 text-xs font-medium text-muted">
         <input
           type="checkbox"
           checked={enabled}
           onChange={(event) => onChange(event.target.checked ? defaultValueBp : undefined)}
-          className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          className="h-4 w-4 rounded border-control accent-data"
         />
         Tasso guasti
       </label>
@@ -359,7 +359,7 @@ function OverrideFailure({
           />
         </div>
       ) : (
-        <p className="mt-2 text-xs text-slate-400">Automatico</p>
+        <p className="mt-2 text-xs text-muted">Automatico</p>
       )}
     </div>
   )

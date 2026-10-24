@@ -1,45 +1,130 @@
 @import 'tailwindcss';
 
-:root {
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
-  color-scheme: light;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family: 'Archivo';
+  src: url('./assets/fonts/archivo-latin-var.woff2') format('woff2');
+  font-weight: 400 600;
+  font-stretch: 100%;
+  font-style: normal;
+  font-display: swap;
 }
 
-html {
-  scroll-behavior: smooth;
+@font-face {
+  font-family: 'Source Serif 4';
+  src: url('./assets/fonts/source-serif-4-600-latin.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: #f1f5f9;
-  color: #0f172a;
+@theme {
+  --color-ground: #f4f3f1;
+  --color-surface: #ffffff;
+  --color-raised: #efeeeb;
+  --color-line: #e3e1dc;
+  --color-rule: #eeede9;
+  --color-control: #8a8a8a;
+  --color-ink: #0a0a0a;
+  --color-muted: #6b6b6b;
+  --color-data: #1d5fbf;
+  --color-selection: #c7d8f1;
+  --color-positive: #2e7d32;
+  --color-negative: #c4242a;
+  --color-warning: #92400e;
+
+  --color-pill-neutral-bg: #eeeeee;
+  --color-pill-neutral-ink: #3d3d3d;
+  --color-pill-success-bg: #dcfae5;
+  --color-pill-success-ink: #04250e;
+  --color-pill-info-bg: #e8f0fb;
+  --color-pill-info-ink: #1d5fbf;
+  --color-pill-warning-bg: #fffbeb;
+  --color-pill-warning-ink: #92400e;
+  --color-pill-danger-bg: #ffedea;
+  --color-pill-danger-ink: #831c1e;
+
+  --font-sans:
+    'Archivo', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+
+  --text-price: 34px;
+  --text-price--line-height: 1.05;
+  --text-price-sm: 30px;
+  --text-price-sm--line-height: 1.1;
+  --tracking-title: -0.02em;
+  --tracking-price: -0.01em;
+
+  --radius-card: 8px;
+  --radius-control: 6px;
+
+  --shadow-overlay: 0 24px 64px rgb(10 10 10 / 0.18);
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
+@layer base {
+  :root {
+    color-scheme: light;
+    font-family: var(--font-sans);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--color-ground);
+    color: var(--color-ink);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-data);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-selection);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-::selection {
-  background: #a7f3d0;
-  color: #064e3b;
+@layer utilities {
+  .transition-feedback {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: var(
+      --default-transition-timing-function,
+      cubic-bezier(0.4, 0, 0.2, 1)
+    );
+    transition-duration: var(--default-transition-duration, 150ms);
+  }
 }
 
 @media print {

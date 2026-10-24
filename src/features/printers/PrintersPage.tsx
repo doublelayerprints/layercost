@@ -28,7 +28,6 @@ export function PrintersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Configurazione"
         title="Stampanti"
         description="Prezzo, vita utile, manutenzione e consumi medi. Ogni stampante può avere la sua tariffa energia."
         actions={<Button onClick={() => setEditing('new')}>Aggiungi stampante</Button>}
@@ -62,17 +61,17 @@ export function PrintersPage() {
 
             return (
               <Card key={printer.id} className={printer.archived ? 'opacity-70' : undefined}>
-                <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-4">
+                <div className="flex items-start justify-between gap-3 border-b border-line p-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-base font-semibold text-slate-900">{printer.name}</h2>
+                      <h2 className="text-base font-semibold text-ink">{printer.name}</h2>
                       {printer.multicolor ? <Badge tone="info">Multicolore</Badge> : null}
                       {printer.archived ? <Badge tone="warning">Archiviata</Badge> : null}
                       <Badge tone={hasEstimates ? 'warning' : 'success'}>
                         {hasEstimates ? 'Stime' : 'Misurata'}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500">{printer.model}</p>
+                    <p className="mt-1 text-xs text-muted">{printer.model}</p>
                   </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="sm" onClick={() => setEditing(printer)}>
@@ -100,13 +99,11 @@ export function PrintersPage() {
                   />
                 </div>
 
-                <div className="border-t border-slate-100 p-4">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-                    Potenza media
-                  </p>
+                <div className="border-t border-line p-4">
+                  <p className="text-xs font-medium text-muted">Potenza media</p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {profiles.length === 0 ? (
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-muted">
                         Default {printer.defaultAvgWatts} W
                       </span>
                     ) : (
@@ -120,7 +117,7 @@ export function PrintersPage() {
                           profile ? (
                             <span
                               key={family}
-                              className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600"
+                              className="rounded-full bg-raised px-2 py-1 text-xs text-muted"
                               title={profile.note ?? powerSourceLabels[profile.source]}
                             >
                               {materialFamilyLabels[family as keyof typeof materialFamilyLabels]}{' '}
@@ -130,12 +127,12 @@ export function PrintersPage() {
                         )
                     )}
                   </div>
-                  <p className="mt-2 text-[11px] text-slate-500">
+                  <p className="mt-2 text-xs text-muted">
                     Default: {printer.defaultAvgWatts} W · Nominale {printer.ratedPowerW} W (non
                     usata nel costo) · Tariffa {tariff?.label ?? 'globale'}
                   </p>
                   {printer.notes ? (
-                    <p className="mt-2 text-xs text-slate-500">{printer.notes}</p>
+                    <p className="mt-2 text-xs text-muted">{printer.notes}</p>
                   ) : null}
                 </div>
               </Card>
@@ -164,9 +161,9 @@ export function PrintersPage() {
 function Info({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div>
-      <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-0.5 text-sm font-medium text-slate-800">{value}</p>
-      {hint ? <p className="text-[11px] text-slate-500">{hint}</p> : null}
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <p className="mt-0.5 text-sm font-medium text-ink">{value}</p>
+      {hint ? <p className="text-xs text-muted">{hint}</p> : null}
     </div>
   )
 }

@@ -142,9 +142,7 @@ export function PrinterForm({
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Acquisto e usura
-        </h4>
+        <h4 className="text-xs font-semibold text-muted">Acquisto e usura</h4>
         <div className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MoneyField
             label="Prezzo di acquisto"
@@ -177,7 +175,7 @@ export function PrinterForm({
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Consumi</h4>
+        <h4 className="text-xs font-semibold text-muted">Consumi</h4>
         <div className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <NumberField
             label="Minuti di avvio"
@@ -238,9 +236,7 @@ export function PrinterForm({
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Volume di stampa
-        </h4>
+        <h4 className="text-xs font-semibold text-muted">Volume di stampa</h4>
         <div className="mt-2 grid gap-4 sm:grid-cols-3">
           {(['X', 'Y', 'Z'] as const).map((axis, index) => (
             <NumberField
@@ -259,10 +255,8 @@ export function PrinterForm({
 
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Potenza media per materiale
-          </h4>
-          <p className="text-xs text-slate-500">0 = usa il default</p>
+          <h4 className="text-xs font-semibold text-muted">Potenza media per materiale</h4>
+          <p className="text-xs text-muted">0 = usa il default</p>
         </div>
         <div className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PROFILE_FAMILIES.map((family) => (
@@ -278,7 +272,7 @@ export function PrinterForm({
             />
           ))}
         </div>
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-muted">
           I valori sono stime finché non li misuri con una presa intelligente. Puoi anche inserire i
           Wh misurati nella singola riga del calcolatore.
         </p>
@@ -291,7 +285,7 @@ export function PrinterForm({
         placeholder="Accessori, ugello, piano, manutenzione…"
       />
 
-      <div className="flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
+      <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
         <Button variant="secondary" onClick={onCancel} type="button">
           Annulla
         </Button>

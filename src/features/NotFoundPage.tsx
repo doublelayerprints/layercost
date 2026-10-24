@@ -5,7 +5,7 @@ export function NotFoundPage() {
   const navigate = useNavigate()
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="404" title="Pagina non trovata" />
+      <PageHeader title="Pagina non trovata" />
       <EmptyState
         title="Questa pagina non esiste"
         description="Il link potrebbe essere vecchio o incompleto."

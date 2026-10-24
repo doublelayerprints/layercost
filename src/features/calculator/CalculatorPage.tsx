@@ -106,20 +106,14 @@ export function CalculatorPage() {
     <>
       <div className="print:hidden space-y-6">
         <PageHeader
-          eyebrow="Calcolatore"
           title={draft.name.trim() || 'Nuovo preventivo'}
           description={`Preventivo del ${formatDateOnly(draft.quoteDate)} · ${draft.lines.length} ${
             draft.lines.length === 1 ? 'riga' : 'righe'
           }`}
           actions={
-            <>
-              <Button variant="secondary" onClick={handleNew}>
-                Nuovo
-              </Button>
-              <Button onClick={handleSave} disabled={!calculation.result}>
-                Salva
-              </Button>
-            </>
+            <Button variant="secondary" onClick={handleNew}>
+              Nuovo
+            </Button>
           }
         />
 
@@ -156,8 +150,8 @@ export function CalculatorPage() {
           <div className="min-w-0 space-y-4">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold text-slate-900">Stampe</h2>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <h2 className="text-base font-semibold text-ink">Stampe</h2>
+                <p className="mt-0.5 text-xs text-muted">
                   Una riga per ogni stampa o per ogni pezzo diverso. La quantità gestisce le copie.
                 </p>
               </div>
@@ -221,7 +215,7 @@ export function CalculatorPage() {
               saveError={saveError}
             />
             {savedMessage ? (
-              <p className="mt-2 text-center text-xs text-emerald-700">{savedMessage}</p>
+              <p className="mt-2 text-center text-xs text-positive">{savedMessage}</p>
             ) : null}
           </div>
         </div>

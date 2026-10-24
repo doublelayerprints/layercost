@@ -109,7 +109,7 @@ export function MaterialForm({
         />
       </div>
 
-      <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
+      <div className="rounded-control bg-raised px-3 py-2 text-xs text-muted">
         Se hai il prezzo della bobina, calcola il prezzo al kg: prezzo bobina ÷ peso netto × 1000.
         Esempio: €19,90 per 1000 g → €19,90/kg.
       </div>
@@ -124,17 +124,17 @@ export function MaterialForm({
         <TextField label="Colore" value={color} onChange={setColor} placeholder="Opzionale" />
       </div>
 
-      <div className="rounded-lg border border-slate-200 p-3">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+      <div className="rounded-control border border-line p-3">
+        <label className="flex items-center gap-2 text-sm font-medium text-ink">
           <input
             type="checkbox"
             checked={failureEnabled}
             onChange={(event) => setFailureEnabled(event.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+            className="h-4 w-4 rounded border-control accent-data"
           />
           Tasso guasti specifico per questo materiale
         </label>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-muted">
           Se disattivato, usa il tasso globale. Utile per ABS/ASA su telaio aperto.
         </p>
         {failureEnabled ? (
@@ -157,7 +157,7 @@ export function MaterialForm({
         placeholder="Essiccazione, temperatura, ugello consigliato…"
       />
 
-      <div className="flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
+      <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
         <Button variant="secondary" onClick={onCancel} type="button">
           Annulla
         </Button>

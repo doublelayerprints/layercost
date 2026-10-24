@@ -29,7 +29,7 @@ export function SharePage() {
   if (!decoded.quote) {
     return (
       <div className="space-y-6">
-        <PageHeader eyebrow="Condivisione" title="Link non valido" />
+        <PageHeader title="Link non valido" />
         <EmptyState
           title="Impossibile aprire il preventivo"
           description={decoded.error ?? 'Il link è incompleto o danneggiato.'}
@@ -53,7 +53,6 @@ export function SharePage() {
     <>
       <div className="print:hidden space-y-6">
         <PageHeader
-          eyebrow="Preventivo condiviso"
           title={quote.name}
           description="Stai vedendo una copia in sola lettura. Puoi importarla nel tuo archivio locale."
           actions={

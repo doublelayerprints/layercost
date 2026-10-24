@@ -18,7 +18,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 - configurazione, persistenza locale, export/import;
 - UI funzionale, storico, condivisione, stampa/PDF e confronto.
 
-La fase 4 è iniziata: T4.1 (brief) e T4.2 (direzione **A — Strato**, ADR-0015) sono chiusi. Design system e redesign delle schermate sono ancora da fare.
+La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015) e T4.3 (design system) sono chiusi. Il redesign delle schermate (T4.4) è ancora da fare.
 
 ---
 
@@ -46,6 +46,7 @@ La fase 4 è iniziata: T4.1 (brief) e T4.2 (direzione **A — Strato**, ADR-0015
 - Stampa/PDF tramite stylesheet dedicato.
 - Guida iniziale per confermare i dati stimati.
 - Layout responsive, label, focus e unità.
+- Design system **Strato**: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
 
 ### Seed
 
@@ -59,15 +60,15 @@ La fase 4 è iniziata: T4.1 (brief) e T4.2 (direzione **A — Strato**, ADR-0015
 
 ## 3. Verifiche
 
-| Verifica          | Stato                            |
-| ----------------- | -------------------------------- |
-| TypeScript strict | verde                            |
-| oxlint            | verde                            |
-| Test unitari/dati | 16 superati                      |
-| Test E2E          | 3 superati                       |
-| Build produzione  | verde (~480 KB JS, ~140 KB gzip) |
-| CI GitHub `check` | verde                            |
-| CI GitHub `e2e`   | verde                            |
+| Verifica          | Stato                                         |
+| ----------------- | --------------------------------------------- |
+| TypeScript strict | verde                                         |
+| oxlint            | verde                                         |
+| Test unitari/dati | 21 superati                                   |
+| Test E2E          | 5 superati                                    |
+| Build produzione  | verde (~480 KB JS, ~141 KB gzip; ~58 KB font) |
+| CI GitHub `check` | verde                                         |
+| CI GitHub `e2e`   | verde                                         |
 
 Comandi:
 
@@ -109,7 +110,7 @@ npx vercel --prod
 
 ## 6. Limiti noti
 
-- Direzione visiva scelta (A — Strato, ADR-0015); design system e redesign non ancora realizzati.
+- Direzione e design system scelti (A — Strato, ADR-0015); il redesign delle schermate e la stampa finale non sono ancora realizzati.
 - Nessuna sincronizzazione cloud.
 - Nessun import diretto da slicer o presa intelligente.
 - Nessun magazzino bobine.
@@ -121,7 +122,7 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. Fase 4: design system (T4.3), redesign schermate (T4.4), stati e rifiniture (T4.5), review e release v1.0 (T4.6).
+1. Fase 4: redesign schermate (T4.4), stati e rifiniture (T4.5), review e release v1.0 (T4.6).
 2. Audit accessibilità e test visuali.
 3. Catena di migrazioni versionata con fixture.
 4. Backlog: sync, magazzino bobine, import slicer, PWA, inglese.
@@ -137,4 +138,5 @@ npx vercel --prod
 - `docs/engineering/deployment.md` — deploy.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
+- `docs/design/design-system.md` — token, componenti, accessibilità e stampa.
 - `docs/adr/0015-direzione-visiva.md` — decisione sulla direzione.

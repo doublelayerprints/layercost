@@ -10,6 +10,7 @@ import {
 } from '@/domain/units'
 import { formatInputNumber, parseLocaleNumber, clamp } from '@/lib/format'
 import { Field, Input, Select, Textarea } from './ui'
+import { useFieldIds } from './field-context'
 import { cn } from '@/lib/cn'
 
 interface BareNumberInputProps {
@@ -70,7 +71,7 @@ function BareNumberInput({
         className={suffix ? 'pr-9' : undefined}
       />
       {suffix ? (
-        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-medium text-slate-400">
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-medium text-muted">
           {suffix}
         </span>
       ) : null}
@@ -252,6 +253,7 @@ export function DurationField({
   disabled?: boolean
   className?: string
 }) {
+  const { labelId } = useFieldIds()
   const hours = Math.floor(valueSeconds / 3600)
   const minutes = Math.round((valueSeconds % 3600) / 60)
 
@@ -263,7 +265,12 @@ export function DurationField({
 
   return (
     <Field label={label} hint={hint} error={error} className={className}>
-      <div className="flex gap-2" role="group" aria-label="Durata">
+      <div
+        className="flex gap-2"
+        role="group"
+        aria-labelledby={labelId || undefined}
+        aria-label={labelId ? undefined : 'Durata'}
+      >
         <BareNumberInput
           value={hours}
           onChange={(value) => update(value, minutes)}

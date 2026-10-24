@@ -24,17 +24,16 @@ export function JobCostsEditor({
     <Card className="p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Costi di lavoro</h3>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <h3 className="text-sm font-semibold text-ink">Costi di lavoro</h3>
+          <p className="mt-0.5 text-xs text-muted">
             Setup, progettazione ed extra applicati una volta per preventivo.
           </p>
         </div>
         {result ? (
-          <p className="text-xs text-slate-500">
-            Manodopera:{' '}
-            <strong className="text-slate-700">{formatCurrency(result.jobLabor)}</strong>
+          <p className="text-xs text-muted">
+            Manodopera: <strong className="text-ink">{formatCurrency(result.jobLabor)}</strong>
             {' · '}
-            Extra: <strong className="text-slate-700">{formatCurrency(result.jobExtras)}</strong>
+            Extra: <strong className="text-ink">{formatCurrency(result.jobExtras)}</strong>
           </p>
         ) : null}
       </div>
@@ -56,18 +55,18 @@ export function JobCostsEditor({
 
       {jobExtras.length > 0 ? (
         <div className="mt-4">
-          <p className="text-xs font-medium text-slate-600">Extra per lavoro</p>
+          <p className="text-xs font-medium text-muted">Extra per lavoro</p>
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
             {jobExtras.map((extra) => (
-              <label key={extra.id} className="flex items-center gap-2 text-sm text-slate-600">
+              <label key={extra.id} className="flex items-center gap-2 text-sm text-muted">
                 <input
                   type="checkbox"
                   checked={job.extraIds.includes(extra.id)}
                   onChange={() => onToggleExtra(extra.id)}
-                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-control accent-data"
                 />
                 <span>{extra.name}</span>
-                <span className="text-xs text-slate-400">{formatCurrency(extra.amount)}</span>
+                <span className="text-xs text-muted">{formatCurrency(extra.amount)}</span>
               </label>
             ))}
           </div>
