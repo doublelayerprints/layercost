@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; design pending
+**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; direzione visiva scelta (T4.2)
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
-**Data:** 23 ottobre 2026
+**Data:** 24 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 23/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4 (design) da iniziare. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
+**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1 e T4.2 chiusi (direzione **A — Strato**, ADR-0015); design system e redesign da fare. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
 
 ---
 
@@ -659,13 +659,14 @@ Un task è chiuso solo se:
 ## T4.2 — Direzioni di design
 
 **Dipende da:** T4.1
-**Stato:** `[ ]`
+**Stato:** `[x]`
 
-- 2–3 direzioni con la skill.
-- Scelta motivata.
-- ADR con la decisione.
+- Due direzioni con la skill: **A — Strato** (`achromatic-ledger`) e **B — Commessa** (`framed-sheet`).
+- Specifiche complete, palette, tipografia e wireframe in `docs/design/directions.md`.
+- Scelta motivata: **A — Strato**; ADR-0015.
+- Font self-hosted, base chiara, nessuna modifica a dominio, formule, snapshot o persistenza.
 
-**Accettazione:** direzione scelta e registrata; niente redesign del dominio.
+**Accettazione:** direzione scelta e registrata; niente redesign del dominio. Direzione A, ADR-0015, `docs/design/directions.md`.
 
 ---
 

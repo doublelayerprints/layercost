@@ -1,13 +1,13 @@
 # LayerCost — Documentazione
 
-**Stato:** v0.1 — MVP funzionale
-**Data:** 23 ottobre 2026
+**Stato:** v0.1 — MVP funzionale; direzione visiva scelta
+**Data:** 24 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
-- Fase 4 (design) non iniziata.
+- Fase 4: T4.1 e T4.2 chiusi (direzione **A — Strato**, ADR-0015); design system e redesign da fare.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
 - Test: 16 unitari + 3 E2E.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
@@ -68,7 +68,8 @@
 │   │   ├── deployment.md
 │   │   └── conventions.md
 │   ├── design/
-│   │   └── ui-brief.md
+│   │   ├── ui-brief.md
+│   │   └── directions.md
 │   └── adr/
 │       ├── README.md
 │       ├── 0001-static-local-first.md
@@ -437,6 +438,8 @@ Sezioni:
 - criteri di successo.
 
 **Aggiornare quando:** cambia un flusso o un requisito UI. Non contiene colori, font o moodboard: quelli arrivano dalla skill di design.
+
+Le direzioni visive sono in `docs/design/directions.md`: proposte con palette, tipografia, wireframe e criteri di scelta. La decisione è registrata in `docs/adr/0015-direzione-visiva.md`. Aggiornare quando cambia la direzione o il design system.
 
 ---
 

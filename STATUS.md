@@ -1,6 +1,6 @@
 # LayerCost — Stato del progetto
 
-**Data:** 23 ottobre 2026
+**Data:** 24 ottobre 2026
 **Versione:** 0.1.0 — MVP funzionale
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
@@ -18,7 +18,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 - configurazione, persistenza locale, export/import;
 - UI funzionale, storico, condivisione, stampa/PDF e confronto.
 
-La fase 4 (redesign UI con la skill di design) non è iniziata.
+La fase 4 è iniziata: T4.1 (brief) e T4.2 (direzione **A — Strato**, ADR-0015) sono chiusi. Design system e redesign delle schermate sono ancora da fare.
 
 ---
 
@@ -109,7 +109,7 @@ npx vercel --prod
 
 ## 6. Limiti noti
 
-- Design definitivo non ancora realizzato.
+- Direzione visiva scelta (A — Strato, ADR-0015); design system e redesign non ancora realizzati.
 - Nessuna sincronizzazione cloud.
 - Nessun import diretto da slicer o presa intelligente.
 - Nessun magazzino bobine.
@@ -121,7 +121,7 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. Fase 4: direzione di design, design system, redesign schermate.
+1. Fase 4: design system (T4.3), redesign schermate (T4.4), stati e rifiniture (T4.5), review e release v1.0 (T4.6).
 2. Audit accessibilità e test visuali.
 3. Catena di migrazioni versionata con fixture.
 4. Backlog: sync, magazzino bobine, import slicer, PWA, inglese.
@@ -136,3 +136,5 @@ npx vercel --prod
 - `docs/domain/cost-model.md` — formule normative.
 - `docs/engineering/deployment.md` — deploy.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
+- `docs/design/directions.md` — direzioni e scelta visiva.
+- `docs/adr/0015-direzione-visiva.md` — decisione sulla direzione.

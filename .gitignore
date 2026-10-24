@@ -18,6 +18,7 @@ coverage
 test-results
 playwright-report
 .vercel
+.taste-skill
 
 # Editor directories and files
 .vscode/*
