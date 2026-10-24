@@ -12,6 +12,7 @@ export function TariffsPage() {
   const updateTariff = useAppStore((state) => state.updateTariff)
   const removeTariff = useAppStore((state) => state.removeTariff)
   const [editing, setEditing] = useState<EnergyTariff | 'new' | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<EnergyTariff>()
 
   const tariffs = [...config.settings.tariffs].sort((a, b) =>
     b.effectiveFrom.localeCompare(a.effectiveFrom),
@@ -33,14 +34,13 @@ export function TariffsPage() {
 
   const handleRemove = (tariff: EnergyTariff) => {
     if (config.settings.tariffs.length <= 1) return
-    if (
-      !window.confirm(
-        `Eliminare la tariffa “${tariff.label}”? Le stampanti che la usano torneranno alla tariffa globale.`,
-      )
-    ) {
-      return
-    }
-    removeTariff(tariff.id)
+    setPendingDelete(tariff)
+  }
+
+  const confirmRemove = () => {
+    if (!pendingDelete) return
+    removeTariff(pendingDelete.id)
+    setPendingDelete(undefined)
   }
 
   return (
@@ -89,6 +89,11 @@ export function TariffsPage() {
           <p className="text-sm text-muted">
             {tariffs.length} {tariffs.length === 1 ? 'tariffa' : 'tariffe'} in archivio
           </p>
+          {tariffs.length === 1 ? (
+            <p className="mt-1 text-xs text-muted">
+              Serve almeno una tariffa: l’ultima non può essere eliminata.
+            </p>
+          ) : null}
           <div className="relative mt-3 overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <caption className="sr-only">Tariffe energia in ordine di decorrenza</caption>
@@ -174,6 +179,30 @@ export function TariffsPage() {
           onSave={handleSave}
           onCancel={() => setEditing(null)}
         />
+      </Modal>
+
+      <Modal
+        open={pendingDelete !== undefined}
+        onClose={() => setPendingDelete(undefined)}
+        title="Eliminare la tariffa?"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setPendingDelete(undefined)}>
+              Annulla
+            </Button>
+            <Button variant="danger" onClick={confirmRemove}>
+              Elimina tariffa
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3 text-sm text-muted">
+          <p>
+            “{pendingDelete?.label}” verrà rimossa. Le stampanti che la usano torneranno alla
+            tariffa globale.
+          </p>
+          <p>I preventivi già salvati conservano il prezzo dell’energia nel loro snapshot.</p>
+        </div>
       </Modal>
     </div>
   )

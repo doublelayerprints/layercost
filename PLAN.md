@@ -1,14 +1,14 @@
 # LayerCost — Piano di prodotto e tecnico
 
-**Stato:** MVP funzionale implementato (fasi 0–3); CI verde su GitHub; deploy Vercel live; fase 4: T4.1–T4.4 e T4.7 chiusi, mergiati in `main` e in produzione; restano T4.5–T4.6
+**Stato:** MVP funzionale implementato (fasi 0–3); CI verde su GitHub; deploy Vercel live; fase 4: T4.1–T4.5 e T4.7 chiusi, mergiati in `main` e in produzione; resta T4.6
 **Data:** 23 ottobre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
 **Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione rimandata; preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel
 
 ## Stato implementazione
 
-- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato).
-- **Da fare:** stati e rifiniture (T4.5), review e release v1.0 (T4.6), audit accessibilità automatico, eventuale sincronizzazione cloud.
+- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5).
+- **Da fare:** review e release v1.0 (T4.6), audit accessibilità automatico, eventuale sincronizzazione cloud.
 - **Non fatto:** import diretto da slicer, magazzino bobine, PWA, inglese.
 
 ---

@@ -197,7 +197,7 @@ wearCost      = depreciation + maintenance
 ```
 
 - L'ammortamento è **per ore di stampa**, non per calendario.
-- Il valore residuo è una percentuale del prezzo di acquisto (default 0%).
+- Il valore residuo è una percentuale del prezzo di acquisto (default 20% nel seed attuale; 0% nella configurazione di test dei golden case).
 - La manutenzione è una riserva €/h per ugelli, piatti, cinghie, lubrificante.
 - Non modella l'usura differenziale per materiale: è una media dichiarata.
 - Se il prezzo di acquisto è 0, l'ammortamento è 0 e la UI mostra un avviso.

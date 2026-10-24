@@ -11,6 +11,7 @@ import { QuotePrint } from '@/features/quotes/QuotePrint'
 import { CostDetails } from './CostDetails'
 import { JobCostsEditor } from './JobCostsEditor'
 import { LineEditor } from './LineEditor'
+import { NewDraftButton } from './NewDraftButton'
 import { PricingEditor } from './PricingEditor'
 import { SummaryPanel, type QuickComparison } from './SummaryPanel'
 import { formatDateOnly, formatGrams } from '@/lib/format'
@@ -36,12 +37,10 @@ export function CalculatorPage() {
   const removeLineMaterial = useAppStore((state) => state.removeLineMaterial)
   const toggleLineExtra = useAppStore((state) => state.toggleLineExtra)
   const saveDraft = useAppStore((state) => state.saveDraft)
-  const newDraft = useAppStore((state) => state.newDraft)
   const navigate = useNavigate()
   const dateFieldId = useId()
 
   const [saveError, setSaveError] = useState<string>()
-  const [savedMessage, setSavedMessage] = useState<string>()
 
   const calculation = useMemo<CalculationState>(() => {
     try {
@@ -56,8 +55,7 @@ export function CalculatorPage() {
 
   const totalGrams = draft.lines.reduce(
     (sum, line) =>
-      sum +
-      line.materials.reduce((lineSum, usage) => lineSum + usage.grams, 0) * line.quantity,
+      sum + line.materials.reduce((lineSum, usage) => lineSum + usage.grams, 0) * line.quantity,
     0,
   )
 
@@ -108,36 +106,14 @@ export function CalculatorPage() {
 
   const handleSave = () => {
     setSaveError(undefined)
-    setSavedMessage(undefined)
     const result = saveDraft()
     if (result.error) {
       setSaveError(result.error)
       return
     }
     if (result.quote) {
-      setSavedMessage('Preventivo salvato. Lo trovi nello storico.')
-      navigate(`/quotes/${result.quote.id}`)
+      navigate(`/quotes/${result.quote.id}`, { state: { saved: true } })
     }
-  }
-
-  const handleNew = () => {
-    const hasContent =
-      draft.lines.length > 1 ||
-      draft.lines.some(
-        (line) =>
-          line.timeSeconds > 0 ||
-          line.materials.some((usage) => usage.grams > 0) ||
-          line.name !== 'Stampa',
-      )
-    if (
-      hasContent &&
-      !window.confirm('Vuoi iniziare un nuovo preventivo? Le modifiche non salvate andranno perse.')
-    ) {
-      return
-    }
-    setSaveError(undefined)
-    setSavedMessage(undefined)
-    newDraft()
   }
 
   const handlePrint = () => {
@@ -159,11 +135,13 @@ export function CalculatorPage() {
           description={`Bozza · preventivo del ${formatDateOnly(draft.quoteDate)} · ${paragraphCount} ${
             paragraphCount === 1 ? 'riga' : 'righe'
           } · ${formatGrams(totalGrams)}`}
-          actions={
-            <Button variant="secondary" onClick={handleNew}>
-              Nuovo
-            </Button>
+          meta={
+            <span className="text-xs text-muted">
+              La bozza si salva da sola in questo browser; “Salva preventivo” la aggiunge allo
+              storico.
+            </span>
           }
+          actions={<NewDraftButton label="Nuovo" />}
         />
 
         <div className="mt-6">
@@ -205,10 +183,7 @@ export function CalculatorPage() {
                 </div>
               </section>
 
-              <section
-                className="mt-8 border-t border-line pt-6"
-                aria-labelledby="section-stampe"
-              >
+              <section className="mt-8 border-t border-line pt-6" aria-labelledby="section-stampe">
                 <SectionHeader
                   id="section-stampe"
                   title="Stampe"
@@ -289,9 +264,6 @@ export function CalculatorPage() {
               onPrint={handlePrint}
               saveError={saveError}
             />
-            {savedMessage ? (
-              <p className="mt-2 text-center text-sm text-positive">{savedMessage}</p>
-            ) : null}
           </aside>
         </div>
 

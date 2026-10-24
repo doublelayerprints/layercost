@@ -2,10 +2,14 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/state/app-store'
 import { Badge, Button, EmptyState, Input, PageHeader } from '@/components/ui'
+import { NewDraftButton } from '@/features/calculator/NewDraftButton'
 import { formatCents, formatCurrency, formatDateOnly } from '@/lib/format'
 import type { Quote } from '@/domain/types'
 
-function quoteStatus(quote: Quote): { label: string; tone: 'neutral' | 'success' | 'warning' | 'danger' } {
+function quoteStatus(quote: Quote): {
+  label: string
+  tone: 'neutral' | 'success' | 'warning' | 'danger'
+} {
   if (!quote.result) return { label: 'Non ricalcolabile', tone: 'danger' }
   if (quote.archived) return { label: 'Archiviato', tone: 'warning' }
   return { label: 'Salvato', tone: 'success' }
@@ -31,13 +35,28 @@ export function QuotesPage() {
   }, [quotes, search, showArchived])
 
   const visibleCount = quotes.filter((quote) => showArchived || !quote.archived).length
+  const hasHiddenArchived = !showArchived && quotes.some((quote) => quote.archived)
+  const hasSearch = search.trim().length > 0
+
+  const emptyAction =
+    quotes.length === 0 ? (
+      <Button onClick={() => navigate('/')}>Vai al calcolatore</Button>
+    ) : hasSearch ? (
+      <Button variant="secondary" onClick={() => setSearch('')}>
+        Azzera la ricerca
+      </Button>
+    ) : hasHiddenArchived ? (
+      <Button variant="secondary" onClick={() => setShowArchived(true)}>
+        Mostra archiviati
+      </Button>
+    ) : undefined
 
   return (
     <div>
       <PageHeader
         title="Preventivi"
         description="Ogni preventivo conserva i prezzi usati al momento del salvataggio."
-        actions={<Button onClick={() => navigate('/')}>Nuovo preventivo</Button>}
+        actions={<NewDraftButton label="Nuovo preventivo" />}
       />
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -73,13 +92,11 @@ export function QuotesPage() {
             description={
               quotes.length === 0
                 ? 'Calcola una stampa o un lotto e salvalo per ritrovarlo qui.'
-                : 'Prova a cambiare la ricerca o a mostrare gli archiviati.'
+                : hasSearch
+                  ? 'Nessun preventivo corrisponde alla ricerca.'
+                  : 'Gli unici preventivi presenti sono archiviati.'
             }
-            action={
-              quotes.length === 0 ? (
-                <Button onClick={() => navigate('/')}>Vai al calcolatore</Button>
-              ) : undefined
-            }
+            action={emptyAction}
           />
         </div>
       ) : (

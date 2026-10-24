@@ -1,15 +1,15 @@
 # LayerCost — Documentazione
 
-**Stato:** v0.1 — MVP funzionale; direzione, design system, redesign e dark mode fatti
+**Stato:** v0.1 — MVP funzionale; direzione, design system, redesign, stati e dark mode fatti
 **Data:** 24 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
-- Fase 4: T4.1–T4.4 e T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate, dark mode con ADR-0016), mergiati in `main` e in produzione. Restano T4.5 e T4.6.
+- Fase 4: T4.1–T4.5 e T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate, stati e rifiniture, dark mode con ADR-0016), mergiati in `main` e in produzione. Resta T4.6.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 36 unitari + 6 E2E.
+- Test: 42 unitari + 8 E2E.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; ultimo deploy T4.7 (`a0960d3`) verificato; le preview sono protette da SSO.

@@ -4,7 +4,7 @@ import type { PrintLine, Quote, QuoteResult } from '@/domain/types'
 import { calculateQuote, pricingFromSettings } from '@/domain/cost/quote'
 import { gramsToCg } from '@/domain/units'
 import { useAppStore } from '@/state/app-store'
-import { Alert, Badge, Button, Card, PageHeader, SectionHeader } from '@/components/ui'
+import { Alert, Badge, Button, Card, EmptyState, PageHeader, SectionHeader } from '@/components/ui'
 import { DurationField, NumberField, SelectField } from '@/components/number-fields'
 import {
   displayCents,
@@ -104,9 +104,44 @@ export function ComparePage() {
           ? lineB?.printerName
           : undefined
 
-  const rows = resultA && resultB && lineA && lineB
-    ? comparisonRows(resultA, resultB, lineA, lineB)
-    : []
+  const rows =
+    resultA && resultB && lineA && lineB ? comparisonRows(resultA, resultB, lineA, lineB) : []
+
+  if (activePrinters.length < 2) {
+    return (
+      <div>
+        <PageHeader
+          title="Confronto stampanti"
+          description="Lo stesso lavoro, la stessa quantità: costo e prezzo su due stampanti."
+        />
+        <div className="mt-6">
+          <EmptyState
+            title="Servono due stampanti attive"
+            description="Il confronto mette a fianco due stampanti. Aggiungine una o ripristina quella archiviata."
+            action={<Button onClick={() => navigate('/printers')}>Vai alle stampanti</Button>}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  if (activeMaterials.length === 0) {
+    return (
+      <div>
+        <PageHeader
+          title="Confronto stampanti"
+          description="Lo stesso lavoro, la stessa quantità: costo e prezzo su due stampanti."
+        />
+        <div className="mt-6">
+          <EmptyState
+            title="Serve un materiale attivo"
+            description="Il confronto usa un materiale per stimare il costo. Aggiungine uno o ripristina quello archiviato."
+            action={<Button onClick={() => navigate('/materials')}>Vai ai materiali</Button>}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -202,7 +237,10 @@ export function ComparePage() {
               </caption>
               <thead>
                 <tr>
-                  <th scope="col" className="w-[38%] py-2 pr-4 text-left text-xs font-medium text-muted">
+                  <th
+                    scope="col"
+                    className="w-[38%] py-2 pr-4 text-left text-xs font-medium text-muted"
+                  >
                     Voce
                   </th>
                   <th scope="col" className="py-2 pl-6 text-right text-xs font-medium text-muted">
@@ -401,9 +439,7 @@ function MobileColumn({
           >
             <dt className="text-muted">{row.label}</dt>
             <dd
-              className={
-                row.strong ? 'font-medium tabular-nums text-ink' : 'tabular-nums text-ink'
-              }
+              className={row.strong ? 'font-medium tabular-nums text-ink' : 'tabular-nums text-ink'}
             >
               {row.value}
             </dd>
