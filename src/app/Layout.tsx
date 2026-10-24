@@ -31,26 +31,29 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
   return (
     <>
       {navGroups.map((group) => (
-        <div key={group.label} className="space-y-0.5">
-          <p className="px-3 pb-1 pt-4 text-xs font-medium text-muted">{group.label}</p>
-          {group.items.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              onClick={onNavigate}
-              className={({ isActive }) =>
-                cn(
-                  mobile
-                    ? 'flex w-full items-center rounded-control px-3 py-2.5 text-sm font-medium transition-feedback'
-                    : 'flex items-center rounded-control px-3 py-2 text-sm transition-feedback',
-                  isActive ? 'bg-raised text-ink' : 'text-muted hover:bg-raised hover:text-ink',
-                )
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
+        <div key={group.label}>
+          <p className="px-3 pb-1.5 pt-6 text-xs font-medium text-muted">{group.label}</p>
+          <div className="space-y-px">
+            {group.items.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                onClick={onNavigate}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center rounded-control text-sm transition-feedback',
+                    mobile ? 'px-3 py-3 font-medium' : 'px-3 py-[7px]',
+                    isActive
+                      ? 'bg-raised font-medium text-ink'
+                      : 'text-muted hover:bg-raised hover:text-ink',
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
         </div>
       ))}
     </>
@@ -69,15 +72,15 @@ function MobileHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="no-print sticky top-0 z-30 border-b border-line bg-surface lg:hidden">
-      <div className="flex items-center justify-between gap-3 px-4 py-2">
-        <Logo />
+    <header className="no-print sticky top-0 z-30 border-b border-line bg-ground lg:hidden">
+      <div className="flex h-14 items-center justify-between gap-3 px-4">
+        <Logo tagline={false} />
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
           aria-controls={menuOpen ? 'mobile-navigation' : undefined}
-          className="inline-flex h-10 items-center rounded-control px-3 text-sm font-medium text-muted hover:bg-raised hover:text-ink"
+          className="inline-flex h-10 items-center rounded-control px-3 text-sm font-medium text-muted transition-feedback hover:bg-raised hover:text-ink"
         >
           {menuOpen ? 'Chiudi' : 'Menu'}
         </button>
@@ -85,11 +88,11 @@ function MobileHeader() {
       {menuOpen ? (
         <nav
           id="mobile-navigation"
-          className="border-t border-line px-4 pb-4 pt-3"
+          className="max-h-[calc(100vh-3.5rem)] overflow-y-auto border-t border-line px-4 pb-6 pt-2"
           aria-label="Navigazione principale"
         >
           <NavItems mobile onNavigate={() => setMenuOpen(false)} />
-          <div className="mt-4 border-t border-line pt-3 text-xs text-muted">
+          <div className="mt-6 border-t border-line pt-3 text-xs text-muted">
             <p>Dati salvati solo su questo browser.</p>
             <Link
               to="/settings"
@@ -109,7 +112,6 @@ function MobileHeader() {
 export function Layout() {
   const warning = useAppStore((state) => state.warning)
   const setWarning = useAppStore((state) => state.setWarning)
-  const { pathname } = useLocation()
 
   return (
     <div className="min-h-screen bg-ground text-ink">
@@ -120,11 +122,11 @@ export function Layout() {
         Vai al contenuto
       </a>
 
-      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-surface px-3 py-5 lg:flex">
+      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-ground px-3 py-5 lg:flex">
         <div className="px-2">
           <Logo />
         </div>
-        <nav className="mt-6 flex-1 overflow-y-auto" aria-label="Navigazione principale">
+        <nav className="mt-2 flex-1 overflow-y-auto" aria-label="Navigazione principale">
           <NavItems />
         </nav>
         <div className="border-t border-line px-3 pt-3 text-xs text-muted">
@@ -140,7 +142,7 @@ export function Layout() {
       </aside>
 
       <div className="lg:pl-64 print:pl-0">
-        <MobileHeader key={pathname} />
+        <MobileHeader />
 
         <main
           id="main"
@@ -148,7 +150,7 @@ export function Layout() {
         >
           <ScrollToTop />
           {warning ? (
-            <div className="no-print mb-4">
+            <div className="no-print mb-6">
               <Alert tone="warning" title="Attenzione" onClose={() => setWarning(undefined)}>
                 {warning}
               </Alert>

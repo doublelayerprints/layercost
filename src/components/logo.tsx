@@ -1,16 +1,24 @@
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 
-export function Logo({ compact = false, className }: { compact?: boolean; className?: string }) {
+export function Logo({
+  compact = false,
+  tagline = true,
+  className,
+}: {
+  compact?: boolean
+  tagline?: boolean
+  className?: string
+}) {
   return (
     <Link
       to="/"
-      className={cn('flex items-center gap-3 rounded-control', className)}
+      className={cn('flex items-center gap-2.5 rounded-control', className)}
       aria-label={compact ? 'LayerCost' : undefined}
     >
       <svg
-        width="28"
-        height="28"
+        width="24"
+        height="24"
         viewBox="0 0 32 32"
         aria-hidden="true"
         className="shrink-0 text-ink"
@@ -22,8 +30,10 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
       </svg>
       {!compact ? (
         <span>
-          <span className="block text-sm font-semibold tracking-title text-ink">LayerCost</span>
-          <span className="block text-xs text-muted">Costo e prezzo delle stampe 3D</span>
+          <span className="block text-base font-semibold tracking-title text-ink">LayerCost</span>
+          {tagline ? (
+            <span className="block text-xs text-muted">Costo e prezzo delle stampe 3D</span>
+          ) : null}
         </span>
       ) : null}
     </Link>

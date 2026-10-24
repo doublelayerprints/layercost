@@ -25,80 +25,166 @@ export function MaterialsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div>
       <PageHeader
         title="Materiali"
         description="Prezzo al kg, peso netto della bobina e tasso guasti. I grammi si inseriscono dal totale dello slicer."
         actions={<Button onClick={() => setEditing('new')}>Aggiungi materiale</Button>}
       />
 
-      <Alert tone="info" title="Il prezzo è quello effettivo">
-        Inserisci il prezzo che paghi davvero, eventualmente comprensivo di spedizione. Se la bobina
-        non è da 1 kg, indica il peso netto reale: il prezzo al grammo si adegua.
-      </Alert>
+      <div className="mt-6">
+        <Alert tone="info" title="Il prezzo è quello effettivo">
+          Inserisci il prezzo che paghi davvero, eventualmente comprensivo di spedizione. Se la
+          bobina non è da 1 kg, indica il peso netto reale: il prezzo al grammo si adegua.
+        </Alert>
+      </div>
 
       {materials.length === 0 ? (
-        <EmptyState
-          title="Nessun materiale configurato"
-          description="Aggiungi almeno un materiale per poter calcolare una stampa."
-          action={<Button onClick={() => setEditing('new')}>Aggiungi materiale</Button>}
-        />
+        <div className="mt-6">
+          <EmptyState
+            title="Nessun materiale configurato"
+            description="Aggiungi almeno un materiale per poter calcolare una stampa."
+            action={<Button onClick={() => setEditing('new')}>Aggiungi materiale</Button>}
+          />
+        </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {materials.map((material) => (
-            <Card key={material.id} className={material.archived ? 'opacity-70' : undefined}>
-              <div className="flex items-start justify-between gap-2 border-b border-line p-4">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-semibold text-ink">{material.name}</h2>
-                    <Badge tone="neutral">{materialFamilyLabels[material.family]}</Badge>
-                    {material.archived ? <Badge tone="warning">Archiviato</Badge> : null}
+        <Card className="mt-6 p-5 sm:p-6">
+          <p className="text-sm text-muted">
+            {materials.length} {materials.length === 1 ? 'materiale' : 'materiali'} ·{' '}
+            {materials.filter((material) => material.archived).length} archiviati
+          </p>
+
+          <div className="relative mt-3 hidden overflow-x-auto sm:block">
+            <table className="w-full border-collapse text-sm">
+              <caption className="sr-only">Materiali configurati</caption>
+              <thead>
+                <tr className="text-xs text-muted">
+                  <th scope="col" className="py-2 pr-4 text-left font-medium">
+                    Materiale
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-left font-medium">
+                    Famiglia
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Prezzo al kg
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Al grammo
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Bobina
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Guasti
+                  </th>
+                  <th scope="col" className="py-2 text-right font-medium">
+                    <span className="sr-only">Azioni</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {materials.map((material) => (
+                  <tr key={material.id} className="border-t border-rule align-middle">
+                    <th scope="row" className="py-3 pr-4 text-left font-normal">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium text-ink">{material.name}</span>
+                        {material.archived ? <Badge tone="warning">Archiviato</Badge> : null}
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted">
+                        {material.supplier ?? 'Fornitore non indicato'}
+                        {material.color ? ` · ${material.color}` : ''}
+                      </p>
+                    </th>
+                    <td className="py-3 pr-4 text-muted">
+                      {materialFamilyLabels[material.family]}
+                    </td>
+                    <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
+                      {formatCurrency(material.pricePerKg)}
+                    </td>
+                    <td className="py-3 pr-4 text-right tabular-nums text-muted">
+                      {formatCurrency(material.pricePerKg / 1000, 4)}
+                    </td>
+                    <td className="py-3 pr-4 text-right tabular-nums text-muted">
+                      {material.spoolNetWeightG} g
+                    </td>
+                    <td className="py-3 pr-4 text-right tabular-nums text-muted">
+                      {material.failureRateBp === undefined
+                        ? 'Globale'
+                        : formatPercent(material.failureRateBp)}
+                    </td>
+                    <td className="py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setEditing(material)}
+                        >
+                          Modifica
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => archiveMaterial(material.id)}
+                        >
+                          {material.archived ? 'Ripristina' : 'Archivia'}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <ul className="mt-3 border-t border-line sm:hidden">
+            {materials.map((material) => (
+              <li key={material.id} className="border-b border-rule py-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium text-ink">{material.name}</p>
+                      {material.archived ? <Badge tone="warning">Archiviato</Badge> : null}
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {[
+                        materialFamilyLabels[material.family] !== material.name
+                          ? materialFamilyLabels[material.family]
+                          : null,
+                        material.supplier,
+                        material.color,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {material.spoolNetWeightG} g · guasti{' '}
+                      {material.failureRateBp === undefined
+                        ? 'globali'
+                        : formatPercent(material.failureRateBp)}
+                    </p>
                   </div>
-                  <p className="mt-1 text-xs text-muted">
-                    {material.supplier ?? 'Fornitore non indicato'}
-                    {material.color ? ` · ${material.color}` : ''}
-                  </p>
+                  <div className="shrink-0 text-right">
+                    <p className="text-base font-medium tabular-nums text-ink">
+                      {formatCurrency(material.pricePerKg)}
+                      <span className="text-xs font-normal text-muted">/kg</span>
+                    </p>
+                    <p className="text-xs text-muted">
+                      {formatCurrency(material.pricePerKg / 1000, 4)}/g
+                    </p>
+                  </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => setEditing(material)}>
+                <div className="mt-2 flex gap-1">
+                  <Button variant="secondary" size="sm" onClick={() => setEditing(material)}>
                     Modifica
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => archiveMaterial(material.id)}>
                     {material.archived ? 'Ripristina' : 'Archivia'}
                   </Button>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3 p-4">
-                <div>
-                  <p className="text-xs font-medium text-muted">Prezzo</p>
-                  <p className="mt-0.5 text-lg font-semibold tabular-nums text-ink">
-                    {formatCurrency(material.pricePerKg)}/kg
-                  </p>
-                  <p className="text-xs text-muted">
-                    {formatCurrency(material.pricePerKg / 1000, 4)}/g
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted">Bobina</p>
-                  <p className="mt-0.5 text-sm font-medium text-ink">
-                    {material.spoolNetWeightG} g netti
-                  </p>
-                  <p className="text-xs text-muted">
-                    Guasti:{' '}
-                    {material.failureRateBp === undefined
-                      ? 'globale'
-                      : formatPercent(material.failureRateBp)}
-                  </p>
-                </div>
-              </div>
-              {material.notes ? (
-                <p className="border-t border-line px-4 py-2 text-xs text-muted">
-                  {material.notes}
-                </p>
-              ) : null}
-            </Card>
-          ))}
-        </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
       )}
 
       <Modal

@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; direzione e design system scelti (T4.2–T4.3)
+**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.4 chiusi
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 24 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2 e T4.3 chiusi (direzione **A — Strato**, ADR-0015, design system); redesign delle schermate da fare. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
+**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3 e T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate). Restano T4.5 e T4.6. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
 
 ---
 
@@ -680,7 +680,7 @@ Un task è chiuso solo se:
 - Componenti: Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, Table, Tabs.
 - Firma di prodotto: **CostStack** a quattro bande, con legenda accessibile e raggruppamento sotto il 3%.
 - Shell e schermate migrate ai token senza cambiare la composizione; contrasto AA verificato; bordo campi a 3,45:1.
-- Test: 21 unitari (5 sul raggruppamento delle bande) + 5 E2E (2 sul design system); `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`tiny-text`).
+- Test: 21 unitari (5 sul raggruppamento delle bande) + 5 E2E (2 sul design system); `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`tiny-text`). T4.4 porta i test a 29 e il gate a 0 FAIL, 1 WARN (`ragged-row`, rail sticky).
 
 **Accettazione:** componenti documentati in `docs/design/design-system.md`; nessuna eccezione hardcoded nei componenti (restano solo le dimensioni `pt` della stampa e gli asset statici); test visuali di base verdi.
 
@@ -689,7 +689,7 @@ Un task è chiuso solo se:
 ## T4.4 — Redesign schermate
 
 **Dipende da:** T4.3
-**Stato:** `[ ]`
+**Stato:** `[x]`
 
 - Calcolatore, risultati, preventivi, anagrafiche, impostazioni, confronto, share.
 - Dettagli in `docs/design/design-system.md` §8; wireframe in `docs/design/directions.md` §3.4 e §4.4.
@@ -697,7 +697,9 @@ Un task è chiuso solo se:
 - Responsive; dark mode fuori scope v1 (ADR-0015).
 - Eseguire il gate visivo `inspect.mjs --app` a 1440/768/390 e la critique.
 
-**Accettazione:** tutti i flussi funzionano; test E2E verdi; nessuna regressione nei calcoli.
+**Nota:** applicata la direzione A a tutte le schermate; confronto rapido nel pannello risultato; stampa A4 rifinita. Corretto un difetto di visualizzazione dello stack con quantità > 1 (bande × quantità, importi in centesimi allocati) e l’arrotondamento dei centesimi in `formatCurrency`: nessun cambio a formule, `engineVersion`, snapshot o persistenza. Gate: `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`ragged-row` sulla rail sticky); nessun overflow a 390 px; dialogo con Esc e focus restituito; PDF A4 verificato su Chrome. Critique in `docs/design/design-system.md` §8.2 (round 1 → 2, 8,2). Safari e axe restano in T3.8/T3.11.
+
+**Accettazione:** tutti i flussi funzionano; test E2E verdi; nessuna regressione nei calcoli. → 29 test unitari, 5 E2E, `npm run check` verde.
 
 ---
 

@@ -3,26 +3,10 @@ import { useAppStore } from '@/state/app-store'
 import { Button, Card } from '@/components/ui'
 
 const steps = [
-  {
-    to: '/printers',
-    title: 'Stampanti',
-    description: 'Conferma prezzo di acquisto, vita utile, manutenzione e potenza media.',
-  },
-  {
-    to: '/tariffs',
-    title: 'Tariffa energia',
-    description: 'Inserisci il costo marginale al kWh della tua bolletta.',
-  },
-  {
-    to: '/materials',
-    title: 'Materiali',
-    description: 'Aggiorna prezzo e peso netto delle bobine che usi davvero.',
-  },
-  {
-    to: '/settings',
-    title: 'Prezzo',
-    description: 'Imposta ricarico, IVA, arrotondamento e ripartizione dei costi fissi.',
-  },
+  { to: '/printers', title: 'Stampanti' },
+  { to: '/tariffs', title: 'Tariffa energia' },
+  { to: '/materials', title: 'Materiali' },
+  { to: '/settings', title: 'Prezzo' },
 ]
 
 export function OnboardingCard() {
@@ -31,30 +15,33 @@ export function OnboardingCard() {
   if (settings.onboardingComplete) return null
 
   return (
-    <Card className="border-data/30 bg-data/5 p-4 sm:p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <Card className="border-l-4 border-l-data p-5 sm:p-6">
+      <div className="grid gap-5 lg:grid-cols-2 lg:items-start lg:gap-10">
         <div>
-          <h2 className="text-lg font-semibold text-ink">Configura LayerCost</h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted">
+          <h2 className="text-base font-semibold text-ink">Configura LayerCost</h2>
+          <p className="mt-1 text-sm leading-snug text-muted">
             I dati di partenza sono stime modificabili. Prima di fidarti dei numeri, conferma i
             quattro punti che contano davvero.
           </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {steps.map((step) => (
-              <Link
-                key={step.to}
-                to={step.to}
-                className="rounded-control border border-line bg-surface/70 px-3 py-2 transition-feedback hover:bg-surface"
-              >
-                <p className="text-sm font-medium text-ink">{step.title}</p>
-                <p className="mt-0.5 text-xs text-muted">{step.description}</p>
-              </Link>
-            ))}
-          </div>
+          <Button variant="secondary" onClick={completeOnboarding} className="mt-3">
+            Ho capito, inizia
+          </Button>
         </div>
-        <Button variant="secondary" onClick={completeOnboarding} className="shrink-0">
-          Ho capito, inizia
-        </Button>
+        <ul className="grid grid-cols-2 gap-2">
+          {steps.map((step) => (
+            <li key={step.to}>
+              <Link
+                to={step.to}
+                className="flex min-h-11 items-center justify-between gap-2 rounded-control border border-line bg-surface px-3 text-sm font-medium text-ink transition-feedback hover:border-control"
+              >
+                {step.title}
+                <span aria-hidden="true" className="text-muted">
+                  →
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </Card>
   )

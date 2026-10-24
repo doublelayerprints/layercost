@@ -4,6 +4,10 @@ import { SCHEMA_VERSION } from '@/data/storage'
 import { localRepository } from '@/data/repository'
 import { useAppStore } from '@/state/app-store'
 import { ENGINE_VERSION } from '@/domain/version'
+import { calculatePricing } from '@/domain/cost/pricing'
+import { pricingFromSettings } from '@/domain/cost/quote'
+import type { Settings } from '@/domain/types'
+import { asMicroEur } from '@/domain/units'
 import { Alert, Button, Card, Modal, PageHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 import {
@@ -12,6 +16,23 @@ import {
   roundingModeLabels,
   vatModeLabels,
 } from '@/lib/labels'
+import { formatCents, formatCurrency, formatPercent } from '@/lib/format'
+
+const SAMPLE_COST = asMicroEur(5_000_000)
+
+function samplePrice(settings: Settings) {
+  const pricing = pricingFromSettings(settings)
+  if (
+    pricing.markupBp > 100_000 ||
+    pricing.marginBp >= 10_000 ||
+    pricing.vatRateBp > 3_000 ||
+    pricing.roundingStep < 10_000 ||
+    pricing.roundingStep > 10_000_000
+  ) {
+    return undefined
+  }
+  return calculatePricing(SAMPLE_COST, pricing)
+}
 
 export function SettingsPage() {
   const config = useAppStore((state) => state.config)
@@ -60,20 +81,13 @@ export function SettingsPage() {
   }
 
   const isMarkup = settings.pricingMode === 'markup'
+  const preview = samplePrice(settings)
 
   return (
-    <div className="space-y-6">
+    <div>
       <PageHeader
         title="Impostazioni"
         description="Valori predefiniti per i nuovi preventivi. Ogni preventivo può poi sovrascrivere il prezzo."
-        actions={
-          <>
-            <Button variant="secondary" onClick={exportData}>
-              Esporta backup
-            </Button>
-            <Button onClick={() => fileInputRef.current?.click()}>Importa backup</Button>
-          </>
-        }
       />
 
       <input
@@ -85,164 +99,243 @@ export function SettingsPage() {
       />
 
       {message ? (
-        <Alert tone="success" title="Fatto" onClose={() => setMessage(undefined)}>
-          {message}
-        </Alert>
+        <div className="mt-6">
+          <Alert tone="success" title="Fatto" onClose={() => setMessage(undefined)}>
+            {message}
+          </Alert>
+        </div>
       ) : null}
       {importError ? (
-        <Alert
-          tone="danger"
-          title="Importazione non riuscita"
-          onClose={() => setImportError(undefined)}
-        >
-          {importError}
-        </Alert>
+        <div className="mt-6">
+          <Alert
+            tone="danger"
+            title="Importazione non riuscita"
+            onClose={() => setImportError(undefined)}
+          >
+            {importError}
+          </Alert>
+        </div>
       ) : null}
 
-      <Alert tone="info" title="Salvataggio automatico">
-        Le impostazioni si salvano nel browser a ogni modifica. Esporta un backup JSON prima di
-        cambiare dispositivo o svuotare i dati del browser.
-      </Alert>
+      <p className="mt-4 text-sm text-muted">
+        Le modifiche si salvano subito in questo browser. Esporta un backup prima di cambiare
+        dispositivo o svuotare i dati.
+      </p>
 
-      <Card className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-ink">Manodopera e rischio</h2>
-        <p className="mt-0.5 text-xs text-muted">
-          La manodopera è 0 per impostazione predefinita: attivala se vuoi conteggiare il tuo tempo.
-        </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <MoneyField
-            label="Manodopera"
-            valueMicro={settings.laborRatePerHour}
-            onChangeMicro={(value) => updateSettings({ laborRatePerHour: value })}
-            decimals={2}
-            hint="€/h"
-          />
-          <PercentField
-            label="Tasso guasti"
-            valueBp={settings.failureRateBp}
-            onChangeBp={(value) => updateSettings({ failureRateBp: value })}
-            decimals={1}
-            max={50}
-            hint="Valore predefinito; i materiali possono sovrascriverlo."
-          />
-          <PercentField
-            label="Maggiorazione tempo"
-            valueBp={settings.timeOverheadBp}
-            onChangeBp={(value) => updateSettings({ timeOverheadBp: value })}
-            decimals={1}
-            max={100}
-            hint="Aggiunta al tempo dello slicer, prima dell’avvio."
-          />
-          <SelectField
-            label="Ripartizione costi fissi"
-            value={settings.allocationMode}
-            onChange={(value) =>
-              updateSettings({ allocationMode: value as typeof settings.allocationMode })
-            }
-            options={[
-              { value: 'proportional', label: allocationModeLabels.proportional },
-              { value: 'equalPerUnit', label: allocationModeLabels.equalPerUnit },
-            ]}
-            hint="Come distribuire setup, design e spedizione sulle righe."
-          />
-        </div>
-      </Card>
-
-      <Card className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-ink">Prezzo predefinito</h2>
-        <p className="mt-0.5 text-xs text-muted">
-          Questi valori vengono copiati nel nuovo preventivo; puoi modificarli caso per caso.
-        </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <SelectField
-            label="Modalità"
-            value={settings.pricingMode}
-            onChange={(value) =>
-              updateSettings({ pricingMode: value as typeof settings.pricingMode })
-            }
-            options={[
-              { value: 'markup', label: pricingModeLabels.markup },
-              { value: 'margin', label: pricingModeLabels.margin },
-            ]}
-          />
-          <PercentField
-            label={isMarkup ? 'Ricarico' : 'Margine'}
-            valueBp={isMarkup ? settings.markupBp : settings.marginBp}
-            onChangeBp={(value) =>
-              updateSettings(isMarkup ? { markupBp: value } : { marginBp: value })
-            }
-            decimals={1}
-            max={isMarkup ? 1000 : 99}
-          />
-          <SelectField
-            label="Arrotondamento"
-            value={settings.roundingMode}
-            onChange={(value) =>
-              updateSettings({ roundingMode: value as typeof settings.roundingMode })
-            }
-            options={[
-              { value: 'up', label: roundingModeLabels.up },
-              { value: 'nearest', label: roundingModeLabels.nearest },
-              { value: 'down', label: roundingModeLabels.down },
-            ]}
-          />
-          <MoneyField
-            label="Passo"
-            valueMicro={settings.roundingStep}
-            onChangeMicro={(value) => updateSettings({ roundingStep: value })}
-            decimals={2}
-          />
-          <SelectField
-            label="IVA"
-            value={settings.vatMode}
-            onChange={(value) => updateSettings({ vatMode: value as typeof settings.vatMode })}
-            options={[
-              { value: 'none', label: vatModeLabels.none },
-              { value: 'excluded', label: vatModeLabels.excluded },
-              { value: 'included', label: vatModeLabels.included },
-            ]}
-          />
-          {settings.vatMode !== 'none' ? (
-            <PercentField
-              label="Aliquota IVA"
-              valueBp={settings.vatRateBp}
-              onChangeBp={(value) => updateSettings({ vatRateBp: value })}
-              decimals={0}
-              max={30}
+      <Card className="mt-6 divide-y divide-line">
+        <section
+          className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"
+          aria-labelledby="settings-lavoro"
+        >
+          <div>
+            <h2 id="settings-lavoro" className="text-base font-semibold text-ink">
+              Manodopera e rischio
+            </h2>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              La manodopera è 0 per impostazione predefinita: attivala se vuoi conteggiare il tuo
+              tempo. Il tasso guasti è una riserva, non un costo certo.
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-muted">
+              Oggi: manodopera {formatCurrency(settings.laborRatePerHour)}/h · guasti{' '}
+              {formatPercent(settings.failureRateBp)} · maggiorazione tempo{' '}
+              {formatPercent(settings.timeOverheadBp)} ·{' '}
+              {settings.allocationMode === 'proportional' ? 'proporzionale' : 'uguale per pezzo'}.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <MoneyField
+              label="Manodopera"
+              valueMicro={settings.laborRatePerHour}
+              onChangeMicro={(value) => updateSettings({ laborRatePerHour: value })}
+              decimals={2}
+              hint="€/h"
             />
-          ) : null}
-        </div>
-      </Card>
+            <PercentField
+              label="Tasso guasti"
+              valueBp={settings.failureRateBp}
+              onChangeBp={(value) => updateSettings({ failureRateBp: value })}
+              decimals={1}
+              max={50}
+              hint="I materiali possono sovrascriverlo."
+            />
+            <PercentField
+              label="Maggiorazione tempo"
+              valueBp={settings.timeOverheadBp}
+              onChangeBp={(value) => updateSettings({ timeOverheadBp: value })}
+              decimals={1}
+              max={100}
+              hint="Aggiunta al tempo dello slicer, prima dell’avvio."
+            />
+            <SelectField
+              label="Ripartizione costi fissi"
+              value={settings.allocationMode}
+              onChange={(value) =>
+                updateSettings({ allocationMode: value as typeof settings.allocationMode })
+              }
+              options={[
+                { value: 'proportional', label: allocationModeLabels.proportional },
+                { value: 'equalPerUnit', label: allocationModeLabels.equalPerUnit },
+              ]}
+              hint="Come distribuire setup, design e spedizione sulle righe."
+            />
+          </div>
+        </section>
 
-      <Card className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-ink">Dati e backup</h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          <DataStat label="Stampanti" value={config.printers.length} />
-          <DataStat label="Materiali" value={config.materials.length} />
-          <DataStat label="Preventivi" value={quoteCount} />
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={exportData}>
-            Esporta JSON
-          </Button>
-          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-            Importa JSON
-          </Button>
-          <Button variant="secondary" onClick={() => updateSettings({ onboardingComplete: false })}>
-            Rivedi la guida iniziale
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-negative hover:bg-raised"
-            onClick={() => setResetOpen(true)}
-          >
-            Ripristina dati iniziali
-          </Button>
-        </div>
-        <p className="mt-3 text-xs text-muted">
-          Dati locali: schema v{SCHEMA_VERSION}, motore v{ENGINE_VERSION}. Svuotare i dati del
-          browser cancella anche i preventivi.
-        </p>
+        <section
+          className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"
+          aria-labelledby="settings-prezzo"
+        >
+          <div>
+            <h2 id="settings-prezzo" className="text-base font-semibold text-ink">
+              Prezzo predefinito
+            </h2>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              Questi valori vengono copiati nel nuovo preventivo; puoi modificarli caso per caso.
+            </p>
+            {preview ? (
+              <div className="mt-4 border-l-2 border-data pl-3">
+                <p className="text-xs font-medium text-muted">Esempio con le regole attuali</p>
+                <p className="mt-1 text-sm leading-snug text-ink">
+                  Un lavoro da {formatCurrency(SAMPLE_COST)} di costo diventa{' '}
+                  <span className="font-medium tabular-nums">
+                    {formatCents(preview.netPriceCents)}
+                  </span>{' '}
+                  netti
+                  {preview.vatCents > 0
+                    ? ` e ${formatCents(preview.grossPriceCents)} con IVA ${formatPercent(settings.vatRateBp)}.`
+                    : ', senza IVA.'}
+                </p>
+              </div>
+            ) : null}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <SelectField
+              label="Modalità"
+              value={settings.pricingMode}
+              onChange={(value) =>
+                updateSettings({ pricingMode: value as typeof settings.pricingMode })
+              }
+              options={[
+                { value: 'markup', label: pricingModeLabels.markup },
+                { value: 'margin', label: pricingModeLabels.margin },
+              ]}
+            />
+            <PercentField
+              label={isMarkup ? 'Ricarico' : 'Margine'}
+              valueBp={isMarkup ? settings.markupBp : settings.marginBp}
+              onChangeBp={(value) =>
+                updateSettings(isMarkup ? { markupBp: value } : { marginBp: value })
+              }
+              decimals={1}
+              max={isMarkup ? 1000 : 99}
+            />
+            <SelectField
+              label="Arrotondamento"
+              value={settings.roundingMode}
+              onChange={(value) =>
+                updateSettings({ roundingMode: value as typeof settings.roundingMode })
+              }
+              options={[
+                { value: 'up', label: roundingModeLabels.up },
+                { value: 'nearest', label: roundingModeLabels.nearest },
+                { value: 'down', label: roundingModeLabels.down },
+              ]}
+            />
+            <MoneyField
+              label="Passo"
+              valueMicro={settings.roundingStep}
+              onChangeMicro={(value) => updateSettings({ roundingStep: value })}
+              decimals={2}
+            />
+            <SelectField
+              label="IVA"
+              value={settings.vatMode}
+              onChange={(value) => updateSettings({ vatMode: value as typeof settings.vatMode })}
+              options={[
+                { value: 'none', label: vatModeLabels.none },
+                { value: 'excluded', label: vatModeLabels.excluded },
+                { value: 'included', label: vatModeLabels.included },
+              ]}
+            />
+            {settings.vatMode !== 'none' ? (
+              <PercentField
+                label="Aliquota IVA"
+                valueBp={settings.vatRateBp}
+                onChangeBp={(value) => updateSettings({ vatRateBp: value })}
+                decimals={0}
+                max={30}
+              />
+            ) : null}
+          </div>
+        </section>
+
+        <section
+          className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"
+          aria-labelledby="settings-dati"
+        >
+          <div>
+            <h2 id="settings-dati" className="text-base font-semibold text-ink">
+              Dati e backup
+            </h2>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              I dati vivono solo in questo browser. Un backup JSON è l’unica copia esterna: importarlo
+              sostituisce configurazione, preventivi e bozza.
+            </p>
+            <p className="mt-2 text-xs text-muted">
+              Schema v{SCHEMA_VERSION} · Motore v{ENGINE_VERSION}
+            </p>
+          </div>
+          <div>
+            <dl className="grid grid-cols-3 gap-4 border-b border-line pb-4">
+              <div>
+                <dt className="text-xs font-medium text-muted">Stampanti</dt>
+                <dd className="mt-0.5 text-xl font-medium tabular-nums text-ink">
+                  {config.printers.length}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-muted">Materiali</dt>
+                <dd className="mt-0.5 text-xl font-medium tabular-nums text-ink">
+                  {config.materials.length}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-muted">Preventivi</dt>
+                <dd className="mt-0.5 text-xl font-medium tabular-nums text-ink">{quoteCount}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button variant="secondary" onClick={exportData}>
+                Esporta JSON
+              </Button>
+              <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
+                Importa JSON
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => updateSettings({ onboardingComplete: false })}
+              >
+                Rivedi la guida iniziale
+              </Button>
+            </div>
+
+            <div className="mt-6 border-t border-line pt-4">
+              <h3 className="text-sm font-semibold text-ink">Ripristina i dati iniziali</h3>
+              <p className="mt-0.5 max-w-xl text-sm leading-snug text-muted">
+                Elimina tutti i preventivi e le personalizzazioni e ricarica il seed. L’operazione
+                chiede conferma e non è reversibile.
+              </p>
+              <Button
+                variant="ghost"
+                className="mt-2 text-negative hover:bg-raised"
+                onClick={() => setResetOpen(true)}
+              >
+                Ripristina dati iniziali
+              </Button>
+            </div>
+          </div>
+        </section>
       </Card>
 
       <Modal
@@ -264,11 +357,26 @@ export function SettingsPage() {
             procedere verrà scaricato un backup dei dati attuali.
           </p>
           {pendingImport ? (
-            <div className="rounded-control bg-raised p-3 text-xs">
-              <p>Stampanti: {pendingImport.config.printers.length}</p>
-              <p>Materiali: {pendingImport.config.materials.length}</p>
-              <p>Preventivi: {pendingImport.quotes.length}</p>
-            </div>
+            <dl className="grid grid-cols-3 gap-3 border-y border-line py-3">
+              <div>
+                <dt className="text-xs font-medium text-muted">Stampanti</dt>
+                <dd className="mt-0.5 text-base tabular-nums text-ink">
+                  {pendingImport.config.printers.length}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-muted">Materiali</dt>
+                <dd className="mt-0.5 text-base tabular-nums text-ink">
+                  {pendingImport.config.materials.length}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-muted">Preventivi</dt>
+                <dd className="mt-0.5 text-base tabular-nums text-ink">
+                  {pendingImport.quotes.length}
+                </dd>
+              </div>
+            </dl>
           ) : null}
         </div>
       </Modal>
@@ -293,15 +401,6 @@ export function SettingsPage() {
           continuare.
         </p>
       </Modal>
-    </div>
-  )
-}
-
-function DataStat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-control border border-line bg-raised/60 px-3 py-2">
-      <p className="text-xs font-medium text-muted">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums text-ink">{value}</p>
     </div>
   )
 }

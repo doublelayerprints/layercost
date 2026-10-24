@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { PrintLine, Quote, QuoteResult } from '@/domain/types'
 import { calculateQuote, pricingFromSettings } from '@/domain/cost/quote'
 import { gramsToCg } from '@/domain/units'
 import { useAppStore } from '@/state/app-store'
-import { Alert, Card, PageHeader } from '@/components/ui'
+import { Alert, Badge, Button, Card, PageHeader, SectionHeader } from '@/components/ui'
 import { DurationField, NumberField, SelectField } from '@/components/number-fields'
 import {
+  displayCents,
   formatCents,
   formatCurrency,
   formatDuration,
@@ -17,6 +19,7 @@ import { newId } from '@/lib/id'
 
 export function ComparePage() {
   const config = useAppStore((state) => state.config)
+  const navigate = useNavigate()
   const activePrinters = config.printers.filter((printer) => !printer.archived)
   const activeMaterials = config.materials.filter((material) => !material.archived)
 
@@ -72,9 +75,14 @@ export function ComparePage() {
   const resultB = comparison.b.result
   const lineA = resultA?.lines[0]
   const lineB = resultB?.lines[0]
-  const deltaCost = resultA && resultB ? resultB.totalCost - resultA.totalCost : undefined
+  const deltaCost =
+    resultA && resultB
+      ? displayCents(resultB.totalCost) - displayCents(resultA.totalCost)
+      : undefined
   const deltaPerUnit =
-    lineA && lineB ? lineB.fullyLoadedUnitCost - lineA.fullyLoadedUnitCost : undefined
+    lineA && lineB
+      ? displayCents(lineB.fullyLoadedUnitCost) - displayCents(lineA.fullyLoadedUnitCost)
+      : undefined
 
   const printerOptions = activePrinters.map((printer) => ({
     value: printer.id,
@@ -84,16 +92,36 @@ export function ComparePage() {
     value: material.id,
     label: `${material.name} — ${formatCurrency(material.pricePerKg)}/kg`,
   }))
+  const materialName =
+    activeMaterials.find((material) => material.id === materialId)?.name ?? 'Materiale'
+
+  const cheaper =
+    deltaCost === undefined
+      ? undefined
+      : deltaCost > 0
+        ? lineA?.printerName
+        : deltaCost < 0
+          ? lineB?.printerName
+          : undefined
+
+  const rows = resultA && resultB && lineA && lineB
+    ? comparisonRows(resultA, resultB, lineA, lineB)
+    : []
 
   return (
-    <div className="space-y-6">
+    <div>
       <PageHeader
-        title="Kobra 3 vs Kobra X"
-        description="Stesso lavoro, stessa quantità: confronta costo e prezzo tra due stampanti."
+        title="Confronto stampanti"
+        description="Lo stesso lavoro, la stessa quantità: costo e prezzo su due stampanti. Il confronto non modifica il preventivo."
       />
 
-      <Card className="p-4 sm:p-5">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Card className="mt-6 p-5 sm:p-6">
+        <SectionHeader
+          id="section-lavoro-confronto"
+          title="Lavoro da confrontare"
+          description="Il confronto usa lo stesso tempo, gli stessi grammi e lo stesso materiale. Non include setup, progettazione o extra di lavoro."
+        />
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <SelectField
             label="Stampante A"
             value={printerA}
@@ -139,155 +167,249 @@ export function ComparePage() {
             suffix="pz"
           />
         </div>
-        <p className="mt-3 text-xs text-muted">
-          Il confronto usa lo stesso tempo, gli stessi grammi e lo stesso materiale. Non include
-          setup, progettazione o extra di lavoro.
-        </p>
       </Card>
 
       {comparison.a.error || comparison.b.error ? (
-        <Alert tone="warning" title="Confronto incompleto">
-          {comparison.a.error ?? comparison.b.error}
-        </Alert>
+        <div className="mt-6">
+          <Alert tone="warning" title="Confronto incompleto">
+            {comparison.a.error ?? comparison.b.error}
+          </Alert>
+        </div>
       ) : null}
 
       {resultA && resultB && lineA && lineB ? (
-        <>
-          <Card className="p-4 sm:p-5">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <PrinterColumn
-                name={lineA.printerName}
-                result={resultA}
-                line={lineA}
-                highlight={
-                  deltaCost !== undefined && deltaCost > 0
-                    ? 'cheaper'
-                    : deltaCost === 0
-                      ? 'equal'
-                      : undefined
-                }
-              />
-              <PrinterColumn
-                name={lineB.printerName}
-                result={resultB}
-                line={lineB}
-                highlight={
-                  deltaCost !== undefined && deltaCost < 0
-                    ? 'cheaper'
-                    : deltaCost === 0
-                      ? 'equal'
-                      : undefined
-                }
-              />
+        <Card className="mt-6 p-5 sm:p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+            <div>
+              <p className="text-xs font-medium text-muted">Differenza di costo</p>
+              <p className="mt-0.5 text-price font-serif font-semibold tracking-price tabular-nums text-ink">
+                {deltaCost === 0 ? '—' : formatCents(Math.abs(deltaCost ?? 0))}
+              </p>
             </div>
-          </Card>
-
-          <Card className="p-4 sm:p-5">
-            <h3 className="text-sm font-semibold text-ink">Differenza</h3>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              <Delta
-                label="Costo totale"
-                value={deltaCost ?? 0}
-                hint={`${formatCurrency(resultA.totalCost)} → ${formatCurrency(resultB.totalCost)}`}
-              />
-              <Delta
-                label="Costo per pezzo"
-                value={deltaPerUnit ?? 0}
-                hint={`${formatCurrency(lineA.fullyLoadedUnitCost)} → ${formatCurrency(lineB.fullyLoadedUnitCost)}`}
-              />
-              <div className="rounded-control border border-line bg-raised px-3 py-2">
-                <p className="text-xs font-medium text-muted">Materiale</p>
-                <p className="mt-0.5 text-sm font-semibold text-ink">
-                  {formatGrams(gramsToCg(grams))} ·{' '}
-                  {lineA.material === lineB.material ? formatCurrency(lineA.material) : 'diverso'}
-                </p>
-                <p className="text-xs text-muted">
-                  {formatDuration(lineA.effectiveSeconds)} · {lineA.avgWatts} W vs {lineB.avgWatts}{' '}
-                  W
-                </p>
-              </div>
-            </div>
-            <p className="mt-3 text-xs text-muted">
+            <p className="max-w-xl text-sm leading-snug text-muted">
               {deltaCost === 0
                 ? 'Le due stampanti hanno lo stesso costo su questo lavoro.'
-                : `La ${deltaCost && deltaCost < 0 ? lineB.printerName : lineA.printerName} costa ${formatCurrency(Math.abs(deltaCost ?? 0))} in meno su questo lavoro.`}
+                : `La ${cheaper} costa ${formatCents(Math.abs(deltaCost ?? 0))} in meno su questo lavoro.`}{' '}
+              {formatGrams(gramsToCg(grams))} · {formatDuration(lineA.effectiveSeconds)} ·{' '}
+              {quantity} {quantity === 1 ? 'pezzo' : 'pezzi'} · {materialName}.
             </p>
-          </Card>
-        </>
+          </div>
+
+          <div className="mt-6 hidden border-t border-line pt-4 sm:block">
+            <table className="w-full border-collapse text-sm">
+              <caption className="sr-only">
+                Costo e prezzo dello stesso lavoro sulle due stampanti
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" className="w-[38%] py-2 pr-4 text-left text-xs font-medium text-muted">
+                    Voce
+                  </th>
+                  <th scope="col" className="py-2 pl-6 text-right text-xs font-medium text-muted">
+                    <span className="inline-flex flex-wrap items-center justify-end gap-2">
+                      {lineA.printerName}
+                      {cheaper === lineA.printerName ? (
+                        <Badge tone="success">Meno cara</Badge>
+                      ) : null}
+                    </span>
+                  </th>
+                  <th scope="col" className="py-2 pl-6 text-right text-xs font-medium text-muted">
+                    <span className="inline-flex flex-wrap items-center justify-end gap-2">
+                      {lineB.printerName}
+                      {cheaper === lineB.printerName ? (
+                        <Badge tone="success">Meno cara</Badge>
+                      ) : null}
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.label} className="border-t border-rule">
+                    <th scope="row" className="py-2 pr-4 text-left font-normal text-muted">
+                      {row.label}
+                    </th>
+                    <td
+                      className={
+                        row.strong
+                          ? 'py-2 pl-6 text-right font-medium tabular-nums text-ink'
+                          : 'py-2 pl-6 text-right tabular-nums text-ink'
+                      }
+                    >
+                      {row.a}
+                    </td>
+                    <td
+                      className={
+                        row.strong
+                          ? 'py-2 pl-6 text-right font-medium tabular-nums text-ink'
+                          : 'py-2 pl-6 text-right tabular-nums text-ink'
+                      }
+                    >
+                      {row.b}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-6 grid gap-6 border-t border-line pt-6 sm:hidden">
+            <MobileColumn
+              name={lineA.printerName}
+              isCheaper={cheaper === lineA.printerName}
+              rows={rows.map((row) => ({ label: row.label, value: row.a, strong: row.strong }))}
+            />
+            <MobileColumn
+              name={lineB.printerName}
+              isCheaper={cheaper === lineB.printerName}
+              rows={rows.map((row) => ({ label: row.label, value: row.b, strong: row.strong }))}
+            />
+          </div>
+
+          <dl className="mt-6 grid gap-4 border-t border-line pt-4 sm:grid-cols-2">
+            <div>
+              <dt className="text-xs font-medium text-muted">Differenza per pezzo</dt>
+              <dd className="mt-0.5 text-sm tabular-nums text-ink">
+                {deltaPerUnit === 0
+                  ? 'Nessuna differenza'
+                  : `${formatCents(Math.abs(deltaPerUnit ?? 0))} ${
+                      (deltaPerUnit ?? 0) > 0 ? 'in più' : 'in meno'
+                    } per ${(deltaPerUnit ?? 0) > 0 ? lineB.printerName : lineA.printerName}`}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-muted">Differenza di prezzo totale</dt>
+              <dd className="mt-0.5 text-sm tabular-nums text-ink">
+                {(() => {
+                  const delta = resultB.grossPriceCents - resultA.grossPriceCents
+                  const sign = delta > 0 ? '+' : delta < 0 ? '−' : ''
+                  return `${sign}${formatCents(Math.abs(delta))}`
+                })()}{' '}
+                · {formatCents(resultA.grossPriceCents)} → {formatCents(resultB.grossPriceCents)}
+              </dd>
+            </div>
+          </dl>
+        </Card>
+      ) : null}
+
+      {activePrinters.length < 2 ? (
+        <div className="mt-6">
+          <Alert tone="info" title="Serve una seconda stampante">
+            Aggiungi almeno due stampanti attive per confrontare lo stesso lavoro.
+            <div className="mt-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  navigate('/printers')
+                }}
+              >
+                Vai alle stampanti
+              </Button>
+            </div>
+          </Alert>
+        </div>
       ) : null}
     </div>
   )
 }
 
-function PrinterColumn({
+interface ComparisonRow {
+  label: string
+  a: string
+  b: string
+  strong?: boolean
+}
+
+function comparisonRows(
+  resultA: QuoteResult,
+  resultB: QuoteResult,
+  lineA: QuoteResult['lines'][number],
+  lineB: QuoteResult['lines'][number],
+): ComparisonRow[] {
+  return [
+    {
+      label: 'Costo pieno totale',
+      a: formatCurrency(resultA.totalCost),
+      b: formatCurrency(resultB.totalCost),
+      strong: true,
+    },
+    {
+      label: 'Costo per pezzo',
+      a: formatCurrency(lineA.fullyLoadedUnitCost),
+      b: formatCurrency(lineB.fullyLoadedUnitCost),
+    },
+    {
+      label: 'Prezzo totale',
+      a: formatCents(resultA.grossPriceCents),
+      b: formatCents(resultB.grossPriceCents),
+      strong: true,
+    },
+    {
+      label: 'Prezzo per pezzo',
+      a: formatPricePerUnit(lineA.priceCents, lineA.quantity),
+      b: formatPricePerUnit(lineB.priceCents, lineB.quantity),
+    },
+    {
+      label: 'Materiale',
+      a: formatCurrency(lineA.material),
+      b: formatCurrency(lineB.material),
+    },
+    {
+      label: 'Energia',
+      a: formatCurrency(lineA.energy),
+      b: formatCurrency(lineB.energy),
+    },
+    {
+      label: 'Usura',
+      a: formatCurrency(lineA.depreciation + lineA.maintenance),
+      b: formatCurrency(lineB.depreciation + lineB.maintenance),
+    },
+    {
+      label: 'Tempo effettivo',
+      a: formatDuration(lineA.effectiveSeconds),
+      b: formatDuration(lineB.effectiveSeconds),
+    },
+    {
+      label: 'Consumo',
+      a: `${lineA.energyWh} Wh · ${lineA.avgWatts} W`,
+      b: `${lineB.energyWh} Wh · ${lineB.avgWatts} W`,
+    },
+  ]
+}
+
+function MobileColumn({
   name,
-  result,
-  line,
-  highlight,
+  isCheaper,
+  rows,
 }: {
   name: string
-  result: QuoteResult
-  line: QuoteResult['lines'][number]
-  highlight?: 'cheaper' | 'equal'
+  isCheaper: boolean
+  rows: { label: string; value: string; strong?: boolean }[]
 }) {
   return (
-    <div
-      className={`rounded-card border p-4 ${
-        highlight === 'cheaper'
-          ? 'border-positive/40 bg-pill-success-bg/30'
-          : 'border-line bg-raised/50'
-      }`}
-    >
+    <section aria-label={`Risultato per ${name}`}>
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-ink">{name}</h3>
-        {highlight === 'cheaper' ? (
-          <span className="rounded-full bg-pill-success-bg px-2 py-0.5 text-xs font-medium text-pill-success-ink">
-            Più conveniente
-          </span>
-        ) : highlight === 'equal' ? (
-          <span className="rounded-full bg-raised px-2 py-0.5 text-xs font-medium text-muted">
-            Pari
-          </span>
-        ) : null}
+        <h2 className="text-base font-semibold text-ink">{name}</h2>
+        {isCheaper ? <Badge tone="success">Meno cara</Badge> : null}
       </div>
-      <div className="mt-3 space-y-2 text-sm">
-        <Row label="Costo totale" value={formatCurrency(result.totalCost)} strong />
-        <Row label="Costo per pezzo" value={formatCurrency(line.fullyLoadedUnitCost)} />
-        <Row label="Prezzo totale" value={formatCents(result.grossPriceCents)} strong />
-        <Row label="Prezzo per pezzo" value={formatPricePerUnit(line.priceCents, line.quantity)} />
-        <Row label="Materiale" value={formatCurrency(line.material)} />
-        <Row label="Energia" value={formatCurrency(line.energy)} />
-        <Row label="Usura" value={formatCurrency(line.depreciation + line.maintenance)} />
-        <Row label="Tempo" value={formatDuration(line.effectiveSeconds)} />
-        <Row label="Consumo" value={`${line.energyWh} Wh · ${line.avgWatts} W`} />
-      </div>
-    </div>
-  )
-}
-
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-muted">{label}</span>
-      <span className={`tabular-nums ${strong ? 'font-semibold text-ink' : 'text-ink'}`}>
-        {value}
-      </span>
-    </div>
-  )
-}
-
-function Delta({ label, value, hint }: { label: string; value: number; hint: string }) {
-  const sign = value > 0 ? '+' : ''
-  return (
-    <div className="rounded-control border border-line bg-raised px-3 py-2">
-      <p className="text-xs font-medium text-muted">{label}</p>
-      <p
-        className={`mt-0.5 text-lg font-semibold tabular-nums ${value > 0 ? 'text-negative' : value < 0 ? 'text-positive' : 'text-ink'}`}
-      >
-        {sign}
-        {formatCurrency(value)}
-      </p>
-      <p className="text-xs text-muted">{hint}</p>
-    </div>
+      <dl className="mt-2 border-t border-line text-sm">
+        {rows.map((row) => (
+          <div
+            key={row.label}
+            className="flex items-center justify-between gap-3 border-b border-rule py-2"
+          >
+            <dt className="text-muted">{row.label}</dt>
+            <dd
+              className={
+                row.strong ? 'font-medium tabular-nums text-ink' : 'tabular-nums text-ink'
+              }
+            >
+              {row.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   )
 }

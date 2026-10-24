@@ -44,76 +44,122 @@ export function TariffsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div>
       <PageHeader
         title="Tariffe energia"
         description="Una tariffa per ogni contratto o periodo. I preventivi salvati conservano il prezzo usato."
         actions={<Button onClick={() => setEditing('new')}>Aggiungi tariffa</Button>}
       />
 
-      <Card className="border-data/30 bg-data/5 p-4">
-        <p className="text-xs font-semibold text-data">Tariffa corrente</p>
-        {current ? (
-          <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <p className="text-lg font-semibold text-ink">{current.label}</p>
-              <p className="text-sm text-muted">
-                {formatCurrency(current.pricePerKWh, 4)}/kWh · dal{' '}
-                {formatDateOnly(current.effectiveFrom)}
+      <Card className="mt-6 border-l-4 border-l-data p-5 sm:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium text-muted">Tariffa corrente</p>
+            {current ? (
+              <>
+                <p className="mt-1 text-base font-semibold text-ink">{current.label}</p>
+                <p className="mt-1 text-2xl font-medium tabular-nums text-ink">
+                  {formatCurrency(current.pricePerKWh, 4)}
+                  <span className="text-sm font-normal text-muted">/kWh</span>
+                </p>
+                <p className="mt-0.5 text-sm text-muted">
+                  In vigore dal {formatDateOnly(current.effectiveFrom)}
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-sm font-medium text-negative">
+                Nessuna tariffa valida oggi: i calcoli non possono essere eseguiti.
               </p>
-            </div>
-            <Badge tone="success">In uso</Badge>
+            )}
           </div>
-        ) : (
-          <p className="mt-1 text-sm text-negative">
-            Nessuna tariffa valida oggi: i calcoli non possono essere eseguiti.
-          </p>
-        )}
+          {current ? <Badge tone="success">In uso</Badge> : null}
+        </div>
       </Card>
 
       {tariffs.length === 0 ? (
-        <EmptyState
-          title="Nessuna tariffa"
-          description="Aggiungi il costo marginale al kWh per poter calcolare l’energia."
-          action={<Button onClick={() => setEditing('new')}>Aggiungi tariffa</Button>}
-        />
-      ) : (
-        <div className="space-y-3">
-          {tariffs.map((tariff) => (
-            <Card key={tariff.id} className="p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-sm font-semibold text-ink">{tariff.label}</h2>
-                    {current?.id === tariff.id ? <Badge tone="success">Corrente</Badge> : null}
-                  </div>
-                  <p className="mt-1 text-xs text-muted">
-                    {formatCurrency(tariff.pricePerKWh, 4)}/kWh · decorrenza{' '}
-                    {formatDateOnly(tariff.effectiveFrom)}
-                  </p>
-                  {tariff.notes ? <p className="mt-1 text-xs text-muted">{tariff.notes}</p> : null}
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => setEditing(tariff)}>
-                    Modifica
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemove(tariff)}
-                    disabled={config.settings.tariffs.length <= 1}
-                    className="text-negative hover:bg-raised"
-                  >
-                    Elimina
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+        <div className="mt-6">
+          <EmptyState
+            title="Nessuna tariffa"
+            description="Aggiungi il costo marginale al kWh per poter calcolare l’energia."
+            action={<Button onClick={() => setEditing('new')}>Aggiungi tariffa</Button>}
+          />
         </div>
+      ) : (
+        <Card className="mt-6 p-5 sm:p-6">
+          <p className="text-sm text-muted">
+            {tariffs.length} {tariffs.length === 1 ? 'tariffa' : 'tariffe'} in archivio
+          </p>
+          <div className="relative mt-3 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <caption className="sr-only">Tariffe energia in ordine di decorrenza</caption>
+              <thead>
+                <tr className="text-xs text-muted">
+                  <th scope="col" className="py-2 pr-4 text-left font-medium">
+                    Etichetta
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Prezzo
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Decorrenza
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-left font-medium">
+                    Stato
+                  </th>
+                  <th scope="col" className="py-2 text-right font-medium">
+                    <span className="sr-only">Azioni</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {tariffs.map((tariff) => (
+                  <tr key={tariff.id} className="border-t border-rule align-top">
+                    <th scope="row" className="py-3 pr-4 text-left font-normal">
+                      <p className="font-medium text-ink">{tariff.label}</p>
+                      {tariff.notes ? (
+                        <p className="mt-0.5 text-xs text-muted">{tariff.notes}</p>
+                      ) : null}
+                    </th>
+                    <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
+                      {formatCurrency(tariff.pricePerKWh, 4)}/kWh
+                    </td>
+                    <td className="py-3 pr-4 text-right tabular-nums text-muted">
+                      {formatDateOnly(tariff.effectiveFrom)}
+                    </td>
+                    <td className="py-3 pr-4">
+                      {current?.id === tariff.id ? (
+                        <Badge tone="success">Corrente</Badge>
+                      ) : tariff.effectiveFrom > today ? (
+                        <Badge tone="info">Futura</Badge>
+                      ) : (
+                        <Badge tone="neutral">Storica</Badge>
+                      )}
+                    </td>
+                    <td className="py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button variant="secondary" size="sm" onClick={() => setEditing(tariff)}>
+                          Modifica
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemove(tariff)}
+                          disabled={config.settings.tariffs.length <= 1}
+                          className="text-negative hover:bg-raised"
+                        >
+                          Elimina
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
 
-      <p className="text-xs text-muted">
+      <p className="mt-4 max-w-2xl text-sm leading-snug text-muted">
         Se una stampante è in una casa con un contratto diverso, assegnale una tariffa specifica
         dalla scheda della stampante. Altrimenti usa la tariffa globale.
       </p>

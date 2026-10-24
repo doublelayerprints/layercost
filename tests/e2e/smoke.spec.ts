@@ -27,7 +27,7 @@ test('calcola, salva e ricarica un preventivo', async ({ page }) => {
   await expect(page.getByText(/4,80/).first()).toBeVisible()
 
   await page.emulateMedia({ media: 'print' })
-  await expect(page.getByText('Documento generato con LayerCost')).toBeVisible()
+  await expect(page.getByText('Generato con LayerCost')).toBeVisible()
   await expect(page.getByRole('link', { name: 'Calcolatore' })).toBeHidden()
   await page.emulateMedia({ media: 'screen' })
 

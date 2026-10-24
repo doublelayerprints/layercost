@@ -18,7 +18,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 - configurazione, persistenza locale, export/import;
 - UI funzionale, storico, condivisione, stampa/PDF e confronto.
 
-La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015) e T4.3 (design system) sono chiusi. Il redesign delle schermate (T4.4) è ancora da fare.
+La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system) e T4.4 (redesign delle schermate) sono chiusi. Restano T4.5 (stati e rifiniture) e T4.6 (review e release v1.0).
 
 ---
 
@@ -47,6 +47,8 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 - Guida iniziale per confermare i dati stimati.
 - Layout responsive, label, focus e unità.
 - Design system **Strato**: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
+- Redesign delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra le due stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only, stampa A4.
+- Stampa: intestazione, meta, righe, composizione in grigi, totali e note; PDF A4 verificato su Chrome.
 
 ### Seed
 
@@ -64,9 +66,9 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 | ----------------- | --------------------------------------------- |
 | TypeScript strict | verde                                         |
 | oxlint            | verde                                         |
-| Test unitari/dati | 21 superati                                   |
+| Test unitari/dati | 29 superati                                   |
 | Test E2E          | 5 superati                                    |
-| Build produzione  | verde (~480 KB JS, ~141 KB gzip; ~58 KB font) |
+| Build produzione  | verde (~502 KB JS, ~145 KB gzip; ~58 KB font) |
 | CI GitHub `check` | verde                                         |
 | CI GitHub `e2e`   | verde                                         |
 
@@ -92,7 +94,7 @@ npm run test:e2e
 ## 5. Deploy
 
 - **Live:** https://layercost.vercel.app
-- Progetto Vercel collegato alla repo GitHub; l'ultimo deploy verificato è il commit `ba8ec15` (T4.3), con status Vercel “Deployment has completed”.
+- Progetto Vercel collegato alla repo GitHub; l'ultimo deploy verificato è il commit `ba8ec15` (T4.3), con status Vercel “Deployment has completed”. Il redesign T4.4 va verificato nella preview dopo il push.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
 - Header verificati: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Robots-Tag: noindex`.
@@ -110,11 +112,12 @@ npx vercel --prod
 
 ## 6. Limiti noti
 
-- Direzione e design system scelti (A — Strato, ADR-0015); il redesign delle schermate e la stampa finale non sono ancora realizzati.
+- Stampa verificata su Chrome (PDF A4); Safari e stampa reale su più browser restano da verificare (T3.8).
+- Nessun audit automatico axe; verifica manuale di tastiera, focus e overflow a 390 px (T3.11).
+- Nessun test visuale di regressione (T3.12).
 - Nessuna sincronizzazione cloud.
 - Nessun import diretto da slicer o presa intelligente.
 - Nessun magazzino bobine.
-- Nessun audit automatico axe.
 - Migrazioni schema minime (v1; rifiuto versioni future).
 - Guida iniziale come checklist, non wizard multi-step.
 
@@ -122,8 +125,8 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. Fase 4: redesign schermate (T4.4), stati e rifiniture (T4.5), review e release v1.0 (T4.6).
-2. Audit accessibilità e test visuali.
+1. Fase 4: stati e rifiniture (T4.5), review e release v1.0 (T4.6).
+2. Audit accessibilità automatico (axe) e test visuali.
 3. Catena di migrazioni versionata con fixture.
 4. Backlog: sync, magazzino bobine, import slicer, PWA, inglese.
 

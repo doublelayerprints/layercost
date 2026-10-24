@@ -4,8 +4,9 @@ test('carica i font e i token della direzione Strato', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => document.fonts.ready)
 
-  const data = await page.evaluate(() => {
+  const data = await page.evaluate(async () => {
     const root = getComputedStyle(document.documentElement)
+    await document.fonts.load('600 34px "Source Serif 4"')
     return {
       ground: root.getPropertyValue('--color-ground').trim(),
       data: root.getPropertyValue('--color-data').trim(),

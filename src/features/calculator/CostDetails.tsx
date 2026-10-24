@@ -1,5 +1,6 @@
 import type { Quote, QuoteResult } from '@/domain/types'
-import { Badge, Card } from '@/components/ui'
+import { Badge, Card, SectionHeader } from '@/components/ui'
+import { costDetailRows, costDetailTotals } from '@/lib/cost-details'
 import {
   formatCents,
   formatCurrency,
@@ -10,128 +11,142 @@ import {
 } from '@/lib/format'
 
 export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResult }) {
-  const totalMaterial = result.lines.reduce((sum, line) => sum + line.material, 0)
-  const totalEnergy = result.lines.reduce((sum, line) => sum + line.energy, 0)
-  const totalWear = result.lines.reduce(
-    (sum, line) => sum + line.depreciation + line.maintenance,
-    0,
-  )
-  const totalLabor = result.jobLabor + result.lines.reduce((sum, line) => sum + line.labor, 0)
-  const totalExtras = result.jobExtras + result.lines.reduce((sum, line) => sum + line.extras, 0)
-  const totalFailure = result.lines.reduce((sum, line) => sum + line.failure, 0)
+  const rows = costDetailRows(result)
+  const totals = costDetailTotals(rows)
+  const rowsById = new Map(rows.map((row) => [row.lineId, row]))
   const totalGrams = result.lines.reduce(
     (sum, line) =>
-      sum + line.materialDetails.reduce((lineSum, detail) => lineSum + detail.grams, 0),
+      sum +
+      line.materialDetails.reduce((lineSum, detail) => lineSum + detail.grams, 0) * line.quantity,
     0,
   )
 
   return (
-    <Card className="p-4 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold text-ink">Dettaglio costi</h3>
-          <p className="mt-0.5 text-xs text-muted">
-            Componenti per riga, costi fissi ripartiti e prezzo allocato.
-          </p>
-        </div>
-        <Badge tone="neutral">{formatGrams(totalGrams)} totali</Badge>
-      </div>
+    <Card className="p-5 sm:p-6">
+      <SectionHeader
+        id="section-dettaglio"
+        title="Dettaglio costi"
+        description="Importi riferiti all’intera riga, quantità inclusa. Le componenti sono arrotondate in modo che la loro somma coincida con il costo diretto mostrato; la quota di prezzo di ogni riga è una parte del totale."
+        actions={<Badge tone="neutral">{formatGrams(totalGrams)} totali</Badge>}
+      />
 
-      <div className="mt-4 overflow-x-auto">
+      <div className="relative mt-4 overflow-x-auto">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
+          <caption className="sr-only">
+            Componenti di costo e prezzo per ogni riga del preventivo
+          </caption>
           <thead>
-            <tr className="text-left text-xs text-muted">
-              <th className="sticky left-0 bg-surface py-2 pr-3 font-medium">Riga</th>
-              <th className="py-2 pr-3 text-right font-medium">Materiale</th>
-              <th className="py-2 pr-3 text-right font-medium">Energia</th>
-              <th className="py-2 pr-3 text-right font-medium">Usura</th>
-              <th className="py-2 pr-3 text-right font-medium">Mano.</th>
-              <th className="py-2 pr-3 text-right font-medium">Extra</th>
-              <th className="py-2 pr-3 text-right font-medium">Guasti</th>
-              <th className="py-2 pr-3 text-right font-medium">Costo diretto</th>
-              <th className="py-2 pr-3 text-right font-medium">Quota fissa</th>
-              <th className="py-2 pr-3 text-right font-medium">Costo pieno</th>
-              <th className="py-2 text-right font-medium">Prezzo</th>
+            <tr className="text-xs text-muted">
+              <th scope="col" className="sticky left-0 bg-surface py-2 pr-4 text-left font-medium">
+                Riga
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Materiale
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Energia
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Usura
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Manodopera
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Extra
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Guasti
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Costo diretto
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Quota fissa
+              </th>
+              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                Costo pieno
+              </th>
+              <th scope="col" className="py-2 text-right font-medium">
+                Prezzo
+              </th>
             </tr>
           </thead>
           <tbody>
-            {result.lines.map((line) => (
-              <tr key={line.lineId} className="border-t border-line align-top">
-                <td className="sticky left-0 bg-surface py-2.5 pr-3">
-                  <p className="font-medium text-ink">{line.name}</p>
-                  <p className="mt-0.5 text-xs text-muted">
-                    {line.printerName} · {line.quantity} pz ·{' '}
-                    {formatDuration(line.effectiveSeconds)}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted">
-                    {line.avgWatts} W · {line.tariffLabel} · guasti{' '}
-                    {formatPercent(line.failureRateBp)}
-                  </p>
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.material)}
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.energy)}
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.depreciation + line.maintenance)}
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.labor)}
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.extras)}
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.failure)}
-                </td>
-                <td className="py-2.5 pr-3 text-right font-medium tabular-nums">
-                  {formatCurrency(line.directUnitCost)}
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.allocatedFixed)}
-                </td>
-                <td className="py-2.5 pr-3 text-right tabular-nums">
-                  {formatCurrency(line.fullyLoadedLineCost)}
-                </td>
-                <td className="py-2.5 text-right tabular-nums">
-                  <span className="block font-medium text-ink">{formatCents(line.priceCents)}</span>
-                  <span className="block text-xs text-muted">
-                    {formatPricePerUnit(line.priceCents, line.quantity)}/pz
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {result.lines.map((line) => {
+              const row = rowsById.get(line.lineId)
+              if (!row) return null
+              return (
+                <tr key={line.lineId} className="border-t border-rule align-top">
+                  <th
+                    scope="row"
+                    className="sticky left-0 bg-surface py-3 pr-4 text-left font-normal"
+                  >
+                    <p className="font-medium text-ink">{line.name}</p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {line.printerName} · {line.quantity} pz ·{' '}
+                      {formatDuration(line.effectiveSeconds)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {line.avgWatts} W · {line.tariffLabel} · guasti{' '}
+                      {formatPercent(line.failureRateBp)}
+                    </p>
+                  </th>
+                  {row.components.map((cents, index) => (
+                    <td key={index} className="py-3 pr-4 text-right tabular-nums">
+                      {formatCents(cents)}
+                    </td>
+                  ))}
+                  <td className="py-3 pr-4 text-right font-medium tabular-nums">
+                    {formatCents(row.directCents)}
+                  </td>
+                  <td className="py-3 pr-4 text-right tabular-nums">
+                    {formatCents(row.fixedCents)}
+                  </td>
+                  <td className="py-3 pr-4 text-right tabular-nums">
+                    {formatCents(row.fullCents)}
+                  </td>
+                  <td className="py-3 text-right tabular-nums">
+                    <span className="block font-medium text-ink">
+                      {formatCents(row.priceCents)}
+                    </span>
+                    <span className="block text-xs text-muted">
+                      {formatPricePerUnit(row.priceCents, line.quantity)}/pz
+                    </span>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
           <tfoot>
-            <tr className="border-t border-line font-medium text-ink">
-              <td className="sticky left-0 bg-surface py-3 pr-3">Totale</td>
-              <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalMaterial)}</td>
-              <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalEnergy)}</td>
-              <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalWear)}</td>
-              <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalLabor)}</td>
-              <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalExtras)}</td>
-              <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalFailure)}</td>
-              <td className="py-3 pr-3 text-right tabular-nums">
-                {formatCurrency(result.directTotal)}
+            <tr className="border-t border-control font-medium text-ink">
+              <th scope="row" className="sticky left-0 bg-surface py-3 pr-4 text-left">
+                Totale
+              </th>
+              {totals.components.map((cents, index) => (
+                <td key={index} className="py-3 pr-4 text-right tabular-nums">
+                  {formatCents(cents)}
+                </td>
+              ))}
+              <td className="py-3 pr-4 text-right tabular-nums">
+                {formatCents(totals.directCents)}
               </td>
-              <td className="py-3 pr-3 text-right tabular-nums">
-                {formatCurrency(result.jobFixedTotal)}
+              <td className="py-3 pr-4 text-right tabular-nums">
+                {formatCents(totals.fixedCents)}
               </td>
-              <td className="py-3 pr-3 text-right tabular-nums">
-                {formatCurrency(result.totalCost)}
+              <td className="py-3 pr-4 text-right tabular-nums">
+                {formatCents(totals.fullCents)}
               </td>
-              <td className="py-3 text-right tabular-nums">{formatCents(result.netPriceCents)}</td>
+              <td className="py-3 text-right tabular-nums">{formatCents(totals.priceCents)}</td>
             </tr>
           </tfoot>
         </table>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <DetailBox label="Setup" value={formatCurrency(result.jobLaborDetails.setup)} />
-        <DetailBox label="Progettazione" value={formatCurrency(result.jobLaborDetails.design)} />
-        <DetailBox
+      <dl className="mt-5 grid gap-4 border-t border-line pt-4 sm:grid-cols-2 lg:grid-cols-4">
+        <DetailTerm label="Setup" value={formatCurrency(result.jobLaborDetails.setup)} />
+        <DetailTerm label="Progettazione" value={formatCurrency(result.jobLaborDetails.design)} />
+        <DetailTerm
           label="Extra di lavoro"
           value={formatCurrency(result.jobExtras)}
           hint={
@@ -140,29 +155,33 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
               : undefined
           }
         />
-        <DetailBox
+        <DetailTerm
           label="Prezzo netto"
           value={formatCents(result.netPriceCents)}
-          hint={`IVA ${formatCents(result.vatCents)} · lordo ${formatCents(result.grossPriceCents)}`}
+          hint={
+            result.vatCents > 0
+              ? `IVA ${formatCents(result.vatCents)} · lordo ${formatCents(result.grossPriceCents)}`
+              : 'Nessuna IVA'
+          }
         />
-      </div>
+      </dl>
 
       {quote.job.notes ? (
-        <div className="mt-4 rounded-control bg-raised px-3 py-2 text-xs text-muted">
-          <p className="font-medium text-ink">Note</p>
-          <p className="mt-1 whitespace-pre-wrap">{quote.job.notes}</p>
+        <div className="mt-4 border-t border-line pt-3">
+          <p className="text-sm font-medium text-ink">Note</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{quote.job.notes}</p>
         </div>
       ) : null}
     </Card>
   )
 }
 
-function DetailBox({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function DetailTerm({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-control border border-line bg-raised/60 px-3 py-2">
-      <p className="text-xs font-medium text-muted">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold tabular-nums text-ink">{value}</p>
-      {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
+    <div>
+      <dt className="text-xs font-medium text-muted">{label}</dt>
+      <dd className="mt-0.5 text-sm font-medium tabular-nums text-ink">{value}</dd>
+      {hint ? <dd className="mt-0.5 text-xs text-muted">{hint}</dd> : null}
     </div>
   )
 }

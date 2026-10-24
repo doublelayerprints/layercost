@@ -1,15 +1,18 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/state/app-store'
-import { Badge, Button, Card, EmptyState, Input, PageHeader } from '@/components/ui'
+import { Badge, Button, EmptyState, Input, PageHeader } from '@/components/ui'
 import { formatCents, formatCurrency, formatDateOnly } from '@/lib/format'
+import type { Quote } from '@/domain/types'
+
+function quoteStatus(quote: Quote): { label: string; tone: 'neutral' | 'success' | 'warning' | 'danger' } {
+  if (!quote.result) return { label: 'Non ricalcolabile', tone: 'danger' }
+  if (quote.archived) return { label: 'Archiviato', tone: 'warning' }
+  return { label: 'Salvato', tone: 'success' }
+}
 
 export function QuotesPage() {
   const quotes = useAppStore((state) => state.quotes)
-  const duplicateQuote = useAppStore((state) => state.duplicateQuote)
-  const refreshQuote = useAppStore((state) => state.refreshQuote)
-  const archiveQuote = useAppStore((state) => state.archiveQuote)
-  const deleteQuote = useAppStore((state) => state.deleteQuote)
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [showArchived, setShowArchived] = useState(false)
@@ -27,126 +30,172 @@ export function QuotesPage() {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }, [quotes, search, showArchived])
 
-  const handleDuplicate = (id: string) => {
-    duplicateQuote(id)
-    navigate('/')
-  }
-
-  const handleRefresh = (id: string) => {
-    refreshQuote(id)
-    navigate('/')
-  }
-
-  const handleDelete = (id: string, name: string) => {
-    if (!window.confirm(`Eliminare definitivamente il preventivo “${name}”?`)) return
-    deleteQuote(id)
-  }
+  const visibleCount = quotes.filter((quote) => showArchived || !quote.archived).length
 
   return (
-    <div className="space-y-6">
+    <div>
       <PageHeader
         title="Preventivi"
         description="Ogni preventivo conserva i prezzi usati al momento del salvataggio."
         actions={<Button onClick={() => navigate('/')}>Nuovo preventivo</Button>}
       />
 
-      <Card className="p-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="w-full sm:max-w-xs">
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Cerca per nome o cliente…"
-              aria-label="Cerca preventivi"
-            />
-          </div>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input
-              type="checkbox"
-              checked={showArchived}
-              onChange={(event) => setShowArchived(event.target.checked)}
-              className="h-4 w-4 rounded border-control accent-data"
-            />
-            Mostra archiviati
-          </label>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-full sm:max-w-xs">
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Cerca per nome o cliente…"
+            aria-label="Cerca preventivi"
+          />
         </div>
-      </Card>
+        <label className="flex min-h-9 items-center gap-2 text-sm text-ink">
+          <input
+            type="checkbox"
+            checked={showArchived}
+            onChange={(event) => setShowArchived(event.target.checked)}
+            className="h-4 w-4 rounded border-control accent-data"
+          />
+          Mostra archiviati
+        </label>
+      </div>
+
+      <p className="mt-4 text-sm text-muted">
+        {filtered.length === visibleCount
+          ? `${visibleCount} ${visibleCount === 1 ? 'preventivo' : 'preventivi'}`
+          : `${filtered.length} di ${visibleCount}`}
+      </p>
 
       {filtered.length === 0 ? (
-        <EmptyState
-          title={quotes.length === 0 ? 'Nessun preventivo salvato' : 'Nessun risultato'}
-          description={
-            quotes.length === 0
-              ? 'Calcola una stampa o un lotto e salvalo per ritrovarlo qui.'
-              : 'Prova a cambiare la ricerca o a mostrare gli archiviati.'
-          }
-          action={
-            quotes.length === 0 ? (
-              <Button onClick={() => navigate('/')}>Vai al calcolatore</Button>
-            ) : undefined
-          }
-        />
-      ) : (
-        <div className="grid gap-3">
-          {filtered.map((quote) => (
-            <Card key={quote.id} className="p-4 transition-feedback hover:border-control">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      to={`/quotes/${quote.id}`}
-                      className="truncate text-base font-semibold text-ink hover:text-data"
-                    >
-                      {quote.name}
-                    </Link>
-                    {quote.archived ? <Badge tone="warning">Archiviato</Badge> : null}
-                    {!quote.result ? <Badge tone="danger">Non ricalcolabile</Badge> : null}
-                  </div>
-                  <p className="mt-1 text-xs text-muted">
-                    {formatDateOnly(quote.quoteDate)}
-                    {quote.customer ? ` · ${quote.customer}` : ''}
-                    {' · '}
-                    {quote.lines.length} {quote.lines.length === 1 ? 'riga' : 'righe'}
-                    {quote.result ? ` · costo ${formatCurrency(quote.result.totalCost)}` : ''}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="mr-2 text-right">
-                    <p className="text-lg font-semibold tabular-nums text-ink">
-                      {quote.result ? formatCents(quote.result.grossPriceCents) : '—'}
-                    </p>
-                    <p className="text-xs text-muted">prezzo totale</p>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => navigate(`/quotes/${quote.id}`)}
-                  >
-                    Apri
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDuplicate(quote.id)}>
-                    Duplica
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleRefresh(quote.id)}>
-                    Aggiorna prezzi
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => archiveQuote(quote.id)}>
-                    {quote.archived ? 'Ripristina' : 'Archivia'}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(quote.id, quote.name)}
-                    className="text-negative hover:bg-raised"
-                  >
-                    Elimina
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+        <div className="mt-3">
+          <EmptyState
+            title={quotes.length === 0 ? 'Nessun preventivo salvato' : 'Nessun risultato'}
+            description={
+              quotes.length === 0
+                ? 'Calcola una stampa o un lotto e salvalo per ritrovarlo qui.'
+                : 'Prova a cambiare la ricerca o a mostrare gli archiviati.'
+            }
+            action={
+              quotes.length === 0 ? (
+                <Button onClick={() => navigate('/')}>Vai al calcolatore</Button>
+              ) : undefined
+            }
+          />
         </div>
+      ) : (
+        <>
+          <div className="relative mt-3 hidden overflow-x-auto border-y border-line md:block">
+            <table className="w-full border-collapse text-sm">
+              <caption className="sr-only">Preventivi salvati</caption>
+              <thead>
+                <tr className="text-xs text-muted">
+                  <th scope="col" className="py-2 pr-4 text-left font-medium">
+                    Preventivo
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-left font-medium">
+                    Stato
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Righe
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Costo
+                  </th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    Prezzo
+                  </th>
+                  <th scope="col" className="py-2 text-right font-medium">
+                    <span className="sr-only">Azioni</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((quote) => {
+                  const status = quoteStatus(quote)
+                  return (
+                    <tr key={quote.id} className="border-t border-rule align-middle">
+                      <th scope="row" className="py-3 pr-4 text-left font-normal">
+                        <Link
+                          to={`/quotes/${quote.id}`}
+                          className="font-medium text-ink underline-offset-2 hover:underline"
+                        >
+                          {quote.name}
+                        </Link>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {formatDateOnly(quote.quoteDate)}
+                          {quote.customer ? ` · ${quote.customer}` : ''}
+                        </p>
+                      </th>
+                      <td className="py-3 pr-4">
+                        <Badge tone={status.tone}>{status.label}</Badge>
+                      </td>
+                      <td className="py-3 pr-4 text-right tabular-nums text-muted">
+                        {quote.lines.length}
+                      </td>
+                      <td className="py-3 pr-4 text-right tabular-nums text-muted">
+                        {quote.result ? formatCurrency(quote.result.totalCost) : '—'}
+                      </td>
+                      <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
+                        {quote.result ? formatCents(quote.result.grossPriceCents) : '—'}
+                      </td>
+                      <td className="py-3 text-right">
+                        <Button
+                          variant="subtle"
+                          size="sm"
+                          onClick={() => navigate(`/quotes/${quote.id}`)}
+                        >
+                          Apri
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <ul className="mt-3 border-t border-line md:hidden">
+            {filtered.map((quote) => {
+              const status = quoteStatus(quote)
+              return (
+                <li key={quote.id} className="border-b border-rule py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <Link
+                        to={`/quotes/${quote.id}`}
+                        className="block truncate text-sm font-medium text-ink underline-offset-2 hover:underline"
+                      >
+                        {quote.name}
+                      </Link>
+                      <p className="mt-0.5 text-xs text-muted">
+                        {formatDateOnly(quote.quoteDate)}
+                        {quote.customer ? ` · ${quote.customer}` : ''} · {quote.lines.length}{' '}
+                        {quote.lines.length === 1 ? 'riga' : 'righe'}
+                      </p>
+                      <div className="mt-1.5">
+                        <Badge tone={status.tone}>{status.label}</Badge>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-base font-medium tabular-nums text-ink">
+                        {quote.result ? formatCents(quote.result.grossPriceCents) : '—'}
+                      </p>
+                      <p className="text-xs text-muted">
+                        {quote.result ? formatCurrency(quote.result.totalCost) : ''}
+                      </p>
+                      <Link
+                        to={`/quotes/${quote.id}`}
+                        className="mt-1 inline-block text-sm font-medium text-data underline-offset-2 hover:underline"
+                      >
+                        Apri
+                      </Link>
+                    </div>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </>
       )}
     </div>
   )

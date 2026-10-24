@@ -5,6 +5,7 @@ import { costBands, displayCostBands } from './cost-bands'
 const result = {
   lines: [
     {
+      quantity: 1,
       material: 6_000_000,
       energy: 160_000,
       depreciation: 430_000,
@@ -14,6 +15,7 @@ const result = {
       failure: 350_000,
     },
     {
+      quantity: 1,
       material: 1_000_000,
       energy: 60_000,
       depreciation: 120_000,
@@ -34,6 +36,21 @@ describe('costBands', () => {
   it('somma esattamente il costo totale', () => {
     const bands = costBands(result)
     expect(bands.reduce((sum, band) => sum + band.value, 0)).toBe(result.totalCost)
+  })
+
+  it('moltiplica i componenti di riga per la quantità', () => {
+    const multi = {
+      ...result,
+      lines: result.lines.map((line) => ({ ...line, quantity: 3 })),
+      directTotal: 8_860_000 * 3,
+      totalCost: 8_860_000 * 3 + 500_000,
+    } as QuoteResult
+    const bands = costBands(multi)
+    expect(bands.find((band) => band.key === 'material')?.value).toBe(21_000_000)
+    expect(bands.find((band) => band.key === 'machine')?.value).toBe(2_460_000)
+    expect(bands.find((band) => band.key === 'risk')?.value).toBe(1_320_000)
+    expect(bands.find((band) => band.key === 'labor')?.value).toBe(2_300_000)
+    expect(bands.reduce((sum, band) => sum + band.value, 0)).toBe(multi.totalCost)
   })
 
   it('espone le quattro bande nell’ordine del design system', () => {

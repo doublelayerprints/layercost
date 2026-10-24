@@ -1,10 +1,19 @@
+/** Display rounding for money, symmetric for negative deltas. Avoids float noise at half cents. */
+export function displayCents(microEur: number): number {
+  return microEur >= 0
+    ? Math.floor(microEur / 10_000 + 0.5)
+    : Math.ceil(microEur / 10_000 - 0.5)
+}
+
 export function formatCurrency(microEur: number, maximumFractionDigits = 2): string {
+  const euros =
+    maximumFractionDigits <= 2 ? displayCents(microEur) / 100 : microEur / 1_000_000
   return new Intl.NumberFormat('it-IT', {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 2,
     maximumFractionDigits,
-  }).format(microEur / 1_000_000)
+  }).format(euros)
 }
 
 export function formatCents(cents: number, maximumFractionDigits = 2): string {

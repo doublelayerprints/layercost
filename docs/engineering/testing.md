@@ -61,7 +61,7 @@ Sono candidati per T4.4/T4.5 o per il backlog.
 - `npm run check`;
 - `npm run build` + Playwright con Chromium.
 
-Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (21 unitari, 5 E2E).
+Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (29 unitari, 5 E2E).
 
 ## 7. Come aggiungere un test
 

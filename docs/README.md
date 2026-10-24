@@ -1,15 +1,15 @@
 # LayerCost — Documentazione
 
-**Stato:** v0.1 — MVP funzionale; direzione e design system scelti
+**Stato:** v0.1 — MVP funzionale; direzione, design system e redesign delle schermate fatti
 **Data:** 24 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
-- Fase 4: T4.1, T4.2 e T4.3 chiusi (direzione **A — Strato**, ADR-0015, design system); redesign schermate da fare.
+- Fase 4: T4.1–T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate). Restano T4.5 e T4.6.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 21 unitari + 5 E2E.
+- Test: 29 unitari + 5 E2E.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub.

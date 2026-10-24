@@ -1,5 +1,5 @@
 import type { QuotePricing, Settings } from '@/domain/types'
-import { Button, Card, InfoDot } from '@/components/ui'
+import { Button, InfoDot, SectionHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 import { pricingModeLabels, roundingModeLabels, vatModeLabels } from '@/lib/labels'
 
@@ -18,20 +18,19 @@ export function PricingEditor({
   const valueBp = isMarkup ? pricing.markupBp : pricing.marginBp
 
   return (
-    <Card className="p-4 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold text-ink">Prezzo</h3>
-          <p className="mt-0.5 text-xs text-muted">
-            Il prezzo si calcola sul costo totale. Lo sconto si applica prima dell’arrotondamento.
-          </p>
-        </div>
-        <Button variant="ghost" size="sm" onClick={onReset}>
-          Ripristina default
-        </Button>
-      </div>
+    <>
+      <SectionHeader
+        id="section-prezzo"
+        title="Prezzo"
+        description="Il prezzo si calcola sul costo pieno; lo sconto si applica prima dell’arrotondamento."
+        actions={
+          <Button variant="ghost" size="sm" onClick={onReset}>
+            Ripristina default
+          </Button>
+        }
+      />
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <SelectField
           label="Modalità"
           value={pricing.mode}
@@ -110,15 +109,15 @@ export function PricingEditor({
         />
       </div>
 
-      <div className="mt-4 rounded-control bg-raised px-3 py-2 text-xs text-muted">
+      <p className="mt-4 text-sm leading-snug text-muted">
         Ripartizione costi fissi:{' '}
-        <strong>
+        <span className="text-ink">
           {settings.allocationMode === 'proportional'
             ? 'proporzionale al costo'
             : 'uguale per pezzo'}
-        </strong>
+        </span>
         . Puoi cambiarla nelle impostazioni.
-      </div>
-    </Card>
+      </p>
+    </>
   )
 }
