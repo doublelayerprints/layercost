@@ -692,7 +692,10 @@ Un task è chiuso solo se:
 **Stato:** `[ ]`
 
 - Calcolatore, risultati, preventivi, anagrafiche, impostazioni, confronto, share.
+- Dettagli in `docs/design/design-system.md` §8; wireframe in `docs/design/directions.md` §3.4 e §4.4.
+- Calcolatore 7/12 + 5/12 con risultato sticky a ≥ 1024 px; stack e `Price` nel dettaglio e in stampa; tabelle mobile; una sola azione primaria per schermata.
 - Responsive; dark mode fuori scope v1 (ADR-0015).
+- Eseguire il gate visivo `inspect.mjs --app` a 1440/768/390 e la critique.
 
 **Accettazione:** tutti i flussi funzionano; test E2E verdi; nessuna regressione nei calcoli.
 

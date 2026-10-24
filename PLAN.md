@@ -1,6 +1,6 @@
 # LayerCost — Piano di prodotto e tecnico
 
-**Stato:** MVP funzionale implementato (fasi 0–3); CI verde su GitHub; deploy Vercel live; design da fare
+**Stato:** MVP funzionale implementato (fasi 0–3); CI verde su GitHub; deploy Vercel live; direzione e design system fatti, redesign schermate da fare
 **Data:** 23 ottobre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
 **Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione rimandata; preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel
@@ -8,7 +8,7 @@
 ## Stato implementazione
 
 - **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR.
-- **Da fare:** redesign UI con la skill di design, audit accessibilità automatico, eventuale sincronizzazione cloud.
+- **Da fare:** redesign schermate (T4.4), audit accessibilità automatico, eventuale sincronizzazione cloud.
 - **Non fatto:** import diretto da slicer, magazzino bobine, PWA, inglese.
 
 ---
@@ -386,6 +386,8 @@ Il progetto adotta una documentazione "docs-as-code": ogni decisione, formula e 
 | `docs/engineering/deployment.md`   | Vercel e alternative                                  |
 | `docs/engineering/conventions.md`  | Stile, naming, commit, PR                             |
 | `docs/design/ui-brief.md`          | Requisiti UI per la fase design                       |
+| `docs/design/directions.md`        | Direzioni visive e scelta (ADR-0015)                  |
+| `docs/design/design-system.md`     | Token, componenti, accessibilità e stampa             |
 | `docs/adr/0001…`                   | Decisioni architetturali                              |
 | `CHANGELOG.md`                     | Versioni                                              |
 

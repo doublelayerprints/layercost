@@ -76,24 +76,26 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 ## Documentazione
 
-| File                          | Contenuto                               |
-| ----------------------------- | --------------------------------------- |
-| `STATUS.md`                   | Stato attuale, test, deploy e limiti    |
-| `PLAN.md`                     | Visione, scope, architettura, roadmap   |
-| `TASKS.md`                    | Task e stato di avanzamento             |
-| `AGENTS.md`                   | Regole per il coding agent              |
-| `docs/domain/cost-model.md`   | Specifica normativa del calcolo         |
-| `docs/domain/data-model.md`   | Schema e invarianti                     |
-| `docs/domain/golden-cases.md` | Esempi numerici e test                  |
-| `docs/domain/sources.md`      | Fonti su stampanti e potenze            |
-| `docs/engineering/`           | Architettura, persistenza, test, deploy |
-| `docs/design/ui-brief.md`     | Requisiti per la fase design            |
-| `docs/adr/`                   | 14 decisioni architetturali             |
+| File                           | Contenuto                               |
+| ------------------------------ | --------------------------------------- |
+| `STATUS.md`                    | Stato attuale, test, deploy e limiti    |
+| `PLAN.md`                      | Visione, scope, architettura, roadmap   |
+| `TASKS.md`                     | Task e stato di avanzamento             |
+| `AGENTS.md`                    | Regole per il coding agent              |
+| `docs/domain/cost-model.md`    | Specifica normativa del calcolo         |
+| `docs/domain/data-model.md`    | Schema e invarianti                     |
+| `docs/domain/golden-cases.md`  | Esempi numerici e test                  |
+| `docs/domain/sources.md`       | Fonti su stampanti e potenze            |
+| `docs/engineering/`            | Architettura, persistenza, test, deploy |
+| `docs/design/ui-brief.md`      | Requisiti per la fase design            |
+| `docs/design/directions.md`    | Direzioni e scelta visiva               |
+| `docs/design/design-system.md` | Token, componenti, accessibilità        |
+| `docs/adr/`                    | 15 decisioni architetturali             |
 
 ## Stato
 
 - **MVP funzionale:** fasi 0–3 del piano.
-- **Prossimo:** redesign UI con la skill di design (fase 4).
+- **Design:** T4.1–T4.3 chiusi (direzione A — Strato, design system); prossimo T4.4, redesign schermate.
 - **Fuori v1:** sync cloud, magazzino bobine, import slicer, PWA, inglese.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).

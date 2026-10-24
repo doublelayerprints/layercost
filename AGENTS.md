@@ -28,7 +28,7 @@ Prima di toccare il codice:
 7. `docs/domain/data-model.md`
 8. gli ADR rilevanti in `docs/adr/`
 9. `docs/engineering/architecture.md`, `persistence.md`, `testing.md`, `deployment.md`
-10. `docs/design/ui-brief.md` solo per task UI
+10. `docs/design/ui-brief.md`, `docs/design/directions.md`, `docs/design/design-system.md` solo per task UI
 
 Se due documenti si contraddicono, fermati e segnala: non scegliere a caso.
 
@@ -251,3 +251,5 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/adr/` — decisioni.
 - `docs/engineering/deployment.md` — Vercel e alternative.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
+- `docs/design/directions.md` — direzioni e scelta visiva.
+- `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

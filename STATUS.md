@@ -92,7 +92,7 @@ npm run test:e2e
 ## 5. Deploy
 
 - **Live:** https://layercost.vercel.app
-- Progetto Vercel collegato alla repo GitHub; il commit `e625454` ha ricevuto lo status Vercel “Deployment has completed”.
+- Progetto Vercel collegato alla repo GitHub; l'ultimo deploy verificato è il commit `ba8ec15` (T4.3), con status Vercel “Deployment has completed”.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
 - Header verificati: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Robots-Tag: noindex`.
