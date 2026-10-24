@@ -1,6 +1,6 @@
 import type { CostConfig, LineResult, PrintLine } from '@/domain/types'
 import { asBasisPoints, asCentigrams, asWatts, asWh } from '@/domain/units'
-import { Badge, Button, Card, InfoDot, Select } from '@/components/ui'
+import { Badge, Button, InfoDot, Select } from '@/components/ui'
 import {
   DurationField,
   GramsField,
@@ -11,6 +11,7 @@ import {
 import { formatCurrency, formatDuration, formatGrams } from '@/lib/format'
 
 interface LineEditorProps {
+  index: number
   line: PrintLine
   config: CostConfig
   result?: LineResult
@@ -25,6 +26,7 @@ interface LineEditorProps {
 }
 
 export function LineEditor({
+  index,
   line,
   config,
   result,
@@ -59,22 +61,39 @@ export function LineEditor({
   )
 
   const totalGrams = line.materials.reduce((sum, usage) => sum + usage.grams, 0)
-  const lineCost = result?.directLineCost
 
   return (
-    <Card className="overflow-hidden">
-      <div className="flex flex-col gap-3 border-b border-line bg-raised/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+    <fieldset className="mt-5 border-t border-line pt-5 first:mt-1 first:border-t-0 first:pt-0">
+      <legend className="sr-only">
+        Riga {index + 1}: {line.name.trim() || 'stampa senza nome'}
+      </legend>
+
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+        <div className="min-w-0 flex-1">
           <input
             value={line.name}
             onChange={(event) => onUpdate({ name: event.target.value })}
             aria-label="Nome della stampa"
-            className="min-w-0 flex-1 rounded-control border border-transparent bg-transparent px-1 py-0.5 text-sm font-semibold text-ink transition-feedback hover:border-line focus:border-data focus:bg-surface"
+            className="w-full min-w-0 border-b border-line bg-transparent py-0.5 text-base font-semibold text-ink transition-feedback hover:border-control focus:border-control focus:bg-surface"
           />
-          <Badge tone={lineCost === undefined ? 'warning' : 'neutral'}>
-            {lineCost === undefined ? 'Da completare' : formatCurrency(lineCost)}
-          </Badge>
+          <p className="mt-0.5 text-sm text-muted">
+            {formatGrams(totalGrams)}
+            {line.quantity > 1
+              ? ` per pezzo · ${formatGrams(totalGrams * line.quantity)} totali`
+              : ''}
+            {result ? ` · ${formatDuration(result.effectiveSeconds)} effettivi` : ''}
+            {line.quantity > 1 ? ` · ${line.quantity} pezzi` : ''}
+            {result ? (
+              <>
+                {' · costo diretto '}
+                <span className="font-medium tabular-nums text-ink">
+                  {formatCurrency(result.directLineCost)}
+                </span>
+              </>
+            ) : null}
+          </p>
         </div>
+
         <div className="flex shrink-0 items-center gap-1">
           <Button variant="ghost" size="sm" onClick={onDuplicate}>
             Duplica
@@ -85,7 +104,7 @@ export function LineEditor({
         </div>
       </div>
 
-      <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <SelectField
           label="Stampante"
           value={line.printerId}
@@ -121,34 +140,36 @@ export function LineEditor({
         />
       </div>
 
-      <div className="border-t border-line p-4">
-        <div className="flex items-center justify-between gap-3">
+      <div className="mt-5">
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <h4 className="text-sm font-semibold text-ink">Materiali</h4>
-            <p className="mt-0.5 text-xs text-muted">
+            <h3 className="text-sm font-semibold text-ink">Materiali</h3>
+            <p className="mt-0.5 max-w-lg text-sm leading-snug text-muted">
               Usa il totale riportato dallo slicer: comprende supporti, brim, purge e prime tower.
             </p>
           </div>
           <Button variant="secondary" size="sm" onClick={onAddMaterial}>
-            + Materiale
+            Aggiungi materiale
           </Button>
         </div>
 
         <div className="mt-3 space-y-2">
           {line.materials.length === 0 ? (
-            <p className="rounded-control border border-dashed border-control px-3 py-4 text-center text-xs text-muted">
+            <p className="rounded-control border border-dashed border-control px-3 py-4 text-center text-sm text-muted">
               Nessun materiale. Aggiungine almeno uno.
             </p>
           ) : null}
-          {line.materials.map((usage, index) => (
+          {line.materials.map((usage, materialIndex) => (
             <div
-              key={`${line.id}-material-${index}`}
-              className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_150px_36px]"
+              key={`${line.id}-material-${materialIndex}`}
+              className="grid items-center gap-2 sm:grid-cols-[minmax(0,1fr)_132px_36px]"
             >
               <Select
                 value={usage.materialId}
-                onChange={(event) => onUpdateMaterial(index, { materialId: event.target.value })}
-                aria-label={`Materiale ${index + 1}`}
+                onChange={(event) =>
+                  onUpdateMaterial(materialIndex, { materialId: event.target.value })
+                }
+                aria-label={`Materiale ${materialIndex + 1}`}
               >
                 <option value="">Scegli un materiale</option>
                 {materialOptions.map((option) => (
@@ -161,16 +182,16 @@ export function LineEditor({
                 label={undefined}
                 valueCg={usage.grams}
                 onChangeCg={(value) =>
-                  onUpdateMaterial(index, { grams: asCentigrams(Math.round(value)) })
+                  onUpdateMaterial(materialIndex, { grams: asCentigrams(Math.round(value)) })
                 }
-                ariaLabel={`Grammi materiale ${index + 1}`}
+                ariaLabel={`Grammi materiale ${materialIndex + 1}`}
               />
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onRemoveMaterial(index)}
+                onClick={() => onRemoveMaterial(materialIndex)}
                 disabled={line.materials.length <= 1}
-                aria-label={`Rimuovi materiale ${index + 1}`}
+                aria-label={`Rimuovi materiale ${materialIndex + 1}`}
                 title="Rimuovi materiale"
               >
                 ×
@@ -181,11 +202,14 @@ export function LineEditor({
       </div>
 
       {perUnitExtras.length > 0 ? (
-        <div className="border-t border-line p-4">
-          <h4 className="text-sm font-semibold text-ink">Extra per pezzo</h4>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+        <div className="mt-5">
+          <h3 className="text-sm font-semibold text-ink">Extra per pezzo</h3>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2.5">
             {perUnitExtras.map((extra) => (
-              <label key={extra.id} className="flex items-center gap-2 text-sm text-muted">
+              <label
+                key={extra.id}
+                className="flex min-h-6 items-center gap-2 text-sm text-ink"
+              >
                 <input
                   type="checkbox"
                   checked={line.extraIds.includes(extra.id)}
@@ -193,18 +217,26 @@ export function LineEditor({
                   className="h-4 w-4 rounded border-control accent-data"
                 />
                 <span>{extra.name}</span>
-                <span className="text-xs text-muted">{formatCurrency(extra.amount)}</span>
+                <span className="text-sm tabular-nums text-muted">
+                  {formatCurrency(extra.amount)}
+                </span>
               </label>
             ))}
           </div>
         </div>
       ) : null}
 
-      <details className="group border-t border-line p-4">
-        <summary className="cursor-pointer list-none text-sm font-semibold text-ink marker:hidden">
+      <details className="group mt-5 border-t border-line pt-3">
+        <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-ink marker:hidden">
+          <span
+            aria-hidden="true"
+            className="text-xs text-muted transition-transform group-open:rotate-90 motion-reduce:transition-none"
+          >
+            ▸
+          </span>
           Override avanzati
-          <span className="ml-1 text-xs font-normal text-muted">
-            potenza, energia misurata, tasso guasti
+          <span className="text-xs font-normal text-muted">
+            potenza media, energia misurata, tasso guasti
           </span>
         </summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -261,20 +293,7 @@ export function LineEditor({
           misurata bypassa il modello di potenza.
         </p>
       </details>
-
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-raised px-4 py-2 text-xs text-muted">
-        <span>
-          {formatGrams(totalGrams)}
-          {result ? ` · ${formatDuration(result.effectiveSeconds)} effettivi` : ''}
-        </span>
-        <span>
-          Costo diretto:{' '}
-          <strong className="text-ink">
-            {lineCost === undefined ? '—' : formatCurrency(lineCost)}
-          </strong>
-        </span>
-      </div>
-    </Card>
+    </fieldset>
   )
 }
 
@@ -297,8 +316,8 @@ function OverrideNumber({
 }) {
   const enabled = value !== undefined
   return (
-    <div className="rounded-control border border-line bg-raised/60 p-2.5">
-      <label className="flex items-center gap-2 text-xs font-medium text-muted">
+    <div className="rounded-control border border-line p-3">
+      <label className="flex min-h-6 items-center gap-2 text-sm font-medium text-ink">
         <input
           type="checkbox"
           checked={enabled}
@@ -306,6 +325,7 @@ function OverrideNumber({
           className="h-4 w-4 rounded border-control accent-data"
         />
         {label}
+        <Badge tone={enabled ? 'info' : 'neutral'}>{enabled ? 'Override' : 'Auto'}</Badge>
       </label>
       {enabled ? (
         <div className="mt-2">
@@ -319,9 +339,7 @@ function OverrideNumber({
             ariaLabel={label}
           />
         </div>
-      ) : (
-        <p className="mt-2 text-xs text-muted">Automatico</p>
-      )}
+      ) : null}
     </div>
   )
 }
@@ -338,8 +356,8 @@ function OverrideFailure({
   const defaultValueBp = Math.round(defaultValue * 100)
   const enabled = value !== undefined
   return (
-    <div className="rounded-control border border-line bg-raised/60 p-2.5">
-      <label className="flex items-center gap-2 text-xs font-medium text-muted">
+    <div className="rounded-control border border-line p-3">
+      <label className="flex min-h-6 items-center gap-2 text-sm font-medium text-ink">
         <input
           type="checkbox"
           checked={enabled}
@@ -347,6 +365,7 @@ function OverrideFailure({
           className="h-4 w-4 rounded border-control accent-data"
         />
         Tasso guasti
+        <Badge tone={enabled ? 'info' : 'neutral'}>{enabled ? 'Override' : 'Auto'}</Badge>
       </label>
       {enabled ? (
         <div className="mt-2">
@@ -358,9 +377,7 @@ function OverrideFailure({
             max={50}
           />
         </div>
-      ) : (
-        <p className="mt-2 text-xs text-muted">Automatico</p>
-      )}
+      ) : null}
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { calculateQuote } from '@/domain/cost/quote'
 import { pricingFromSettings } from '@/domain/cost/quote'
 import type { QuoteResult } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
-import { Button, Card, EmptyState, Field, Input, PageHeader } from '@/components/ui'
+import { Button, Card, EmptyState, Field, Input, PageHeader, SectionHeader } from '@/components/ui'
 import { TextField } from '@/components/number-fields'
 import { OnboardingCard } from '@/features/onboarding/OnboardingCard'
 import { QuotePrint } from '@/features/quotes/QuotePrint'
@@ -12,8 +12,8 @@ import { CostDetails } from './CostDetails'
 import { JobCostsEditor } from './JobCostsEditor'
 import { LineEditor } from './LineEditor'
 import { PricingEditor } from './PricingEditor'
-import { SummaryPanel } from './SummaryPanel'
-import { formatDateOnly } from '@/lib/format'
+import { SummaryPanel, type QuickComparison } from './SummaryPanel'
+import { formatDateOnly, formatGrams } from '@/lib/format'
 
 interface CalculationState {
   result?: QuoteResult
@@ -55,9 +55,56 @@ export function CalculatorPage() {
   }, [draft, config])
 
   const totalGrams = draft.lines.reduce(
-    (sum, line) => sum + line.materials.reduce((lineSum, usage) => lineSum + usage.grams, 0),
+    (sum, line) =>
+      sum +
+      line.materials.reduce((lineSum, usage) => lineSum + usage.grams, 0) * line.quantity,
     0,
   )
+
+  /**
+   * Same job on the other active printer. Display-only: the draft is never mutated.
+   * Only offered when the whole draft uses one of the two configured printers.
+   */
+  const quickComparison = useMemo<QuickComparison | undefined>(() => {
+    if (!calculation.result) return undefined
+    const active = config.printers.filter((printer) => !printer.archived)
+    if (active.length !== 2 || draft.lines.length === 0) return undefined
+    const printerIds = new Set(draft.lines.map((line) => line.printerId))
+    if (printerIds.size !== 1) return undefined
+    const current = active.find((printer) => printer.id === draft.lines[0]?.printerId)
+    if (!current) return undefined
+    const other = active.find((printer) => printer.id !== current.id)
+    if (!other) return undefined
+
+    try {
+      const alternative = calculateQuote(
+        {
+          ...draft,
+          lines: draft.lines.map((line) => ({ ...line, printerId: other.id })),
+        },
+        config,
+      )
+      return {
+        currentId: current.id,
+        options: [
+          {
+            id: current.id,
+            name: current.name,
+            totalCost: calculation.result.totalCost,
+            grossPriceCents: calculation.result.grossPriceCents,
+          },
+          {
+            id: other.id,
+            name: other.name,
+            totalCost: alternative.totalCost,
+            grossPriceCents: alternative.grossPriceCents,
+          },
+        ],
+      }
+    } catch {
+      return undefined
+    }
+  }, [calculation.result, config, draft])
 
   const handleSave = () => {
     setSaveError(undefined)
@@ -102,14 +149,16 @@ export function CalculatorPage() {
     updatePricing(pricingFromSettings(config.settings))
   }
 
+  const paragraphCount = draft.lines.length
+
   return (
     <>
-      <div className="print:hidden space-y-6">
+      <div className="print:hidden">
         <PageHeader
           title={draft.name.trim() || 'Nuovo preventivo'}
-          description={`Preventivo del ${formatDateOnly(draft.quoteDate)} · ${draft.lines.length} ${
-            draft.lines.length === 1 ? 'riga' : 'righe'
-          }`}
+          description={`Bozza · preventivo del ${formatDateOnly(draft.quoteDate)} · ${paragraphCount} ${
+            paragraphCount === 1 ? 'riga' : 'righe'
+          } · ${formatGrams(totalGrams)}`}
           actions={
             <Button variant="secondary" onClick={handleNew}>
               Nuovo
@@ -117,110 +166,140 @@ export function CalculatorPage() {
           }
         />
 
-        <OnboardingCard />
+        <div className="mt-6">
+          <OnboardingCard />
+        </div>
 
-        <Card className="p-4 sm:p-5">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <TextField
-              label="Nome preventivo"
-              value={draft.name}
-              onChange={(value) => updateDraftMeta({ name: value })}
-              placeholder="Es. Set organizer scrivania"
-              required
-              className="sm:col-span-2"
-            />
-            <Field label="Data" htmlFor={dateFieldId}>
-              <Input
-                id={dateFieldId}
-                type="date"
-                value={draft.quoteDate}
-                onChange={(event) => updateDraftMeta({ quoteDate: event.target.value })}
-              />
-            </Field>
-            <TextField
-              label="Cliente (opzionale)"
-              value={draft.customer ?? ''}
-              onChange={(value) => updateDraftMeta({ customer: value || undefined })}
-              placeholder="Nome o riferimento"
-            />
-          </div>
-        </Card>
-
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="min-w-0 space-y-4">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-base font-semibold text-ink">Stampe</h2>
-                <p className="mt-0.5 text-xs text-muted">
-                  Una riga per ogni stampa o per ogni pezzo diverso. La quantità gestisce le copie.
-                </p>
-              </div>
-              <Button variant="secondary" size="sm" onClick={addLine}>
-                + Aggiungi riga
-              </Button>
-            </div>
-
-            {draft.lines.length === 0 ? (
-              <EmptyState
-                title="Nessuna stampa nel preventivo"
-                description="Aggiungi una riga con stampante, tempo e grammi per iniziare."
-                action={<Button onClick={addLine}>Aggiungi la prima riga</Button>}
-              />
-            ) : (
-              <div className="space-y-4">
-                {draft.lines.map((line) => (
-                  <LineEditor
-                    key={line.id}
-                    line={line}
-                    config={config}
-                    result={calculation.result?.lines.find((item) => item.lineId === line.id)}
-                    canRemove={draft.lines.length > 1}
-                    onUpdate={(patch) => updateLine(line.id, patch)}
-                    onDuplicate={() => duplicateLine(line.id)}
-                    onRemove={() => removeLine(line.id)}
-                    onUpdateMaterial={(index, patch) => updateLineMaterial(line.id, index, patch)}
-                    onAddMaterial={() => addLineMaterial(line.id)}
-                    onRemoveMaterial={(index) => removeLineMaterial(line.id, index)}
-                    onToggleExtra={(extraId) => toggleLineExtra(line.id, extraId)}
+        <div className="mt-6 grid items-start gap-6 lg:grid-cols-12">
+          <div className="min-w-0 lg:col-span-7">
+            <Card className="p-5 sm:p-6">
+              <section aria-labelledby="section-intestazione">
+                <SectionHeader
+                  id="section-intestazione"
+                  title="Preventivo"
+                  description="Il nome identifica il lavoro; data e cliente compaiono in stampa e nei link condivisi."
+                />
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <TextField
+                    label="Nome preventivo"
+                    value={draft.name}
+                    onChange={(value) => updateDraftMeta({ name: value })}
+                    placeholder="Es. Set organizer scrivania"
+                    required
+                    className="sm:col-span-2"
                   />
-                ))}
-              </div>
-            )}
+                  <Field label="Data" htmlFor={dateFieldId}>
+                    <Input
+                      id={dateFieldId}
+                      type="date"
+                      value={draft.quoteDate}
+                      onChange={(event) => updateDraftMeta({ quoteDate: event.target.value })}
+                    />
+                  </Field>
+                  <TextField
+                    label="Cliente (opzionale)"
+                    value={draft.customer ?? ''}
+                    onChange={(value) => updateDraftMeta({ customer: value || undefined })}
+                    placeholder="Nome o riferimento"
+                  />
+                </div>
+              </section>
 
-            <JobCostsEditor
-              job={draft.job}
-              config={config}
-              result={calculation.result}
-              onChange={updateJob}
-              onToggleExtra={toggleJobExtra}
-            />
+              <section
+                className="mt-8 border-t border-line pt-6"
+                aria-labelledby="section-stampe"
+              >
+                <SectionHeader
+                  id="section-stampe"
+                  title="Stampe"
+                  description="Una riga per ogni stampa o pezzo diverso; la quantità gestisce le copie."
+                  actions={
+                    <Button variant="secondary" size="sm" onClick={addLine}>
+                      Aggiungi riga
+                    </Button>
+                  }
+                />
 
-            <PricingEditor
-              pricing={draft.pricing}
-              settings={config.settings}
-              onChange={updatePricing}
-              onReset={handleResetPricing}
-            />
+                {draft.lines.length === 0 ? (
+                  <div className="mt-4">
+                    <EmptyState
+                      title="Nessuna stampa nel preventivo"
+                      description="Aggiungi una riga con stampante, tempo e grammi per iniziare."
+                      action={<Button onClick={addLine}>Aggiungi la prima riga</Button>}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    {draft.lines.map((line, index) => (
+                      <LineEditor
+                        key={line.id}
+                        index={index}
+                        line={line}
+                        config={config}
+                        result={calculation.result?.lines.find((item) => item.lineId === line.id)}
+                        canRemove={draft.lines.length > 1}
+                        onUpdate={(patch) => updateLine(line.id, patch)}
+                        onDuplicate={() => duplicateLine(line.id)}
+                        onRemove={() => removeLine(line.id)}
+                        onUpdateMaterial={(index, patch) =>
+                          updateLineMaterial(line.id, index, patch)
+                        }
+                        onAddMaterial={() => addLineMaterial(line.id)}
+                        onRemoveMaterial={(index) => removeLineMaterial(line.id, index)}
+                        onToggleExtra={(extraId) => toggleLineExtra(line.id, extraId)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section className="mt-8 border-t border-line pt-6" aria-labelledby="section-lavoro">
+                <JobCostsEditor
+                  job={draft.job}
+                  config={config}
+                  result={calculation.result}
+                  onChange={updateJob}
+                  onToggleExtra={toggleJobExtra}
+                />
+              </section>
+
+              <section className="mt-8 border-t border-line pt-6" aria-labelledby="section-prezzo">
+                <PricingEditor
+                  pricing={draft.pricing}
+                  settings={config.settings}
+                  onChange={updatePricing}
+                  onReset={handleResetPricing}
+                />
+              </section>
+            </Card>
           </div>
 
-          <div className="min-w-0">
+          <aside
+            className="min-w-0 lg:col-span-5 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto"
+            aria-label="Risultato"
+          >
             <SummaryPanel
               quote={draft}
               result={calculation.result}
               error={calculation.error}
               totalGrams={totalGrams}
+              comparison={quickComparison}
+              detailHref="#dettaglio"
               onSave={handleSave}
               onPrint={handlePrint}
-              onNew={handleNew}
               saveError={saveError}
             />
             {savedMessage ? (
-              <p className="mt-2 text-center text-xs text-positive">{savedMessage}</p>
+              <p className="mt-2 text-center text-sm text-positive">{savedMessage}</p>
             ) : null}
-          </div>
+          </aside>
         </div>
 
-        {calculation.result ? <CostDetails quote={draft} result={calculation.result} /> : null}
+        {calculation.result ? (
+          <div id="dettaglio" className="mt-6 scroll-mt-6">
+            <CostDetails quote={draft} result={calculation.result} />
+          </div>
+        ) : null}
       </div>
 
       <QuotePrint quote={draft} result={calculation.result} />

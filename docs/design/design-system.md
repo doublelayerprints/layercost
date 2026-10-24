@@ -1,9 +1,9 @@
 # Design system — Strato
 
-**Stato:** T4.3 implementato
+**Stato:** T4.3 e T4.4 implementati; T4.5 da fare
 **Data:** 24 ottobre 2026
 **Direzione:** A — Strato (`achromatic-ledger`), ADR-0015
-**Ambito:** token, tipografia, componenti, accessibilità e stampa. Il redesign della composizione delle schermate è T4.4.
+**Ambito:** token, tipografia, componenti, accessibilità e stampa. La composizione delle schermate è stata applicata in T4.4.
 
 ---
 
@@ -230,7 +230,9 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 
 ### 7.1 Automatizzati
 
-- `src/lib/cost-bands.test.ts` — 5 test: somma esatta delle bande, ordine, lavoro, zero, accorpamento sotto il 3%.
+- `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
+- `src/lib/cost-details.test.ts` — 4 test: componenti che sommano al costo diretto, costo pieno da diretto + quota fissa, totali di colonna, prezzo allocato.
+- `src/lib/format.test.ts` — 3 test: arrotondamento dei centesimi simmetrico, roundtrip dei centesimi interi (property test), formattazione it-IT.
 - `tests/e2e/design-system.spec.ts` — 2 test:
   1. token e font caricati (`--color-ground`, `--color-data`, `--color-control`, Archivo, Source Serif 4);
   2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#1d5fbf`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude.
@@ -238,8 +240,12 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 
 ### 7.2 Manuali
 
-- Screenshot a 1440 e 390 px del calcolatore vuoto e compilato, del menu mobile, del dettaglio preventivo e della stampa.
-- `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN**. Il WARN è `tiny-text`: il 52% del testo è sotto i 13 px perché etichette, unità, metadati e header di tabella usano il passo 12 del design system; i dati e i numeri stanno a 14/16/24/34. È una scelta motivata per una UI densa; T4.4 può rivalutarla dopo la critique visiva.
+- Screenshot a 1440, 768 e 390 px del calcolatore vuoto e compilato, del menu mobile, del dettaglio preventivo, del confronto, delle anagrafiche, delle impostazioni e della stampa.
+- `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN**. Il WARN è `ragged-row`: il pannello risultato è una rail sticky alta meno del form, come da wireframe §3.4 della direzione. Non è una coppia di card affiancate da bilanciare: mentre si scorre, il pannello resta in vista.
+- Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
+- A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
+- Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non è stato verificato in questa sessione (nessun binario WebKit locale): resta il residuo di T3.8.
+- Preview Vercel: deployment verde sulla PR #1; l’URL di preview è protetto da SSO Vercel, quindi la verifica visiva è stata eseguita sul build di produzione locale (stesso contenuto).
 - `font-not-dealt` è un redraw documentato (Geist → Archivo + Source Serif 4); il gate si esegue con `--allow font-not-dealt`.
 
 ### 7.3 Comandi
@@ -251,15 +257,54 @@ npm run test:e2e
 
 ---
 
-## 8. Cosa resta a T4.4
+## 8. T4.4 — esito
 
-- Comporre il calcolatore secondo il wireframe 7/12 + 5/12, con risultato sticky a ≥ 1024 px.
-- Portare `Price` e `CostStack` anche nel dettaglio preventivo e nella stampa, con la gerarchia prezzo > costo > margine.
-- Aggiungere il controllo "Kobra 3 / Kobra X" nel riquadro risultato, con il delta in place.
-- Ridisegnare le tabelle su mobile (card o scroll controllato) e rifinire la stampa A4.
-- Scegliere l'unica azione primaria di ogni schermata; rimuovere le azioni tutte secondarie.
-- Eseguire la critique visiva della skill e il giro di fix; verificare tastiera, focus, 375/1440 e axe.
-- Non cambiare token, formule, unità, snapshot o persistenza senza un nuovo ADR/test.
+### 8.1 Cosa è stato applicato
+
+- **Shell.** Open plane: sidebar da 256 px sulla pietra, hairline, righe da ~34 px, voce attiva con pill neutra. Barra mobile da 56 px con wordmark e menu; il menu porta i due gruppi di navigazione e il backup.
+- **Calcolatore.** Griglia 7/12 + 5/12 con pannello risultato sticky a ≥1024 px, `max-height` a viewport meno 48 px e scroll interno su schermi bassi. Il form è una superficie bianca unica, con sezioni separate da regole da 1 px (intestazione, stampe, costi di lavoro, prezzo); le righe sono `<fieldset>` con testata editabile e non card annidate. `Price` 34 px serif, costo pieno e margine a 24 px, `CostStack`, frase del risultato e link al dettaglio.
+- **Confronto rapido.** Nel pannello risultato, due stati con le stampanti attive: scegliendo l’altra si legge il costo ipotetico e il delta rispetto al preventivo corrente. La bozza non viene mai mutata.
+- **Preventivi e dettaglio.** Lista tabellare con identity, stato, righe, costo, prezzo e una sola azione di riga; su mobile righe a due linee. Dettaglio con prezzo + stack, righe (tabella su desktop, card su mobile), snapshot con “Aggiorna ai prezzi correnti” e gestione (duplica, archivia, elimina) separata; una sola azione primaria per schermata.
+- **Anagrafiche.** Stampanti a righe con costo orario in evidenza; materiali, extra e tariffe in tabelle con importi allineati a destra e liste a due linee su mobile. Tariffa corrente in una striscia con barra dati.
+- **Impostazioni.** Colonna etichetta + pannello, sezioni separate da regole, anteprima reale del prezzo con `calculatePricing`, riepilogo dei valori correnti e azioni distruttive in fondo.
+- **Condivisione.** Vista read-only con prezzo, stack, righe e dettaglio; import nel proprio archivio come azione primaria.
+- **Stampa.** A4 con intestazione, meta, righe, composizione in grigi, totali e note; prezzo di riga etichettato come quota del totale; footer “Generato con LayerCost il gg/mm/aaaa”.
+- **Correzioni di visualizzazione (non del motore).** Le bande dello stack moltiplicano i componenti di riga per la quantità; gli importi della legenda sono allocati in centesimi con resto più grande, così la somma coincide con il costo pieno mostrato. La tabella dettaglio alloca le sei componenti al costo diretto della riga, così righe e totali di colonna tornano al centesimo. I grammi totali includono la quantità. `formatCurrency` arrotonda i centesimi con aritmetica intera per evitare il mezzo centesimo instabile. `engineVersion`, formule, snapshot e persistenza non sono cambiati.
+
+### 8.2 Critique (round 1 → round 2)
+
+```text
+ROUND 1
+Seen in one second: un preventivo sul banco: prezzo serif a destra, form a sinistra, stack blu.
+Idea: gli strati della stampa diventano gli strati del costo; il prezzo è la somma di ciò che si vede.
+Live thing: prezzo e stack si aggiornano mentre si digita; il confronto rapido mostra il delta senza toccare la bozza.
+Layout words by screen: calcolatore=form 7/12 + rail 5/12 / preventivi=tabella / dettaglio=prezzo+stack, righe, dettaglio / confronto=delta + tabella a due colonne / anagrafiche=righe o tabelle / impostazioni=etichetta + pannello.
+Scores: design 7.5 · usability 8 · creativity 8 · content 8.5 → 7.9
+Caps applied: nessuno.
+Top three problems:
+1. Lo stack mostrava il 43% di materiale su un lavoro da 2 pezzi: le bande non moltiplicavano per la quantità (visibile nel riquadro risultato).
+2. Il nome della riga sembrava un titolo, non un campo: nessuna affordance a riposo (calcolatore, desktop e mobile).
+3. Il riepilogo ripeteva lo stesso importo quando l’IVA è assente (“9,10 € netto · nessuna IVA” sotto “9,10 €”).
+```
+
+```text
+ROUND 2
+Seen in one second: prezzo e composizione sono la cosa più grande; il form è il passo che li produce.
+Idea: invariata.
+Live thing: invariato.
+Layout words by screen: invariati.
+Scores: design 8 · usability 8.5 · creativity 8 · content 8.5 → 8.2
+Caps applied: nessuno. Il WARN ragged-row è la rail sticky, non una coppia di card.
+Top three problems: nessuno dei tre del round 1 è più visibile; resta il residuo Safari/axe in §8.3.
+```
+
+### 8.3 Resta per T4.5/T4.6
+
+- Safari e stampa reale su più browser (T3.8 resta `[~]`).
+- Audit automatico `axe` e percorso completo da tastiera sulle schermate secondarie (T3.11 resta `[~]`).
+- Stati vuoti/errore/caricamento e rifiniture di microcopy (T4.5).
+- Test visuali di regressione e preview Vercel (T4.6).
+- Nessun cambio a token, formule, unità, snapshot o persistenza senza un nuovo ADR/test.
 
 ---
 
@@ -272,6 +317,9 @@ npm run test:e2e
 | `src/components/field-context.ts` | id di label/hint/error condivisi                                                                                                     |
 | `src/components/cost-stack.tsx`   | stack dei costi                                                                                                                      |
 | `src/lib/cost-bands.ts`           | raggruppamento delle bande e test                                                                                                    |
+| `src/lib/cost-details.ts`         | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                |
+| `src/lib/format.ts`               | formattazione it-IT e arrotondamento dei centesimi                                                                                   |
+| `src/lib/format.test.ts`          | test dei centesimi e della formattazione                                                                                             |
 | `src/components/logo.tsx`         | marchio a tre strati                                                                                                                 |
 | `src/assets/fonts/`               | WOFF2 self-hosted                                                                                                                    |
 | `public/fonts/`                   | licenze OFL                                                                                                                          |

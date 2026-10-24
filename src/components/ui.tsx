@@ -462,18 +462,54 @@ export function PageHeader({
   title,
   description,
   actions,
+  meta,
 }: {
   title: string
-  description?: string
+  description?: ReactNode
   actions?: ReactNode
+  meta?: ReactNode
 }) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+      <div className="min-w-0">
         <h1 className="text-2xl font-semibold tracking-title text-ink">{title}</h1>
         {description ? <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p> : null}
+        {meta ? <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">{meta}</div> : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+    </div>
+  )
+}
+
+export function SectionHeader({
+  title,
+  description,
+  actions,
+  id,
+  className,
+}: {
+  title: ReactNode
+  description?: ReactNode
+  actions?: ReactNode
+  id?: string
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between',
+        className,
+      )}
+    >
+      <div>
+        <h2 id={id} className="text-base font-semibold text-ink">
+          {title}
+        </h2>
+        {description ? (
+          <p className="mt-0.5 max-w-2xl text-sm leading-snug text-muted">{description}</p>
+        ) : null}
+      </div>
+      {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
   )
 }
@@ -481,9 +517,10 @@ export function PageHeader({
 export function InfoDot({ label }: { label: string }) {
   return (
     <span
+      role="img"
       title={label}
-      className="inline-flex h-5 w-5 cursor-help items-center justify-center rounded-full border border-control text-xs font-semibold text-muted"
       aria-label={label}
+      className="inline-flex h-5 w-5 cursor-help items-center justify-center rounded-full border border-control text-xs font-semibold text-muted"
     >
       i
     </span>
@@ -496,7 +533,7 @@ export function Table({
   ...props
 }: TableHTMLAttributes<HTMLTableElement> & { containerClassName?: string }) {
   return (
-    <div className={cn('overflow-x-auto', containerClassName)}>
+    <div className={cn('relative overflow-x-auto', containerClassName)}>
       <table className={cn('w-full border-collapse text-sm', className)} {...props} />
     </div>
   )

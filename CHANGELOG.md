@@ -6,12 +6,21 @@
 
 - Direzione visiva **A — Strato** (ADR-0015) e specifiche in `docs/design/directions.md`.
 - Design system Strato: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
-- Test design: 21 unitari, 5 E2E, inspector 0 FAIL/1 WARN motivato.
+- Redesign T4.4 delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only e stampa A4.
+- Test design: 29 unitari, 5 E2E, inspector 0 FAIL/1 WARN motivato.
 
 ### Changed
 
 - Tariffa energia di default: **€0,20/kWh** (era €0,25/kWh).
 - Manutenzione di default: **€0,01/h** per Kobra 3 e Kobra X (era €0,03/h).
+- Stampa A4 ridisegnata: intestazione, meta, righe, composizione in grigi, totali, note e footer.
+
+### Fixed
+
+- Stack dei costi: i componenti di riga vengono moltiplicati per la quantità e gli importi della legenda sono allocati in centesimi, così la somma coincide con il costo pieno mostrato.
+- Tabella dettaglio: le sei componenti sono allocate al costo diretto della riga; righe e totali di colonna tornano al centesimo.
+- Grammi totali: includono la quantità della riga.
+- `formatCurrency`: arrotondamento dei centesimi con aritmetica intera, senza il mezzo centesimo instabile.
 
 Formato basato su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) e [SemVer](https://semver.org/).
 

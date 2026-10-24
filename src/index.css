@@ -151,4 +151,26 @@
   .print-break {
     break-inside: avoid;
   }
+
+  /* The cost stack prints in greys; the legend carries the amounts. */
+  [data-stack-tone] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  [data-stack-tone='data'] {
+    background-color: #000 !important;
+  }
+
+  [data-stack-tone='ink'] {
+    background-color: #3d3d3d !important;
+  }
+
+  [data-stack-tone='muted'] {
+    background-color: #767676 !important;
+  }
+
+  [data-stack-tone='control'] {
+    background-color: #c4c4c4 !important;
+  }
 }

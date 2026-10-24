@@ -1,6 +1,6 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAppStore } from '@/state/app-store'
-import { Alert, Badge, Button, EmptyState, PageHeader } from '@/components/ui'
+import { Alert, Badge, Button, Card, EmptyState, PageHeader } from '@/components/ui'
 import { ENGINE_VERSION } from '@/domain/version'
 import { QuoteOverview } from './QuoteOverview'
 import { QuotePrint } from './QuotePrint'
@@ -20,13 +20,15 @@ export function QuoteDetailPage() {
 
   if (!quote) {
     return (
-      <div className="space-y-6">
+      <div>
         <PageHeader title="Preventivo non trovato" />
-        <EmptyState
-          title="Questo preventivo non esiste più"
-          description="Potrebbe essere stato eliminato o il link non è corretto."
-          action={<Button onClick={() => navigate('/quotes')}>Torna all’archivio</Button>}
-        />
+        <div className="mt-6">
+          <EmptyState
+            title="Questo preventivo non esiste più"
+            description="Potrebbe essere stato eliminato o il link non è corretto."
+            action={<Button onClick={() => navigate('/quotes')}>Torna all’archivio</Button>}
+          />
+        </div>
       </div>
     )
   }
@@ -39,72 +41,103 @@ export function QuoteDetailPage() {
 
   return (
     <>
-      <div className="print:hidden space-y-6">
-        <PageHeader
-          title={quote.name}
-          description={`${formatDateOnly(quote.quoteDate)}${
-            quote.customer ? ` · ${quote.customer}` : ''
-          } · ${quote.lines.length} ${quote.lines.length === 1 ? 'riga' : 'righe'}`}
-          actions={
-            <>
-              <Button variant="secondary" onClick={() => navigate('/quotes')}>
-                Archivio
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  duplicateQuote(quote.id)
-                  navigate('/')
-                }}
-              >
-                Duplica
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  refreshQuote(quote.id)
-                  navigate('/')
-                }}
-              >
-                Aggiorna prezzi
-              </Button>
-              <Button variant="secondary" onClick={() => window.print()} disabled={!quote.result}>
-                Stampa / PDF
-              </Button>
-              {quote.result ? <ShareQuoteButton quote={quote} result={quote.result} /> : null}
-            </>
-          }
-        />
+      <div className="print:hidden">
+        <Link
+          to="/quotes"
+          className="inline-flex min-h-8 items-center gap-1 text-sm font-medium text-muted transition-feedback hover:text-ink"
+        >
+          <span aria-hidden="true">‹</span> Preventivi
+        </Link>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {quote.archived ? (
-            <Badge tone="warning">Archiviato</Badge>
-          ) : (
-            <Badge tone="success">Salvato</Badge>
-          )}
-          {quote.engineVersion ? <Badge tone="neutral">Motore v{quote.engineVersion}</Badge> : null}
-          <Button variant="ghost" size="sm" onClick={() => archiveQuote(quote.id)}>
-            {quote.archived ? 'Ripristina' : 'Archivia'}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            className="text-negative hover:bg-raised"
-          >
-            Elimina
-          </Button>
+        <div className="mt-2">
+          <PageHeader
+            title={quote.name}
+            description={`${formatDateOnly(quote.quoteDate)}${
+              quote.customer ? ` · ${quote.customer}` : ''
+            } · ${quote.lines.length} ${quote.lines.length === 1 ? 'riga' : 'righe'}`}
+            meta={
+              <>
+                {quote.archived ? (
+                  <Badge tone="warning">Archiviato</Badge>
+                ) : (
+                  <Badge tone="success">Salvato</Badge>
+                )}
+                {quote.engineVersion ? (
+                  <span className="text-xs text-muted">Motore v{quote.engineVersion}</span>
+                ) : null}
+              </>
+            }
+            actions={
+              <>
+                {quote.result ? (
+                  <ShareQuoteButton quote={quote} result={quote.result} variant="secondary" />
+                ) : null}
+                <Button onClick={() => window.print()} disabled={!quote.result}>
+                  Stampa / PDF
+                </Button>
+              </>
+            }
+          />
         </div>
 
         {quote.engineVersion && quote.engineVersion !== ENGINE_VERSION ? (
-          <Alert tone="info" title="Versione del motore diversa">
-            Questo preventivo è stato calcolato con il motore v{quote.engineVersion}; quello attuale
-            è v{ENGINE_VERSION}. I numeri salvati restano validi come storico. Usa “Aggiorna prezzi”
-            per creare una copia ricalcolata.
-          </Alert>
+          <div className="mt-5">
+            <Alert tone="info" title="Versione del motore diversa">
+              Questo preventivo è stato calcolato con il motore v{quote.engineVersion}; quello
+              attuale è v{ENGINE_VERSION}. I numeri salvati restano validi come storico. Usa
+              “Aggiorna ai prezzi correnti” per creare una copia ricalcolata.
+            </Alert>
+          </div>
         ) : null}
 
-        <QuoteOverview quote={quote} result={quote.result} />
+        <div className="mt-6">
+          <QuoteOverview
+            quote={quote}
+            result={quote.result}
+            snapshotAction={
+              quote.snapshot ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    refreshQuote(quote.id)
+                    navigate('/')
+                  }}
+                >
+                  Aggiorna ai prezzi correnti
+                </Button>
+              ) : undefined
+            }
+          />
+        </div>
+
+        <Card className="mt-6 p-5 sm:p-6">
+          <h2 className="text-base font-semibold text-ink">Gestione del preventivo</h2>
+          <p className="mt-0.5 text-sm text-muted">
+            Archiviare non cancella nulla: il preventivo resta consultabile con “Mostra archiviati”.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                duplicateQuote(quote.id)
+                navigate('/')
+              }}
+            >
+              Duplica nel calcolatore
+            </Button>
+            <Button variant="secondary" onClick={() => archiveQuote(quote.id)}>
+              {quote.archived ? 'Ripristina' : 'Archivia'}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleDelete}
+              className="text-negative hover:bg-raised"
+            >
+              Elimina definitivamente
+            </Button>
+          </div>
+        </Card>
       </div>
 
       <QuotePrint quote={quote} result={quote.result} />

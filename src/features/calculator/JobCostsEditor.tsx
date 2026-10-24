@@ -1,5 +1,5 @@
 import type { CostConfig, JobCosts, QuoteResult } from '@/domain/types'
-import { Card } from '@/components/ui'
+import { SectionHeader } from '@/components/ui'
 import { DurationField, TextareaField } from '@/components/number-fields'
 import { formatCurrency } from '@/lib/format'
 
@@ -21,22 +21,21 @@ export function JobCostsEditor({
   )
 
   return (
-    <Card className="p-4 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold text-ink">Costi di lavoro</h3>
-          <p className="mt-0.5 text-xs text-muted">
-            Setup, progettazione ed extra applicati una volta per preventivo.
-          </p>
-        </div>
-        {result ? (
-          <p className="text-xs text-muted">
-            Manodopera: <strong className="text-ink">{formatCurrency(result.jobLabor)}</strong>
-            {' · '}
-            Extra: <strong className="text-ink">{formatCurrency(result.jobExtras)}</strong>
-          </p>
-        ) : null}
-      </div>
+    <>
+      <SectionHeader
+        id="section-lavoro"
+        title="Costi di lavoro"
+        description="Setup, progettazione ed extra applicati una volta per preventivo."
+        actions={
+          result ? (
+            <p className="text-sm text-muted">
+              Manodopera <span className="tabular-nums text-ink">{formatCurrency(result.jobLabor)}</span>
+              {' · '}
+              Extra <span className="tabular-nums text-ink">{formatCurrency(result.jobExtras)}</span>
+            </p>
+          ) : null
+        }
+      />
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <DurationField
@@ -54,11 +53,11 @@ export function JobCostsEditor({
       </div>
 
       {jobExtras.length > 0 ? (
-        <div className="mt-4">
-          <p className="text-xs font-medium text-muted">Extra per lavoro</p>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+        <div className="mt-5">
+          <h3 className="text-sm font-semibold text-ink">Extra per lavoro</h3>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2.5">
             {jobExtras.map((extra) => (
-              <label key={extra.id} className="flex items-center gap-2 text-sm text-muted">
+              <label key={extra.id} className="flex min-h-6 items-center gap-2 text-sm text-ink">
                 <input
                   type="checkbox"
                   checked={job.extraIds.includes(extra.id)}
@@ -66,14 +65,16 @@ export function JobCostsEditor({
                   className="h-4 w-4 rounded border-control accent-data"
                 />
                 <span>{extra.name}</span>
-                <span className="text-xs text-muted">{formatCurrency(extra.amount)}</span>
+                <span className="text-sm tabular-nums text-muted">
+                  {formatCurrency(extra.amount)}
+                </span>
               </label>
             ))}
           </div>
         </div>
       ) : null}
 
-      <div className="mt-4">
+      <div className="mt-5">
         <TextareaField
           label="Note del preventivo"
           value={job.notes ?? ''}
@@ -81,6 +82,6 @@ export function JobCostsEditor({
           placeholder="Materiale, colore, consegna, condizioni…"
         />
       </div>
-    </Card>
+    </>
   )
 }

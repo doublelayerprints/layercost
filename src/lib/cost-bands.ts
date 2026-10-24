@@ -18,19 +18,25 @@ export const SMALL_BAND_RATIO = 0.03
 
 /**
  * Groups the quote result into the four bands shown by the cost stack.
- * The bands are a display-only summary: their sum must equal `result.totalCost`.
+ * Line components are per unit in `LineResult`, so each one is multiplied by the
+ * line quantity: the bands are a display-only summary of the whole quote and their
+ * sum must equal `result.totalCost`.
  */
 export function costBands(result: QuoteResult): CostBand[] {
-  const material = result.lines.reduce((sum, line) => sum + line.material, 0)
+  const material = result.lines.reduce(
+    (sum, line) => sum + line.material * line.quantity,
+    0,
+  )
   const machine = result.lines.reduce(
-    (sum, line) => sum + line.energy + line.depreciation + line.maintenance,
+    (sum, line) =>
+      sum + (line.energy + line.depreciation + line.maintenance) * line.quantity,
     0,
   )
   const labor =
     result.jobLabor +
     result.jobExtras +
-    result.lines.reduce((sum, line) => sum + line.labor + line.extras, 0)
-  const risk = result.lines.reduce((sum, line) => sum + line.failure, 0)
+    result.lines.reduce((sum, line) => sum + (line.labor + line.extras) * line.quantity, 0)
+  const risk = result.lines.reduce((sum, line) => sum + line.failure * line.quantity, 0)
 
   return [
     { key: 'material', label: 'Materiale', value: material },

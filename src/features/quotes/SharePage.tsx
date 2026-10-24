@@ -28,13 +28,15 @@ export function SharePage() {
 
   if (!decoded.quote) {
     return (
-      <div className="space-y-6">
+      <div>
         <PageHeader title="Link non valido" />
-        <EmptyState
-          title="Impossibile aprire il preventivo"
-          description={decoded.error ?? 'Il link è incompleto o danneggiato.'}
-          action={<Button onClick={() => navigate('/')}>Vai a LayerCost</Button>}
-        />
+        <div className="mt-6">
+          <EmptyState
+            title="Impossibile aprire il preventivo"
+            description={decoded.error ?? 'Il link è incompleto o danneggiato.'}
+            action={<Button onClick={() => navigate('/')}>Vai a LayerCost</Button>}
+          />
+        </div>
       </div>
     )
   }
@@ -51,10 +53,11 @@ export function SharePage() {
 
   return (
     <>
-      <div className="print:hidden space-y-6">
+      <div className="print:hidden">
         <PageHeader
           title={quote.name}
-          description="Stai vedendo una copia in sola lettura. Puoi importarla nel tuo archivio locale."
+          description="Preventivo condiviso in sola lettura. I numeri sono quelli salvati dal mittente."
+          meta={<span className="text-xs text-muted">Link condiviso</span>}
           actions={
             <>
               <Button variant="secondary" onClick={() => window.print()}>
@@ -66,17 +69,23 @@ export function SharePage() {
         />
 
         {importError ? (
-          <Alert tone="danger" title="Importazione non riuscita">
-            {importError}
-          </Alert>
+          <div className="mt-5">
+            <Alert tone="danger" title="Importazione non riuscita">
+              {importError}
+            </Alert>
+          </div>
         ) : null}
 
-        <Alert tone="info" title="Link condiviso">
-          Questa pagina mostra solo il preventivo contenuto nel link. Non hai accesso alla
-          configurazione o agli altri dati del mittente.
-        </Alert>
+        <div className="mt-5">
+          <Alert tone="info" title="Cosa stai vedendo">
+            Questa pagina mostra solo il preventivo contenuto nel link. Non hai accesso alla
+            configurazione o agli altri dati del mittente.
+          </Alert>
+        </div>
 
-        <QuoteOverview quote={quote} result={quote.result} />
+        <div className="mt-6">
+          <QuoteOverview quote={quote} result={quote.result} />
+        </div>
       </div>
 
       <QuotePrint quote={quote} result={quote.result} />
