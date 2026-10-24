@@ -5,7 +5,7 @@
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
 **Locale:** `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`
-**Branch:** `main` @ `42e60b7`
+**Branch:** `main`
 
 ---
 
@@ -96,7 +96,7 @@ npm run test:e2e
 
 - **Live:** https://layercost.vercel.app
 - Progetto Vercel collegato alla repo GitHub.
-- Ultimo deploy di produzione verificato: commit `42e60b7` (T4.4, PR #1) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky); la homepage serve il redesign Strato.
+- Ultimo deploy verificato con il redesign: commit `42e60b7` (T4.4, PR #1) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky); la homepage serve il redesign Strato. I commit successivi di sola documentazione ridistribuiscono lo stesso build.
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
@@ -137,7 +137,7 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** `main` pulito su `42e60b7`; T4.4 è in produzione. Prossimo task: **T4.5 — Stati e rifiniture**.
+- **Stato:** `main` pulito e allineato a `origin/main`; T4.4 è in produzione. Prossimo task: **T4.5 — Stati e rifiniture**.
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.5), `docs/design/design-system.md` §8.3, `docs/design/ui-brief.md` §5.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
 - **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.
