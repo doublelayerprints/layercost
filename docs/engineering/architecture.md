@@ -1,6 +1,6 @@
 # Architettura
 
-**Stato:** v0.1 — MVP funzionale
+**Stato:** v1.0.0 — MVP funzionale
 
 ---
 

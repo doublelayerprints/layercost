@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-10-24
+
 ### Added
 
 - Direzione visiva **A — Strato** (ADR-0015) e specifiche in `docs/design/directions.md`.
@@ -9,15 +11,18 @@
 - Redesign T4.4 delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only e stampa A4.
 - Dark mode T4.7 (ADR-0016): preferenza Sistema/Chiaro/Scuro in Impostazioni → Aspetto, palette grafite calda con token dedicati, stampa sempre chiara; la preferenza vive in `layercost:theme` e non entra in snapshot o backup.
 - Stati e rifiniture T4.5: conferma accessibile prima di scartare o sostituire la bozza, eliminazioni con `Modal`, alert “Preventivo salvato”, vuoti con azione e microcopy su bozza, storico e preventivo non ricalcolabile.
-- Test: 42 unitari, 8 E2E, inspector 0 FAIL/1 WARN motivato.
+- Verifiche di release 1.0: audit `axe` WCAG 2.2 AA su tutte le route in tema chiaro e scuro, test cross-browser WebKit, stampa/PDF A4, regressione visiva con baseline Linux, budget del bundle e guardia contro richieste esterne.
+- Test: 42 unitari, 18 E2E (3 visuali su CI), inspector 0 FAIL/1 WARN motivato.
 
 ### Changed
 
 - Tariffa energia di default: **€0,20/kWh** (era €0,25/kWh).
 - Manutenzione di default: **€0,01/h** per Kobra 3 e Kobra X (era €0,03/h).
+- Vita utile di default: **15.000 h** per Kobra 3 e **20.000 h** per Kobra X; valore residuo **20%**.
 - Stampa A4 ridisegnata: intestazione, meta, righe, composizione in grigi, totali, note e footer.
 - Tema scuro: la stampa riporta sempre i token ai valori chiari, anche se lo schermo è scuro.
 - Conferme distruttive e di sostituzione della bozza passano da `Modal` accessibili, non da `window.confirm`; l’alert di salvataggio non si ripete al reload.
+- Versione del progetto portata a **1.0.0**.
 
 ### Fixed
 
@@ -25,6 +30,16 @@
 - Tabella dettaglio: le sei componenti sono allocate al costo diretto della riga; righe e totali di colonna tornano al centesimo.
 - Grammi totali: includono la quantità della riga.
 - `formatCurrency`: arrotondamento dei centesimi con aritmetica intera, senza il mezzo centesimo instabile.
+- Tabelle con scroll orizzontale: contenitore raggiungibile da tastiera con nome accessibile, anche a 390 px.
+
+### Known limitations
+
+- Nessuna sincronizzazione cloud, account o backup remoto.
+- Nessun import diretto da slicer o da presa intelligente.
+- Nessun magazzino bobine né confronto actual/estimated.
+- Migrazioni schema minime: le versioni future vengono rifiutate.
+- Baseline visuali generate su Linux: i test visuali girano in CI, non su macOS.
+- Prova manuale su stampante fisica e screen reader reale consigliata.
 
 Formato basato su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) e [SemVer](https://semver.org/).
 

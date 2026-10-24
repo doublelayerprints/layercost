@@ -1,18 +1,18 @@
 # LayerCost — Documentazione
 
-**Stato:** v0.1 — MVP funzionale; direzione, design system, redesign, stati e dark mode fatti
+**Stato:** v1.0.0 — release stabile; fasi 0–4 complete
 **Data:** 24 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
-- Fase 4: T4.1–T4.5 e T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate, stati e rifiniture, dark mode con ADR-0016), mergiati in `main` e in produzione. Resta T4.6.
+- Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 42 unitari + 8 E2E.
+- Test: 42 unitari + 18 E2E (3 visual su CI); axe 0 violazioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
-- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; ultimo deploy T4.5 (`759ed0f`) verificato; le preview sono protette da SSO.
+- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` verificata; le preview sono protette da SSO.
 
 ---
 
@@ -66,6 +66,7 @@
 │   │   ├── persistence.md
 │   │   ├── testing.md
 │   │   ├── deployment.md
+│   │   ├── release.md
 │   │   └── conventions.md
 │   ├── design/
 │   │   ├── ui-brief.md
@@ -401,7 +402,24 @@ Sezioni:
 
 ---
 
-### 5.15 `docs/engineering/conventions.md`
+### 5.15 `docs/engineering/release.md`
+
+**Scopo:** checklist e verbale della release.
+
+Sezioni:
+
+- scope della versione;
+- checklist con esito;
+- verifiche eseguite (test, axe, WebKit, stampa, visual, budget);
+- limiti noti;
+- procedura di rilascio e rollback;
+- attività successive.
+
+**Aggiornare quando:** si prepara o si chiude una release.
+
+---
+
+### 5.16 `docs/engineering/conventions.md`
 
 **Scopo:** stile di codice e collaborazione.
 

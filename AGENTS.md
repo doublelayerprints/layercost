@@ -43,10 +43,12 @@ npm run typecheck    # TypeScript
 npm run lint         # oxlint
 npm run test         # Vitest
 npm run test:watch   # Vitest in watch
-npm run test:e2e     # Playwright
+npm run test:e2e     # Playwright (Chromium + WebKit)
+npm run test:visual  # regressione visiva, baseline Linux
 npm run build        # build di produzione
 npm run preview      # anteprima build
-npm run check        # typecheck + lint + test + build
+npm run budget       # budget del bundle
+npm run check        # typecheck + lint + test + build + budget
 ```
 
 `npm run check` è il gate prima di ogni commit. Non dichiarare un task chiuso se non è verde.
@@ -250,6 +252,7 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/domain/sources.md` — fonti e confidenza.
 - `docs/adr/` — decisioni.
 - `docs/engineering/deployment.md` — Vercel e alternative.
+- `docs/engineering/release.md` — checklist e verifiche della release.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

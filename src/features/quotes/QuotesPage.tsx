@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/state/app-store'
-import { Badge, Button, EmptyState, Input, PageHeader } from '@/components/ui'
+import { Badge, Button, EmptyState, Input, PageHeader, TableScroll } from '@/components/ui'
 import { NewDraftButton } from '@/features/calculator/NewDraftButton'
 import { formatCents, formatCurrency, formatDateOnly } from '@/lib/format'
 import type { Quote } from '@/domain/types'
@@ -101,7 +101,10 @@ export function QuotesPage() {
         </div>
       ) : (
         <>
-          <div className="relative mt-3 hidden overflow-x-auto border-y border-line md:block">
+          <TableScroll
+            label="Preventivi salvati"
+            className="mt-3 hidden border-y border-line md:block"
+          >
             <table className="w-full border-collapse text-sm">
               <caption className="sr-only">Preventivi salvati</caption>
               <thead>
@@ -169,7 +172,7 @@ export function QuotesPage() {
                 })}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
 
           <ul className="mt-3 border-t border-line md:hidden">
             {filtered.map((quote) => {

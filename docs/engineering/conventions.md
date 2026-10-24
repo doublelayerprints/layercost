@@ -1,6 +1,6 @@
 # Convenzioni
 
-**Stato:** v0.1
+**Stato:** v1.0.0
 
 ---
 
@@ -82,7 +82,7 @@ Un task = un commit o una PR piccola. Non fare force push su `main`. Non committ
 
 ## 9. Versioning
 
-- `package.json`: `0.1.0` per il MVP.
+- `package.json`: `1.0.0` per la release stabile.
 - `ENGINE_VERSION`: `0.1.0`; cambiare quando cambiano le formule.
 - SemVer:
   - major: schema/risultati incompatibili;
