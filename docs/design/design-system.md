@@ -404,7 +404,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Verifiche.** 42 unitari, 18 E2E (Chromium + WebKit, 3 visual su CI), 25 scansioni axe con 0 violazioni, PDF A4 valido, nessuna richiesta esterna, budget 206 KB gzip su 350 KB.
 - **Correzione.** I contenitori di tabella scrollabili sono raggiungibili da tastiera e hanno un nome accessibile, anche a 390 px.
 - **Documentazione.** Checklist e risultati in `docs/engineering/release.md`; changelog in `CHANGELOG.md`; stato in `STATUS.md`.
-- **Deploy.** Tag `v1.0.0` e produzione Vercel verificata; gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky).
+- **Deploy.** Tag `v1.0.0` su `cc949b3` e produzione Vercel verificata con la build `index-C_5bQZYu.js`; gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, tema scuro persistente e PDF A4 chiaro.
 
 ---
 

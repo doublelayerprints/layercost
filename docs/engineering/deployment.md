@@ -93,8 +93,8 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - [x] Backup di prova esportato e reimportato.
 - [x] Link condiviso provato in una finestra privata.
 - [x] Stampa/PDF provata (Chromium e WebKit).
-- [ ] Deploy Vercel verificato.
-- [ ] Tag `v1.0.0` creato e pushato.
+- [x] Deploy Vercel verificato.
+- [x] Tag `v1.0.0` creato e pushato.
 
 ## 10. Rollback
 
@@ -109,7 +109,7 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
 - CI GitHub: verde (`check` + `e2e`) su `main`.
 - Deploy Vercel: **live su https://layercost.vercel.app**.
-- Release **v1.0.0** del 24/10/2026; deploy di produzione verificato con gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, bozza protetta, alert di salvataggio, tema scuro e stampa chiara.
+- Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`; deploy di produzione verificato con build `index-C_5bQZYu.js`, gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, bozza protetta, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.
 - Le preview deployment sono protette da SSO Vercel; la produzione è pubblica.
 - Header di sicurezza e `robots.txt` verificati.

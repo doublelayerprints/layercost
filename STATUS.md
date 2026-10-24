@@ -106,7 +106,7 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 
 - **Live:** https://layercost.vercel.app
 - Progetto Vercel collegato alla repo GitHub.
-- Release **v1.0.0** del 24/10/2026. Deploy di produzione verificato: commit di release (da compilare dopo il merge), `inspect.mjs --app` a 1440/768/390 con **0 FAIL, 1 WARN** (`ragged-row`, rail sticky). La produzione serve prezzo 3,70 € con il seed, bozza protetta, alert di salvataggio, tema scuro persistente e stampa chiara.
+- Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`. Deploy di produzione verificato su https://layercost.vercel.app: build `index-C_5bQZYu.js` / `index-BGmXv2w6.css`, `inspect.mjs --app` a 1440/768/390 con **0 FAIL, 1 WARN** (`ragged-row`, rail sticky), prezzo 3,70 €, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).

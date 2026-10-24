@@ -97,7 +97,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 ## Stato
 
-- **v1.0.0:** fasi 0–4 complete e rilasciate.
+- **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
 - **Verifiche:** 42 unitari, 18 E2E (Chromium + WebKit), axe 0 violazioni, stampa/PDF, regressione visiva e budget.
 - **Fuori v1:** sync cloud, magazzino bobine, import slicer, PWA, inglese.

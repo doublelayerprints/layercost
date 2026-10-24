@@ -12,7 +12,7 @@
 - Test: 42 unitari + 18 E2E (3 visual su CI); axe 0 violazioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
-- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` verificata; le preview sono protette da SSO.
+- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) verificata; le preview sono protette da SSO.
 
 ---
 

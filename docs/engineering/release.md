@@ -1,9 +1,9 @@
 # Release v1.0.0
 
 **Data:** 24 ottobre 2026
-**Stato:** in preparazione
+**Stato:** rilasciata
 **Tag:** `v1.0.0`
-**Commit di release:** da compilare dopo il merge
+**Commit di release:** `cc949b3`
 **Deploy:** https://layercost.vercel.app
 
 ---
@@ -38,8 +38,8 @@ Non include, per scelta di scope: backend, account, sincronizzazione, analytics,
 - [x] `CHANGELOG.md` aggiornato alla versione 1.0.0.
 - [x] `TASKS.md`, `STATUS.md` e `PLAN.md` aggiornati.
 - [x] Versione `package.json` portata a 1.0.0.
-- [ ] Tag `v1.0.0` creato e pushato.
-- [ ] Deploy Vercel di produzione verificato.
+- [x] Tag `v1.0.0` creato e pushato.
+- [x] Deploy Vercel di produzione verificato.
 - [ ] Prova manuale su una stampante fisica (consigliata, non bloccante).
 
 ---
@@ -60,7 +60,17 @@ Non include, per scelta di scope: backend, account, sincronizzazione, analytics,
 | Richieste esterne   | `tests/e2e/release.spec.ts` | nessuna                                |
 | Regressione visiva  | `tests/e2e/visual.spec.ts`  | 15 screenshot, baseline Linux          |
 | Gate visivo         | `inspect.mjs --app`         | 0 FAIL, 1 WARN motivato (`ragged-row`) |
-| Deploy              | Vercel produzione           | HTTP 200, build di release             |
+| Deploy              | Vercel produzione           | HTTP 200, build `index-C_5bQZYu.js`    |
+
+### Deploy di produzione (24/10/2026)
+
+- URL: https://layercost.vercel.app; commit `cc949b3`, tag `v1.0.0`.
+- Asset serviti: `index-C_5bQZYu.js` e `index-BGmXv2w6.css`, identici alla build locale.
+- Prezzo verificato con 10 h e 100 g di PLA: **3,70 €**.
+- Salvataggio: alert “Preventivo salvato” presente, assente dopo reload.
+- Tema scuro: `data-theme="dark"` prima e dopo il reload.
+- Stampa: PDF A4 di 99 KB, fondo bianco e testo nero anche partendo dal tema scuro.
+- Errori JavaScript durante la verifica: nessuno.
 
 ---
 
