@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import type { EnergyTariff, MaterialFamily, Printer, PowerProfile } from '@/domain/types'
-import { asBasisPoints, asMicroEur, asWatts } from '@/domain/units'
+import { asBasisPoints, asMicroEur, asWatts, euroToMicro } from '@/domain/units'
 import { materialFamilyLabels } from '@/lib/labels'
 import { Alert, Button, Toggle } from '@/components/ui'
 import {
@@ -39,7 +39,9 @@ export function PrinterForm({
   const [purchasePrice, setPurchasePrice] = useState(printer?.purchasePrice ?? 0)
   const [residualBp, setResidualBp] = useState(printer?.residualValueBp ?? 0)
   const [expectedLifeHours, setExpectedLifeHours] = useState(printer?.expectedLifeHours ?? 3000)
-  const [maintenancePerHour, setMaintenancePerHour] = useState(printer?.maintenancePerHour ?? 0)
+  const [maintenancePerHour, setMaintenancePerHour] = useState(
+    printer?.maintenancePerHour ?? euroToMicro(0.01),
+  )
   const [startupMinutes, setStartupMinutes] = useState(printer?.startupMinutes ?? 5)
   const [defaultAvgWatts, setDefaultAvgWatts] = useState(printer?.defaultAvgWatts ?? 200)
   const [ratedPowerW, setRatedPowerW] = useState(printer?.ratedPowerW ?? 0)

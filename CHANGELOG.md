@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Tariffa energia di default: **€0,20/kWh** (era €0,25/kWh).
+- Manutenzione di default: **€0,01/h** per Kobra 3 e Kobra X (era €0,03/h).
+
 Formato basato su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) e [SemVer](https://semver.org/).
 
 ## [0.1.0] — 2026-10-23

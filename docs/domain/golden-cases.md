@@ -1,7 +1,7 @@
 # Golden cases
 
 **Stato:** allineati a `src/domain/cost.test.ts`
-**Nota:** i valori sono in micro-euro (µ€), salvo dove indicato.
+**Nota:** i valori sono in micro-euro (µ€), salvo dove indicato. Le configurazioni di questi esempi sono **fixture di test**, non i default del seed: gli esempi usano €0,25/kWh e €0,03/h per verificare le formule, mentre il seed attuale usa €0,20/kWh e €0,01/h.
 
 ---
 

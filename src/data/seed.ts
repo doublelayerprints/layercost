@@ -25,7 +25,7 @@ export const SEED_TARIFF_ID = 'tariff-default'
 const seedTariff: EnergyTariff = {
   id: SEED_TARIFF_ID,
   label: 'Tariffa attuale',
-  pricePerKWh: euroToMicro(0.25),
+  pricePerKWh: euroToMicro(0.2),
   effectiveFrom: '2026-01-01',
   notes: 'Costo marginale indicativo. Aggiornalo con il prezzo della tua bolletta.',
 }
@@ -37,7 +37,7 @@ const kobra3: Printer = {
   purchasePrice: euroToMicro(299),
   residualValueBp: percentToBp(0),
   expectedLifeHours: 3000,
-  maintenancePerHour: euroToMicro(0.03),
+  maintenancePerHour: euroToMicro(0.01),
   startupMinutes: 5,
   multicolor: false,
   buildVolumeMm: [250, 250, 260],
@@ -76,7 +76,7 @@ const kobraX: Printer = {
   purchasePrice: euroToMicro(449),
   residualValueBp: percentToBp(0),
   expectedLifeHours: 3000,
-  maintenancePerHour: euroToMicro(0.03),
+  maintenancePerHour: euroToMicro(0.01),
   startupMinutes: 5,
   multicolor: true,
   buildVolumeMm: [260, 260, 260],

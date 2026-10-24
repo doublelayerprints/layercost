@@ -52,7 +52,7 @@ La fase 4 (redesign UI con la skill di design) non è iniziata.
 - Anycubic Kobra 3 (250 × 250 × 260 mm, senza multicolore).
 - Anycubic Kobra X (260 × 260 × 260 mm, ACE 2 Pro).
 - Materiali PLA, PETG, TPU, ABS, ASA, PLA-CF, PETG-CF, PVA.
-- Tariffa energia €0,25/kWh, guasti 5%, ricarico 30%, arrotondamento €0,10, IVA disattivata.
+- Tariffa energia €0,20/kWh, manutenzione €0,01/h, guasti 5%, ricarico 30%, arrotondamento €0,10, IVA disattivata.
 - Valori marcati come stime dove non verificati.
 
 ---

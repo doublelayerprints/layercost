@@ -438,6 +438,8 @@ Ogni cambio di formula aggiorna `cost-model.md`, i golden test e la versione.
 
 ### 9.1 Esempio 1 — stampa singola
 
+> Configurazione di test: i valori €0,25/kWh e €0,03/h servono a verificare le formule. Non sono i default del seed attuale (€0,20/kWh e €0,01/h).
+
 **Input**
 
 | Campo               | Valore              |
