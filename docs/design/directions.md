@@ -69,7 +69,7 @@ Restano nell'ADR come alternative considerate, non come direzioni da sviluppare.
 
 | Oggetto         | Campi che contano nella UI                                                                                        | Grandezza tipica                  |
 | --------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| Stampante       | nome, prezzo, residuo, vita in ore, manutenzione €/h, potenza media per famiglia, avvio, multicolore, volume      | 2 macchine; 3.000 h; €299–€449    |
+| Stampante       | nome, prezzo, residuo, vita in ore, manutenzione €/h, potenza media per famiglia, avvio, multicolore, volume      | 2 macchine; 15.000–20.000 h; €299–€449    |
 | Materiale       | famiglia, prezzo €/kg, peso netto, fornitore, colore, override guasti                                             | 8 materiali; €20–€60/kg           |
 | Tariffa energia | etichetta, €/kWh, decorrenza, override per stampante                                                              | 1 tariffa attiva; €0,20–€0,35/kWh |
 | Extra           | nome, importo, per unità o per lavoro                                                                             | 5 voci; €0,03–€6,00               |

@@ -435,8 +435,8 @@ Tutti i valori sono modificabili. Quelli marcati **stimato** devono essere confe
 | Default               | 200 W              | 230 W                           |
 | Minuti avvio          | 5                  | 5                               |
 | Prezzo acquisto       | €299 (indicativo)  | €449 (indicativo)               |
-| Valore residuo        | 0%                 | 0%                              |
-| Vita utile            | 3.000 h            | 3.000 h                         |
+| Valore residuo        | 20%                | 20%                             |
+| Vita utile            | 15.000 h           | 20.000 h                        |
 | Manutenzione          | €0,01/h            | €0,01/h                         |
 
 **Perché la potenza nominale non si usa:** la Kobra 3 è dichiarata 400 W, ma in PLA misura ~180–205 W; in ASA a letto 100 °C sale verso ~400 W. La Kobra X è dichiarata 1450 W a 220 V, ma non ci sono misure medie affidabili: il seed è una stima da verificare. Usare la nominale gonfia il costo di 2–8 volte.
