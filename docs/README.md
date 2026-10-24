@@ -7,12 +7,12 @@
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
-- Fase 4: T4.1–T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate). Restano T4.5 e T4.6.
+- Fase 4: T4.1–T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate), mergiati in `main` con la PR #1 (squash `42e60b7`) e in produzione. Restano T4.5 e T4.6.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
 - Test: 29 unitari + 5 E2E.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
-- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub.
+- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; ultimo deploy T4.4 (`42e60b7`) verificato; le preview sono protette da SSO.
 
 ---
 

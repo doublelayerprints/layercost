@@ -245,7 +245,7 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 - Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
 - Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non è stato verificato in questa sessione (nessun binario WebKit locale): resta il residuo di T3.8.
-- Preview Vercel: deployment verde sulla PR #1; l’URL di preview è protetto da SSO Vercel, quindi la verifica visiva è stata eseguita sul build di produzione locale (stesso contenuto).
+- Produzione Vercel: deploy `42e60b7` (T4.4) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN). Le preview deployment sono protette da SSO; la produzione è pubblica.
 - `font-not-dealt` è un redraw documentato (Geist → Archivo + Source Serif 4); il gate si esegue con `--allow font-not-dealt`.
 
 ### 7.3 Comandi
@@ -298,12 +298,14 @@ Caps applied: nessuno. Il WARN ragged-row è la rail sticky, non una coppia di c
 Top three problems: nessuno dei tre del round 1 è più visibile; resta il residuo Safari/axe in §8.3.
 ```
 
+**Merge:** PR #1, squash `42e60b7`; deploy di produzione verificato il 24/10/2026 (0 FAIL, 1 WARN sulla homepage pubblica).
+
 ### 8.3 Resta per T4.5/T4.6
 
 - Safari e stampa reale su più browser (T3.8 resta `[~]`).
 - Audit automatico `axe` e percorso completo da tastiera sulle schermate secondarie (T3.11 resta `[~]`).
 - Stati vuoti/errore/caricamento e rifiniture di microcopy (T4.5).
-- Test visuali di regressione e preview Vercel (T4.6).
+- Test visuali di regressione e checklist di release v1.0 (T4.6).
 - Nessun cambio a token, formule, unità, snapshot o persistenza senza un nuovo ADR/test.
 
 ---

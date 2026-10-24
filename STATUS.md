@@ -5,7 +5,7 @@
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
 **Locale:** `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`
-**Branch:** `main`
+**Branch:** `main` @ `42e60b7`
 
 ---
 
@@ -18,7 +18,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 - configurazione, persistenza locale, export/import;
 - UI funzionale, storico, condivisione, stampa/PDF e confronto.
 
-La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system) e T4.4 (redesign delle schermate) sono chiusi. Restano T4.5 (stati e rifiniture) e T4.6 (review e release v1.0).
+La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system) e T4.4 (redesign delle schermate) sono chiusi, mergiati in `main` con la PR #1 (squash `42e60b7`) e distribuiti in produzione. Restano T4.5 (stati e rifiniture) e T4.6 (review e release v1.0).
 
 ---
 
@@ -69,8 +69,9 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 | Test unitari/dati | 29 superati                                   |
 | Test E2E          | 5 superati                                    |
 | Build produzione  | verde (~502 KB JS, ~145 KB gzip; ~58 KB font) |
-| CI GitHub `check` | verde                                         |
-| CI GitHub `e2e`   | verde                                         |
+| CI GitHub `check` | verde su `main` (`42e60b7`)                   |
+| CI GitHub `e2e`   | verde su `main` (`42e60b7`)                   |
+| Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN   |
 
 Comandi:
 
@@ -94,7 +95,9 @@ npm run test:e2e
 ## 5. Deploy
 
 - **Live:** https://layercost.vercel.app
-- Progetto Vercel collegato alla repo GitHub; l'ultimo deploy verificato è il commit `ba8ec15` (T4.3), con status Vercel “Deployment has completed”. Il redesign T4.4 va verificato nella preview dopo il push.
+- Progetto Vercel collegato alla repo GitHub.
+- Ultimo deploy di produzione verificato: commit `42e60b7` (T4.4, PR #1) del 24/10/2026. `inspect.mjs --app` su https://layercost.vercel.app a 1440/768/390: **0 FAIL, 1 WARN** (`ragged-row`, rail sticky); la homepage serve il redesign Strato.
+- Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
 - Header verificati: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Robots-Tag: noindex`.
@@ -132,7 +135,18 @@ npx vercel --prod
 
 ---
 
-## 8. Riferimenti
+## 8. Ripresa rapida
+
+- **Stato:** `main` pulito su `42e60b7`; T4.4 è in produzione. Prossimo task: **T4.5 — Stati e rifiniture**.
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.5), `docs/design/design-system.md` §8.3, `docs/design/ui-brief.md` §5.
+- **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
+- **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Branch remoto:** `feat/t4.4-screens` è ancora su `origin` dopo il merge e può essere eliminato con `git push origin --delete feat/t4.4-screens`.
+- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati.
+
+---
+
+## 9. Riferimenti
 
 - `README.md` — onboarding e comandi.
 - `PLAN.md` — visione e roadmap.

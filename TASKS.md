@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.4 chiusi
+**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.4 chiusi e in produzione
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 24 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3 e T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate). Restano T4.5 e T4.6. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
+**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3 e T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate), mergiati in `main` con la PR #1 e distribuiti in produzione. Restano T4.5 e T4.6. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
 
 ---
 
@@ -570,7 +570,7 @@ Un task è chiuso solo se:
 **Dipende da:** T3.4
 **Stato:** `[~]`
 
-**Nota:** Stylesheet di stampa implementato; verifica manuale su Chrome/Safari e stampa reale ancora da fare.
+**Nota:** Stylesheet di stampa rifatto in T4.4; PDF A4 verificato su Chrome (`@page` 14 mm, stack in grigi, totali, note). Safari e stampa reale su più browser ancora da verificare.
 
 - Stylesheet di stampa A4.
 - Intestazione, data, righe, breakdown, totali, note.
@@ -614,7 +614,7 @@ Un task è chiuso solo se:
 **Dipende da:** T3.2–T3.9
 **Stato:** `[~]`
 
-**Nota:** Label, focus e struttura di base presenti; audit automatico axe e percorso completo da tastiera ancora da fare.
+**Nota:** Label, focus, contrasto e struttura presenti; T4.4 ha verificato skip link, Esc sul dialogo, focus restituito e nessun overflow a 390 px. Audit automatico axe e percorso completo da tastiera su tutte le schermate ancora da fare.
 
 - Label, `aria-describedby` per errori, focus visibile.
 - Navigazione da tastiera.
@@ -630,7 +630,7 @@ Un task è chiuso solo se:
 **Dipende da:** T3.2–T3.9
 **Stato:** `[~]`
 
-**Nota:** Layout verificato a 375 px e 1440 px con screenshot; aggiungere test visuali/regressione.
+**Nota:** Layout verificato a 375, 768 e 1440 px con screenshot e nessuno scroll orizzontale a 390 px su tutte le route; aggiungere test visuali di regressione.
 
 - Layout a 375, 768, 1440 px.
 - Tabelle con scroll orizzontale controllato o card.
@@ -697,7 +697,7 @@ Un task è chiuso solo se:
 - Responsive; dark mode fuori scope v1 (ADR-0015).
 - Eseguire il gate visivo `inspect.mjs --app` a 1440/768/390 e la critique.
 
-**Nota:** applicata la direzione A a tutte le schermate; confronto rapido nel pannello risultato; stampa A4 rifinita. Corretto un difetto di visualizzazione dello stack con quantità > 1 (bande × quantità, importi in centesimi allocati) e l’arrotondamento dei centesimi in `formatCurrency`: nessun cambio a formule, `engineVersion`, snapshot o persistenza. Gate: `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`ragged-row` sulla rail sticky); nessun overflow a 390 px; dialogo con Esc e focus restituito; PDF A4 verificato su Chrome. Critique in `docs/design/design-system.md` §8.2 (round 1 → 2, 8,2). Safari e axe restano in T3.8/T3.11. Preview Vercel: deployment verde sulla PR #1, verifica visiva bloccata dalla protezione SSO; il gate visivo è stato eseguito sul build di produzione locale.
+**Nota:** applicata la direzione A a tutte le schermate; confronto rapido nel pannello risultato; stampa A4 rifinita. Corretto un difetto di visualizzazione dello stack con quantità > 1 (bande × quantità, importi in centesimi allocati) e l’arrotondamento dei centesimi in `formatCurrency`: nessun cambio a formule, `engineVersion`, snapshot o persistenza. Gate: `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`ragged-row` sulla rail sticky); nessun overflow a 390 px; dialogo con Esc e focus restituito; PDF A4 verificato su Chrome. Critique in `docs/design/design-system.md` §8.2 (round 1 → 2, 8,2). Safari e axe restano in T3.8/T3.11. **Merge:** PR #1, squash `42e60b7`; deploy di produzione verificato il 24/10/2026 con lo stesso gate (0 FAIL, 1 WARN).
 
 **Accettazione:** tutti i flussi funzionano; test E2E verdi; nessuna regressione nei calcoli. → 29 test unitari, 5 E2E, `npm run check` verde.
 
