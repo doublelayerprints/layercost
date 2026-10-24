@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { Quote, QuoteResult } from '@/domain/types'
-import { Alert, Card, Price, SectionHeader } from '@/components/ui'
+import { Alert, Card, Price, SectionHeader, TableScroll } from '@/components/ui'
 import { CostStack } from '@/components/cost-stack'
 import { costBands } from '@/lib/cost-bands'
 import { CostDetails } from '@/features/calculator/CostDetails'
@@ -135,7 +135,7 @@ export function QuoteOverview({
           }
         />
 
-        <div className="relative mt-4 hidden overflow-x-auto sm:block">
+        <TableScroll label="Righe del preventivo" className="mt-4 hidden sm:block">
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">Righe del preventivo</caption>
             <thead>
@@ -199,7 +199,7 @@ export function QuoteOverview({
               })}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
 
         <ul className="mt-3 border-t border-line sm:hidden">
           {quote.lines.map((line) => {

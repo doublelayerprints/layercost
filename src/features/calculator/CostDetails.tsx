@@ -1,5 +1,5 @@
 import type { Quote, QuoteResult } from '@/domain/types'
-import { Badge, Card, SectionHeader } from '@/components/ui'
+import { Badge, Card, SectionHeader, TableScroll } from '@/components/ui'
 import { costDetailRows, costDetailTotals } from '@/lib/cost-details'
 import {
   formatCents,
@@ -30,7 +30,7 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
         actions={<Badge tone="neutral">{formatGrams(totalGrams)} totali</Badge>}
       />
 
-      <div className="relative mt-4 overflow-x-auto">
+      <TableScroll label="Dettaglio costi per riga" className="mt-4">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
           <caption className="sr-only">
             Componenti di costo e prezzo per ogni riga del preventivo
@@ -134,14 +134,12 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
               <td className="py-3 pr-4 text-right tabular-nums">
                 {formatCents(totals.fixedCents)}
               </td>
-              <td className="py-3 pr-4 text-right tabular-nums">
-                {formatCents(totals.fullCents)}
-              </td>
+              <td className="py-3 pr-4 text-right tabular-nums">{formatCents(totals.fullCents)}</td>
               <td className="py-3 text-right tabular-nums">{formatCents(totals.priceCents)}</td>
             </tr>
           </tfoot>
         </table>
-      </div>
+      </TableScroll>
 
       <dl className="mt-5 grid gap-4 border-t border-line pt-4 sm:grid-cols-2 lg:grid-cols-4">
         <DetailTerm label="Setup" value={formatCurrency(result.jobLaborDetails.setup)} />

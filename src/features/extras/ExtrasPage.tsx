@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Extra } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
-import { Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
+import { Badge, Button, Card, EmptyState, Modal, PageHeader, TableScroll } from '@/components/ui'
 import { formatCurrency } from '@/lib/format'
 import { labelExtraUnit } from '@/lib/labels'
 import { ExtraForm } from './ExtraForm'
@@ -51,7 +51,7 @@ export function ExtrasPage() {
             {extras.length} {extras.length === 1 ? 'voce' : 'voci'}
           </p>
 
-          <div className="relative mt-3 hidden overflow-x-auto sm:block">
+          <TableScroll label="Costi extra configurati" className="mt-3 hidden sm:block">
             <table className="w-full border-collapse text-sm">
               <caption className="sr-only">Costi extra configurati</caption>
               <thead>
@@ -101,7 +101,7 @@ export function ExtrasPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
 
           <ul className="mt-3 border-t border-line sm:hidden">
             {extras.map((extra) => (

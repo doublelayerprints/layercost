@@ -474,7 +474,9 @@ export function PageHeader({
       <div className="min-w-0">
         <h1 className="text-2xl font-semibold tracking-title text-ink">{title}</h1>
         {description ? <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p> : null}
-        {meta ? <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">{meta}</div> : null}
+        {meta ? (
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">{meta}</div>
+        ) : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
@@ -496,10 +498,7 @@ export function SectionHeader({
 }) {
   return (
     <div
-      className={cn(
-        'flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between',
-        className,
-      )}
+      className={cn('flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between', className)}
     >
       <div>
         <h2 id={id} className="text-base font-semibold text-ink">
@@ -527,15 +526,38 @@ export function InfoDot({ label }: { label: string }) {
   )
 }
 
+export function TableScroll({
+  label,
+  className,
+  children,
+}: {
+  label: string
+  className?: string
+  children: ReactNode
+}) {
+  // A scroll container must be reachable by keyboard, otherwise the table is unreadable on narrow screens.
+  return (
+    <div
+      role="region"
+      aria-label={label}
+      tabIndex={0}
+      className={cn('relative overflow-x-auto', className)}
+    >
+      {children}
+    </div>
+  )
+}
+
 export function Table({
+  label,
   className,
   containerClassName,
   ...props
-}: TableHTMLAttributes<HTMLTableElement> & { containerClassName?: string }) {
+}: TableHTMLAttributes<HTMLTableElement> & { label: string; containerClassName?: string }) {
   return (
-    <div className={cn('relative overflow-x-auto', containerClassName)}>
+    <TableScroll label={label} className={containerClassName}>
       <table className={cn('w-full border-collapse text-sm', className)} {...props} />
-    </div>
+    </TableScroll>
   )
 }
 

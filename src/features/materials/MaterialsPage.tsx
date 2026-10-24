@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import type { Material } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
-import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Modal,
+  PageHeader,
+  TableScroll,
+} from '@/components/ui'
 import { materialFamilyLabels } from '@/lib/labels'
 import { formatCurrency, formatPercent } from '@/lib/format'
 import { MaterialForm } from './MaterialForm'
@@ -54,7 +63,7 @@ export function MaterialsPage() {
             {materials.filter((material) => material.archived).length} archiviati
           </p>
 
-          <div className="relative mt-3 hidden overflow-x-auto sm:block">
+          <TableScroll label="Materiali configurati" className="mt-3 hidden sm:block">
             <table className="w-full border-collapse text-sm">
               <caption className="sr-only">Materiali configurati</caption>
               <thead>
@@ -114,11 +123,7 @@ export function MaterialsPage() {
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => setEditing(material)}
-                        >
+                        <Button variant="secondary" size="sm" onClick={() => setEditing(material)}>
                           Modifica
                         </Button>
                         <Button
@@ -134,7 +139,7 @@ export function MaterialsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
 
           <ul className="mt-3 border-t border-line sm:hidden">
             {materials.map((material) => (

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { EnergyTariff } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
-import { Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
+import { Badge, Button, Card, EmptyState, Modal, PageHeader, TableScroll } from '@/components/ui'
 import { formatCurrency, formatDateOnly } from '@/lib/format'
 import { todayIsoDate } from '@/lib/date'
 import { TariffForm } from './TariffForm'
@@ -94,7 +94,7 @@ export function TariffsPage() {
               Serve almeno una tariffa: l’ultima non può essere eliminata.
             </p>
           ) : null}
-          <div className="relative mt-3 overflow-x-auto">
+          <TableScroll label="Tariffe energia in ordine di decorrenza" className="mt-3">
             <table className="w-full border-collapse text-sm">
               <caption className="sr-only">Tariffe energia in ordine di decorrenza</caption>
               <thead>
@@ -160,7 +160,7 @@ export function TariffsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
         </Card>
       )}
 
