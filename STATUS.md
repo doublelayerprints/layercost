@@ -143,7 +143,7 @@ npx vercel --prod
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.5 e T4.7), `docs/design/design-system.md` §8.3–8.4, `docs/design/ui-brief.md` §5.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
 - **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.
-- **Branch remoto:** `feat/t4.4-screens` è ancora su `origin` dopo il merge e può essere eliminato con `git push origin --delete feat/t4.4-screens`.
+- **Branch remoti:** `feat/t4.4-screens` e `feat/t4.7-dark-mode` sono stati eliminati dopo il merge; su `origin` resta solo `main`.
 - **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. La preferenza del tema resta fuori da `AppData`.
 
 ---
