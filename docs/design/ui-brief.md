@@ -37,7 +37,7 @@ Rendere LayerCost veloce da usare mentre si è davanti allo slicer: inserire tem
 | Materiali            | Prezzo/kg, peso bobina, tasso guasti                                             |
 | Tariffe              | Storico e tariffa corrente                                                       |
 | Extra                | Per pezzo / per lavoro                                                           |
-| Impostazioni         | Manodopera, rischio, prezzo, backup                                              |
+| Impostazioni         | Manodopera, rischio, prezzo, backup, tema                                        |
 | Confronto            | Due colonne e delta                                                              |
 
 ## 5. Stati obbligatori

@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+test.use({ colorScheme: 'light' })
+
 test('carica i font e i token della direzione Strato', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => document.fonts.ready)

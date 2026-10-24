@@ -1,13 +1,13 @@
 # LayerCost — Piano di prodotto e tecnico
 
-**Stato:** MVP funzionale implementato (fasi 0–3); CI verde su GitHub; deploy Vercel live; fase 4: T4.1–T4.4 chiusi, mergiati in `main` e in produzione; restano T4.5–T4.6
+**Stato:** MVP funzionale implementato (fasi 0–3); CI verde su GitHub; deploy Vercel live; fase 4: T4.1–T4.4 e T4.7 chiusi, mergiati in `main` e in produzione; restano T4.5–T4.6
 **Data:** 23 ottobre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
 **Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione rimandata; preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel
 
 ## Stato implementazione
 
-- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato).
+- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016.
 - **Da fare:** stati e rifiniture (T4.5), review e release v1.0 (T4.6), audit accessibilità automatico, eventuale sincronizzazione cloud.
 - **Non fatto:** import diretto da slicer, magazzino bobine, PWA, inglese.
 
@@ -95,7 +95,7 @@ Il progetto deve essere:
 - Export/import JSON, link condivisibile, PDF tramite stampa del browser.
 - Persistenza locale con schema versionato e migrazioni.
 - Wizard iniziale per confermare i dati stimati.
-- UI funzionale, accessibile e responsive; **non** design definitivo.
+- UI Strato, accessibile e responsive, con tema chiaro e scuro e stampa A4.
 - Test del dominio, test end-to-end del flusso critico, CI e deploy.
 
 ### 4.2 Fuori dalla v1
@@ -107,7 +107,7 @@ Il progetto deve essere:
 - Multi-valuta e conversione cambi.
 - Fasce orarie F1/F2/F3.
 - Fatturazione elettronica o adempimenti fiscali.
-- Design visivo definitivo, dark mode, animazioni.
+- Animazioni d'ingresso.
 - PWA/offline.
 - Interfaccia in inglese.
 - Grafici e dashboard.
@@ -142,6 +142,7 @@ Il progetto deve essere:
 | FR-20 | Validazione con errori bloccanti e avvisi non bloccanti per valori anomali                                                                                  |
 | FR-21 | Formattazione italiana: valuta EUR, decimali con virgola, date `gg/mm/aaaa`, tempo `h:mm`                                                                   |
 | FR-22 | Accessibilità: label, focus, contrasto, navigazione da tastiera, messaggi di errore associati                                                               |
+| FR-23 | Tema dell'interfaccia: sistema, chiaro o scuro; la preferenza resta sul dispositivo e non entra nei preventivi                                              |
 | FR-23 | Responsive: utilizzabile da telefono, tablet e desktop                                                                                                      |
 | FR-24 | Persistenza locale con versione schema, migrazioni e backup prima di una migrazione                                                                         |
 | FR-25 | Repository astratto: nessun accesso diretto a `localStorage` fuori dall'infrastruttura                                                                      |

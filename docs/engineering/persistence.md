@@ -14,6 +14,14 @@ layercost:data
 
 Contenuto: `AppData` con `schemaVersion`, `config`, `quotes`, `draft`.
 
+La preferenza del tema è un dato di interfaccia separato:
+
+```text
+layercost:theme
+```
+
+Valori: `system` (default), `light`, `dark`. Non entra in `AppData`, negli snapshot, nei backup o nelle migrazioni; “Ripristina dati iniziali” non la cancella.
+
 In caso di dati non leggibili, il raw viene copiato in:
 
 ```text
@@ -22,13 +30,15 @@ layercost:corrupt:<timestamp>
 
 ## 2. Codice
 
-| File                     | Ruolo                                                |
-| ------------------------ | ---------------------------------------------------- |
-| `src/data/storage.ts`    | Chiavi, load/save, export, import, reset, migrazione |
-| `src/data/repository.ts` | Interfaccia `DataRepository` + adapter locale        |
-| `src/data/schemas.ts`    | Validazione Zod                                      |
-| `src/data/seed.ts`       | Configurazione iniziale                              |
-| `src/state/app-store.ts` | Autosave e orchestrazione                            |
+| File                       | Ruolo                                                |
+| -------------------------- | ---------------------------------------------------- |
+| `src/data/storage.ts`      | Chiavi, load/save, export, import, reset, migrazione |
+| `src/data/theme.ts`        | Preferenza del tema, separata dai dati               |
+| `src/data/repository.ts`   | Interfaccia `DataRepository` + adapter locale        |
+| `src/data/schemas.ts`      | Validazione Zod                                      |
+| `src/data/seed.ts`         | Configurazione iniziale                              |
+| `src/state/app-store.ts`   | Autosave e orchestrazione                            |
+| `src/state/theme-store.ts` | Stato della preferenza del tema                      |
 
 Lo storage è l'unico punto che tocca `localStorage`.
 
@@ -53,6 +63,8 @@ Pulsante “Esporta backup” in Impostazioni e nella pagina del preventivo (tra
 ```
 
 Nome file: `layercost-backup-YYYY-MM-DD.json`.
+
+Il backup contiene solo `AppData`: la preferenza del tema non viene esportata, perché appartiene al dispositivo e non ai dati economici.
 
 ## 5. Import
 

@@ -1,15 +1,15 @@
 # LayerCost — Documentazione
 
-**Stato:** v0.1 — MVP funzionale; direzione, design system e redesign delle schermate fatti
+**Stato:** v0.1 — MVP funzionale; direzione, design system, redesign e dark mode fatti
 **Data:** 24 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
-- Fase 4: T4.1–T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate), mergiati in `main` con la PR #1 (squash `42e60b7`) e in produzione. Restano T4.5 e T4.6.
+- Fase 4: T4.1–T4.4 e T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate, dark mode con ADR-0016), mergiati in `main` e in produzione. Restano T4.5 e T4.6.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 29 unitari + 5 E2E.
+- Test: 36 unitari + 6 E2E.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; ultimo deploy T4.4 (`42e60b7`) verificato; le preview sono protette da SSO.
@@ -441,7 +441,7 @@ Sezioni:
 
 **Aggiornare quando:** cambia un flusso o un requisito UI. Non contiene colori, font o moodboard: quelli arrivano dalla skill di design.
 
-Le direzioni visive sono in `docs/design/directions.md`: proposte con palette, tipografia, wireframe e criteri di scelta. La decisione è registrata in `docs/adr/0015-direzione-visiva.md`. Il design system implementato — token, font, componenti, accessibilità e stampa — è in `docs/design/design-system.md`. Aggiornare quando cambia la direzione o il design system.
+Le direzioni visive sono in `docs/design/directions.md`: proposte con palette, tipografia, wireframe e criteri di scelta. La decisione è registrata in `docs/adr/0015-direzione-visiva.md`; il tema scuro è in `docs/adr/0016-dark-mode.md`. Il design system implementato — token, font, componenti, accessibilità, tema scuro e stampa — è in `docs/design/design-system.md`. Aggiornare quando cambia la direzione o il design system.
 
 ---
 

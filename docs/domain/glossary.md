@@ -26,6 +26,7 @@
 | **Slicer**            | Software che genera il G-code e stima tempo e filamento.                                                   |
 | **Tasso guasti**      | Probabilità che una stampa fallisca e debba essere rifatta.                                                |
 | **Tariffa energia**   | Costo marginale al kWh, con decorrenza.                                                                    |
+| **Tema**              | Preferenza dell'interfaccia: sistema, chiaro o scuro. Vive sul dispositivo, fuori dai dati del preventivo. |
 | **Tempo effettivo**   | Tempo slicer maggiorato e sommato ai minuti di avvio.                                                      |
 | **Usura**             | Ammortamento + manutenzione della stampante.                                                               |
 | **Valore residuo**    | Valore della stampante a fine vita, in percentuale del prezzo di acquisto.                                 |

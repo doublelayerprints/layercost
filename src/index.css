@@ -31,6 +31,7 @@
   --color-positive: #2e7d32;
   --color-negative: #c4242a;
   --color-warning: #92400e;
+  --color-scrim: rgb(10 10 10 / 0.4);
 
   --color-pill-neutral-bg: #eeeeee;
   --color-pill-neutral-ink: #3d3d3d;
@@ -71,15 +72,55 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Dark palette: warm graphite, not pure black, so Strato keeps its stone character. */
+  [data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-ground: #141413;
+    --color-surface: #1c1c1a;
+    --color-raised: #262624;
+    --color-line: #3a3a35;
+    --color-rule: #2b2b28;
+    --color-control: #75756f;
+    --color-ink: #f3f2ef;
+    --color-muted: #a8a7a0;
+    --color-data: #4f8fe0;
+    --color-selection: #2c4a75;
+    --color-positive: #74c98a;
+    --color-negative: #ef8a85;
+    --color-warning: #e5b06a;
+    --color-scrim: rgb(0 0 0 / 0.7);
+
+    --color-pill-neutral-bg: #2c2c29;
+    --color-pill-neutral-ink: #dedcd6;
+    --color-pill-success-bg: #17301d;
+    --color-pill-success-ink: #a3dfae;
+    --color-pill-info-bg: #182a42;
+    --color-pill-info-ink: #a9c9f2;
+    --color-pill-warning-bg: #33260f;
+    --color-pill-warning-ink: #f2c98a;
+    --color-pill-danger-bg: #351a1a;
+    --color-pill-danger-ink: #f4aaa7;
+
+    --shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.6);
+  }
+
   html {
+    background-color: var(--color-ground);
     scroll-behavior: smooth;
+  }
+
+  /* Before the bundle runs, paint the canvas dark for system-dark users. */
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme='light']) {
+      background-color: #141413;
+    }
   }
 
   body {
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
-    background: var(--color-ground);
     color: var(--color-ink);
   }
 
@@ -130,6 +171,24 @@
 @media print {
   @page {
     margin: 14mm;
+  }
+
+  /* Printing is always ink on white, whichever theme is on screen. */
+  :root[data-theme='dark'] {
+    color-scheme: light;
+
+    --color-ground: #ffffff;
+    --color-surface: #ffffff;
+    --color-raised: #ffffff;
+    --color-line: #d4d4d4;
+    --color-rule: #e5e5e5;
+    --color-control: #8a8a8a;
+    --color-ink: #000000;
+    --color-muted: #525252;
+    --color-data: #000000;
+    --color-positive: #1b5e20;
+    --color-negative: #b3261e;
+    --color-warning: #7a3e00;
   }
 
   html,
