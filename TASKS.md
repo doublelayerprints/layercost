@@ -697,7 +697,7 @@ Un task è chiuso solo se:
 - Responsive; dark mode fuori scope v1 (ADR-0015).
 - Eseguire il gate visivo `inspect.mjs --app` a 1440/768/390 e la critique.
 
-**Nota:** applicata la direzione A a tutte le schermate; confronto rapido nel pannello risultato; stampa A4 rifinita. Corretto un difetto di visualizzazione dello stack con quantità > 1 (bande × quantità, importi in centesimi allocati) e l’arrotondamento dei centesimi in `formatCurrency`: nessun cambio a formule, `engineVersion`, snapshot o persistenza. Gate: `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`ragged-row` sulla rail sticky); nessun overflow a 390 px; dialogo con Esc e focus restituito; PDF A4 verificato su Chrome. Critique in `docs/design/design-system.md` §8.2 (round 1 → 2, 8,2). Safari e axe restano in T3.8/T3.11.
+**Nota:** applicata la direzione A a tutte le schermate; confronto rapido nel pannello risultato; stampa A4 rifinita. Corretto un difetto di visualizzazione dello stack con quantità > 1 (bande × quantità, importi in centesimi allocati) e l’arrotondamento dei centesimi in `formatCurrency`: nessun cambio a formule, `engineVersion`, snapshot o persistenza. Gate: `inspect.mjs --app` 0 FAIL, 1 WARN motivato (`ragged-row` sulla rail sticky); nessun overflow a 390 px; dialogo con Esc e focus restituito; PDF A4 verificato su Chrome. Critique in `docs/design/design-system.md` §8.2 (round 1 → 2, 8,2). Safari e axe restano in T3.8/T3.11. Preview Vercel: deployment verde sulla PR #1, verifica visiva bloccata dalla protezione SSO; il gate visivo è stato eseguito sul build di produzione locale.
 
 **Accettazione:** tutti i flussi funzionano; test E2E verdi; nessuna regressione nei calcoli. → 29 test unitari, 5 E2E, `npm run check` verde.
 

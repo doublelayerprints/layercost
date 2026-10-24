@@ -245,6 +245,7 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 - Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
 - Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non è stato verificato in questa sessione (nessun binario WebKit locale): resta il residuo di T3.8.
+- Preview Vercel: deployment verde sulla PR #1; l’URL di preview è protetto da SSO Vercel, quindi la verifica visiva è stata eseguita sul build di produzione locale (stesso contenuto).
 - `font-not-dealt` è un redraw documentato (Geist → Archivo + Source Serif 4); il gate si esegue con `--allow font-not-dealt`.
 
 ### 7.3 Comandi
