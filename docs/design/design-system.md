@@ -1,6 +1,6 @@
 # Design system — Strato
 
-**Stato:** T4.3, T4.4 e T4.7 implementati; T4.5 da fare
+**Stato:** T4.3, T4.4, T4.5 e T4.7 implementati; T4.6 da fare
 **Data:** 24 ottobre 2026
 **Direzione:** A — Strato (`achromatic-ledger`), ADR-0015 · tema scuro ADR-0016
 **Ambito:** token, tipografia, componenti, accessibilità e stampa. La composizione delle schermate è stata applicata in T4.4.
@@ -166,10 +166,11 @@ Bordo da 1 px `--color-line` e barra sinistra da 4 px nel tono (`info` data, `wa
 - Portale su `document.body`, overlay `bg-ink/40`, pannello `rounded-card` e `shadow-overlay`.
 - Focus trap: il primo elemento riceve il focus, Tab cicla, Esc chiude, il focus torna all'elemento precedente.
 - Un solo livello di dialogo; niente modali annidati.
+- Conferme distruttive e sostituzione della bozza usano `Modal`, non `window.confirm`: titolo esplicito, conseguenza nel corpo, azione pericolosa in `danger`, annullamento come prima scelta.
 
 ### 3.7 EmptyState
 
-Superficie bianca con bordo `--color-line`, titolo 16/600, descrizione 14 muted, azione. Nessuna illustrazione, nessun riquadro tratteggiato.
+Superficie bianca con bordo `--color-line`, titolo 16/600, descrizione 14 muted, azione. Nessuna illustrazione, nessun riquadro tratteggiato. Ogni vuoto che nasce da un filtro o da una configurazione mancante offre la prossima azione: azzera la ricerca, mostra gli archiviati, vai alle stampanti o ai materiali.
 
 ### 3.8 Stat e Price
 
@@ -295,6 +296,7 @@ In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia"
 
 - `src/lib/theme.test.ts` — 3 test: valori ammessi, risoluzione di sistema, scelta esplicita che vince sulla preferenza del dispositivo.
 - `src/data/theme.test.ts` — 4 test: default, valore non valido, roundtrip della preferenza, storage bloccato.
+- `src/lib/draft.test.ts` — 6 test: bozza vuota, nome/cliente, tempo/grammi/quantità/extra, costi di lavoro/note, modifica di prezzo, righe aggiuntive e override.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
 - `src/lib/cost-details.test.ts` — 4 test: componenti che sommano al costo diretto, costo pieno da diretto + quota fissa, totali di colonna, prezzo allocato.
 - `src/lib/format.test.ts` — 3 test: arrotondamento dei centesimi simmetrico, roundtrip dei centesimi interi (property test), formattazione it-IT.
@@ -302,12 +304,14 @@ In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia"
   1. token e font caricati (`--color-ground`, `--color-data`, `--color-control`, Archivo, Source Serif 4);
   2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#1d5fbf`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude.
 - `tests/e2e/theme.spec.ts` — 1 test: tema esplicito scuro, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale: **36 unitari/dati, 6 E2E**.
+- `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale: **42 unitari/dati, 8 E2E**.
 
 ### 7.2 Manuali
 
 - Screenshot a 1440, 768 e 390 px del calcolatore vuoto e compilato, del menu mobile, del dettaglio preventivo, del confronto, delle anagrafiche, delle impostazioni e della stampa.
 - Tema scuro: screenshot di calcolatore, preventivi, impostazioni, materiali e confronto a 1440/768/390 px; nessuno scroll orizzontale a 390 px; `color-scheme: dark` sui controlli nativi; PDF A4 generato con tema scuro e token di stampa riportati al chiaro.
+- Stati T4.5: modale “Iniziare un nuovo preventivo?” a 1440 e 390 px; vuoto della ricerca preventivi; confronto senza due stampanti attive; alert “Preventivo salvato” sul dettaglio. Esc chiude la modale e il focus torna a “Nuovo”.
 - `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN** in tema chiaro (T4.4) e **0 FAIL, 1 WARN** con il sistema in tema scuro (T4.7). Il WARN è `ragged-row`: il pannello risultato è una rail sticky alta meno del form, come da wireframe §3.4 della direzione. Non è una coppia di card affiancate da bilanciare: mentre si scorre, il pannello resta in vista.
 - Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
@@ -367,11 +371,10 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 
 **Merge:** PR #1, squash `42e60b7`; deploy di produzione verificato il 24/10/2026 (0 FAIL, 1 WARN sulla homepage pubblica).
 
-### 8.3 Resta per T4.5/T4.6
+### 8.3 Resta per T4.6
 
 - Safari e stampa reale su più browser (T3.8 resta `[~]`).
 - Audit automatico `axe` e percorso completo da tastiera sulle schermate secondarie (T3.11 resta `[~]`).
-- Stati vuoti/errore/caricamento e rifiniture di microcopy (T4.5).
 - Test visuali di regressione e checklist di release v1.0 (T4.6).
 - Nessun cambio a token, formule, unità, snapshot o persistenza senza un nuovo ADR/test.
 
@@ -384,28 +387,41 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - Verifiche: 36 unitari/dati, 6 E2E, gate visivo scuro 0 FAIL/1 WARN, contrasti AA, PDF A4 scuro verificato. Nessun cambiamento a formule, `engineVersion`, snapshot o schema (v1).
 - **Merge:** PR #2, squash `a0960d3`; deploy di produzione verificato il 24/10/2026 con tema scuro persistito e gate 0 FAIL/1 WARN.
 
+### 8.5 Stati e rifiniture — esito (T4.5)
+
+- **Bozza.** L'header del calcolatore dice che la bozza si salva da sola ma entra nello storico solo con “Salva preventivo”. `NewDraftButton` confronta la bozza con una vuota (`draftHasContent`) e chiede conferma con un `Modal`; “Duplica nel calcolatore” e “Aggiorna ai prezzi correnti” usano la stessa conferma. Nessun finto banner “modifiche non salvate”: la bozza è persistita, ma non è un preventivo archiviato.
+- **Eliminazioni.** Preventivo e tariffa usano un `Modal` con conseguenze esplicite; l'ultima tariffa non è eliminabile e la nota lo dice. `window.confirm` non è più usato.
+- **Successo.** Dopo il salvataggio e dopo l'import di un link compare un alert “Preventivo salvato”, dismissibile. Lo stato di navigazione viene rimosso dalla history, quindi un reload non ripete il messaggio.
+- **Vuoti.** La ricerca preventivi senza risultati offre “Azzera la ricerca”; se ci sono solo archiviati, “Mostra archiviati”. Il confronto con meno di due stampanti attive porta alle stampanti; senza materiali porta ai materiali.
+- **Archiviati e disabilitati.** Badge testuali e azioni di ripristino restano; le entità referenziate non si cancellano. I pulsanti disabilitati hanno il motivo nel contesto (dati incompleti, ultima tariffa).
+- **Loading e movimento.** Nessuna operazione asincrona oltre a import/export locali: nessuno spinner decorativo. Solo feedback; `prefers-reduced-motion` invariato.
+- **Verifiche.** 42 unitari/dati, 8 E2E, gate 0 FAIL/1 WARN, nessun overflow a 390 px. Nessun cambiamento a dominio, formule, `engineVersion`, snapshot o schema.
+
 ---
 
 ## 9. Mappa dei file
 
-| File                                     | Contenuto                                                                                                                            |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/index.css`                          | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                    |
-| `src/lib/theme.ts`                       | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                             |
-| `src/data/theme.ts`                      | chiave `layercost:theme`, load/save fuori da `AppData`                                                                               |
-| `src/state/theme-store.ts`               | stato Zustand della preferenza                                                                                                       |
-| `src/app/theme.ts`                       | applicazione del tema e `meta theme-color`                                                                                           |
-| `src/app/ThemeController.tsx`            | sincronizzazione con `prefers-color-scheme`                                                                                          |
-| `src/features/settings/SettingsPage.tsx` | sezione Aspetto con le tre radio                                                                                                     |
-| `src/components/ui.tsx`                  | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, Table, Tabs |
-| `src/components/field-context.ts`        | id di label/hint/error condivisi                                                                                                     |
-| `src/components/cost-stack.tsx`          | stack dei costi                                                                                                                      |
-| `src/lib/cost-bands.ts`                  | raggruppamento delle bande e test                                                                                                    |
-| `src/lib/cost-details.ts`                | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                |
-| `src/lib/format.ts`                      | formattazione it-IT e arrotondamento dei centesimi                                                                                   |
-| `src/lib/format.test.ts`                 | test dei centesimi e della formattazione                                                                                             |
-| `src/components/logo.tsx`                | marchio a tre strati                                                                                                                 |
-| `src/assets/fonts/`                      | WOFF2 self-hosted                                                                                                                    |
-| `public/fonts/`                          | licenze OFL                                                                                                                          |
-| `tests/e2e/design-system.spec.ts`        | token, focus, responsive, menu                                                                                                       |
-| `tests/e2e/theme.spec.ts`                | preferenza, persistenza, sistema, screenshot scuro                                                                                   |
+| File                                         | Contenuto                                                                                                                            |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/index.css`                              | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                    |
+| `src/lib/theme.ts`                           | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                             |
+| `src/lib/draft.ts`                           | rileva se la bozza contiene lavoro da non perdere                                                                                    |
+| `src/features/calculator/NewDraftButton.tsx` | conferma accessibile prima di scartare la bozza                                                                                      |
+| `src/data/theme.ts`                          | chiave `layercost:theme`, load/save fuori da `AppData`                                                                               |
+| `src/state/theme-store.ts`                   | stato Zustand della preferenza                                                                                                       |
+| `src/app/theme.ts`                           | applicazione del tema e `meta theme-color`                                                                                           |
+| `src/app/ThemeController.tsx`                | sincronizzazione con `prefers-color-scheme`                                                                                          |
+| `src/features/settings/SettingsPage.tsx`     | sezione Aspetto con le tre radio                                                                                                     |
+| `src/components/ui.tsx`                      | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, Table, Tabs |
+| `src/components/field-context.ts`            | id di label/hint/error condivisi                                                                                                     |
+| `src/components/cost-stack.tsx`              | stack dei costi                                                                                                                      |
+| `src/lib/cost-bands.ts`                      | raggruppamento delle bande e test                                                                                                    |
+| `src/lib/cost-details.ts`                    | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                |
+| `src/lib/format.ts`                          | formattazione it-IT e arrotondamento dei centesimi                                                                                   |
+| `src/lib/format.test.ts`                     | test dei centesimi e della formattazione                                                                                             |
+| `src/components/logo.tsx`                    | marchio a tre strati                                                                                                                 |
+| `src/assets/fonts/`                          | WOFF2 self-hosted                                                                                                                    |
+| `public/fonts/`                              | licenze OFL                                                                                                                          |
+| `tests/e2e/design-system.spec.ts`            | token, focus, responsive, menu                                                                                                       |
+| `tests/e2e/theme.spec.ts`                    | preferenza, persistenza, sistema, screenshot scuro                                                                                   |
+| `tests/e2e/states.spec.ts`                   | conferma della bozza, sostituzione dal dettaglio                                                                                     |

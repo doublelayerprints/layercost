@@ -1,7 +1,9 @@
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useAppStore } from '@/state/app-store'
-import { Alert, Badge, Button, Card, EmptyState, PageHeader } from '@/components/ui'
+import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
 import { ENGINE_VERSION } from '@/domain/version'
+import { draftHasContent } from '@/lib/draft'
 import { QuoteOverview } from './QuoteOverview'
 import { QuotePrint } from './QuotePrint'
 import { ShareQuoteButton } from './ShareQuoteButton'
@@ -10,11 +12,22 @@ import { formatDateOnly } from '@/lib/format'
 export function QuoteDetailPage() {
   const { id } = useParams<{ id: string }>()
   const quotes = useAppStore((state) => state.quotes)
+  const draft = useAppStore((state) => state.draft)
   const duplicateQuote = useAppStore((state) => state.duplicateQuote)
   const refreshQuote = useAppStore((state) => state.refreshQuote)
   const archiveQuote = useAppStore((state) => state.archiveQuote)
   const deleteQuote = useAppStore((state) => state.deleteQuote)
   const navigate = useNavigate()
+  const location = useLocation()
+  const cameFromSave = Boolean((location.state as { saved?: boolean } | null)?.saved)
+  const [savedFor, setSavedFor] = useState<string | undefined>(cameFromSave ? id : undefined)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [pendingDraftAction, setPendingDraftAction] = useState<'duplicate' | 'refresh'>()
+
+  // The confirmation is for this visit only: drop it from history so a reload does not repeat it.
+  useEffect(() => {
+    if (cameFromSave) navigate(location.pathname, { replace: true, state: null })
+  }, [cameFromSave, location.pathname, navigate])
 
   const quote = quotes.find((candidate) => candidate.id === id)
 
@@ -33,9 +46,27 @@ export function QuoteDetailPage() {
     )
   }
 
-  const handleDelete = () => {
-    if (!window.confirm(`Eliminare definitivamente il preventivo “${quote.name}”?`)) return
+  const runDraftAction = (action: 'duplicate' | 'refresh') => {
+    if (action === 'duplicate') {
+      duplicateQuote(quote.id)
+    } else {
+      refreshQuote(quote.id)
+    }
+    setPendingDraftAction(undefined)
+    navigate('/')
+  }
+
+  const requestDraftAction = (action: 'duplicate' | 'refresh') => {
+    if (draftHasContent(draft)) {
+      setPendingDraftAction(action)
+      return
+    }
+    runDraftAction(action)
+  }
+
+  const confirmDelete = () => {
     deleteQuote(quote.id)
+    setDeleteOpen(false)
     navigate('/quotes')
   }
 
@@ -80,6 +111,14 @@ export function QuoteDetailPage() {
           />
         </div>
 
+        {savedFor === quote.id ? (
+          <div className="mt-5">
+            <Alert tone="success" title="Preventivo salvato" onClose={() => setSavedFor(undefined)}>
+              È nello storico e conserva i prezzi usati adesso.
+            </Alert>
+          </div>
+        ) : null}
+
         {quote.engineVersion && quote.engineVersion !== ENGINE_VERSION ? (
           <div className="mt-5">
             <Alert tone="info" title="Versione del motore diversa">
@@ -96,14 +135,7 @@ export function QuoteDetailPage() {
             result={quote.result}
             snapshotAction={
               quote.snapshot ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    refreshQuote(quote.id)
-                    navigate('/')
-                  }}
-                >
+                <Button variant="ghost" size="sm" onClick={() => requestDraftAction('refresh')}>
                   Aggiorna ai prezzi correnti
                 </Button>
               ) : undefined
@@ -117,13 +149,7 @@ export function QuoteDetailPage() {
             Archiviare non cancella nulla: il preventivo resta consultabile con “Mostra archiviati”.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                duplicateQuote(quote.id)
-                navigate('/')
-              }}
-            >
+            <Button variant="secondary" onClick={() => requestDraftAction('duplicate')}>
               Duplica nel calcolatore
             </Button>
             <Button variant="secondary" onClick={() => archiveQuote(quote.id)}>
@@ -131,13 +157,63 @@ export function QuoteDetailPage() {
             </Button>
             <Button
               variant="ghost"
-              onClick={handleDelete}
+              onClick={() => setDeleteOpen(true)}
               className="text-negative hover:bg-raised"
             >
               Elimina definitivamente
             </Button>
           </div>
         </Card>
+
+        <Modal
+          open={pendingDraftAction !== undefined}
+          onClose={() => setPendingDraftAction(undefined)}
+          title="Sostituire la bozza corrente?"
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setPendingDraftAction(undefined)}>
+                Annulla
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  if (pendingDraftAction) runDraftAction(pendingDraftAction)
+                }}
+              >
+                Sostituisci la bozza
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-3 text-sm text-muted">
+            <p>“{quote.name}” verrà aperto nel calcolatore come nuova bozza.</p>
+            <p>
+              La bozza corrente non è ancora nello storico e verrà sostituita. Se vuoi conservarla,
+              annulla e salvala prima di continuare.
+            </p>
+          </div>
+        </Modal>
+
+        <Modal
+          open={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          title="Eliminare il preventivo?"
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setDeleteOpen(false)}>
+                Annulla
+              </Button>
+              <Button variant="danger" onClick={confirmDelete}>
+                Elimina definitivamente
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-3 text-sm text-muted">
+            <p>“{quote.name}” verrà rimosso dallo storico. L’operazione non è reversibile.</p>
+            <p>Se vuoi solo toglierlo dalla lista, usa “Archivia”: resta consultabile.</p>
+          </div>
+        </Modal>
       </div>
 
       <QuotePrint quote={quote} result={quote.result} />

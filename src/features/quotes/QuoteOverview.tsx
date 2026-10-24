@@ -33,8 +33,7 @@ export function QuoteOverview({
       )
     : quote.lines.reduce(
         (sum, line) =>
-          sum +
-          line.materials.reduce((lineSum, usage) => lineSum + usage.grams, 0) * line.quantity,
+          sum + line.materials.reduce((lineSum, usage) => lineSum + usage.grams, 0) * line.quantity,
         0,
       )
 
@@ -44,9 +43,7 @@ export function QuoteOverview({
         const material = quote.snapshot?.config.materials.find(
           (candidate) => candidate.id === usage.materialId,
         )
-        return material
-          ? `${material.name} ${formatGrams(usage.grams)}`
-          : formatGrams(usage.grams)
+        return material ? `${material.name} ${formatGrams(usage.grams)}` : formatGrams(usage.grams)
       })
       .join(' · ')
 
@@ -55,7 +52,8 @@ export function QuoteOverview({
       {!result ? (
         <Alert tone="warning" title="Preventivo non ricalcolabile">
           La configurazione usata da questo preventivo non è più disponibile o contiene dati non
-          validi. Puoi duplicarlo e correggere le righe.
+          validi. I numeri salvati restano consultabili; usa “Duplica nel calcolatore” e correggi le
+          righe per ricalcolarlo.
         </Alert>
       ) : (
         <Card className="p-5 sm:p-6">

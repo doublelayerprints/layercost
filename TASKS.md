@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.4 e T4.7 chiusi e in produzione
+**Stato:** MVP implementato (fasi 0–3); CI verde; deploy Vercel live; fase 4: T4.1–T4.5 e T4.7 chiusi e in produzione
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 24 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3 e T4.4 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign delle schermate), mergiati in `main` con la PR #1 e distribuiti in produzione. T4.7 (dark mode, ADR-0016) è chiuso. Restano T4.5 e T4.6. I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
+**Stato al 24/10/2026:** Fase 0–3 implementata, CI verde su GitHub. Fase 4: T4.1, T4.2, T4.3, T4.4, T4.5 e T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati/rifiniture, dark mode con ADR-0016), mergiati in `main` e distribuiti in produzione. Resta T4.6 (review e release v1.0). I task `[~]` sono implementati in forma ridotta o richiedono una verifica esterna (axe, stampa su più browser).
 
 ---
 
@@ -706,24 +706,15 @@ Un task è chiuso solo se:
 ## T4.5 — Stati e rifiniture
 
 **Dipende da:** T4.4
-**Stato:** `[ ]`
+**Stato:** `[x]`
 
-**Nota di partenza (dopo T4.4):**
-
-- Vuoti: presenti su preventivi, materiali, stampanti, extra, tariffe, calcolatore e pagine di errore; verificare che ogni vuoto abbia la prossima azione.
-- Errori: calcolo, salvataggio, import, link non valido e reset sono coperti da `Alert`; manca una revisione dei messaggi meno frequenti.
-- Successo: import e reset hanno un messaggio; il salvataggio naviga al dettaglio. Valutare un riscontro più esplicito.
-- Disabilitati e archiviati: pulsanti disabilitati con opacità e motivo nel contesto; archiviati con badge testuale. Nessuna cancellazione di entità referenziate.
-- Unsaved changes: da decidere e implementare; la bozza è persistita, quindi il banner “Modifiche non salvate” non va aggiunto per finta. Se serve, confrontare la bozza con l’ultimo preventivo salvato.
-- Loading: non ci sono operazioni asincrone oltre a import/export locali; non introdurre spinner decorativi.
-- Movimento: solo feedback, `prefers-reduced-motion` già rispettato; nessuna animazione d’ingresso.
-- Microcopy: italiano, diretto; rivedere unità, “quota del totale” e i messaggi di rischio.
+**Nota:** audit completo degli stati. **Bozza:** `draftHasContent` distingue una bozza vuota da una con lavoro; `NewDraftButton` chiede conferma con un `Modal` accessibile (Esc, focus restituito) prima di scartarla. La stessa conferma protegge “Duplica nel calcolatore” e “Aggiorna ai prezzi correnti”. **Eliminazioni:** preventivo e tariffa usano `Modal`, non `window.confirm`. **Successo:** alert “Preventivo salvato” al salvataggio e all’import di un link condiviso, dismissibile e non ripetuto al reload. **Vuoti:** azioni su ricerca preventivi senza risultati e confronto con meno di due stampanti attive. **Disabilitati:** l’ultima tariffa spiega perché non è eliminabile. **Microcopy:** la bozza si salva da sola ma entra nello storico solo con “Salva preventivo”; il preventivo non ricalcolabile indica “Duplica nel calcolatore”. Test: 42 unitari, 8 E2E; gate 0 FAIL, 1 WARN (`ragged-row`); nessun overflow a 390 px.
 
 - Empty, loading, error, success, disabled, archived, unsaved changes.
 - Movimento ridotto.
 - Microcopy italiano.
 
-**Accettazione:** nessun vicolo cieco; messaggi chiari; accessibilità mantenuta.
+**Accettazione:** nessun vicolo cieco; messaggi chiari; accessibilità mantenuta. → 42 test unitari, 8 E2E, `npm run check` verde.
 
 ---
 

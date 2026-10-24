@@ -8,7 +8,8 @@
 - Design system Strato: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
 - Redesign T4.4 delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only e stampa A4.
 - Dark mode T4.7 (ADR-0016): preferenza Sistema/Chiaro/Scuro in Impostazioni → Aspetto, palette grafite calda con token dedicati, stampa sempre chiara; la preferenza vive in `layercost:theme` e non entra in snapshot o backup.
-- Test: 36 unitari, 6 E2E, inspector 0 FAIL/1 WARN motivato.
+- Stati e rifiniture T4.5: conferma accessibile prima di scartare o sostituire la bozza, eliminazioni con `Modal`, alert “Preventivo salvato”, vuoti con azione e microcopy su bozza, storico e preventivo non ricalcolabile.
+- Test: 42 unitari, 8 E2E, inspector 0 FAIL/1 WARN motivato.
 
 ### Changed
 
@@ -16,6 +17,7 @@
 - Manutenzione di default: **€0,01/h** per Kobra 3 e Kobra X (era €0,03/h).
 - Stampa A4 ridisegnata: intestazione, meta, righe, composizione in grigi, totali, note e footer.
 - Tema scuro: la stampa riporta sempre i token ai valori chiari, anche se lo schermo è scuro.
+- Conferme distruttive e di sostituzione della bozza passano da `Modal` accessibili, non da `window.confirm`; l’alert di salvataggio non si ripete al reload.
 
 ### Fixed
 

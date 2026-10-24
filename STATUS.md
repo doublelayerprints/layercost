@@ -18,7 +18,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 - configurazione, persistenza locale, export/import;
 - UI funzionale, storico, condivisione, stampa/PDF e confronto.
 
-La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system), T4.4 (redesign delle schermate) e T4.7 (dark mode, ADR-0016) sono chiusi, mergiati in `main` e distribuiti in produzione. Restano T4.5 (stati e rifiniture) e T4.6 (review e release v1.0).
+La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015), T4.3 (design system), T4.4 (redesign delle schermate), T4.5 (stati e rifiniture) e T4.7 (dark mode, ADR-0016) sono chiusi, mergiati in `main` e distribuiti in produzione. Resta T4.6 (review e release v1.0).
 
 ---
 
@@ -49,6 +49,7 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 - Design system **Strato**: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
 - Redesign delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra le due stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only, stampa A4.
 - Tema chiaro, scuro o di sistema (ADR-0016), con preferenza salvata sul dispositivo e stampa sempre chiara.
+- Stati e rifiniture (T4.5): conferma accessibile prima di scartare o sostituire la bozza; eliminazioni con `Modal`; alert “Preventivo salvato”; vuoti con azione; microcopy su bozza, storico e preventivo non ricalcolabile.
 - Stampa: intestazione, meta, righe, composizione in grigi, totali e note; PDF A4 verificato su Chrome.
 
 ### Seed
@@ -67,9 +68,9 @@ La fase 4 è in corso: T4.1 (brief), T4.2 (direzione **A — Strato**, ADR-0015)
 | ----------------- | --------------------------------------------- |
 | TypeScript strict | verde                                         |
 | oxlint            | verde                                         |
-| Test unitari/dati | 36 superati                                   |
-| Test E2E          | 6 superati                                    |
-| Build produzione  | verde (~505 KB JS, ~146 KB gzip; ~58 KB font) |
+| Test unitari/dati | 42 superati                                   |
+| Test E2E          | 8 superati                                    |
+| Build produzione  | verde (~509 KB JS, ~147 KB gzip; ~58 KB font) |
 | CI GitHub `check` | verde su `main` (`a0960d3`)                   |
 | CI GitHub `e2e`   | verde su `main` (`a0960d3`)                   |
 | Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN   |
@@ -130,7 +131,7 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. Fase 4: stati e rifiniture (T4.5), review e release v1.0 (T4.6).
+1. Fase 4: review e release v1.0 (T4.6).
 2. Audit accessibilità automatico (axe) e test visuali.
 3. Catena di migrazioni versionata con fixture.
 4. Backlog: sync, magazzino bobine, import slicer, PWA, inglese.
@@ -139,8 +140,8 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** `main` pulito e allineato a `origin/main` su `a0960d3`; T4.7 è in produzione. Prossimo task: **T4.5 — Stati e rifiniture**.
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.5 e T4.7), `docs/design/design-system.md` §8.3–8.4, `docs/design/ui-brief.md` §5.
+- **Stato:** T4.5 (stati e rifiniture) implementata e verificata. Prossimo task: **T4.6 — Review e release v1.0**.
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (T4.6), `docs/design/design-system.md` §8.3–8.5, `docs/design/ui-brief.md` §5.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`.
 - **Punti aperti:** Safari e stampa reale (T3.8), audit `axe` (T3.11), test visuali di regressione (T3.12). La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** `feat/t4.4-screens` e `feat/t4.7-dark-mode` sono stati eliminati dopo il merge; su `origin` resta solo `main`.

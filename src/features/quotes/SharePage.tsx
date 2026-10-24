@@ -45,7 +45,7 @@ export function SharePage() {
   const handleImport = () => {
     try {
       const id = importSharedQuote(quote)
-      navigate(`/quotes/${id}`)
+      navigate(`/quotes/${id}`, { state: { saved: true } })
     } catch (error) {
       setImportError(error instanceof Error ? error.message : 'Importazione non riuscita.')
     }

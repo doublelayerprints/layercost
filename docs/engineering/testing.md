@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v0.1 — 36 test unitari + 6 E2E
+**Stato:** v0.1 — 42 test unitari + 8 E2E
 
 ---
 
@@ -34,9 +34,11 @@ Playwright usa Chrome locale (`channel: 'chrome'`); in CI usa Chromium.
 - `src/lib/format.test.ts` — 3 test: arrotondamento dei centesimi, roundtrip, formattazione it-IT.
 - `src/lib/theme.test.ts` — 3 test: valori ammessi, risoluzione di sistema, scelta esplicita.
 - `src/data/theme.test.ts` — 4 test: default, valore invalido, roundtrip, storage bloccato.
+- `src/lib/draft.test.ts` — 6 test: bozza vuota, metadati, righe, costi di lavoro, prezzo, override.
 - `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload, condivisione/import in contesto pulito, navigazione sezioni.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375 e menu mobile.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro esplicito, persistenza, “Sistema” che segue il dispositivo.
+- `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza, sostituzione della bozza dal dettaglio.
 
 ## 4. Golden case
 
@@ -66,7 +68,7 @@ Sono candidati per T4.5/T4.6 o per il backlog.
 - `npm run check`;
 - `npm run build` + Playwright con Chromium.
 
-Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (36 unitari, 6 E2E).
+Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (42 unitari, 8 E2E).
 
 ## 7. Come aggiungere un test
 
