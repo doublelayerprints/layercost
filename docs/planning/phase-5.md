@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; T5.6.1–T5.6.2 completati (infrastruttura ed estrazione i18n); prossimo T5.6.3
+**Stato:** T5.3 completato; T5.6.1–T5.6.3 completati (i18n, formattazione e `Quote.locale`); prossimo T5.6.4
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.6.3** (formattazione locale e `Quote.locale`)
+**Prossima sessione:** partire da **T5.6.4** (selettore lingua e persistenza)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -325,6 +325,16 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - **Budget:** JS 206 KB gzip su 220 KB (limite alzato da 200 per i due dizionari), totale 270 KB su 350 KB. Il warning raw di Vite è a 650 KB con commento.
 - **Prossimo:** T5.6.3 — formattazione `Intl`, `Quote.locale`, migrazione schema v2.
 
+### 3.13 Esito T5.6.3 (26/10/2026)
+
+- `src/lib/format.ts` e `src/app/use-format.ts`: formattatori `Intl` legati a una locale, con `createFormatters`/`useFormat`. Italiano `it-IT`, inglese `en-GB`; date senza slittamenti di fuso.
+- `parseLocaleNumber` accetta virgola e punto, con separatori ripetuti trattati come raggruppamento; l’input mostra il separatore della locale attiva.
+- `Quote.locale: 'it' | 'en'` e schema **v2**. La migrazione v1 → v2 aggiunge `locale: 'it'` a preventivi, bozza ed envelope; prima della migrazione lo storage salva il raw in `layercost:backup:schema-1`. Formule, snapshot ed `engineVersion` non cambiano.
+- Nomi predefiniti di bozza e riga, suffissi di copia/aggiornamento/import localizzati in `src/lib/quote-defaults.ts`.
+- `QuoteOverview`, `QuotePrint`, `CostDetails` e `CostStack` usano `quote.locale`; il resto dell’interfaccia usa la preferenza del dispositivo.
+- **Test:** 90 unitari (7 nuovi: formattazione inglese, parsing numerico, migrazione, envelope, backup, nomi inglesi); 26 E2E; build 270,2 KB gzip su 350 KB; export E2E atteso a schema 2.
+- **Prossimo:** T5.6.4 — `layercost:locale`, selettore in Impostazioni, `<html lang>` persistente e metadati pagina.
+
 ---
 
 ## 4. T5.4 — Sincronizzazione cloud (rimandata)
@@ -425,7 +435,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 è chiuso; T5.6.1–T5.6.2 sono chiusi. Parti da T5.6.3: formattazione `Intl` locale-aware, `Quote.locale`, migrazione schema v1 → v2 con backup e test sui preventivi esistenti. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 è chiuso; T5.6.1–T5.6.3 sono chiusi. Parti da T5.6.4: preferenza `layercost:locale`, selettore in Impostazioni, `<html lang>` persistente e metadati pagina. La formattazione e `Quote.locale` sono già implementati; non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 

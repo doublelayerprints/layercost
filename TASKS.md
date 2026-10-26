@@ -874,7 +874,7 @@ Service worker, cache degli asset, promemoria backup.
 ## T5.6 — Interfaccia inglese
 
 **Dipende da:** ADR-0019
-**Stato:** `[~]` — T5.6.1–T5.6.2 chiusi; T5.6.3–T5.6.5 da fare
+**Stato:** `[~]` — T5.6.1–T5.6.3 chiusi; T5.6.4–T5.6.5 da fare
 **Piano:** `docs/planning/phase-5.md` §3
 
 **Nota:** italiano predefinito, inglese selezionabile. Dizionari tipizzati `src/i18n/{it,en}.ts`, `useI18n`, nessuna libreria runtime. Formattazione con `Intl`, inglese `en-GB` (EUR, metrico, `gg/mm/aaaa`). `Quote.locale` richiede la migrazione schema v1 → v2, con default `it` per i preventivi esistenti. Stampa e link condivisi usano la lingua del preventivo; l'interfaccia usa la preferenza del dispositivo. `layercost:locale` resta fuori da `AppData`.
@@ -883,7 +883,7 @@ Sottotask:
 
 - **T5.6.1** — inventario delle stringhe e infrastruttura `i18n` con test di parità. → **fatto** (vedi nota sotto).
 - **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida. → **fatto** (vedi nota sotto).
-- **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2).
+- **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2). → **fatto** (vedi nota sotto).
 - **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi.
 - **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy.
 
@@ -919,6 +919,23 @@ Sottotask:
 - Budget JS alzato da 200 a 220 KB gzip per i due dizionari; totale 270 KB gzip su 350 KB. Il warning Vite sul chunk raw è stato portato a 650 KB con commento.
 
 **Accettazione:** tutte le schermate usano i dizionari; nessuna stringa italiana hardcoded nei componenti; italiano predefinito invariato; test e accessibilità verdi. → soddisfatta.
+
+### T5.6.3 — Formattazione locale e `Quote.locale`
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026.
+
+- `src/lib/format.ts` espone `createFormatters(locale)` e ogni funzione riceve la locale; `src/app/use-format.ts` la lega al contesto con `useFormat(locale?)`. Valuta, grammi, percentuali, date e ore passano da `Intl` con `it-IT` o `en-GB`.
+- `parseLocaleNumber` accetta virgola e punto come separatore decimale, tratta i separatori ripetuti come raggruppamento e non usa più la rimozione cieca dei punti. `formatInputNumber` mostra il separatore della locale attiva.
+- `Quote.locale: 'it' | 'en'` in `src/domain/types.ts`; `Locale` i18n è lo stesso tipo. La lingua non entra in snapshot, formule o `engineVersion`.
+- Schema v2: `appDataSchema` richiede `locale`; `migrateAppData` migra v1 → v2 aggiungendo `locale: 'it'` a preventivi e bozza, anche dentro un envelope di export. Prima della migrazione lo storage conserva il dato grezzo in `layercost:backup:schema-1`.
+- `createEmptyDraft(config, locale)` e `createEmptyLine(config, locale)` usano nomi predefiniti localizzati; copia, aggiornamento prezzi e import usano suffissi nella lingua del preventivo (`src/lib/quote-defaults.ts`).
+- `QuoteOverview`, `QuotePrint`, `CostDetails` e `CostStack` accettano una locale: dettaglio, stampa e link usano `quote.locale`; calcolatore e interfaccia usano la preferenza del dispositivo.
+- 7 nuovi test: formattazione inglese, parsing con virgola/punto, migrazione v1 → v2, envelope, backup raw, nomi predefiniti inglesi. Totale **90 unitari**; 26 E2E verdi; build e budget 270 KB gzip su 350 KB.
+- L’E2E di release verifica ora un export `schemaVersion: 2`.
+
+**Accettazione:** importi, date e numeri formattati con `Intl`; preventivi esistenti migrati senza perdita di dati; stampa e link nella lingua del preventivo; formule e `engineVersion` invariati. → soddisfatta.
 
 ## T5.7 — Registro manutenzioni e guasti
 

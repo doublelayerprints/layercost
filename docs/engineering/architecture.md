@@ -140,6 +140,8 @@ Il parser non cambia `schemaVersion`, `engineVersion`, snapshot o `AppData`.
 - `src/i18n/index.ts` espone `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `INTL_LOCALES`, `translate`, `t`, `plural` con `Intl.PluralRules` e `isLocale`.
 - `src/app/I18nProvider.tsx` monta il contesto e aggiorna `<html lang>`/`dir`; `src/app/i18n-context.ts` espone `useI18n`.
 - Tutte le schermate, i componenti condivisi, le etichette di dominio, la stampa e la guida usano i dizionari (T5.6.2); gli errori di import/share/save sono mappati per codice, mentre storage/schema e alcuni errori di dominio restano fallback tecnici.
-- `Quote.locale` e la migrazione schema v2 sono in T5.6.3; la preferenza `layercost:locale`, la formattazione locale e il selettore in T5.6.3–T5.6.4.
+- `src/lib/format.ts` espone formattatori `Intl` per locale e `createFormatters`; `src/app/use-format.ts` li lega al contesto con `useFormat`. `parseLocaleNumber` accetta virgola e punto.
+- `Quote.locale` e la migrazione schema v2 sono implementati in T5.6.3, con backup raw `layercost:backup:schema-1`. Stampa, dettaglio e link usano `quote.locale`; l'interfaccia usa la preferenza del dispositivo.
+- La preferenza `layercost:locale` e il selettore in Impostazioni sono in T5.6.4; i metadati pagina seguono la stessa preferenza.
 - Nessuna libreria i18n runtime: dizionari statici, nessuna chiamata di rete.
 - Inventario e regole in `docs/planning/i18n-inventory.md`.

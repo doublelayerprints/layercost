@@ -21,7 +21,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
-**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6.1–T5.6.2** (infrastruttura i18n ed estrazione stringhe) sono chiusi; prossimo **T5.6.3** (formattazione e `Quote.locale`).
+**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6.1–T5.6.3** (infrastruttura i18n, estrazione stringhe, formattazione e `Quote.locale`) sono chiusi; prossimo **T5.6.4** (selettore lingua e persistenza).
 
 ---
 
@@ -69,7 +69,8 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 - **T5.6.1:** dizionari tipizzati `src/i18n/{it,en}.ts`, `translate`/`t`/`plural`, `I18nProvider` + `useI18n`, `<html lang>`, shell collegata e inventario in `docs/planning/i18n-inventory.md`.
 - **T5.6.2:** estrazione completa delle schermate, dei componenti condivisi, delle etichette di dominio, della stampa e della guida; 743 chiavi in moduli per area. Errori import/share/save mappati per codice; restano fallback tecnici rari di storage/schema/dominio.
-- **Prossimo:** T5.6.3 — formattazione locale (`Intl`), `Quote.locale` e migrazione schema v2.
+- **T5.6.3:** formattazione `Intl` legata alla locale (`useFormat`), parsing numerico con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Nomi predefiniti e suffissi di copia/import localizzati; stampa, dettaglio e link usano la lingua del preventivo.
+- **Prossimo:** T5.6.4 — preferenza `layercost:locale`, selettore in Impostazioni, `<html lang>` persistente e metadati pagina.
 
 ### Seed
 
@@ -88,11 +89,11 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | ------------------ | ---------------------------------------------------------------------------------- |
 | TypeScript strict  | verde                                                                              |
 | oxlint             | verde                                                                              |
-| Test unitari/dati  | 83 superati                                                                        |
+| Test unitari/dati  | 90 superati                                                                        |
 | Test E2E           | 26 superati in CI (24 Chromium, 2 WebKit; 3 visual su CI)                          |
 | Accessibilità      | axe WCAG 2.2 AA: 26 scansioni, 0 violazioni                                        |
 | Regressione visiva | 18 screenshot a 1440/768/390 px, baseline Linux, modale import incluso             |
-| Build produzione   | verde (~610 KB JS main + ~108 KB worker; ~206 KB gzip JS; ~35 KB CSS; ~58 KB font) |
+| Build produzione   | verde (~613 KB JS main + ~108 KB worker; ~206 KB gzip JS; ~35 KB CSS; ~58 KB font) |
 | Budget bundle      | 270 KB gzip totali su 350 KB (limite JS 220 KB)                                    |
 | CI GitHub `check`  | verde su `main`                                                                    |
 | CI GitHub `e2e`    | verde su `main`                                                                    |
@@ -111,11 +112,12 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 
 ## 4. Dati e privacy
 
-- Dati in `localStorage`, chiave `layercost:data`.
+- Dati in `localStorage`, chiave `layercost:data`, schema v2 con `Quote.locale`.
 - Preferenza del tema in `layercost:theme`, separata dai dati e non inclusa nei backup.
+- Prima della migrazione v1 → v2 il raw viene salvato in `layercost:backup:schema-1`.
 - Nessun backend, account o analytics.
 - Export/import JSON; backup automatico prima dell'import.
-- Link condivisi = copia compressa del preventivo nell'URL.
+- Link condivisi = copia compressa del preventivo nell'URL, con la lingua del preventivo.
 - Svuotare il browser cancella i dati: il backup è l'unica copia esterna.
 
 ---
@@ -148,7 +150,7 @@ npx vercel --prod
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
 - Nessuna sincronizzazione cloud (pianificata e rimandata: ADR-0018).
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
-- Interfaccia inglese in corso: infrastruttura T5.6.1 pronta, estrazione stringhe in T5.6.2 (ADR-0019).
+- Interfaccia inglese in corso: infrastruttura ed estrazione (T5.6.1–T5.6.2) e formattazione/`Quote.locale` (T5.6.3) pronti; restano selettore e verifiche in inglese (ADR-0019).
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v1; rifiuto versioni future).
 - Guida iniziale come checklist, non wizard multi-step.
@@ -158,7 +160,7 @@ npx vercel --prod
 ## 7. Prossimi passi
 
 1. **T5.3 — Import diretto da `.3mf`**: **chiuso** (fixture, parser ZIP/XML con worker, mapping puro, UI, performance e deploy).
-2. **T5.6 — Interfaccia inglese**: T5.6.1–T5.6.2 chiusi (infrastruttura ed estrazione); prossimo T5.6.3 formattazione locale, `Quote.locale` e migrazione schema v2.
+2. **T5.6 — Interfaccia inglese**: T5.6.1–T5.6.3 chiusi (infrastruttura, estrazione, formattazione e `Quote.locale`); prossimo T5.6.4 selettore lingua e persistenza.
 3. **T5.4 — Sync cloud**: rimandato, solo dopo 3MF e inglese e su richiesta esplicita.
 4. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
 5. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
@@ -168,7 +170,7 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso** e **T5.6.1–T5.6.2 chiusi**: i18n in `src/i18n/`, provider in `src/app/`, dizionari divisi per area e inventario in `docs/planning/i18n-inventory.md`; prossimo task **T5.6.3** (formattazione e `Quote.locale`).
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso** e **T5.6.1–T5.6.3 chiusi**: i18n in `src/i18n/`, provider in `src/app/`, dizionari divisi per area, formattazione locale e schema v2; prossimo task **T5.6.4** (selettore lingua e persistenza).
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.8 e §3, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
 - **Punti aperti:** verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali includono il modale import a 1440/768/390 px. La preview Vercel richiede login SSO; la produzione è pubblica.
