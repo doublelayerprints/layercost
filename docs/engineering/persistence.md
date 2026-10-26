@@ -18,9 +18,10 @@ La preferenza del tema è un dato di interfaccia separato:
 
 ```text
 layercost:theme
+layercost:locale
 ```
 
-Valori: `system` (default), `light`, `dark`. Non entra in `AppData`, negli snapshot, nei backup o nelle migrazioni; “Ripristina dati iniziali” non la cancella.
+Il tema vale `system` (default), `light`, `dark`; la lingua vale `it` (default) o `en`. Nessuno dei due entra in `AppData`, negli snapshot, nei backup o nelle migrazioni; “Ripristina dati iniziali” non li cancella.
 
 In caso di dati non leggibili, il raw viene copiato in:
 
@@ -42,6 +43,7 @@ La chiave è stabile per versione di partenza (`layercost:backup:schema-1`), qui
 | -------------------------- | ---------------------------------------------------- |
 | `src/data/storage.ts`      | Chiavi, load/save, export, import, reset, migrazione |
 | `src/data/theme.ts`        | Preferenza del tema, separata dai dati               |
+| `src/data/locale.ts`       | Preferenza della lingua, separata dai dati           |
 | `src/data/repository.ts`   | Interfaccia `DataRepository` + adapter locale        |
 | `src/data/schemas.ts`      | Validazione Zod                                      |
 | `src/data/seed.ts`         | Configurazione iniziale                              |

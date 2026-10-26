@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.6.3 — 90 test unitari + 26 E2E (3 visual su CI, 18 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.6.4 — 94 test unitari + 27 E2E (3 visual su CI, 18 screenshot)
 
 ---
 
@@ -39,6 +39,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/lib/format.test.ts` — 6 test: arrotondamento dei centesimi, roundtrip, formattazione it-IT, formattazione en-GB, parsing con virgola/punto, valori non numerici.
 - `src/lib/theme.test.ts` — 3 test: valori ammessi, risoluzione di sistema, scelta esplicita.
 - `src/data/theme.test.ts` — 4 test: default, valore invalido, roundtrip, storage bloccato.
+- `src/data/locale.test.ts` — 4 test: default italiano, valore valido, valore non supportato/storage bloccato, salvataggio della preferenza.
 - `src/lib/draft.test.ts` — 7 test: bozza vuota, nomi predefiniti inglesi, metadati, righe, costi di lavoro, prezzo, override.
 - `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
@@ -47,6 +48,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload, condivisione/import in contesto pulito, navigazione sezioni.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375 e menu mobile.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro esplicito, persistenza, “Sistema” che segue il dispositivo.
+- `tests/e2e/locale.spec.ts` — 1 test: cambio lingua, `<html lang>`, titolo, persistenza al reload, salvataggio in inglese e stampa inglese anche con UI italiana.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza, sostituzione della bozza dal dettaglio.
 - `tests/e2e/a11y.spec.ts` — 2 test: 26 scansioni axe su tutte le route, tema chiaro desktop e tema scuro mobile, menu, modali e import `.3mf` inclusi; 0 violazioni.
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
@@ -85,7 +87,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Prova con screen reader reale (VoiceOver/NVDA) e su una stampante fisica.
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
 - Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
-- Interfaccia inglese: copertura E2E/axe/visual in T5.6.4–T5.6.5.
+- Interfaccia inglese: copertura E2E/axe/visual in T5.6.5.
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
@@ -94,12 +96,12 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check` (typecheck, lint, 90 test, build, budget);
+- `npm run check` (typecheck, lint, 94 test, build, budget);
 - `npm run build` + Playwright con Chromium e WebKit.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (90 unitari, 26 E2E).
+Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (94 unitari, 27 E2E).
 
 ## 7. Come aggiungere un test
 

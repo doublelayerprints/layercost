@@ -1,6 +1,6 @@
 # Inventario stringhe i18n
 
-**Stato:** T5.6.1–T5.6.3 — infrastruttura, estrazione e formattazione completate; resta il selettore
+**Stato:** T5.6.1–T5.6.4 — infrastruttura, estrazione e formattazione completate; restano le verifiche in inglese
 **Data:** 26 ottobre 2026
 **Riferimenti:** ADR-0019, `docs/planning/phase-5.md` §3
 
@@ -48,7 +48,9 @@
 
 **Stato T5.6.2:** tutte le aree della tabella sono state estratte, inclusi componenti condivisi, etichette di dominio, cost stack, logo, 404, errori import/share/save e guida. I dizionari sono divisi in `calculator`, `quotes`, `catalogs`, `settings`, `misc` (743 chiavi). Restano come fallback tecnico raro i messaggi di storage/schema e alcuni errori di dominio.
 
-**Stato T5.6.3:** formattazione `Intl` legata alla locale (`useFormat`), parsing con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Nomi predefiniti di bozza/riga e suffissi di copia/import localizzati. Il selettore `layercost:locale` e i metadati pagina sono in T5.6.4.
+**Stato T5.6.3:** formattazione `Intl` legata alla locale (`useFormat`), parsing con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Nomi predefiniti di bozza/riga e suffissi di copia/import localizzati.
+
+**Stato T5.6.4:** preferenza `layercost:locale` e selettore Italiano/English in Impostazioni; `I18nProvider` aggiorna `<html lang>`, titolo e meta description. La bozza vuota adotta la lingua, i preventivi salvati restano nella loro. Restano axe, screenshot e scansione finale delle stringhe in T5.6.5.
 
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 

@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; T5.6.1–T5.6.3 completati (i18n, formattazione e `Quote.locale`); prossimo T5.6.4
+**Stato:** T5.3 completato; T5.6.1–T5.6.4 completati (i18n, formattazione, `Quote.locale` e selettore); prossimo T5.6.5
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.6.4** (selettore lingua e persistenza)
+**Prossima sessione:** partire da **T5.6.5** (E2E/axe/visual in inglese, documentazione e deploy)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -335,6 +335,14 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - **Test:** 90 unitari (7 nuovi: formattazione inglese, parsing numerico, migrazione, envelope, backup, nomi inglesi); 26 E2E; build 270,2 KB gzip su 350 KB; export E2E atteso a schema 2.
 - **Prossimo:** T5.6.4 — `layercost:locale`, selettore in Impostazioni, `<html lang>` persistente e metadati pagina.
 
+### 3.14 Esito T5.6.4 (26/10/2026)
+
+- `src/data/locale.ts` e `src/state/locale-store.ts`: preferenza `layercost:locale` separata da `AppData`, default `it`, fallback su valori corrotti.
+- `I18nProvider` usa lo store e aggiorna `<html lang>`, `dir`, `document.title` e meta description.
+- Impostazioni → Lingua con Italiano / English, cambio immediato e persistente. La bozza vuota adotta la lingua; bozze con contenuto e preventivi salvati restano nella loro lingua.
+- **Test:** 4 nuovi test di persistenza e 94 unitari totali; nuovo E2E su cambio lingua, reload, titolo, salvataggio e stampa inglese con UI italiana. 27 E2E totali.
+- **Prossimo:** T5.6.5 — axe e screenshot in inglese, scansione stringhe residue, documentazione e deploy.
+
 ---
 
 ## 4. T5.4 — Sincronizzazione cloud (rimandata)
@@ -435,7 +443,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 è chiuso; T5.6.1–T5.6.3 sono chiusi. Parti da T5.6.4: preferenza `layercost:locale`, selettore in Impostazioni, `<html lang>` persistente e metadati pagina. La formattazione e `Quote.locale` sono già implementati; non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 è chiuso; T5.6.1–T5.6.4 sono chiusi. Parti da T5.6.5: scansione delle stringhe residue, axe e screenshot in inglese, documentazione e deploy. Formattazione, `Quote.locale` e selettore sono già implementati; non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 

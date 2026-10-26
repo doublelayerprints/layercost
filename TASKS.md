@@ -874,7 +874,7 @@ Service worker, cache degli asset, promemoria backup.
 ## T5.6 — Interfaccia inglese
 
 **Dipende da:** ADR-0019
-**Stato:** `[~]` — T5.6.1–T5.6.3 chiusi; T5.6.4–T5.6.5 da fare
+**Stato:** `[~]` — T5.6.1–T5.6.4 chiusi; T5.6.5 da fare
 **Piano:** `docs/planning/phase-5.md` §3
 
 **Nota:** italiano predefinito, inglese selezionabile. Dizionari tipizzati `src/i18n/{it,en}.ts`, `useI18n`, nessuna libreria runtime. Formattazione con `Intl`, inglese `en-GB` (EUR, metrico, `gg/mm/aaaa`). `Quote.locale` richiede la migrazione schema v1 → v2, con default `it` per i preventivi esistenti. Stampa e link condivisi usano la lingua del preventivo; l'interfaccia usa la preferenza del dispositivo. `layercost:locale` resta fuori da `AppData`.
@@ -884,7 +884,7 @@ Sottotask:
 - **T5.6.1** — inventario delle stringhe e infrastruttura `i18n` con test di parità. → **fatto** (vedi nota sotto).
 - **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida. → **fatto** (vedi nota sotto).
 - **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2). → **fatto** (vedi nota sotto).
-- **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi.
+- **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi. → **fatto** (vedi nota sotto).
 - **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy.
 
 **Accettazione:** tutte le schermate in inglese senza stringhe residue; italiano invariato; preferenza persistente; stampa/link nella lingua del preventivo; migrazione senza perdita dati; `npm run check` verde.
@@ -936,6 +936,22 @@ Sottotask:
 - L’E2E di release verifica ora un export `schemaVersion: 2`.
 
 **Accettazione:** importi, date e numeri formattati con `Intl`; preventivi esistenti migrati senza perdita di dati; stampa e link nella lingua del preventivo; formule e `engineVersion` invariati. → soddisfatta.
+
+### T5.6.4 — Selettore lingua e persistenza
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026.
+
+- `src/data/locale.ts` legge e scrive `layercost:locale`, separata da `AppData`; `src/state/locale-store.ts` espone `locale` e `setLocale`. Default italiano, valori accettati `it`/`en`; un valore corrotto torna a `it`.
+- `I18nProvider` legge la preferenza dallo store e aggiorna `<html lang>`, `dir`, `document.title` e la meta description a ogni cambio.
+- Impostazioni → Lingua: Italiano / English con descrizione, applicazione immediata e persistenza al reload.
+- La bozza vuota adotta la lingua dell’interfaccia (nomi predefiniti compresi); una bozza con contenuto e un preventivo salvato mantengono la propria lingua.
+- Stampa, dettaglio e link condivisi usano `quote.locale`; l’interfaccia usa la preferenza del dispositivo.
+- 4 test di persistenza (default, valore valido, valore non supportato/storage bloccato, salvataggio); totale **94 unitari**. Nuovo E2E: cambio lingua, `<html lang>`, titolo, reload, salvataggio in inglese e stampa inglese dopo il ritorno all’italiano. **27 E2E** totali (24 eseguiti + 3 visual).
+- `layercost:locale` non entra in `AppData`, backup o migrazioni.
+
+**Accettazione:** cambio lingua immediato, preferenza persistente, `<html lang>` corretto, stampa/link nella lingua del preventivo, italiano invariato. → soddisfatta.
 
 ## T5.7 — Registro manutenzioni e guasti
 

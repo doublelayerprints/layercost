@@ -6,9 +6,10 @@
 
 - Import `.3mf` (T5.3.1–T5.3.5): fixture reali verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; parser ZIP/XML locale con limiti di sicurezza, Web Worker e fallback G-code; mapping puro con proposte di stampante/materiali e righe `PrintLine` senza supplementi AMS/ACE; UI con drag & drop, anteprima piatti, mappatura, conferma append/replace, focus e alert di esito; performance verificata con un file reale da 22 MB compressi/75 MB decompressi e con un archivio sintetico da 50 MB; regressione visiva del modale. Il worker usa `@xmldom/xmldom` perché `DOMParser` non è disponibile nei Web Worker.
 - Infrastruttura inglese (T5.6.1): dizionari tipizzati it/en, `translate`/`t`/`plural`, `I18nProvider` e `useI18n`, `<html lang>`, shell collegata e inventario stringhe.
-- Estrazione stringhe (T5.6.2): tutte le schermate, i componenti condivisi, le etichette di dominio, la stampa e la guida usano dizionari per area (743 chiavi); errori import/share/save mappati per codice. Il testo italiano resta invariato; resta il selettore lingua in T5.6.4.
+- Estrazione stringhe (T5.6.2): tutte le schermate, i componenti condivisi, le etichette di dominio, la stampa e la guida usano dizionari per area (743 chiavi); errori import/share/save mappati per codice.
 - Formattazione locale (T5.6.3): `useFormat` con `Intl` (`it-IT`/`en-GB`), parsing numerico con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Stampa, dettaglio e link usano la lingua del preventivo.
-- Test: 90 unitari, 26 E2E, 18 screenshot visuali.
+- Selettore lingua (T5.6.4): preferenza `layercost:locale`, Italiano/English in Impostazioni, `<html lang>`, titolo e meta description aggiornati; la bozza vuota adotta la lingua.
+- Test: 94 unitari, 27 E2E, 18 screenshot visuali.
 
 ## [1.0.0] — 2026-10-24
 
