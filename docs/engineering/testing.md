@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 — 42 test unitari + 18 E2E (3 visual su CI)
+**Stato:** v1.0.0 + T5.3.2 — 60 test unitari + 18 E2E (3 visual su CI)
 
 ---
 
@@ -40,6 +40,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/lib/theme.test.ts` — 3 test: valori ammessi, risoluzione di sistema, scelta esplicita.
 - `src/data/theme.test.ts` — 4 test: default, valore invalido, roundtrip, storage bloccato.
 - `src/lib/draft.test.ts` — 6 test: bozza vuota, metadati, righe, costi di lavoro, prezzo, override.
+- `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
 - `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload, condivisione/import in contesto pulito, navigazione sezioni.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375 e menu mobile.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro esplicito, persistenza, “Sistema” che segue il dispositivo.
@@ -48,7 +49,14 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
 - `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con token chiari partendo dal tema scuro; nessuna richiesta esterna.
 - `tests/e2e/visual.spec.ts` — 3 test, 15 screenshot: calcolatore, dettaglio, preventivi, materiali e impostazioni a 1440/768/390 px. Saltati fuori dalla CI.
-- `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser arrivano in T5.3.2.
+- `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser sono in `parse.test.ts`.
+
+### 3.1 Fixture `.3mf`
+
+- I fixture sono ridotti: niente G-code, geometrie o immagini, solo i metadati necessari al parser.
+- `parse.test.ts` usa `@xmldom/xmldom` (devDependency) per il `DOMParser` in Node; nel browser il parser usa `DOMParser` nativo.
+- Il fixture Bambu reale non è committato per la licenza del modello; il percorso Bambu è coperto da un test sintetico con lo stesso schema (`X-BBL-Client-Version`, `printer_model_id = C12`).
+- Per i test del worker in browser si rimanda all'E2E della UI (T5.3.4).
 
 ## 4. Golden case
 
@@ -64,7 +72,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Prova con screen reader reale (VoiceOver/NVDA) e su una stampante fisica.
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
 - Import via file chooser (E2E).
-- Parser `.3mf`: fixture pronte in T5.3.1, test in T5.3.2.
+- Worker `.3mf` in un browser reale: arriva con l'E2E della UI in T5.3.4.
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
@@ -73,17 +81,18 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check` (typecheck, lint, 42 test, build, budget);
+- `npm run check` (typecheck, lint, 60 test, build, budget);
 - `npm run build` + Playwright con Chromium e WebKit.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 24/10/2026: **verde su GitHub** per i job `check` ed `e2e` (42 unitari, 18 E2E).
+Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (60 unitari, 18 E2E).
 
 ## 7. Come aggiungere un test
 
 - Per una formula: aggiungi un caso in `cost.test.ts` e il golden case nel doc.
 - Per uno schema: aggiungi un fixture valido/invalido in `storage.test.ts`.
+- Per il parser `.3mf`: aggiungi un caso in `src/data/three-mf/parse.test.ts`; se serve un nuovo file reale, aggiungi una fixture ridotta in `tests/fixtures/3mf/` e aggiorna il README.
 - Per un flusso UI: aggiungi un E2E in `tests/e2e`.
 - Per un token o un componente: aggiungi un test in `tests/e2e/design-system.spec.ts` (font, token, focus, touch, overflow).
 - Per una schermata: aggiungi la route in `tests/e2e/a11y.spec.ts` e, se è stabile, in `tests/e2e/visual.spec.ts`.

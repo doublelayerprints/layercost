@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3.1 chiuso** con fixture `.3mf` reali; prossimo **T5.3.2** (parser ZIP/XML). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3.1 e T5.3.2 chiusi** (fixture `.3mf` reali e parser ZIP/XML); prossimo **T5.3.3** (mapping puro). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -773,7 +773,7 @@ Registrare tempo e filamento reali per stampa, confrontarli con le stime, sugger
 ## T5.3 — Import diretto da `.3mf`
 
 **Dipende da:** ADR-0017, fixture reali
-**Stato:** `[~]` — T5.3.1 chiuso; T5.3.2–T5.3.5 da fare
+**Stato:** `[~]` — T5.3.1–T5.3.2 chiusi; T5.3.3–T5.3.5 da fare
 **Piano:** `docs/planning/phase-5.md` §2
 
 **Nota:** il `.3mf` è un archivio ZIP/OPC. Il percorso supportato è il file **già slicato** (`.gcode.3mf`) di Anycubic Slicer Next, OrcaSlicer o Bambu Studio: `Metadata/slice_info.config` contiene `prediction` in secondi e `used_g` per filamento. Un progetto non slicato non ha tempo/grammi affidabili e va rifiutato con un messaggio azionabile. Nessun upload, nessun cambio a formule o `engineVersion`, nessun supplemento AMS/ACE (ADR-0006). Le fixture verificate di T5.3.1 sono in `tests/fixtures/3mf/`.
@@ -781,7 +781,7 @@ Registrare tempo e filamento reali per stampa, confrontarli con le stime, sugger
 Sottotask:
 
 - **T5.3.1** — chiedere 2–3 file reali (Kobra 3 e Kobra X), verificare formato e campi, salvare fixture ridotte in `tests/fixtures/3mf/`. → **fatto** (vedi nota sotto).
-- **T5.3.2** — parser ZIP/XML nel layer `data`, con limiti di sicurezza e Web Worker; normalizzazione a `ThreeMfSummary`.
+- **T5.3.2** — parser ZIP/XML nel layer `data`, con limiti di sicurezza e Web Worker; normalizzazione a `ThreeMfSummary`. → **fatto** (vedi nota sotto).
 - **T5.3.3** — mapping puro `ThreeMfSummary → PrintLine[]` nel dominio: tempo, grammi per tipo, stampante, piatti multipli.
 - **T5.3.4** — UI “Importa .3mf”: drag & drop, anteprima piatti, mappatura stampante/materiale, conferma bozza, errori.
 - **T5.3.5** — test unit/property/E2E/axe, documentazione e deploy.
@@ -797,6 +797,18 @@ Sottotask:
 **Esiti per il parser:** `prediction`, `weight` e `printer_model_id` sono `<metadata key=…>` annidati, non attributi; i filamenti usano attributi `used_g` / `used_m`; `printer_model` in `project_settings.config` è più affidabile di `printer_model_id`; un progetto non slicato può avere `slice_info.config` con il solo header. Un file Bambu Studio 01.10.02.73 è stato verificato localmente ma non committato per la licenza del modello. Dettagli in `docs/planning/phase-5.md` §2.2.1 e `tests/fixtures/3mf/README.md`.
 
 **Accettazione:** fixture reali per Kobra 3 e Kobra X, verifica dei campi, fixture negativa non slicata, documentazione aggiornata. → soddisfatta; nessun codice di import.
+
+### T5.3.2 — Parser ZIP/XML e `ThreeMfSummary`
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026. Implementati `src/data/three-mf/` (indice ZIP, estrazione sicura, XML, fallback G-code, worker) e `src/domain/three-mf.ts` (`ThreeMfSummary`, piatti, filamenti, avvisi). Dipendenze: `fflate` 0.8.3 runtime; `@xmldom/xmldom` solo dev per i test Node, mentre il browser usa `DOMParser`.
+
+**Sicurezza:** 100 MB compressi, 500 MB decompressi totali, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per fallback G-code; rifiutati cifratura, path traversal, ZIP64, duplicati e compressioni non supportate. DOCTYPE/ENTITY rifiutati. Nessun upload o chiamata di rete.
+
+**Test:** 18 nuovi test in `src/data/three-mf/parse.test.ts` (60 unitari totali): fixture Kobra 3, Kobra X e multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti, path traversal e cifratura. Il worker viene costruito da Vite in un chunk separato; il test browser arriva con l'E2E di T5.3.4.
+
+**Accettazione:** parser locale con limiti, normalizzazione completa, errore azionabile per file non slicato/malformato, nessun cambio a formule/`engineVersion`/schema, `npm run check` verde. → soddisfatta.
 
 ## T5.4 — Sincronizzazione cloud (rimandata)
 

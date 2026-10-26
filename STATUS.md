@@ -21,7 +21,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
-**Fase 5:** T5.3.1 è chiuso il 26/10/2026 con fixture `.3mf` reali e verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il prossimo task è **T5.3.2** (parser ZIP/XML).
+**Fase 5:** T5.3.1 e T5.3.2 sono chiusi il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`. Il prossimo task è **T5.3.3** (mapping puro).
 
 ---
 
@@ -56,6 +56,12 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - Stampa: intestazione, meta, righe, composizione in grigi, totali e note; PDF A4 verificato su Chromium e stampa verificata sull'engine WebKit.
 - Verifiche 1.0: audit `axe` WCAG 2.2 AA su tutte le route (chiaro/scuro, desktop/mobile, menu e modali), test WebKit, regressione visiva a 1440/768/390 px, budget del bundle e nessuna richiesta esterna.
 
+### Import `.3mf` (in corso)
+
+- **T5.3.1:** fixture reali generate con Anycubic Slicer Next 2.0.0.3 e ridotte in `tests/fixtures/3mf/`: Kobra 3, Kobra X, Kobra X a due piatti e progetto non slicato.
+- **T5.3.2:** parser locale in `src/data/three-mf/` con `fflate`, limiti ZIP, rifiuto di cifratura/path traversal/DOCTYPE, fallback G-code e Web Worker; riepilogo puro `ThreeMfSummary` in `src/domain/three-mf.ts`.
+- **Non ancora in UI:** mapping `ThreeMfSummary → PrintLine[]` (T5.3.3) e schermata “Importa .3mf” (T5.3.4).
+
 ### Seed
 
 - Anycubic Kobra 3 (250 × 250 × 260 mm, senza multicolore).
@@ -73,7 +79,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | ----------------- | --------------------------------------------------------- |
 | TypeScript strict | verde                                                     |
 | oxlint            | verde                                                     |
-| Test unitari/dati | 42 superati                                               |
+| Test unitari/dati | 60 superati                                               |
 | Test E2E          | 18 superati in CI (16 Chromium, 2 WebKit; 3 visual su CI) |
 | Accessibilità     | axe WCAG 2.2 AA: 25 scansioni, 0 violazioni               |
 | Build produzione  | verde (~509 KB JS, ~147 KB gzip; ~34 KB CSS; ~58 KB font) |
@@ -131,7 +137,7 @@ npx vercel --prod
 - Audit `axe` automatico su tutte le route; resta consigliata una prova con screen reader reale (VoiceOver/NVDA).
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
 - Nessuna sincronizzazione cloud (pianificata e rimandata: ADR-0018).
-- Nessun import diretto da slicer: fixture `.3mf` verificate in T5.3.1, parser e UI in T5.3.2–T5.3.4 (ADR-0017).
+- Nessun import diretto da slicer nella UI: fixture e parser `.3mf` pronti (T5.3.1–T5.3.2), mapping e schermata in T5.3.3–T5.3.4 (ADR-0017).
 - Nessuna interfaccia inglese: pianificata in T5.6 (ADR-0019).
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v1; rifiuto versioni future).
@@ -141,7 +147,7 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. **T5.3 — Import diretto da `.3mf`**: T5.3.1 chiuso (fixture reali Kobra 3/Kobra X, multi-piatto e non slicato); prossimo **T5.3.2** parser ZIP/XML e `ThreeMfSummary`, poi mapping e UI.
+1. **T5.3 — Import diretto da `.3mf`**: T5.3.1 e T5.3.2 chiusi (fixture reali e parser ZIP/XML con worker); prossimo **T5.3.3** mapping puro `ThreeMfSummary → PrintLine[]`, poi UI in T5.3.4.
 2. **T5.6 — Interfaccia inglese**: dizionari tipizzati, `Quote.locale`, migrazione schema v2.
 3. **T5.4 — Sync cloud**: rimandato, solo dopo 3MF e inglese e su richiesta esplicita.
 4. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
@@ -152,10 +158,10 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Fase 5 in corso: **T5.3.1 chiuso**, fixture in `tests/fixtures/3mf/`; prossimo task **T5.3.2** (parser ZIP/XML e `ThreeMfSummary`).
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Fase 5 in corso: **T5.3.1 e T5.3.2 chiusi**, fixture in `tests/fixtures/3mf/` e parser in `src/data/three-mf/`; prossimo task **T5.3.3** (mapping puro).
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1 e §2.3.1, `docs/engineering/architecture.md` §9, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
-- **Punti aperti:** prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali vanno rigenerate solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Punti aperti:** verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; decidere se l'import UI aggiunge o sostituisce le righe della bozza. Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali vanno rigenerate solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
 - **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` richiede la migrazione v2 pianificata in ADR-0019.
 
@@ -167,6 +173,8 @@ npx vercel --prod
 - `PLAN.md` — visione e roadmap.
 - `TASKS.md` — task e stato.
 - `docs/domain/cost-model.md` — formule normative.
+- `docs/engineering/architecture.md` — livelli, flussi e parser `.3mf` (§9).
+- `docs/engineering/testing.md` — strategia, fixture `.3mf` e conteggi.
 - `docs/engineering/deployment.md` — deploy.
 - `docs/engineering/release.md` — checklist e verifiche della v1.0.0.
 - `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese e sync.
