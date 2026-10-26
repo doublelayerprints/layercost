@@ -24,11 +24,12 @@ Prima di toccare il codice:
 3. `AGENTS.md` (questo file)
 4. `PLAN.md`
 5. `TASKS.md`
-6. `docs/domain/cost-model.md`
-7. `docs/domain/data-model.md`
-8. gli ADR rilevanti in `docs/adr/`
-9. `docs/engineering/architecture.md`, `persistence.md`, `testing.md`, `deployment.md`
-10. `docs/design/ui-brief.md`, `docs/design/directions.md`, `docs/design/design-system.md` solo per task UI
+6. `docs/planning/phase-5.md` per i task di fase 5
+7. `docs/domain/cost-model.md`
+8. `docs/domain/data-model.md`
+9. gli ADR rilevanti in `docs/adr/`
+10. `docs/engineering/architecture.md`, `persistence.md`, `testing.md`, `deployment.md`
+11. `docs/design/ui-brief.md`, `docs/design/directions.md`, `docs/design/design-system.md` solo per task UI
 
 Se due documenti si contraddicono, fermati e segnala: non scegliere a caso.
 
@@ -254,6 +255,7 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/engineering/deployment.md` — Vercel e alternative.
 - `docs/engineering/release.md` — checklist e verifiche della release.
 - `docs/engineering/manual-checks.md` — verifiche manuali Safari e VoiceOver.
+- `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese e sync.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

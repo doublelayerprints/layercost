@@ -134,6 +134,8 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 
 `QuotePricing`: `{ mode, markupBp, marginBp, roundingStep, roundingMode, discountBp, vatMode, vatRateBp }`.
 
+> **Fase 5 — pianificato, non implementato:** ADR-0019 aggiunge `locale?: 'it' | 'en'` a `Quote` e porta lo schema a v2, con default `it` per i preventivi esistenti. La v1.0.0 resta a schema 1.
+
 ### 2.8 `QuoteSnapshot`
 
 ```ts

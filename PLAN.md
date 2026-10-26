@@ -1,15 +1,15 @@
 # LayerCost — Piano di prodotto e tecnico
 
-**Stato:** **v1.0.0 rilasciata** (fasi 0–4); CI verde su GitHub; deploy Vercel live; backlog fase 5
-**Data:** 23 ottobre 2026
+**Stato:** **v1.0.0 rilasciata** (fasi 0–4); fase 5 pianificata; CI verde su GitHub; deploy Vercel live
+**Data:** 26 ottobre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
-**Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione rimandata; preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel
+**Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione rimandata; preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel; fase 5: import `.3mf`, interfaccia inglese, sync gratuito rimandato (ADR-0017/0018/0019)
 
 ## Stato implementazione
 
 - **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5). Release **v1.0.0** (T4.6) del 24/10/2026, tag `v1.0.0` su `cc949b3`, con axe WCAG 2.2 AA, WebKit, stampa/PDF, regressione visiva e budget del bundle.
-- **Da fare:** feedback reale sulle stampanti, prova manuale su stampante fisica/screen reader, eventuale sincronizzazione cloud e backlog fase 5.
-- **Non fatto:** import diretto da slicer, magazzino bobine, PWA, inglese.
+- **Da fare:** fase 5, nell'ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (sync solo su richiesta esplicita e su piano gratuito). Piano in `docs/planning/phase-5.md`. Restano rimandate le prove manuali su stampante fisica e screen reader.
+- **Non fatto (fuori v1, pianificato in fase 5):** import diretto da slicer, interfaccia inglese, sincronizzazione cloud, magazzino bobine, PWA.
 
 ---
 
@@ -113,6 +113,8 @@ Il progetto deve essere:
 - Grafici e dashboard.
 - Gestione clienti e listini.
 - Confronto actual vs estimated.
+
+La fase 5 pianificata riprende alcune di queste voci: import `.3mf`, interfaccia inglese e sync gratuito rimandato. Vedi `docs/planning/phase-5.md`.
 
 ---
 
@@ -400,17 +402,18 @@ La specifica operativa è in `docs/README.md`; le regole per il coding agent son
 
 ## 12. Roadmap
 
-| Fase                  | Contenuto                                                           | Gate                                               | Stima indicativa |
-| --------------------- | ------------------------------------------------------------------- | -------------------------------------------------- | ---------------- |
-| **0 — Fondamenta**    | Repo, tooling, CI, docs, unità e tipi                               | Build e test verdi; docs approvati                 | 0,5–1 giorno     |
-| **1 — Motore**        | Materiale, energia, usura, manodopera, extra, guasti, prezzi, lotti | Esempi documentati = test al µ€                    | 1,5–3 giorni     |
-| **2 — Config e dati** | Seed, CRUD, tariffe, storage, migrazioni, export/import             | Reload e roundtrip ok; vecchi preventivi invariati | 1,5–3 giorni     |
-| **3 — UI funzionale** | Calcolatore, risultati, storico, PDF, link, confronto               | Scenario end-to-end completo su Vercel             | 2–4 giorni       |
-| **4 — UI design**     | Skill design, design system, responsive, accessibilità              | Review UX + nessuna regressione                    | 2–5 giorni       |
-| **5 — Extra**         | Inventory, actuals, sync, PWA, inglese                              | Backlog prioritizzato                              | —                |
+| Fase                  | Contenuto                                                                  | Gate                                                  | Stima indicativa |
+| --------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- | ---------------- |
+| **0 — Fondamenta**    | Repo, tooling, CI, docs, unità e tipi                                      | Build e test verdi; docs approvati                    | 0,5–1 giorno     |
+| **1 — Motore**        | Materiale, energia, usura, manodopera, extra, guasti, prezzi, lotti        | Esempi documentati = test al µ€                       | 1,5–3 giorni     |
+| **2 — Config e dati** | Seed, CRUD, tariffe, storage, migrazioni, export/import                    | Reload e roundtrip ok; vecchi preventivi invariati    | 1,5–3 giorni     |
+| **3 — UI funzionale** | Calcolatore, risultati, storico, PDF, link, confronto                      | Scenario end-to-end completo su Vercel                | 2–4 giorni       |
+| **4 — UI design**     | Skill design, design system, responsive, accessibilità                     | Review UX + nessuna regressione                       | 2–5 giorni       |
+| **5 — Extra**         | Import `.3mf`, inglese, sync gratuito (rimandato), inventory, actuals, PWA | `npm run check` verde, fixture reali, piano approvato | —                |
 
 **MVP:** fasi 0–3 implementate. Deploy Vercel live su https://layercost.vercel.app.
-**v1.0:** fase 4 completata.
+**v1.0:** fase 4 completata e rilasciata il 24/10/2026.
+**Fase 5:** pianificata il 26/10/2026 in `docs/planning/phase-5.md`; primo task T5.3.1.
 Le stime sono indicative e si riferiscono a lavoro assistito da agente, non a giornate umane.
 
 ---
@@ -515,12 +518,18 @@ Tutti i valori sono modificabili. Quelli marcati **stimato** devono essere confe
 
 ## 16. Backlog futuro
 
+Ordine concordato per la fase 5:
+
+1. **Import diretto da `.3mf`** — file già slicato, tempo/grammi/materiali; piano in `docs/planning/phase-5.md` §2.
+2. **Interfaccia inglese** — italiano predefinito, dizionari tipizzati, `Quote.locale`; piano §3.
+3. **Sincronizzazione cloud** — rimandata, solo piano gratuito, provider da scegliere; piano §4.
+
+Altri candidati:
+
 - Magazzino bobine con grammi residui e avvisi.
 - Actual vs estimated: tempo e filamento reali, scostamenti.
-- Import da slicer (CSV o paste) e da presa intelligente.
-- Sincronizzazione cloud tra due utenti (Supabase + auth).
+- Import da presa intelligente (CSV).
 - PWA/offline.
-- Interfaccia inglese.
 - Grafici di breakdown e trend.
 - Listini, clienti, preventivi con scadenza.
 - Registro manutenzioni e guasti.

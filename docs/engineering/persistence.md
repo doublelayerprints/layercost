@@ -101,7 +101,7 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 
 ## 9. Sync futura
 
-L'interfaccia `DataRepository` è astratta. In v1 è sincrona perché usa `localStorage`; un adapter cloud potrà esporre le stesse operazioni in forma asincrona, con un refactor dello store:
+L'interfaccia `DataRepository` è astratta. In v1 è sincrona perché usa `localStorage`; un adapter cloud dovrà esporre le stesse operazioni in forma asincrona, con un refactor dello store:
 
 ```ts
 interface DataRepository {
@@ -113,7 +113,9 @@ interface DataRepository {
 }
 ```
 
-Un adapter Supabase dovrà gestire auth, RLS, conflitti e merge per ID. Richiede un ADR dedicato.
+La direzione è in **ADR-0018**: sync opzionale, local-first, solo piani gratuiti, provider ancora da scegliere. Il piano operativo è in `docs/planning/phase-5.md` §4. Un adapter cloud dovrà gestire auth, RLS, conflitti e merge per entità; i preventivi restano immutabili e si sincronizzano in append. Bozza, tema e lingua restano locali. Prima del primo sync va esportato un backup.
+
+L'adapter cloud non è previsto nella v1.0.0 e non va implementato senza una richiesta esplicita del committente.
 
 ## 10. Backup consigliato
 

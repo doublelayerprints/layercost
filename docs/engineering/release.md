@@ -172,6 +172,6 @@ gh workflow run visual-baselines.yml --ref main
 ## 10. Dopo la release
 
 - Raccogliere feedback reale sulle due stampanti e sui valori di seed.
-- Pianificare il backlog di fase 5 con un ADR per ogni voce.
+- Fase 5 pianificata in `docs/planning/phase-5.md` (`.3mf`, inglese, sync rimandato); ADR-0017/0018/0019.
 - Valutare un audit con screen reader e una prova su stampante fisica.
 - Aggiornare le baseline visuali solo con una modifica intenzionale dell'interfaccia.

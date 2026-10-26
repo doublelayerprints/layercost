@@ -90,10 +90,11 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 | `docs/domain/golden-cases.md`  | Esempi numerici e test                           |
 | `docs/domain/sources.md`       | Fonti su stampanti e potenze                     |
 | `docs/engineering/`            | Architettura, persistenza, test, release, deploy |
+| `docs/planning/phase-5.md`     | Piano fase 5: `.3mf`, inglese, sync              |
 | `docs/design/ui-brief.md`      | Requisiti per la fase design                     |
 | `docs/design/directions.md`    | Direzioni e scelta visiva                        |
 | `docs/design/design-system.md` | Token, componenti, accessibilità                 |
-| `docs/adr/`                    | 16 decisioni architetturali                      |
+| `docs/adr/`                    | 19 decisioni architetturali                      |
 
 ## Stato
 
@@ -101,6 +102,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
 - **Verifiche:** 42 unitari, 18 E2E (Chromium + WebKit), axe 0 violazioni, stampa/PDF, regressione visiva e budget.
 - **Fuori v1:** sync cloud, magazzino bobine, import slicer, PWA, inglese.
+- **Fase 5 pianificata:** import `.3mf`, interfaccia inglese, sync gratuito rimandato; piano in `docs/planning/phase-5.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

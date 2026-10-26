@@ -66,7 +66,7 @@ DataRepository ──► Zustand store ──► UI
    └────────────────────┘
 ```
 
-L'interfaccia `DataRepository` è in `src/data/repository.ts`. L'adapter attuale è `localRepository`; un futuro adapter Supabase potrà implementare la stessa interfaccia.
+L'interfaccia `DataRepository` è in `src/data/repository.ts`. L'adapter attuale è `localRepository`; un futuro adapter cloud potrà implementare la stessa interfaccia. Il sync è pianificato in ADR-0018 e richiede un refactor async dello store; non è parte della v1.0.0.
 
 ---
 

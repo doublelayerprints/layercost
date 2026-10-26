@@ -8,6 +8,7 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
+- Fase 5 pianificata in `planning/phase-5.md`: import `.3mf` (ADR-0017), interfaccia inglese (ADR-0019), sync gratuito rimandato (ADR-0018).
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
 - Test: 42 unitari + 18 E2E (3 visual su CI); axe 0 violazioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
@@ -73,6 +74,8 @@
 │   │   ├── ui-brief.md
 │   │   ├── directions.md
 │   │   └── design-system.md
+│   ├── planning/
+│   │   └── phase-5.md
 │   └── adr/
 │       ├── README.md
 │       ├── 0001-static-local-first.md
@@ -503,6 +506,22 @@ Sezioni:
 - tabella d'esito e cosa riportare in caso di problema.
 
 **Aggiornare quando:** cambia un flusso critico o la procedura di verifica.
+
+---
+
+### 5.21 `docs/planning/phase-5.md`
+
+**Scopo:** handoff operativo della fase 5.
+
+Sezioni:
+
+- ordine e dipendenze;
+- import `.3mf`: file supportati, pipeline, mapping, UX, sicurezza, test, criteri;
+- interfaccia inglese: dizionari, `Intl`, `Quote.locale`, migrazione, test;
+- sync: vincoli, confronto piani gratuiti, architettura, conflitti, sicurezza, test;
+- lavoro trasversale, prompt di handoff e fonti.
+
+**Aggiornare quando:** si chiude un'iniziativa o cambia una decisione di fase 5.
 
 ---
 

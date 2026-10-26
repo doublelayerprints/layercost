@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); CI verde; deploy Vercel live; backlog fase 5
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 pianificata; CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
-**Data:** 24 ottobre 2026
+**Data:** 26 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 24/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. T4.1–T4.7 chiusi: direzione **A — Strato** (ADR-0015), design system, redesign, stati/rifiniture, dark mode (ADR-0016) e release con axe, WebKit, stampa/PDF, regressione visiva e budget. Restano solo verifiche manuali consigliate (stampante fisica, screen reader) e il backlog di fase 5.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 pianificata in `docs/planning/phase-5.md`: ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -751,7 +751,16 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-Nessun impegno in v1. Ogni voce richiede un ADR prima dell'implementazione.
+**Stato:** pianificata il 26/10/2026. Piano completo, decisioni e domande aperte in `docs/planning/phase-5.md`. Ordine: **T5.3 → T5.6 → T5.4**.
+
+## T5.0 — Piano fase 5
+
+**Dipende da:** v1.0.0
+**Stato:** `[x]`
+
+**Nota:** creati `docs/planning/phase-5.md`, ADR-0017 (import `.3mf`), ADR-0018 (sync free, rimandato) e ADR-0019 (inglese). Nessun codice. Le tre iniziative richieste dal committente sono documentate con scope, architettura, test, criteri di accettazione e stime. Il sync resta esplicitamente rimandato.
+
+**Accettazione:** piano leggibile da una nuova sessione; ADR e fonti presenti; `TASKS.md`, `PLAN.md` e `STATUS.md` allineati.
 
 ## T5.1 — Magazzino bobine
 
@@ -761,21 +770,53 @@ Tracciare bobine acquistate, grammi residui, costo effettivo, avvisi di esaurime
 
 Registrare tempo e filamento reali per stampa, confrontarli con le stime, suggerire calibrazioni.
 
-## T5.3 — Import da slicer
+## T5.3 — Import diretto da `.3mf`
 
-Incollare o importare CSV/JSON con tempo e grammi per materiale; parsing robusto e validazione.
+**Dipende da:** ADR-0017, fixture reali
+**Stato:** `[ ]`
+**Piano:** `docs/planning/phase-5.md` §2
 
-## T5.4 — Sincronizzazione cloud
+**Nota:** il `.3mf` è un archivio ZIP/OPC. Il percorso supportato è il file **già slicato** (`.gcode.3mf`) di Anycubic Slicer Next, OrcaSlicer o Bambu Studio: `Metadata/slice_info.config` contiene `prediction` in secondi e `used_g` per filamento. Un progetto non slicato non ha tempo/grammi affidabili e va rifiutato con un messaggio azionabile. Nessun upload, nessun cambio a formule o `engineVersion`, nessun supplemento AMS/ACE (ADR-0006).
 
-Supabase + auth, RLS, merge per ID, gestione conflitti; ADR dedicato.
+Sottotask:
+
+- **T5.3.1** — chiedere 2–3 file reali (Kobra 3 e Kobra X), verificare formato e campi, salvare fixture ridotte in `tests/fixtures/3mf/`.
+- **T5.3.2** — parser ZIP/XML nel layer `data`, con limiti di sicurezza e Web Worker; normalizzazione a `ThreeMfSummary`.
+- **T5.3.3** — mapping puro `ThreeMfSummary → PrintLine[]` nel dominio: tempo, grammi per tipo, stampante, piatti multipli.
+- **T5.3.4** — UI “Importa .3mf”: drag & drop, anteprima piatti, mappatura stampante/materiale, conferma bozza, errori.
+- **T5.3.5** — test unit/property/E2E/axe, documentazione e deploy.
+
+**Accettazione:** da un `.gcode.3mf` valido si ottengono righe con tempo e grammi corretti, mappatura esplicita, preventivo salvabile; file non slicato/malformato gestito senza crash; nessuna richiesta di rete; `npm run check` verde.
+
+## T5.4 — Sincronizzazione cloud (rimandata)
+
+**Dipende da:** ADR-0018, T5.3, T5.6
+**Stato:** `[ ]` — non iniziare senza esplicita richiesta del committente
+**Piano:** `docs/planning/phase-5.md` §4
+
+**Nota:** il sync è opzionale, local-first e **solo su piano gratuito**. Il provider non è scelto: lo spike confronta Supabase Free (auth/RLS pronti, pausa dopo 1 settimana di inattività), Cloudflare Workers + D1 (limiti generosi, nessuna pausa, auth da scrivere) e Firebase Spark. Serve prima il refactor async di `DataRepository`/store. Dati sincronizzati: configurazione e preventivi; bozza, tema e lingua restano locali. Backup prima del primo sync, conflitti visibili, export sempre disponibile.
 
 ## T5.5 — PWA/offline
 
 Service worker, cache degli asset, promemoria backup.
 
-## T5.6 — Inglese
+## T5.6 — Interfaccia inglese
 
-Estrarre le stringhe, aggiungere locale `en`, mantenere it-IT come default.
+**Dipende da:** ADR-0019
+**Stato:** `[ ]`
+**Piano:** `docs/planning/phase-5.md` §3
+
+**Nota:** italiano predefinito, inglese selezionabile. Dizionari tipizzati `src/i18n/{it,en}.ts`, `useI18n`, nessuna libreria runtime. Formattazione con `Intl`, inglese `en-GB` (EUR, metrico, `gg/mm/aaaa`). `Quote.locale` richiede la migrazione schema v1 → v2, con default `it` per i preventivi esistenti. Stampa e link condivisi usano la lingua del preventivo; l'interfaccia usa la preferenza del dispositivo. `layercost:locale` resta fuori da `AppData`.
+
+Sottotask:
+
+- **T5.6.1** — inventario delle stringhe e infrastruttura `i18n` con test di parità.
+- **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida.
+- **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2).
+- **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi.
+- **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy.
+
+**Accettazione:** tutte le schermate in inglese senza stringhe residue; italiano invariato; preferenza persistente; stampa/link nella lingua del preventivo; migrazione senza perdita dati; `npm run check` verde.
 
 ## T5.7 — Registro manutenzioni e guasti
 
@@ -809,7 +850,8 @@ Esportare righe e preventivi in CSV per analisi esterne, mantenendo la formattaz
 2. T1.1 → T1.11
 3. T2.1 → T2.12
 4. T3.1 → T3.12
-5. T4.1 → T4.6
-6. Backlog
+5. T4.1 → T4.7
+6. T5.0 → T5.3 → T5.6 → T5.4 (sync solo su richiesta esplicita)
+7. Resto del backlog
 
-Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale.
+Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.

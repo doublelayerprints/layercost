@@ -128,8 +128,9 @@ npx vercel --prod
 - Stampa verificata su Chromium (PDF A4) e sull'engine WebKit; resta consigliata una prova su una stampante fisica e su Safari reale.
 - Audit `axe` automatico su tutte le route; resta consigliata una prova con screen reader reale (VoiceOver/NVDA).
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
-- Nessuna sincronizzazione cloud.
-- Nessun import diretto da slicer o presa intelligente.
+- Nessuna sincronizzazione cloud (pianificata e rimandata: ADR-0018).
+- Nessun import diretto da slicer: il `.3mf` è pianificato in T5.3 (ADR-0017).
+- Nessuna interfaccia inglese: pianificata in T5.6 (ADR-0019).
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v1; rifiuto versioni future).
 - Guida iniziale come checklist, non wizard multi-step.
@@ -138,21 +139,22 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
-2. Prova manuale su stampante fisica e screen reader.
-3. Catena di migrazioni versionata con fixture.
-4. Backlog fase 5: sync, magazzino bobine, import slicer, actual vs estimated, PWA, inglese.
+1. **T5.3 — Import diretto da `.3mf`**: chiedere i file reali, verificare `slice_info.config`, parser e mapping.
+2. **T5.6 — Interfaccia inglese**: dizionari tipizzati, `Quote.locale`, migrazione schema v2.
+3. **T5.4 — Sync cloud**: rimandato, solo dopo 3MF e inglese e su richiesta esplicita.
+4. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
+5. Eventuale magazzino bobine, actual vs estimated, PWA.
 
 ---
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Prossimo lavoro: backlog fase 5.
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/engineering/release.md`, `docs/design/design-system.md` §8.
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Fase 5 pianificata; prossimo task **T5.3.1** (fixture `.3mf`).
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
 - **Punti aperti:** prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali vanno rigenerate solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
-- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. La preferenza del tema resta fuori da `AppData`.
+- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` richiede la migrazione v2 pianificata in ADR-0019.
 
 ---
 
@@ -164,6 +166,10 @@ npx vercel --prod
 - `docs/domain/cost-model.md` — formule normative.
 - `docs/engineering/deployment.md` — deploy.
 - `docs/engineering/release.md` — checklist e verifiche della v1.0.0.
+- `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese e sync.
+- `docs/adr/0017-3mf-import.md` — formato di import diretto.
+- `docs/adr/0018-cloud-sync-free.md` — sync opzionale e gratuito, rimandato.
+- `docs/adr/0019-english-ui.md` — interfaccia inglese e `Quote.locale`.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

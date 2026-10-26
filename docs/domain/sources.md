@@ -127,3 +127,42 @@ Procedura consigliata:
 - Eventuali extra di imballaggio/spedizione.
 
 Questi dati non sono stimabili in modo affidabile da fonti esterne: il wizard iniziale serve a raccoglierli.
+
+---
+
+## 6. Software, formati e servizi (fase 5)
+
+**Data di accesso:** 26 ottobre 2026.
+
+### 6.1 Formato `.3mf`
+
+- **3MF Consortium — Core Specification 1.4.0:** https://github.com/3MFConsortium/spec_core
+  - **Dati usati:** il `.3mf` è un archivio ZIP/OPC; il modello è XML; gli slicer possono aggiungere parti proprietarie.
+  - **Confidenza:** alta (specifica ufficiale).
+- **Printago — 3MF File Format: How Bambu Studio and Orca Slicer Structure Your Prints** (13 aprile 2026): https://printago.io/blog/3mf-file-format
+  - **Dati usati:** `Metadata/slice_info.config` con `prediction` in secondi e `used_g` per filamento; `Metadata/project_settings.config` con `printer_model` e `filament_type`; distinzione tra progetto non slicato e `.gcode.3mf`.
+  - **Confidenza:** media. È una fonte terza, allineata al codice di OrcaSlicer, ma va verificata con file reali del committente.
+- **OrcaSlicer — `src/libslic3r/Format/3mf.cpp`:** https://github.com/SoftFever/OrcaSlicer
+  - **Dati usati:** nomi dei file di progetto e gestione dei metadati.
+  - **Confidenza:** alta per la struttura del codice; il formato può cambiare tra versioni.
+- **PrusaSlicer — `src/libslic3r/Format/3mf.cpp`:** https://github.com/prusa3d/PrusaSlicer
+  - **Dati usati:** `Metadata/Slic3r_PE.config` per le impostazioni; i progetti non contengono tempo/grammi affidabili.
+  - **Confidenza:** alta per la struttura; il supporto non è previsto nella prima iterazione.
+
+### 6.2 Servizi gratuiti per il sync
+
+- **Supabase — Pricing:** https://supabase.com/pricing
+  - **Dati usati:** Free: 500 MB DB, 50.000 MAU, 5 GB egress, 1 GB storage, pausa dopo una settimana di inattività, 2 progetti attivi.
+  - **Confidenza:** alta (fonte ufficiale, consultata il 26/10/2026); i limiti possono cambiare.
+- **Cloudflare — Workers Pricing:** https://developers.cloudflare.com/workers/platform/pricing/
+  - **Dati usati:** Free: 100.000 richieste/giorno, 10 ms CPU; D1 5 GB, 5M righe lette/giorno, 100k righe scritte/giorno; KV 1 GB, 100k letture/giorno, 1k scritture/giorno.
+  - **Confidenza:** alta (fonte ufficiale, aggiornata il 2/10/2026).
+- **Firebase — Pricing:** https://firebase.google.com/pricing
+  - **Dati usati:** Spark: Firestore 1 GiB, 50k letture/giorno, 20k scritture/giorno, 20k delete/giorno; Auth 50k MAU.
+  - **Confidenza:** alta (fonte ufficiale, consultata il 26/10/2026).
+
+### 6.3 Internazionalizzazione
+
+- **MDN — `Intl`:** https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
+  - **Dati usati:** formattazione di prezzi, date, numeri e plurali per locale.
+  - **Confidenza:** alta.
