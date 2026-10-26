@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf` completo), **T5.6.1 e T5.6.2 chiusi** (infrastruttura i18n ed estrazione stringhe); prossimo **T5.6.3** (formattazione e `Quote.locale`). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf` completo) e **T5.6 chiuso** (interfaccia inglese, formattazione locale, schema v2, selettore e verifiche). Prossimo **T5.4 sync** (rimandato) o **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -874,7 +874,7 @@ Service worker, cache degli asset, promemoria backup.
 ## T5.6 — Interfaccia inglese
 
 **Dipende da:** ADR-0019
-**Stato:** `[~]` — T5.6.1–T5.6.4 chiusi; T5.6.5 in corso
+**Stato:** `[x]` — T5.6.1–T5.6.5 chiusi
 **Piano:** `docs/planning/phase-5.md` §3
 
 **Nota:** italiano predefinito, inglese selezionabile. Dizionari tipizzati `src/i18n/{it,en}.ts`, `useI18n`, nessuna libreria runtime. Formattazione con `Intl`, inglese `en-GB` (EUR, metrico, `gg/mm/aaaa`). `Quote.locale` richiede la migrazione schema v1 → v2, con default `it` per i preventivi esistenti. Stampa e link condivisi usano la lingua del preventivo; l'interfaccia usa la preferenza del dispositivo. `layercost:locale` resta fuori da `AppData`.
@@ -885,7 +885,7 @@ Sottotask:
 - **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida. → **fatto** (vedi nota sotto).
 - **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2). → **fatto** (vedi nota sotto).
 - **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi. → **fatto** (vedi nota sotto).
-- **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy. → **in corso** (vedi nota sotto).
+- **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy. → **fatto** (vedi nota sotto).
 
 **Accettazione:** tutte le schermate in inglese senza stringhe residue; italiano invariato; preferenza persistente; stampa/link nella lingua del preventivo; migrazione senza perdita dati; `npm run check` verde.
 
@@ -955,19 +955,20 @@ Sottotask:
 
 ### T5.6.5 — Verifiche e deploy in inglese
 
-**Stato:** `[~]`
+**Stato:** `[x]`
 
-**Nota:** avviato il 26/10/2026.
+**Nota:** chiuso il 26/10/2026.
 
 - Aggiunte 14 scansioni axe in inglese: 11 route, menu mobile, modale bozza, modale reset e import `.3mf`; 0 violazioni. Totale **40 scansioni** (26 italiane + 14 inglesi).
 - Aggiunti 18 screenshot di regressione in inglese (6 schermate × 1440/768/390) accanto ai 18 italiani; baseline Linux generate dalla workflow dedicata.
 - 31 E2E totali (29 Chromium, 2 WebKit; 6 visual) e 97 test unitari.
 - Mappati per codice gli errori di dominio (`DomainError`) in calcolatore e confronto; introdotto `StorageError` per backup, schema e salvataggio, con messaggi tradotti in Impostazioni. I warning di storage/corruzione dati usano codici e vengono tradotti nella shell.
+- I link condivisi creati prima dello schema v2 ricevono `locale: 'it'` in lettura e continuano a funzionare.
 - Scansione statica: nessuna stringa italiana hardcoded nei componenti oltre al nome del prodotto. Restano come fallback tecnico i messaggi interni del parser `.3mf` e del dominio, non mostrati direttamente se non mappati.
 - Documentazione aggiornata (TASKS, STATUS, phase-5, architecture, persistence, testing, data-model, inventario i18n, ADR-0019, README, CHANGELOG).
-- Deploy di produzione da verificare dopo il merge.
+- Deploy di produzione verificato il 26/10/2026: build `index-CiitaCgo.js`, titolo italiano predefinito, cambio a inglese persistente, `<html lang>` corretto, preventivo salvato con schema 2 e `locale: en`, stampa inglese con UI italiana.
 
-**Accettazione:** axe e visual verdi in entrambe le lingue, nessuna stringa residua nelle schermate, documentazione e deploy aggiornati. → in verifica.
+**Accettazione:** axe e visual verdi in entrambe le lingue, nessuna stringa residua nelle schermate, documentazione e deploy aggiornati. → soddisfatta.
 
 ## T5.7 — Registro manutenzioni e guasti
 

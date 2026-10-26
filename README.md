@@ -103,7 +103,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
 - **Verifiche:** 97 unitari, 31 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
 - **Fuori v1:** sync cloud, magazzino bobine, PWA.
-- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese con formattazione e selettore (T5.6.1–T5.6.4), restano le verifiche in inglese; sync gratuito rimandato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
+- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5); sync gratuito rimandato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

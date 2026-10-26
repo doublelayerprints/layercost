@@ -1,6 +1,6 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 + T5.3/T5.6.4 — fase 5 in corso
+**Stato:** v1.0.0 + T5.3/T5.6.5 — fase 5 in corso
 **Data:** 26 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
@@ -8,7 +8,7 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese con formattazione e selettore (T5.6.1–T5.6.4, ADR-0019); sync gratuito rimandato (ADR-0018).
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese con formattazione e selettore (T5.6.1–T5.6.5, ADR-0019); sync gratuito rimandato (ADR-0018).
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
 - Test: 97 unitari + 31 E2E (6 visual su CI, 36 screenshot); axe 0 violazioni su 40 scansioni.

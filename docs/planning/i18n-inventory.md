@@ -1,6 +1,6 @@
 # Inventario stringhe i18n
 
-**Stato:** T5.6.1–T5.6.4 — infrastruttura, estrazione e formattazione completate; restano le verifiche in inglese
+**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa
 **Data:** 26 ottobre 2026
 **Riferimenti:** ADR-0019, `docs/planning/phase-5.md` §3
 
@@ -68,4 +68,4 @@
 - Parità chiavi e valori non vuoti: `src/i18n/i18n.test.ts`.
 - Typecheck: una chiave mancante in `en.ts` è un errore.
 - Dopo l'estrazione: E2E in inglese, persistenza, `<html lang>`, stampa/link nella lingua del preventivo, axe e visual.
-- La migrazione `Quote.locale` e la formattazione locale arrivano in T5.6.3; il selettore e la persistenza in T5.6.4; la verifica completa in T5.6.5.
+- La migrazione `Quote.locale`, la formattazione locale, il selettore, la persistenza e le verifiche in inglese sono implementati in T5.6.3–T5.6.5.
