@@ -90,7 +90,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | ------------------ | ---------------------------------------------------------------------------------- |
 | TypeScript strict  | verde                                                                              |
 | oxlint             | verde                                                                              |
-| Test unitari/dati  | 94 superati                                                                        |
+| Test unitari/dati  | 97 superati                                                                        |
 | Test E2E           | 27 superati in CI (25 Chromium, 2 WebKit; 6 visual su CI)                          |
 | Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                                        |
 | Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux             |

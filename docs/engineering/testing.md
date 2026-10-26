@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.6.5 (in verifica) — 94 test unitari + 27 E2E (6 visual su CI, 36 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.6.5 (in verifica) — 97 test unitari + 27 E2E (6 visual su CI, 36 screenshot)
 
 ---
 
@@ -44,6 +44,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
 - `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`.
+- `src/lib/share.test.ts` — 3 test: roundtrip con lingua, migrazione dei vecchi link senza `locale` a italiano, payload non valido rifiutato.
 - `tests/e2e/import.spec.ts` — 8 test: file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload e overflow a 375 px.
 - `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload, condivisione/import in contesto pulito, navigazione sezioni.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375 e menu mobile.
@@ -96,12 +97,12 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check` (typecheck, lint, 94 test, build, budget);
+- `npm run check` (typecheck, lint, 97 test, build, budget);
 - `npm run build` + Playwright con Chromium e WebKit.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (94 unitari, 27 E2E).
+Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (97 unitari, 27 E2E).
 
 ## 7. Come aggiungere un test
 

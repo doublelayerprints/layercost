@@ -132,7 +132,7 @@ export const miscEn: Record<keyof typeof miscIt, string> = {
   'errors.domain.INVALID_RESIDUAL': 'The residual value must be between 0% and 100%.',
   'errors.domain.INVALID_STARTUP': 'The startup time is not valid.',
   'errors.domain.INVALID_STEP': 'The rounding step is not valid.',
-  'errors.domain.INVALID_TIME': 'The print time must be greater than zero.',
+  'errors.domain.INVALID_TIME': 'Enter the print time.',
   'errors.domain.INVALID_TOTAL': 'The total to allocate is not valid.',
   'errors.domain.INVALID_VAT': 'The VAT rate is not valid.',
   'errors.domain.EXTRA_NOT_FOUND': 'A selected extra no longer exists.',

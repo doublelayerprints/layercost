@@ -44,7 +44,14 @@ export function decodeSharedQuote(encoded: string): Quote {
     throw new ShareError('noQuote', 'Il link condiviso non contiene un preventivo.')
   }
 
-  const result = quoteSchema.safeParse((parsed as { quote: unknown }).quote)
+  // Shared links created before schema v2 have no locale: keep them working as Italian.
+  const candidate = (parsed as { quote: unknown }).quote
+  const quote =
+    typeof candidate === 'object' && candidate !== null && !Array.isArray(candidate)
+      ? { locale: 'it', ...candidate }
+      : candidate
+
+  const result = quoteSchema.safeParse(quote)
   if (!result.success) {
     throw new ShareError('invalidQuote', 'Il preventivo condiviso non è valido o è incompleto.')
   }

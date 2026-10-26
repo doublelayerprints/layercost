@@ -134,7 +134,7 @@ export const miscIt = {
   'errors.domain.INVALID_RESIDUAL': 'Il valore residuo deve essere tra 0% e 100%.',
   'errors.domain.INVALID_STARTUP': 'Il tempo di avvio non è valido.',
   'errors.domain.INVALID_STEP': 'Il passo di arrotondamento non è valido.',
-  'errors.domain.INVALID_TIME': 'Il tempo di stampa deve essere maggiore di zero.',
+  'errors.domain.INVALID_TIME': 'Inserisci il tempo di stampa.',
   'errors.domain.INVALID_TOTAL': 'Il totale da ripartire non è valido.',
   'errors.domain.INVALID_VAT': 'L’aliquota IVA non è valida.',
   'errors.domain.EXTRA_NOT_FOUND': 'Un extra selezionato non esiste più.',
