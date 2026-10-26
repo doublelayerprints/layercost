@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.2 — 60 test unitari + 18 E2E (3 visual su CI)
+**Stato:** v1.0.0 + T5.3.3 — 75 test unitari + 18 E2E (3 visual su CI)
 
 ---
 
@@ -41,6 +41,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/data/theme.test.ts` — 4 test: default, valore invalido, roundtrip, storage bloccato.
 - `src/lib/draft.test.ts` — 6 test: bozza vuota, metadati, righe, costi di lavoro, prezzo, override.
 - `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
+- `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
 - `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload, condivisione/import in contesto pulito, navigazione sezioni.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375 e menu mobile.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro esplicito, persistenza, “Sistema” che segue il dispositivo.
@@ -81,18 +82,19 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check` (typecheck, lint, 60 test, build, budget);
+- `npm run check` (typecheck, lint, 75 test, build, budget);
 - `npm run build` + Playwright con Chromium e WebKit.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (60 unitari, 18 E2E).
+Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (75 unitari, 18 E2E).
 
 ## 7. Come aggiungere un test
 
 - Per una formula: aggiungi un caso in `cost.test.ts` e il golden case nel doc.
 - Per uno schema: aggiungi un fixture valido/invalido in `storage.test.ts`.
 - Per il parser `.3mf`: aggiungi un caso in `src/data/three-mf/parse.test.ts`; se serve un nuovo file reale, aggiungi una fixture ridotta in `tests/fixtures/3mf/` e aggiorna il README.
+- Per il mapping `.3mf`: aggiungi un caso in `src/domain/three-mf-mapping.test.ts`; per le invarianti usa `fast-check`.
 - Per un flusso UI: aggiungi un E2E in `tests/e2e`.
 - Per un token o un componente: aggiungi un test in `tests/e2e/design-system.spec.ts` (font, token, focus, touch, overflow).
 - Per una schermata: aggiungi la route in `tests/e2e/a11y.spec.ts` e, se è stabile, in `tests/e2e/visual.spec.ts`.
