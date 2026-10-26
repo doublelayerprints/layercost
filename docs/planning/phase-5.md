@@ -44,6 +44,8 @@ Dare all'utente un pulsante **“Importa .3mf”** che, da un file già slicato,
 | PrusaSlicer — progetto `.3mf`                   | `Metadata/Slic3r_PE.config` (impostazioni), nessun tempo/grammi affidabile                                                          | **Non supportato** nella prima iterazione                                |
 | Qualsiasi `.3mf` non slicato                    | Solo geometria e impostazioni                                                                                                       | **Rifiutato** con messaggio azionabile                                   |
 
+> **Export in Anycubic Slicer Next:** usare `Preview → Export plate sliced file...` (o `Export all plate sliced file...` per tutti i piatti). `Export G-code file` produce un `.gcode` puro, non supportato dall’import; `Export Generic 3MF...` produce un 3MF non slicato e viene rifiutato.
+
 Il `.3mf` è un archivio ZIP/OPC. I file Orca/Bambu/Anycubic già slicati contengono:
 
 - `Metadata/slice_info.config` — XML con `<plate>`, `prediction` in secondi, `weight` totale in grammi, `<filament id type color used_m used_g>`;

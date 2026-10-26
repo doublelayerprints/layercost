@@ -23,6 +23,7 @@ Sono stati rimossi G-code, geometrie, thumbnail e immagini. I file di configuraz
   AnycubicSlicerNext --slice 0 --export-3mf <output>.gcode.3mf <input>.3mf
   ```
 
+- **Export dalla GUI:** `Preview → Export plate sliced file...` (o `Export all plate sliced file...`). `Export G-code file...` produce un `.gcode` puro, non supportato dall’import; `Export Generic 3MF...` produce un 3MF non slicato e viene rifiutato.
 - Il fixture non slicato è il progetto `gancio_bacinella.3mf` salvato con Anycubic Slicer Next 1.4.1.1: ha `slice_info.config` con il solo header, nessun `<plate>`.
 - Uso interno. Prima di rendere pubblico il repository, verificare la licenza dei modelli di origine.
 
