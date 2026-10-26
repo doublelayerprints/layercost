@@ -64,10 +64,11 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 
 Misura locale con Chrome, build Vite e parser nel worker:
 
+- **File reale esportato dallo slicer** (`1026-1206-prova volpe_plate(01)_PLA_0.12_6h32m3s.gcode.3mf`, 22 MB compressi, 75 MB di G-code decompresso): dialogo visibile in **915 ms** su produzione, con 70,05 g, 6h 32m, PLA e Kobra 3; import completato senza errori console e senza overflow a 1440 px.
 - **Archivio sintetico da 50 MB** (fixture Kobra 3 + `Metadata/plate_1.gcode` da 50 MB non decompresso): dialogo di anteprima visibile in **95–107 ms** su 3 esecuzioni. Target < 3 s.
 - **Progetto non slicato `rayquaza+230.3mf`** (15 MB, 14 piatti, nessun G-code): errore azionabile in **100–102 ms** su 3 esecuzioni, senza crash.
-- Il file `rayquaza+230.3mf` non è committato: è non slicato e troppo grande. Il file sintetico da 50 MB è generato localmente dalla fixture Kobra 3 e non entra nel repository.
-- Il parser non decompresso il G-code quando `slice_info.config` è presente; il limite di 100 MB compressi resta invalicabile.
+- Il file `rayquaza+230.3mf` e il file reale della volpe non sono committati: il primo è non slicato, il secondo è troppo grande. Il file sintetico da 50 MB è generato localmente dalla fixture Kobra 3 e non entra nel repository.
+- Il parser non decomprime il G-code quando `slice_info.config` è presente; il limite di 100 MB compressi resta invalicabile.
 
 ## 4. Golden case
 

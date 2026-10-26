@@ -189,7 +189,7 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 
 **Stato T5.3.4:** 8 E2E in `tests/e2e/import.spec.ts`: file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload e overflow a 375 px. Aggiunta una scansione axe nel modale mobile scuro: 26 E2E e 26 scansioni totali, 0 violazioni. Il test browser del worker è coperto dall'import E2E.
 
-**Stato T5.3.5:** performance locale con Chrome e build Vite: archivio sintetico da 50 MB con dialogo visibile in 95–107 ms; progetto non slicato `rayquaza+230.3mf` (15 MB, 14 piatti) rifiutato in 100–102 ms. Aggiunti 3 screenshot di regressione del modale import (18 totali); il fixture Bambu reale resta da autorizzare o sostituire con un modello neutro.
+**Stato T5.3.5:** performance verificata con un file reale esportato dallo slicer (`1026-1206-prova volpe_plate(01)_PLA_0.12_6h32m3s.gcode.3mf`, 22 MB compressi, 75 MB di G-code decompresso): dialogo in 915 ms in produzione, 70,05 g, 6h 32m, PLA, Kobra 3. Archivio sintetico da 50 MB in 95–107 ms; progetto non slicato `rayquaza+230.3mf` (15 MB, 14 piatti) rifiutato in 100–102 ms. Aggiunti 3 screenshot di regressione del modale import (18 totali); il fixture Bambu reale resta da autorizzare o sostituire con un modello neutro.
 
 ### 2.9 Criteri di accettazione
 

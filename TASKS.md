@@ -851,7 +851,7 @@ Sottotask:
 
 **Nota:** chiuso il 26/10/2026.
 
-- **Performance:** archivio sintetico da 50 MB (fixture Kobra 3 + G-code non decompresso) con dialogo visibile in **95–107 ms** su 3 esecuzioni; progetto non slicato `rayquaza+230.3mf` da 15 MB rifiutato in **100–102 ms**. Target < 3 s rispettato. Misura locale con Chrome, build Vite e parser nel Web Worker; il file sintetico e il progetto non slicato non sono committati.
+- **Performance:** file reale esportato dallo slicer (`1026-1206-prova volpe_plate(01)_PLA_0.12_6h32m3s.gcode.3mf`, 22 MB compressi, 75 MB di G-code decompresso) con dialogo visibile in **915 ms** in produzione, 70,05 g, 6h 32m, PLA e Kobra 3. Archivio sintetico da 50 MB in **95–107 ms**; progetto non slicato `rayquaza+230.3mf` da 15 MB rifiutato in **100–102 ms**. Target < 3 s rispettato. Il file sintetico e il progetto non slicato non sono committati.
 - **Visual:** aggiunti 3 screenshot del modale import (1440/768/390 px); totale 18 screenshot con baseline Linux rigenerate.
 - **Test:** 75 unitari, 26 E2E, 26 scansioni axe, 0 violazioni. `npm run check` e `npm run test:e2e` verdi.
 - **Deploy:** produzione https://layercost.vercel.app aggiornata con T5.3.4 e verificata a 1440/390 px con import reale (Kobra 3, 1,46 g, nessun errore console, nessun overflow). T5.3.5 non cambia il bundle applicativo.
