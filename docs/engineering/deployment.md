@@ -115,7 +115,7 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - Header di sicurezza e `robots.txt` verificati.
 - Deploy manuale disponibile con `npx vercel login && npx vercel link && npx vercel --prod`.
 
-Le due verifiche che restano manuali — Safari/stampa reale e VoiceOver — hanno una checklist in `manual-checks.md`.
+Le due verifiche manuali — Safari/stampa reale e VoiceOver — sono **rimandate** al 26/10/2026 (non bloccanti); la checklist resta in `manual-checks.md`.
 
 ## 12. Baseline visive
 

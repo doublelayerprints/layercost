@@ -723,7 +723,7 @@ Un task è chiuso solo se:
 **Dipende da:** T4.5
 **Stato:** `[x]`
 
-**Nota:** release **v1.0.0** del 24/10/2026. Verifiche: `npm run check` verde con budget del bundle (206 KB gzip su 350 KB); **18 E2E** (16 Chromium + 2 WebKit, 3 visual su CI); **25 scansioni axe** con 0 violazioni WCAG 2.2 AA; PDF A4 valido anche partendo dal tema scuro; nessuna richiesta esterna; gate visivo 0 FAIL/1 WARN motivato. Documentazione in `docs/engineering/release.md`, `CHANGELOG.md`, `STATUS.md`. Tag `v1.0.0` su `cc949b3` e deploy Vercel di produzione verificati il 24/10/2026. Restano consigliate una prova su stampante fisica e una con screen reader reale.
+**Nota:** release **v1.0.0** del 24/10/2026. Verifiche: `npm run check` verde con budget del bundle (206 KB gzip su 350 KB); **18 E2E** (16 Chromium + 2 WebKit, 3 visual su CI); **25 scansioni axe** con 0 violazioni WCAG 2.2 AA; PDF A4 valido anche partendo dal tema scuro; nessuna richiesta esterna; gate visivo 0 FAIL/1 WARN motivato. Documentazione in `docs/engineering/release.md`, `CHANGELOG.md`, `STATUS.md`. Tag `v1.0.0` su `cc949b3` e deploy Vercel di produzione verificati il 24/10/2026. Le prove manuali su stampante fisica e con screen reader sono **rimandate** il 26/10/2026 (non bloccanti).
 
 - Review UX, accessibilità, performance, cross-browser.
 - Checklist di release.

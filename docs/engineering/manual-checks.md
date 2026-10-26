@@ -3,6 +3,7 @@
 **Release:** v1.0.0 (`cc949b3`)
 **Quando:** dopo il deploy di produzione, su un Mac con Safari e VoiceOver.
 **Tempo stimato:** 10–15 minuti.
+**Stato:** rimandate il 26/10/2026 su decisione del committente; non bloccano la v1.0.0.
 
 Le verifiche automatiche coprono già axe, WebKit, PDF A4, regressione visiva e budget. Questa checklist serve a confermare i due punti che richiedono un dispositivo e un lettore di schermo reali.
 
