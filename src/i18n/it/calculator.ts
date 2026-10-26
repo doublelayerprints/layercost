@@ -5,6 +5,10 @@ export const calculatorIt = {
   'calculator.lineCount.other': 'righe',
   'calculator.autosaveNote':
     'La bozza si salva da sola in questo browser; “Salva preventivo” la aggiunge allo storico.',
+  'calculator.editing.title': 'Stai modificando «{name}»',
+  'calculator.editing.description':
+    'I prezzi restano quelli salvati nel preventivo. Per applicare i prezzi correnti, usa “Aggiorna ai prezzi correnti” dal dettaglio.',
+  'calculator.editing.cancel': 'Annulla modifiche',
   'calculator.newDraft': 'Nuovo',
   'calculator.quoteSection': 'Preventivo',
   'calculator.quoteDescription':
@@ -31,6 +35,7 @@ export const calculatorIt = {
   'line.emptyDescription': 'Aggiungi una riga con stampante, tempo e grammi per iniziare.',
   'line.addFirst': 'Aggiungi la prima riga',
   'line.legend': 'Riga {index}: {name}',
+  'line.cardLabel': 'Stampa {index}',
   'line.unnamed': 'stampa senza nome',
   'line.nameLabel': 'Nome della stampa',
   'line.perUnitTotal': 'per pezzo · {total} totali',
@@ -130,6 +135,7 @@ export const calculatorIt = {
   'summary.empty': 'Inserisci stampante, tempo e grammi per vedere il costo e il prezzo.',
   'summary.saveFailed': 'Salvataggio non riuscito',
   'summary.save': 'Salva preventivo',
+  'summary.saveChanges': 'Salva modifiche',
   'summary.print': 'Stampa',
   'summary.share': 'Condividi',
   'summary.footer':
@@ -247,4 +253,6 @@ export const calculatorIt = {
   'calculator.saveError.missingLineName': 'Ogni riga deve avere un nome.',
   'calculator.saveError.saveFailed':
     'Impossibile salvare il preventivo. Controlla i dati e riprova.',
+  'calculator.saveError.locked':
+    'Questo preventivo è inviato o completato e non può essere modificato. Duplicalo per creare una copia.',
 } as const

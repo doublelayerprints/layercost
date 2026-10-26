@@ -8,10 +8,10 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese con formattazione e selettore (T5.6.1–T5.6.5, ADR-0019); sync gratuito rimandato (ADR-0018).
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020); sync gratuito rimandato (ADR-0018).
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 97 unitari + 31 E2E (6 visual su CI, 36 screenshot); axe 0 violazioni su 40 scansioni.
+- Test: 101 unitari + 32 E2E (6 visual su CI, 36 screenshot); axe 0 violazioni su 40 scansioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) verificata; le preview sono protette da SSO.

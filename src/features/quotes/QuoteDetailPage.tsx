@@ -6,10 +6,25 @@ import { useAppStore } from '@/state/app-store'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
 import { ENGINE_VERSION } from '@/domain/version'
 import { draftHasContent } from '@/lib/draft'
+import { isQuoteEditable, isQuoteLocked } from '@/lib/quote-status'
 import { QuoteOverview } from './QuoteOverview'
 import { QuotePrint } from './QuotePrint'
 import { ShareQuoteButton } from './ShareQuoteButton'
+import { quoteStatusDisplay } from './quote-status'
 import { plural } from '@/i18n'
+
+const STATUS_CONFIRM = {
+  sent: {
+    title: 'quote.markSentConfirm.title',
+    body: 'quote.markSentConfirm.body',
+    confirm: 'quote.markSent',
+  },
+  completed: {
+    title: 'quote.markCompletedConfirm.title',
+    body: 'quote.markCompletedConfirm.body',
+    confirm: 'quote.markCompleted',
+  },
+} as const
 
 export function QuoteDetailPage() {
   const { t } = useI18n()
@@ -20,11 +35,16 @@ export function QuoteDetailPage() {
   const refreshQuote = useAppStore((state) => state.refreshQuote)
   const archiveQuote = useAppStore((state) => state.archiveQuote)
   const deleteQuote = useAppStore((state) => state.deleteQuote)
+  const editQuote = useAppStore((state) => state.editQuote)
+  const setQuoteStatus = useAppStore((state) => state.setQuoteStatus)
   const navigate = useNavigate()
   const location = useLocation()
   const cameFromSave = Boolean((location.state as { saved?: boolean } | null)?.saved)
+  const cameFromEdit = Boolean((location.state as { edited?: boolean } | null)?.edited)
   const [savedFor, setSavedFor] = useState<string | undefined>(cameFromSave ? id : undefined)
+  const [savedWasEdit, setSavedWasEdit] = useState(cameFromEdit)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [statusToSet, setStatusToSet] = useState<'sent' | 'completed'>()
   const [pendingDraftAction, setPendingDraftAction] = useState<'duplicate' | 'refresh'>()
 
   // The confirmation is for this visit only: drop it from history so a reload does not repeat it.
@@ -49,6 +69,10 @@ export function QuoteDetailPage() {
       </div>
     )
   }
+
+  const statusDisplay = quoteStatusDisplay(quote)
+  const canEdit = isQuoteEditable(quote.status, quote.archived)
+  const locked = isQuoteLocked(quote.status) && !quote.archived
 
   const runDraftAction = (action: 'duplicate' | 'refresh') => {
     if (action === 'duplicate') {
@@ -95,11 +119,7 @@ export function QuoteDetailPage() {
             })}`}
             meta={
               <>
-                {quote.archived ? (
-                  <Badge tone="warning">{t('quote.status.archived')}</Badge>
-                ) : (
-                  <Badge tone="success">{t('quote.status.saved')}</Badge>
-                )}
+                <Badge tone={statusDisplay.tone}>{t(statusDisplay.labelKey)}</Badge>
                 {quote.engineVersion ? (
                   <span className="text-xs text-muted">
                     {t('app.engineVersion', { version: quote.engineVersion })}
@@ -124,10 +144,13 @@ export function QuoteDetailPage() {
           <div className="mt-5">
             <Alert
               tone="success"
-              title={t('quote.saved.title')}
-              onClose={() => setSavedFor(undefined)}
+              title={savedWasEdit ? t('quote.updated.title') : t('quote.saved.title')}
+              onClose={() => {
+                setSavedFor(undefined)
+                setSavedWasEdit(false)
+              }}
             >
-              {t('quote.saved.body')}
+              {savedWasEdit ? t('quote.updated.body') : t('quote.saved.body')}
             </Alert>
           </div>
         ) : null}
@@ -161,6 +184,25 @@ export function QuoteDetailPage() {
           <h2 className="text-base font-semibold text-ink">{t('quote.manage.title')}</h2>
           <p className="mt-0.5 text-sm text-muted">{t('quote.manage.description')}</p>
           <div className="mt-3 flex flex-wrap gap-2">
+            {canEdit ? (
+              <Button
+                onClick={() => {
+                  if (editQuote(quote.id)) navigate('/')
+                }}
+              >
+                {t('quote.edit')}
+              </Button>
+            ) : null}
+            {canEdit ? (
+              <Button variant="secondary" onClick={() => setStatusToSet('sent')}>
+                {t('quote.markSent')}
+              </Button>
+            ) : null}
+            {quote.status === 'sent' && !quote.archived ? (
+              <Button variant="secondary" onClick={() => setStatusToSet('completed')}>
+                {t('quote.markCompleted')}
+              </Button>
+            ) : null}
             <Button variant="secondary" onClick={() => requestDraftAction('duplicate')}>
               {t('quote.duplicate')}
             </Button>
@@ -175,6 +217,11 @@ export function QuoteDetailPage() {
               {t('quote.delete')}
             </Button>
           </div>
+          {locked ? (
+            <p className="mt-3 text-sm text-muted">
+              {quote.status === 'sent' ? t('quote.locked.sent') : t('quote.locked.completed')}
+            </p>
+          ) : null}
         </Card>
 
         <Modal
@@ -222,6 +269,31 @@ export function QuoteDetailPage() {
             <p>{t('quote.deleteConfirm.body', { name: quote.name })}</p>
             <p>{t('quote.deleteConfirm.hint')}</p>
           </div>
+        </Modal>
+        <Modal
+          open={statusToSet !== undefined}
+          onClose={() => setStatusToSet(undefined)}
+          title={statusToSet ? t(STATUS_CONFIRM[statusToSet].title) : ''}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setStatusToSet(undefined)}>
+                {t('common.cancel')}
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!statusToSet) return
+                  setQuoteStatus(quote.id, statusToSet)
+                  setStatusToSet(undefined)
+                }}
+              >
+                {statusToSet ? t(STATUS_CONFIRM[statusToSet].confirm) : ''}
+              </Button>
+            </>
+          }
+        >
+          {statusToSet ? (
+            <p className="text-sm text-muted">{t(STATUS_CONFIRM[statusToSet].body)}</p>
+          ) : null}
         </Modal>
       </div>
 

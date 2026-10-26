@@ -142,6 +142,7 @@ Il parser non cambia `schemaVersion`, `engineVersion`, snapshot o `AppData`.
 - Tutte le schermate, i componenti condivisi, le etichette di dominio, la stampa e la guida usano i dizionari (T5.6.2); gli errori di import/share/save sono mappati per codice, mentre storage/schema e alcuni errori di dominio restano fallback tecnici.
 - `src/lib/format.ts` espone formattatori `Intl` per locale e `createFormatters`; `src/app/use-format.ts` li lega al contesto con `useFormat`. `parseLocaleNumber` accetta virgola e punto.
 - `Quote.locale` e la migrazione schema v2 sono implementati in T5.6.3, con backup raw `layercost:backup:schema-1`. Stampa, dettaglio e link usano `quote.locale`; l'interfaccia usa la preferenza del dispositivo.
+- **Ciclo di vita (ADR-0020):** `Quote.status` è `draft | saved | sent | completed`. `saved` è modificabile in place con lo snapshot congelato; `sent` e `completed` sono bloccati. Lo schema v3 aggiunge gli stati senza cambiare i dati esistenti. `editQuote` carica il preventivo nello stesso `id`; `saveDraft` aggiorna il documento e conserva `snapshot.capturedAt`.
 - `src/data/locale.ts` + `src/state/locale-store.ts` salvano `layercost:locale` (default `it`) fuori da `AppData`; `I18nProvider` aggiorna `<html lang>`, titolo e meta description. Il selettore è in Impostazioni → Lingua (T5.6.4).
 - Nessuna libreria i18n runtime: dizionari statici, nessuna chiamata di rete.
 - Inventario e regole in `docs/planning/i18n-inventory.md`.

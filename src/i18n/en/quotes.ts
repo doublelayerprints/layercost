@@ -2,6 +2,8 @@ import type { quotesIt } from '../it/quotes'
 
 export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.status.saved': 'Saved',
+  'quote.status.sent': 'Sent',
+  'quote.status.completed': 'Completed',
   'quote.status.archived': 'Archived',
   'quote.status.draft': 'Draft',
   'quote.status.notRecalculable': 'Not recalculable',
@@ -48,13 +50,28 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.backToArchive': 'Back to the archive',
   'quote.saved.title': 'Quote saved',
   'quote.saved.body': 'It is in the archive and keeps the prices used just now.',
+  'quote.updated.title': 'Changes saved',
+  'quote.updated.body': 'The quote is updated and keeps the prices from its first version.',
+  'quote.edit': 'Edit quote',
+  'quote.markSent': 'Mark as sent',
+  'quote.markCompleted': 'Mark as completed',
+  'quote.locked.sent':
+    'Sent to the customer: it can no longer be edited. Duplicate it to create a copy.',
+  'quote.locked.completed':
+    'Completed and closed: it can no longer be edited. Duplicate it to create a copy.',
+  'quote.markSentConfirm.title': 'Mark as sent?',
+  'quote.markSentConfirm.body':
+    'The quote will be locked and can no longer be edited. You can duplicate it to create a copy.',
+  'quote.markCompletedConfirm.title': 'Mark as completed?',
+  'quote.markCompletedConfirm.body':
+    'The quote will be considered closed and can no longer be edited. You can duplicate it to create a copy.',
   'quote.engineMismatch.title': 'Different engine version',
   'quote.engineMismatch.body':
     'This quote was calculated with engine v{savedVersion}; the current engine is v{currentVersion}. The saved figures remain valid as history. Use “Update to current prices” to create a recalculated copy.',
   'quote.refresh': 'Update to current prices',
   'quote.manage.title': 'Manage quote',
   'quote.manage.description':
-    'Archiving deletes nothing: the quote stays available with “Show archived”.',
+    'Editable while saved: sending and completion lock it. Archiving deletes nothing.',
   'quote.duplicate': 'Duplicate in calculator',
   'quote.archive': 'Archive',
   'quote.restore': 'Restore',

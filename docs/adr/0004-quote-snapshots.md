@@ -1,6 +1,6 @@
 # ADR-0004 — Preventivi come snapshot immutabili
 
-**Stato:** Accettato
+**Stato:** Accettato, parzialmente superato dall'ADR-0020 (modificabile finché `saved`, bloccato dopo invio/completamento)
 **Data:** 2026-10-23
 
 ### Contesto

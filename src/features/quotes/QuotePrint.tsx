@@ -37,7 +37,17 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
           </p>
         </div>
         <div className="text-right text-[9pt] leading-relaxed">
-          <p>{quote.status === 'draft' ? t('quote.status.draft') : t('quote.status.saved')}</p>
+          <p>
+            {t(
+              quote.status === 'draft'
+                ? 'quote.status.draft'
+                : quote.status === 'sent'
+                  ? 'quote.status.sent'
+                  : quote.status === 'completed'
+                    ? 'quote.status.completed'
+                    : 'quote.status.saved',
+            )}
+          </p>
           <p>{t('app.engineVersion', { version: result.engineVersion })}</p>
           <p>
             {plural(quote.locale, quote.lines.length, {

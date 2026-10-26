@@ -36,7 +36,7 @@ export function ShareQuoteButton({
     }
     const shareable: Quote = {
       ...quote,
-      status: 'saved',
+      status: quote.status === 'draft' ? 'saved' : quote.status,
       snapshot:
         quote.snapshot ??
         ({

@@ -49,9 +49,10 @@ export function costDetailRows(result: QuoteResult): CostDetailRow[] {
 }
 
 export function costDetailTotals(rows: CostDetailRow[]): CostDetailTotals {
-  const components = rows[0]?.components.map((_, index) =>
-    rows.reduce((sum, row) => sum + (row.components[index] ?? 0), 0),
-  ) ?? []
+  const components =
+    rows[0]?.components.map((_, index) =>
+      rows.reduce((sum, row) => sum + (row.components[index] ?? 0), 0),
+    ) ?? []
   return {
     components,
     directCents: rows.reduce((sum, row) => sum + row.directCents, 0),

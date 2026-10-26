@@ -21,7 +21,7 @@ test('esporta e reimporta un backup completo', async ({ page }) => {
     schemaVersion: number
     data: { quotes: unknown[] }
   }
-  expect(backup.schemaVersion).toBe(2)
+  expect(backup.schemaVersion).toBe(3)
   expect(backup.data.quotes).toHaveLength(1)
 
   await page.setInputFiles('input[type="file"]', path!)

@@ -28,7 +28,7 @@ describe('dati persistiti', () => {
       console.error(result.error.issues)
     }
     expect(result.success).toBe(true)
-    expect(data.schemaVersion).toBe(2)
+    expect(data.schemaVersion).toBe(3)
     expect(data.draft.locale).toBe('it')
   })
 
@@ -38,7 +38,7 @@ describe('dati persistiti', () => {
   })
 
   it('rifiuta un payload non valido', () => {
-    expect(() => parseAppData({ schemaVersion: 2, config: {} })).toThrow()
+    expect(() => parseAppData({ schemaVersion: 3, config: {} })).toThrow()
   })
 
   it('migra lo schema v1 aggiungendo locale it a bozza e preventivi', () => {
@@ -47,10 +47,19 @@ describe('dati persistiti', () => {
       draft: { locale?: string }
       quotes: Array<{ locale?: string }>
     }
-    expect(migrated.schemaVersion).toBe(2)
+    expect(migrated.schemaVersion).toBe(3)
     expect(migrated.draft.locale).toBe('it')
     expect(migrated.quotes[0]?.locale).toBe('it')
     expect(parseAppData(migrated).draft.locale).toBe('it')
+  })
+
+  it('migra lo schema v2 portando solo la versione a 3', () => {
+    const current = createInitialData()
+    const migrated = migrateAppData({ ...current, schemaVersion: 2 }) as {
+      schemaVersion: number
+    }
+    expect(migrated.schemaVersion).toBe(3)
+    expect(parseAppData(migrated).schemaVersion).toBe(3)
   })
 
   it('migra anche un envelope di export v1', () => {
@@ -64,8 +73,8 @@ describe('dati persistiti', () => {
       schemaVersion: number
       data: { schemaVersion: number; draft: { locale?: string } }
     }
-    expect(migrated.schemaVersion).toBe(2)
-    expect(migrated.data.schemaVersion).toBe(2)
+    expect(migrated.schemaVersion).toBe(3)
+    expect(migrated.data.schemaVersion).toBe(3)
     expect(migrated.data.draft.locale).toBe('it')
     expect(parseAppData(migrated).draft.locale).toBe('it')
   })
@@ -90,7 +99,7 @@ describe('dati persistiti', () => {
       const raw = JSON.stringify(legacyData())
       values.set(STORAGE_KEY, raw)
       const { data } = loadAppData()
-      expect(data.schemaVersion).toBe(2)
+      expect(data.schemaVersion).toBe(3)
       expect(data.draft.locale).toBe('it')
       expect(values.get(`${MIGRATION_BACKUP_PREFIX}1`)).toBe(raw)
     } finally {

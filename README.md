@@ -53,7 +53,7 @@ npm run check        # typecheck + lint + test + build + budget
 
 ## Dati e backup
 
-I dati vivono in `localStorage` (`layercost:data`). Svuotare i dati del browser cancella anche i preventivi. La preferenza del tema è separata (`layercost:theme`) e non entra nei backup.
+I dati vivono in `localStorage` (`layercost:data`). Svuotare i dati del browser cancella anche i preventivi. Tema (`layercost:theme`) e lingua (`layercost:locale`) sono preferenze separate e non entrano nei backup.
 
 - **Esporta backup** da Impostazioni: file `layercost-backup-YYYY-MM-DD.json`.
 - **Importa backup** sostituisce i dati, ma prima scarica automaticamente una copia di quelli correnti.
@@ -95,15 +95,15 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 | `docs/design/ui-brief.md`      | Requisiti per la fase design                     |
 | `docs/design/directions.md`    | Direzioni e scelta visiva                        |
 | `docs/design/design-system.md` | Token, componenti, accessibilità                 |
-| `docs/adr/`                    | 19 decisioni architetturali                      |
+| `docs/adr/`                    | 20 decisioni architetturali                      |
 
 ## Stato
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 97 unitari, 31 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
+- **Verifiche:** 101 unitari, 32 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
 - **Fuori v1:** sync cloud, magazzino bobine, PWA.
-- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5); sync gratuito rimandato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
+- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14); sync gratuito rimandato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

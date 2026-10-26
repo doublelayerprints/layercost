@@ -40,6 +40,8 @@ export function CalculatorPage() {
   const format = useFormat()
   const config = useAppStore((state) => state.config)
   const draft = useAppStore((state) => state.draft)
+  const quotes = useAppStore((state) => state.quotes)
+  const cancelEdit = useAppStore((state) => state.cancelEdit)
   const updateDraftMeta = useAppStore((state) => state.updateDraftMeta)
   const updatePricing = useAppStore((state) => state.updatePricing)
   const updateJob = useAppStore((state) => state.updateJob)
@@ -94,16 +96,22 @@ export function CalculatorPage() {
     line?.scrollIntoView({ block: 'center' })
   }, [draft.lines, t])
 
+  const editingQuote = quotes.find(
+    (quote) => quote.id === draft.id && quote.status === 'saved' && !quote.archived,
+  )
+  // Editing keeps the prices frozen in the saved snapshot. New drafts use the current config.
+  const calculationConfig = draft.snapshot?.config ?? config
+
   const calculation = useMemo<CalculationState>(() => {
     try {
-      return { result: calculateQuote(draft, config) }
+      return { result: calculateQuote(draft, calculationConfig) }
     } catch (error) {
       return {
         result: undefined,
         error: domainErrorMessage(error, t) ?? t('calculator.calculationError'),
       }
     }
-  }, [draft, config, t])
+  }, [draft, calculationConfig, t])
 
   const totalGrams = draft.lines.reduce(
     (sum, line) =>
@@ -117,7 +125,7 @@ export function CalculatorPage() {
    */
   const quickComparison = useMemo<QuickComparison | undefined>(() => {
     if (!calculation.result) return undefined
-    const active = config.printers.filter((printer) => !printer.archived)
+    const active = calculationConfig.printers.filter((printer) => !printer.archived)
     if (active.length !== 2 || draft.lines.length === 0) return undefined
     const printerIds = new Set(draft.lines.map((line) => line.printerId))
     if (printerIds.size !== 1) return undefined
@@ -132,7 +140,7 @@ export function CalculatorPage() {
           ...draft,
           lines: draft.lines.map((line) => ({ ...line, printerId: other.id })),
         },
-        config,
+        calculationConfig,
       )
       return {
         currentId: current.id,
@@ -154,7 +162,7 @@ export function CalculatorPage() {
     } catch {
       return undefined
     }
-  }, [calculation.result, config, draft])
+  }, [calculation.result, calculationConfig, draft])
 
   const handleSave = () => {
     setSaveError(undefined)
@@ -164,7 +172,9 @@ export function CalculatorPage() {
       return
     }
     if (result.quote) {
-      navigate(`/quotes/${result.quote.id}`, { state: { saved: true } })
+      navigate(`/quotes/${result.quote.id}`, {
+        state: { saved: true, edited: Boolean(editingQuote) },
+      })
     }
   }
 
@@ -174,7 +184,14 @@ export function CalculatorPage() {
   }
 
   const handleResetPricing = () => {
-    updatePricing(pricingFromSettings(config.settings))
+    updatePricing(pricingFromSettings(calculationConfig.settings))
+  }
+
+  const handleCancelEdit = () => {
+    if (!editingQuote) return
+    const id = editingQuote.id
+    cancelEdit()
+    navigate(`/quotes/${id}`)
   }
 
   const paragraphCount = draft.lines.length
@@ -234,7 +251,16 @@ export function CalculatorPage() {
         ) : null}
 
         <div className="mt-6 grid items-start gap-6 lg:grid-cols-12">
-          <div className="min-w-0 lg:col-span-7">
+          <div className="min-w-0 space-y-6 lg:col-span-7">
+            {editingQuote ? (
+              <Alert tone="info" title={t('calculator.editing.title', { name: editingQuote.name })}>
+                <p>{t('calculator.editing.description')}</p>
+                <Button variant="secondary" size="sm" className="mt-3" onClick={handleCancelEdit}>
+                  {t('calculator.editing.cancel')}
+                </Button>
+              </Alert>
+            ) : null}
+
             <Card className="p-5 sm:p-6">
               <section aria-labelledby="section-intestazione">
                 <SectionHeader
@@ -267,17 +293,17 @@ export function CalculatorPage() {
                   />
                 </div>
               </section>
+            </Card>
 
-              <section
-                {...dragHandlers}
-                className={cn(
-                  'relative mt-8 border-t border-line pt-6 transition-feedback',
-                  isDragging &&
-                    'rounded-control outline-2 outline-dashed outline-offset-4 outline-data',
-                )}
-                aria-labelledby="section-stampe"
-                data-dropzone="3mf"
-              >
+            <Card
+              {...dragHandlers}
+              className={cn(
+                'relative p-5 transition-feedback sm:p-6',
+                isDragging && 'outline-2 outline-dashed outline-offset-4 outline-data',
+              )}
+              data-dropzone="3mf"
+            >
+              <section aria-labelledby="section-stampe">
                 {isDragging ? (
                   <div
                     aria-hidden="true"
@@ -316,13 +342,13 @@ export function CalculatorPage() {
                     />
                   </div>
                 ) : (
-                  <div className="mt-2">
+                  <div className="mt-4 space-y-4">
                     {draft.lines.map((line, index) => (
                       <LineEditor
                         key={line.id}
                         index={index}
                         line={line}
-                        config={config}
+                        config={calculationConfig}
                         result={calculation.result?.lines.find((item) => item.lineId === line.id)}
                         canRemove={draft.lines.length > 1}
                         onUpdate={(patch) => updateLine(line.id, patch)}
@@ -339,21 +365,25 @@ export function CalculatorPage() {
                   </div>
                 )}
               </section>
+            </Card>
 
-              <section className="mt-8 border-t border-line pt-6" aria-labelledby="section-lavoro">
+            <Card className="p-5 sm:p-6">
+              <section aria-labelledby="section-lavoro">
                 <JobCostsEditor
                   job={draft.job}
-                  config={config}
+                  config={calculationConfig}
                   result={calculation.result}
                   onChange={updateJob}
                   onToggleExtra={toggleJobExtra}
                 />
               </section>
+            </Card>
 
-              <section className="mt-8 border-t border-line pt-6" aria-labelledby="section-prezzo">
+            <Card className="p-5 sm:p-6">
+              <section aria-labelledby="section-prezzo">
                 <PricingEditor
                   pricing={draft.pricing}
-                  settings={config.settings}
+                  settings={calculationConfig.settings}
                   onChange={updatePricing}
                   onReset={handleResetPricing}
                 />
@@ -375,6 +405,7 @@ export function CalculatorPage() {
               onSave={handleSave}
               onPrint={handlePrint}
               saveError={saveError}
+              saveLabel={editingQuote ? t('summary.saveChanges') : undefined}
             />
           </aside>
         </div>
@@ -398,7 +429,7 @@ export function CalculatorPage() {
           <ThreeMfImportDialog
             key={dialogKey}
             summary={importSummary}
-            config={config}
+            config={calculationConfig}
             stage={importStage}
             pendingCount={pendingLines?.length ?? 0}
             onClose={closeDialog}

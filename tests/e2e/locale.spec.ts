@@ -34,7 +34,7 @@ test('cambia lingua, la persiste e salva preventivi in inglese', async ({ page }
     },
     locale: localStorage.getItem('layercost:locale'),
   }))
-  expect(stored.data.schemaVersion).toBe(2)
+  expect(stored.data.schemaVersion).toBe(3)
   expect(stored.data.quotes[0]?.locale).toBe('en')
   expect(stored.locale).toBe('en')
 

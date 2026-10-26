@@ -136,6 +136,7 @@ export function SummaryPanel({
   onSave,
   onPrint,
   saveError,
+  saveLabel,
 }: {
   quote: Quote
   result?: QuoteResult
@@ -146,6 +147,7 @@ export function SummaryPanel({
   onSave: () => void
   onPrint: () => void
   saveError?: string
+  saveLabel?: string
 }) {
   const { t } = useI18n()
   const format = useFormat()
@@ -260,7 +262,7 @@ export function SummaryPanel({
 
       <div className="mt-5 space-y-2">
         <Button className="w-full" onClick={onSave} disabled={!result}>
-          {t('summary.save')}
+          {saveLabel ?? t('summary.save')}
         </Button>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="secondary" onClick={onPrint} disabled={!result}>
