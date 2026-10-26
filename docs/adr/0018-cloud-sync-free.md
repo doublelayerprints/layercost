@@ -16,7 +16,7 @@ Nota: l'interfaccia `DataRepository` descritta in ADR-0001 è oggi sincrona. Un 
 1. **Il cloud è opzionale.** Local-only resta completo e utilizzabile senza account. La sincronizzazione si attiva solo se l'utente la configura.
 2. **Solo piani gratuiti.** Nessuna carta di credito, nessun upgrade automatico, nessun costo ricorrente. Se il provider cambia limiti o mette in pausa il progetto, l'app continua in locale e avvisa.
 3. **Rimandata.** Non si implementa prima di import `.3mf` e interfaccia inglese. Il provider non è ancora scelto: serve uno spike comparativo.
-4. **Dati sincronizzati.** Configurazione e preventivi; la bozza corrente, il tema e la lingua restano locali. I preventivi sono immutabili: si sincronizzano in append, con tombstone per archiviazione/eliminazione.
+4. **Dati sincronizzati.** Configurazione e preventivi; la bozza corrente, il tema e la lingua restano locali. I preventivi sono modificabili finché `saved` (ADR-0020) e diventano immutabili dopo invio/completamento; si sincronizzano con tombstone per archiviazione/eliminazione.
 5. **Conflitti espliciti.** Per le entità di configurazione si usa un timestamp per entità e, in caso di conflitto, una scelta visibile all'utente. Per i preventivi non si sovrascrive: si aggiunge.
 6. **Sicurezza.** Solo chiave anonima nel client, RLS sul provider, TLS, nessuna service role key nel bundle. La cifratura end-to-end è una valutazione successiva, non un requisito del primo spike.
 7. **Backup prima del primo sync.** L'export JSON resta sempre disponibile e viene proposto prima di attivare la sincronizzazione.

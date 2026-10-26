@@ -54,7 +54,7 @@ Restano nell'ADR come alternative considerate, non come direzioni da sviluppare.
 ### 1.4 Cosa non cambia
 
 - Dominio, formule, unità, arrotondamenti, `engineVersion`.
-- Snapshot, immutabilità dei preventivi, export/import, migrazioni.
+- Snapshot economico, modificabilità fino all’invio (ADR-0020), export/import, migrazioni.
 - Hash routing e build statica.
 - Nessun backend, account, analytics o cookie.
 - Dark mode aggiunta in T4.7 con ADR-0016; nessuna animazione oltre il feedback.

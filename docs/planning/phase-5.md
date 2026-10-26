@@ -394,7 +394,7 @@ Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere i
 
 - **Refactor async**: `DataRepository` e lo store oggi sono sincroni; il cloud richiede `load`, `save`, `import`, `export` asincroni e idratazione ottimistica. Farlo con test di contratto, prima del provider.
 - **Scope sync**: `config` + `quotes`; **non** draft, tema, lingua, onboarding.
-- **Entità**: ogni stampante/materiale/tariffa/extra ha un `id` stabile e un `updatedAt` di sync separato dal dominio; i preventivi sono immutabili e si sincronizzano in append.
+- **Entità**: ogni stampante/materiale/tariffa/extra ha un `id` stabile e un `updatedAt` di sync separato dal dominio; i preventivi sono modificabili finché `saved` e diventano immutabili dopo invio/completamento, con sync in append.
 - **Tombstone**: archiviazione/eliminazione come evento, non cancellazione fisica immediata.
 - **Conflitti**:
   - preventivi: append; stesso `id` non si sovrascrive;
