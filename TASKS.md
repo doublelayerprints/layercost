@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (fixture `.3mf` reali, parser ZIP/XML, mapping puro, UI di import e performance); prossimo **T5.6** (interfaccia inglese). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf` completo) e **T5.6.1 chiuso** (infrastruttura i18n); prossimo **T5.6.2** (estrazione stringhe). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -874,20 +874,35 @@ Service worker, cache degli asset, promemoria backup.
 ## T5.6 — Interfaccia inglese
 
 **Dipende da:** ADR-0019
-**Stato:** `[ ]`
+**Stato:** `[~]` — T5.6.1 chiuso; T5.6.2–T5.6.5 da fare
 **Piano:** `docs/planning/phase-5.md` §3
 
 **Nota:** italiano predefinito, inglese selezionabile. Dizionari tipizzati `src/i18n/{it,en}.ts`, `useI18n`, nessuna libreria runtime. Formattazione con `Intl`, inglese `en-GB` (EUR, metrico, `gg/mm/aaaa`). `Quote.locale` richiede la migrazione schema v1 → v2, con default `it` per i preventivi esistenti. Stampa e link condivisi usano la lingua del preventivo; l'interfaccia usa la preferenza del dispositivo. `layercost:locale` resta fuori da `AppData`.
 
 Sottotask:
 
-- **T5.6.1** — inventario delle stringhe e infrastruttura `i18n` con test di parità.
+- **T5.6.1** — inventario delle stringhe e infrastruttura `i18n` con test di parità. → **fatto** (vedi nota sotto).
 - **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida.
 - **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2).
 - **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi.
 - **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy.
 
 **Accettazione:** tutte le schermate in inglese senza stringhe residue; italiano invariato; preferenza persistente; stampa/link nella lingua del preventivo; migrazione senza perdita dati; `npm run check` verde.
+
+### T5.6.1 — Inventario e infrastruttura i18n
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026.
+
+- `src/i18n/it.ts` — dizionario sorgente tipizzato; `src/i18n/en.ts` — stessa interfaccia `Messages`; una chiave mancante è un errore di typecheck.
+- `src/i18n/index.ts` — `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `INTL_LOCALES`, `translate`, `t`, `plural` con `Intl.PluralRules`, `isLocale`.
+- `src/app/I18nProvider.tsx` + `src/app/i18n-context.ts` — provider, `useI18n`, `<html lang>` e `dir`; montato in `App.tsx`.
+- Shell (`Layout`) già collegata: navigazione, skip link, footer, versione motore e titolo dell’alert usano `useI18n`; il testo italiano è invariato.
+- Inventario in `docs/planning/i18n-inventory.md`: aree, file, regole, ordine di estrazione e note su errori dati/dominio.
+- 5 test in `src/i18n/i18n.test.ts`: parità chiavi, valori non vuoti, locale supportata, interpolazione, plurali. Totale 80 unitari.
+
+**Accettazione:** inventario completo, dizionari tipizzati, provider funzionante, nessuna regressione visibile, test di parità verdi. → soddisfatta; prossimo T5.6.2.
 
 ## T5.7 — Registro manutenzioni e guasti
 

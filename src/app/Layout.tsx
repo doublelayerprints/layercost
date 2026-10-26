@@ -1,33 +1,35 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useI18n } from '@/app/i18n-context'
 import { useAppStore } from '@/state/app-store'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
 import { ENGINE_VERSION } from '@/domain/version'
 
-const navGroups = [
-  {
-    label: 'Lavoro',
-    items: [
-      { to: '/', label: 'Calcolatore' },
-      { to: '/quotes', label: 'Preventivi' },
-      { to: '/compare', label: 'Confronto' },
-    ],
-  },
-  {
-    label: 'Configurazione',
-    items: [
-      { to: '/printers', label: 'Stampanti' },
-      { to: '/materials', label: 'Materiali' },
-      { to: '/tariffs', label: 'Tariffe energia' },
-      { to: '/extras', label: 'Extra' },
-      { to: '/settings', label: 'Impostazioni' },
-    ],
-  },
-]
-
 function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  const { t } = useI18n()
+  const navGroups = [
+    {
+      label: t('nav.work'),
+      items: [
+        { to: '/', label: t('nav.calculator') },
+        { to: '/quotes', label: t('nav.quotes') },
+        { to: '/compare', label: t('nav.compare') },
+      ],
+    },
+    {
+      label: t('nav.configuration'),
+      items: [
+        { to: '/printers', label: t('nav.printers') },
+        { to: '/materials', label: t('nav.materials') },
+        { to: '/tariffs', label: t('nav.tariffs') },
+        { to: '/extras', label: t('nav.extras') },
+        { to: '/settings', label: t('nav.settings') },
+      ],
+    },
+  ]
+
   return (
     <>
       {navGroups.map((group) => (
@@ -69,6 +71,7 @@ function ScrollToTop() {
 }
 
 function MobileHeader() {
+  const { t } = useI18n()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -82,26 +85,26 @@ function MobileHeader() {
           aria-controls={menuOpen ? 'mobile-navigation' : undefined}
           className="inline-flex h-10 items-center rounded-control px-3 text-sm font-medium text-muted transition-feedback hover:bg-raised hover:text-ink"
         >
-          {menuOpen ? 'Chiudi' : 'Menu'}
+          {menuOpen ? t('nav.close') : t('nav.menu')}
         </button>
       </div>
       {menuOpen ? (
         <nav
           id="mobile-navigation"
           className="max-h-[calc(100vh-3.5rem)] overflow-y-auto border-t border-line px-4 pb-6 pt-2"
-          aria-label="Navigazione principale"
+          aria-label={t('nav.main')}
         >
           <NavItems mobile onNavigate={() => setMenuOpen(false)} />
           <div className="mt-6 border-t border-line pt-3 text-xs text-muted">
-            <p>Dati salvati solo su questo browser.</p>
+            <p>{t('app.dataLocal')}</p>
             <Link
               to="/settings"
               onClick={() => setMenuOpen(false)}
               className="mt-1 inline-block text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
             >
-              Esporta un backup
+              {t('app.exportBackup')}
             </Link>
-            <p className="mt-2">Motore v{ENGINE_VERSION}</p>
+            <p className="mt-2">{t('app.engineVersion', { version: ENGINE_VERSION })}</p>
           </div>
         </nav>
       ) : null}
@@ -110,6 +113,7 @@ function MobileHeader() {
 }
 
 export function Layout() {
+  const { t } = useI18n()
   const warning = useAppStore((state) => state.warning)
   const setWarning = useAppStore((state) => state.setWarning)
 
@@ -119,25 +123,25 @@ export function Layout() {
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-ink"
       >
-        Vai al contenuto
+        {t('nav.skipToContent')}
       </a>
 
       <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-ground px-3 py-5 lg:flex">
         <div className="px-2">
           <Logo />
         </div>
-        <nav className="mt-2 flex-1 overflow-y-auto" aria-label="Navigazione principale">
+        <nav className="mt-2 flex-1 overflow-y-auto" aria-label={t('nav.main')}>
           <NavItems />
         </nav>
         <div className="border-t border-line px-3 pt-3 text-xs text-muted">
-          <p>Dati salvati solo su questo browser.</p>
+          <p>{t('app.dataLocal')}</p>
           <Link
             to="/settings"
             className="mt-1 inline-block text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
           >
-            Esporta un backup
+            {t('app.exportBackup')}
           </Link>
-          <p className="mt-2">Motore v{ENGINE_VERSION}</p>
+          <p className="mt-2">{t('app.engineVersion', { version: ENGINE_VERSION })}</p>
         </div>
       </aside>
 
@@ -151,7 +155,11 @@ export function Layout() {
           <ScrollToTop />
           {warning ? (
             <div className="no-print mb-6">
-              <Alert tone="warning" title="Attenzione" onClose={() => setWarning(undefined)}>
+              <Alert
+                tone="warning"
+                title={t('common.warning')}
+                onClose={() => setWarning(undefined)}
+              >
                 {warning}
               </Alert>
             </div>

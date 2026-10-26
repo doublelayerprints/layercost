@@ -1,16 +1,17 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 — release stabile; fasi 0–4 complete
-**Data:** 24 ottobre 2026
+**Stato:** v1.0.0 + T5.3/T5.6.1 — fase 5 in corso
+**Data:** 26 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 pianificata in `planning/phase-5.md`: import `.3mf` (ADR-0017), interfaccia inglese (ADR-0019), sync gratuito rimandato (ADR-0018).
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); infrastruttura inglese pronta (T5.6.1, ADR-0019); sync gratuito rimandato (ADR-0018).
+- Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 42 unitari + 18 E2E (3 visual su CI); axe 0 violazioni.
+- Test: 80 unitari + 26 E2E (3 visual su CI, 18 screenshot); axe 0 violazioni su 26 scansioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) verificata; le preview sono protette da SSO.
@@ -75,7 +76,8 @@
 │   │   ├── directions.md
 │   │   └── design-system.md
 │   ├── planning/
-│   │   └── phase-5.md
+│   │   ├── phase-5.md
+│   │   └── i18n-inventory.md
 │   └── adr/
 │       ├── README.md
 │       ├── 0001-static-local-first.md
@@ -522,6 +524,22 @@ Sezioni:
 - lavoro trasversale, prompt di handoff e fonti.
 
 **Aggiornare quando:** si chiude un'iniziativa o cambia una decisione di fase 5.
+
+---
+
+### 5.22 `docs/planning/i18n-inventory.md`
+
+**Scopo:** inventario delle stringhe da tradurre e ordine di estrazione per T5.6.
+
+Sezioni:
+
+- regole su cosa tradurre e cosa no;
+- infrastruttura i18n già pronta;
+- inventario per area e file;
+- ordine di estrazione;
+- test e verifiche.
+
+**Aggiornare quando:** si estrae o si aggiunge una stringa, o cambia lo scope della traduzione.
 
 ---
 

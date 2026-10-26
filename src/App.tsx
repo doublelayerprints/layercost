@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/app/Layout'
+import { I18nProvider } from '@/app/I18nProvider'
 import { ThemeController } from '@/app/ThemeController'
 import { useAppStore } from '@/state/app-store'
 import { CalculatorPage } from '@/features/calculator/CalculatorPage'
@@ -23,7 +24,7 @@ export default function App() {
   }, [hydrate])
 
   return (
-    <>
+    <I18nProvider>
       <ThemeController />
       <HashRouter>
         <Routes>
@@ -42,6 +43,6 @@ export default function App() {
           </Route>
         </Routes>
       </HashRouter>
-    </>
+    </I18nProvider>
   )
 }

@@ -91,6 +91,7 @@ src/
   data/           repository, storage, schemas, seed, theme, three-mf
   domain/         units, money, types, version, cost/, three-mf
   features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding
+  i18n/           it.ts, en.ts, index.ts
   lib/            format, date, id, share, labels, cn, theme, draft
   state/          app-store, theme-store
 ```
@@ -130,3 +131,15 @@ Il parser sta in `src/data/three-mf/` ed è collegato al calcolatore tramite `sr
 Limiti predefiniti: 100 MB compressi, 500 MB decompressi totali, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per il fallback G-code. Il file non viene mai caricato e nessun dato esce dal browser.
 
 Il parser non cambia `schemaVersion`, `engineVersion`, snapshot o `AppData`.
+
+---
+
+## 10. i18n
+
+- `src/i18n/it.ts` è il dizionario sorgente; `src/i18n/en.ts` implementa la stessa interfaccia `Messages`, quindi una chiave mancante è un errore di typecheck.
+- `src/i18n/index.ts` espone `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `INTL_LOCALES`, `translate`, `t`, `plural` con `Intl.PluralRules` e `isLocale`.
+- `src/app/I18nProvider.tsx` monta il contesto e aggiorna `<html lang>`/`dir`; `src/app/i18n-context.ts` espone `useI18n`.
+- La shell usa già `useI18n`; l'estrazione completa delle schermate, degli errori, degli `aria-label` e della stampa è in T5.6.2.
+- `Quote.locale` e la migrazione schema v2 sono in T5.6.3; la preferenza `layercost:locale` e il selettore in T5.6.4.
+- Nessuna libreria i18n runtime: dizionari statici, nessuna chiamata di rete.
+- Inventario e regole in `docs/planning/i18n-inventory.md`.
