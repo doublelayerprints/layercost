@@ -1,12 +1,21 @@
 import type { Quote, QuoteResult } from '@/domain/types'
-import { useI18n } from '@/app/i18n-context'
+import { useTranslator } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
+import type { Locale } from '@/i18n'
 import { Badge, Card, SectionHeader, TableScroll } from '@/components/ui'
 import { costDetailRows, costDetailTotals } from '@/lib/cost-details'
 
-export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResult }) {
-  const { t } = useI18n()
-  const format = useFormat()
+export function CostDetails({
+  quote,
+  result,
+  locale,
+}: {
+  quote: Quote
+  result: QuoteResult
+  locale?: Locale
+}) {
+  const t = useTranslator(locale)
+  const format = useFormat(locale)
   const rows = costDetailRows(result)
   const totals = costDetailTotals(rows)
   const rowsById = new Map(rows.map((row) => [row.lineId, row]))

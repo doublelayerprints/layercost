@@ -1,5 +1,6 @@
-import { useI18n } from '@/app/i18n-context'
+import { useTranslator } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
+import type { Locale } from '@/i18n'
 import { allocateLargestRemainder } from '@/domain/money'
 import { costBandLabel, displayCostBands, type CostBand } from '@/lib/cost-bands'
 import { cn } from '@/lib/cn'
@@ -15,9 +16,17 @@ const TONE_CLASSES: Record<StackTone, string> = {
 
 const FALLBACK_TONES: StackTone[] = ['ink', 'muted', 'control']
 
-export function CostStack({ bands, className }: { bands: CostBand[]; className?: string }) {
-  const { t } = useI18n()
-  const format = useFormat()
+export function CostStack({
+  bands,
+  className,
+  locale,
+}: {
+  bands: CostBand[]
+  className?: string
+  locale?: Locale
+}) {
+  const t = useTranslator(locale)
+  const format = useFormat(locale)
   const groups = displayCostBands(bands).map((band) => ({
     ...band,
     label: costBandLabel(band.key, t),

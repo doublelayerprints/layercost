@@ -106,7 +106,7 @@ export function QuoteOverview({
 
             <div className="lg:col-span-5">
               <h2 className="text-sm font-semibold text-ink">{t('quote.costComposition')}</h2>
-              <CostStack bands={costBands(result)} className="mt-3" />
+              <CostStack bands={costBands(result)} locale={quote.locale} className="mt-3" />
             </div>
           </div>
 
@@ -250,7 +250,7 @@ export function QuoteOverview({
         ) : null}
       </Card>
 
-      {result ? <CostDetails quote={quote} result={result} /> : null}
+      {result ? <CostDetails quote={quote} result={result} locale={quote.locale} /> : null}
     </div>
   )
 }

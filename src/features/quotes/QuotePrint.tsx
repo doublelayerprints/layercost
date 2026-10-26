@@ -133,7 +133,7 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
       <div className="mt-4 grid grid-cols-[1fr_72mm] gap-8">
         <div>
           <p className="text-[9pt] font-semibold">{t('quote.costComposition')}</p>
-          <CostStack bands={costBands(result)} className="mt-2" />
+          <CostStack bands={costBands(result)} locale={quote.locale} className="mt-2" />
         </div>
 
         <div>
