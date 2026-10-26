@@ -99,7 +99,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | Test E2E           | 32 superati in CI (30 Chromium, 2 WebKit; 6 visual su CI)                          |
 | Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                        |
 | Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux                    |
-| Build produzione   | verde (~626 KB JS main + ~108 KB worker; ~210 KB gzip JS; ~35 KB CSS; ~58 KB font) |
+| Build produzione   | verde (~631 KB JS main + ~108 KB worker; ~210 KB gzip JS; ~35 KB CSS; ~58 KB font) |
 | Budget bundle      | 274 KB gzip totali su 350 KB (limite JS 220 KB)                                    |
 | CI GitHub `check`  | verde su `main`                                                                    |
 | CI GitHub `e2e`    | verde su `main`                                                                    |
