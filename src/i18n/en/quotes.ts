@@ -79,6 +79,8 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.replaceDraft.title': 'Replace the current draft?',
   'quote.replaceDraft.confirm': 'Replace the draft',
   'quote.replaceDraft.body': '“{name}” will be opened in the calculator as a new draft.',
+  'quote.editDraft.body':
+    '“{name}” will be opened for editing. The current draft will be replaced.',
   'quote.replaceDraft.hint':
     'The current draft is not in the archive yet and will be replaced. If you want to keep it, cancel and save it before continuing.',
   'quote.deleteConfirm.title': 'Delete the quote?',

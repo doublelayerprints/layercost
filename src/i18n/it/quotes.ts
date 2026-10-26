@@ -80,6 +80,7 @@ export const quotesIt = {
   'quote.replaceDraft.title': 'Sostituire la bozza corrente?',
   'quote.replaceDraft.confirm': 'Sostituisci la bozza',
   'quote.replaceDraft.body': '“{name}” verrà aperto nel calcolatore come nuova bozza.',
+  'quote.editDraft.body': '“{name}” verrà aperto in modifica. La bozza corrente sarà sostituita.',
   'quote.replaceDraft.hint':
     'La bozza corrente non è ancora nello storico e verrà sostituita. Se vuoi conservarla, annulla e salvala prima di continuare.',
   'quote.deleteConfirm.title': 'Eliminare il preventivo?',

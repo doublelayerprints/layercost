@@ -45,7 +45,7 @@ export function QuoteDetailPage() {
   const [savedWasEdit, setSavedWasEdit] = useState(cameFromEdit)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [statusToSet, setStatusToSet] = useState<'sent' | 'completed'>()
-  const [pendingDraftAction, setPendingDraftAction] = useState<'duplicate' | 'refresh'>()
+  const [pendingDraftAction, setPendingDraftAction] = useState<'duplicate' | 'refresh' | 'edit'>()
 
   // The confirmation is for this visit only: drop it from history so a reload does not repeat it.
   useEffect(() => {
@@ -74,8 +74,10 @@ export function QuoteDetailPage() {
   const canEdit = isQuoteEditable(quote.status, quote.archived)
   const locked = isQuoteLocked(quote.status) && !quote.archived
 
-  const runDraftAction = (action: 'duplicate' | 'refresh') => {
-    if (action === 'duplicate') {
+  const runDraftAction = (action: 'duplicate' | 'refresh' | 'edit') => {
+    if (action === 'edit') {
+      if (!editQuote(quote.id)) return
+    } else if (action === 'duplicate') {
       duplicateQuote(quote.id)
     } else {
       refreshQuote(quote.id)
@@ -84,7 +86,7 @@ export function QuoteDetailPage() {
     navigate('/')
   }
 
-  const requestDraftAction = (action: 'duplicate' | 'refresh') => {
+  const requestDraftAction = (action: 'duplicate' | 'refresh' | 'edit') => {
     if (draftHasContent(draft)) {
       setPendingDraftAction(action)
       return
@@ -185,13 +187,7 @@ export function QuoteDetailPage() {
           <p className="mt-0.5 text-sm text-muted">{t('quote.manage.description')}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {canEdit ? (
-              <Button
-                onClick={() => {
-                  if (editQuote(quote.id)) navigate('/')
-                }}
-              >
-                {t('quote.edit')}
-              </Button>
+              <Button onClick={() => requestDraftAction('edit')}>{t('quote.edit')}</Button>
             ) : null}
             {canEdit ? (
               <Button variant="secondary" onClick={() => setStatusToSet('sent')}>
@@ -239,13 +235,17 @@ export function QuoteDetailPage() {
                   if (pendingDraftAction) runDraftAction(pendingDraftAction)
                 }}
               >
-                {t('quote.replaceDraft.confirm')}
+                {pendingDraftAction === 'edit' ? t('quote.edit') : t('quote.replaceDraft.confirm')}
               </Button>
             </>
           }
         >
           <div className="space-y-3 text-sm text-muted">
-            <p>{t('quote.replaceDraft.body', { name: quote.name })}</p>
+            <p>
+              {pendingDraftAction === 'edit'
+                ? t('quote.editDraft.body', { name: quote.name })
+                : t('quote.replaceDraft.body', { name: quote.name })}
+            </p>
             <p>{t('quote.replaceDraft.hint')}</p>
           </div>
         </Modal>
