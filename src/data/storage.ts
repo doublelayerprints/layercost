@@ -102,12 +102,15 @@ function saveMigrationBackup(raw: string, version: number): void {
   }
 }
 
-export function loadAppData(): { data: AppData; warning?: string } {
+/** Code shown by the shell when local data needs attention. */
+export type LoadWarning = 'storageUnavailable' | 'corruptData'
+
+export function loadAppData(): { data: AppData; warning?: LoadWarning } {
   const storage = getStorage()
   if (!storage) {
     return {
       data: createInitialData(),
-      warning: 'Lo storage locale non è disponibile: i dati non verranno salvati.',
+      warning: 'storageUnavailable',
     }
   }
 
@@ -127,12 +130,11 @@ export function loadAppData(): { data: AppData; warning?: string } {
       data.draft = createEmptyDraft(data.config)
     }
     return { data }
-  } catch (error) {
+  } catch {
     saveCorruptBackup(raw)
-    const message = error instanceof Error ? error.message : 'I dati locali non sono leggibili.'
     return {
       data: createInitialData(),
-      warning: `I dati locali non sono leggibili (${message}). È stata creata una configurazione iniziale; il dato originale è stato conservato, se possibile.`,
+      warning: 'corruptData',
     }
   }
 }

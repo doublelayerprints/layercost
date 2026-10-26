@@ -112,6 +112,10 @@ export const miscIt = {
     'I dati sono stati creati con una versione più recente di LayerCost.',
   'errors.storage.unsupportedSchema': 'La versione dello schema non è supportata.',
   'errors.storage.saveFailed': 'Impossibile salvare i dati nel browser.',
+  'errors.storage.storageUnavailable':
+    'Lo storage locale non è disponibile: i dati non verranno salvati.',
+  'errors.storage.corruptData':
+    'I dati locali non sono leggibili. È stata creata una configurazione iniziale; il dato originale è stato conservato, se possibile.',
   'errors.storage.invalidData': 'Il file non è un backup di LayerCost.',
 
   'errors.domain.INVALID_NUMBER': 'Uno dei valori non è un numero valido.',

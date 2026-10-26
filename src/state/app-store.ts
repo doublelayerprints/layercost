@@ -76,16 +76,18 @@ function cloneQuoteForDraft(quote: Quote, suffix: string): Quote {
   }
 }
 
+export type AppWarning = 'storageUnavailable' | 'corruptData' | 'saveFailed'
+
 export interface AppState {
   config: CostConfig
   quotes: Quote[]
   draft: Quote
   hydrated: boolean
-  warning?: string
+  warning?: AppWarning
 
   hydrate: () => void
   persist: () => void
-  setWarning: (warning?: string) => void
+  setWarning: (warning?: AppWarning) => void
 
   updateSettings: (patch: Partial<Settings>) => void
 
@@ -172,10 +174,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
   persist: () => {
     try {
       localRepository.save(toAppData(get()))
-    } catch (error) {
-      set({
-        warning: error instanceof Error ? error.message : 'Impossibile salvare i dati nel browser.',
-      })
+    } catch {
+      set({ warning: 'saveFailed' })
     }
   },
 

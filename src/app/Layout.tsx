@@ -160,7 +160,11 @@ export function Layout() {
                 title={t('common.warning')}
                 onClose={() => setWarning(undefined)}
               >
-                {warning}
+                {warning === 'storageUnavailable'
+                  ? t('errors.storage.storageUnavailable')
+                  : warning === 'corruptData'
+                    ? t('errors.storage.corruptData')
+                    : t('errors.storage.saveFailed')}
               </Alert>
             </div>
           ) : null}
