@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.4 — 75 test unitari + 26 E2E (3 visual su CI)
+**Stato:** v1.0.0 + T5.3.5 — 75 test unitari + 26 E2E (3 visual su CI, 18 screenshot)
 
 ---
 
@@ -50,7 +50,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/a11y.spec.ts` — 2 test: 26 scansioni axe su tutte le route, tema chiaro desktop e tema scuro mobile, menu, modali e import `.3mf` inclusi; 0 violazioni.
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
 - `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con token chiari partendo dal tema scuro; nessuna richiesta esterna.
-- `tests/e2e/visual.spec.ts` — 3 test, 15 screenshot: calcolatore, dettaglio, preventivi, materiali e impostazioni a 1440/768/390 px. Saltati fuori dalla CI.
+- `tests/e2e/visual.spec.ts` — 3 test, 18 screenshot: calcolatore, modale import `.3mf`, dettaglio, preventivi, materiali e impostazioni a 1440/768/390 px. Saltati fuori dalla CI.
 - `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser sono in `parse.test.ts`.
 
 ### 3.1 Fixture `.3mf`
@@ -59,6 +59,15 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `parse.test.ts` usa `@xmldom/xmldom` per il `DOMParser` in Node; nel browser il thread principale usa `DOMParser` nativo, mentre il Web Worker usa `@xmldom/xmldom` perché `DOMParser` non esiste nei worker.
 - Il fixture Bambu reale non è committato per la licenza del modello; il percorso Bambu è coperto da un test sintetico con lo stesso schema (`X-BBL-Client-Version`, `printer_model_id = C12`).
 - Il worker `.3mf` viene esercitato dall'E2E di import; non è testato in isolamento in Node.
+
+### 3.2 Performance import `.3mf` (26/10/2026)
+
+Misura locale con Chrome, build Vite e parser nel worker:
+
+- **Archivio sintetico da 50 MB** (fixture Kobra 3 + `Metadata/plate_1.gcode` da 50 MB non decompresso): dialogo di anteprima visibile in **95–107 ms** su 3 esecuzioni. Target < 3 s.
+- **Progetto non slicato `rayquaza+230.3mf`** (15 MB, 14 piatti, nessun G-code): errore azionabile in **100–102 ms** su 3 esecuzioni, senza crash.
+- Il file `rayquaza+230.3mf` non è committato: è non slicato e troppo grande. Il file sintetico da 50 MB è generato localmente dalla fixture Kobra 3 e non entra nel repository.
+- Il parser non decompresso il G-code quando `slice_info.config` è presente; il limite di 100 MB compressi resta invalicabile.
 
 ## 4. Golden case
 
@@ -73,7 +82,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 - Prova con screen reader reale (VoiceOver/NVDA) e su una stampante fisica.
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
-- Performance dell'import su file reali da 50–100 MB (T5.3.5).
+- Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 

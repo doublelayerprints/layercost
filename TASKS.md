@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3.1–T5.3.4 chiusi** (fixture `.3mf` reali, parser ZIP/XML, mapping puro e UI di import); prossimo **T5.3.5** (performance, fixture Bambu, documentazione e deploy). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (fixture `.3mf` reali, parser ZIP/XML, mapping puro, UI di import e performance); prossimo **T5.6** (interfaccia inglese). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -773,7 +773,7 @@ Registrare tempo e filamento reali per stampa, confrontarli con le stime, sugger
 ## T5.3 — Import diretto da `.3mf`
 
 **Dipende da:** ADR-0017, fixture reali
-**Stato:** `[~]` — T5.3.1–T5.3.4 chiusi; T5.3.5 da fare
+**Stato:** `[x]` — T5.3.1–T5.3.5 chiusi
 **Piano:** `docs/planning/phase-5.md` §2
 
 **Nota:** il `.3mf` è un archivio ZIP/OPC. Il percorso supportato è il file **già slicato** (`.gcode.3mf`) di Anycubic Slicer Next, OrcaSlicer o Bambu Studio: `Metadata/slice_info.config` contiene `prediction` in secondi e `used_g` per filamento. Un progetto non slicato non ha tempo/grammi affidabili e va rifiutato con un messaggio azionabile. Nessun upload, nessun cambio a formule o `engineVersion`, nessun supplemento AMS/ACE (ADR-0006). Le fixture verificate di T5.3.1 sono in `tests/fixtures/3mf/`.
@@ -784,9 +784,9 @@ Sottotask:
 - **T5.3.2** — parser ZIP/XML nel layer `data`, con limiti di sicurezza e Web Worker; normalizzazione a `ThreeMfSummary`. → **fatto** (vedi nota sotto).
 - **T5.3.3** — mapping puro `ThreeMfSummary → PrintLine[]` nel dominio: tempo, grammi per tipo, stampante, piatti multipli. → **fatto** (vedi nota sotto).
 - **T5.3.4** — UI “Importa .3mf”: drag & drop, anteprima piatti, mappatura stampante/materiale, conferma bozza, errori. → **fatto** (vedi nota sotto).
-- **T5.3.5** — test unit/property/E2E/axe, documentazione e deploy.
+- **T5.3.5** — test unit/property/E2E/axe, documentazione e deploy. → **fatto** (vedi nota sotto).
 
-**Accettazione:** da un `.gcode.3mf` valido si ottengono righe con tempo e grammi corretti, mappatura esplicita, preventivo salvabile; file non slicato/malformato gestito senza crash; nessuna richiesta di rete; `npm run check` verde.
+**Accettazione:** da un `.gcode.3mf` valido si ottengono righe con tempo e grammi corretti, mappatura esplicita, preventivo salvabile; file non slicato/malformato gestito senza crash; nessuna richiesta di rete; `npm run check` verde. → soddisfatta il 26/10/2026.
 
 ### T5.3.1 — Fixture reali e verifica formato
 
@@ -843,7 +843,21 @@ Sottotask:
 
 **Test:** 8 E2E in `tests/e2e/import.spec.ts` (file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload, overflow a 375 px) e una scansione axe aggiuntiva nel modale mobile scuro. Totale: 26 E2E, 26 scansioni axe, 75 unitari. `npm run check` e `npm run test:e2e` verdi; WebKit invariato.
 
-**Accettazione:** import da UI senza richieste di rete, nessun modale annidato, focus e tastiera, 375/1440 px, tema chiaro/scuro, nessun cambio a formule/`engineVersion`/schema. → soddisfatta; resta T5.3.5 per performance e fixture Bambu.
+**Accettazione:** import da UI senza richieste di rete, nessun modale annidato, focus e tastiera, 375/1440 px, tema chiaro/scuro, nessun cambio a formule/`engineVersion`/schema. → soddisfatta.
+
+### T5.3.5 — Performance, visual, documentazione e deploy
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026.
+
+- **Performance:** archivio sintetico da 50 MB (fixture Kobra 3 + G-code non decompresso) con dialogo visibile in **95–107 ms** su 3 esecuzioni; progetto non slicato `rayquaza+230.3mf` da 15 MB rifiutato in **100–102 ms**. Target < 3 s rispettato. Misura locale con Chrome, build Vite e parser nel Web Worker; il file sintetico e il progetto non slicato non sono committati.
+- **Visual:** aggiunti 3 screenshot del modale import (1440/768/390 px); totale 18 screenshot con baseline Linux rigenerate.
+- **Test:** 75 unitari, 26 E2E, 26 scansioni axe, 0 violazioni. `npm run check` e `npm run test:e2e` verdi.
+- **Deploy:** produzione https://layercost.vercel.app aggiornata con T5.3.4 e verificata a 1440/390 px con import reale (Kobra 3, 1,46 g, nessun errore console, nessun overflow). T5.3.5 non cambia il bundle applicativo.
+- **Bambu:** il fixture reale resta opzionale; il percorso è coperto dal test sintetico con header `X-BBL-Client-Version` e `printer_model_id = C12`. Serve l’autorizzazione del modello o un modello neutro per committarlo.
+
+**Accettazione:** performance sotto target, regressione visiva aggiornata, documentazione e deploy verificati; nessun cambio a formule/`engineVersion`/schema. → soddisfatta.
 
 ## T5.4 — Sincronizzazione cloud (rimandata)
 

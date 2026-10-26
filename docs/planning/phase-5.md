@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3.1–T5.3.4 completati (fixture, parser, mapping e UI); resta T5.3.5
+**Stato:** T5.3 completato (fixture, parser, mapping, UI, performance); prossimo T5.6
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.3.5** (performance, fixture Bambu, documentazione e deploy)
+**Prossima sessione:** partire da **T5.6** (interfaccia inglese)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -187,6 +187,8 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 
 **Stato T5.3.4:** 8 E2E in `tests/e2e/import.spec.ts`: file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload e overflow a 375 px. Aggiunta una scansione axe nel modale mobile scuro: 26 E2E e 26 scansioni totali, 0 violazioni. Il test browser del worker è coperto dall'import E2E.
 
+**Stato T5.3.5:** performance locale con Chrome e build Vite: archivio sintetico da 50 MB con dialogo visibile in 95–107 ms; progetto non slicato `rayquaza+230.3mf` (15 MB, 14 piatti) rifiutato in 100–102 ms. Aggiunti 3 screenshot di regressione del modale import (18 totali); il fixture Bambu reale resta da autorizzare o sostituire con un modello neutro.
+
 ### 2.9 Criteri di accettazione
 
 - Dato un `.gcode.3mf` slicato da Anycubic Slicer Next o OrcaSlicer, l'utente vede tempo e grammi corretti, mappa stampante/materiale e ottiene righe compilate.
@@ -194,6 +196,8 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 - Un file non slicato o malformato non manda in crash l'app e mostra un errore con azione.
 - Nessuna richiesta di rete; nessun dato lascia il browser.
 - Test unitari, E2E e axe verdi; documentazione aggiornata.
+
+**Esito T5.3 (26/10/2026):** criteri soddisfatti. Performance: archivio sintetico 50 MB in ~100 ms, progetto non slicato 15 MB rifiutato in ~100 ms. Il fixture Bambu reale resta opzionale; il percorso è coperto da un test sintetico.
 
 ### 2.10 Domande aperte / spike iniziale
 
@@ -398,7 +402,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.3.1–§2.6.1, `docs/engineering/architecture.md` §9 e `tests/fixtures/3mf/README.md`. T5.3.1–T5.3.4 sono chiusi. Parti da T5.3.5: performance su file reali da 50–100 MB, fixture Bambu committabile se disponibile, test E2E/axe/visual finali, documentazione e deploy. Non cambiare formule, `engineVersion`, snapshot o schema. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3 e l’ADR-0019. T5.3 è chiuso. Parti da T5.6: infrastruttura i18n tipizzata, estrazione stringhe, formattazione locale e migrazione `Quote.locale` (schema v2), selettore lingua e test E2E/axe/visual in inglese. Non cambiare formule, `engineVersion`, snapshot o i dati esistenti senza migrazione e test. Un task = un commit; `npm run check` verde.
 
 ---
 
