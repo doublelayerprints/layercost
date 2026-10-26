@@ -15,7 +15,14 @@ import { calculateQuote } from '@/domain/cost/quote'
 import { ENGINE_VERSION } from '@/domain/version'
 import { nowIso } from '@/lib/date'
 import { newId } from '@/lib/id'
-import { QUOTE_COPY_SUFFIX, QUOTE_IMPORT_SUFFIX, QUOTE_REFRESH_SUFFIX } from '@/lib/quote-defaults'
+import { draftHasContent } from '@/lib/draft'
+import {
+  EMPTY_DRAFT_NAMES,
+  EMPTY_LINE_NAMES,
+  QUOTE_COPY_SUFFIX,
+  QUOTE_IMPORT_SUFFIX,
+  QUOTE_REFRESH_SUFFIX,
+} from '@/lib/quote-defaults'
 import { createEmptyDraft, createEmptyLine, createSeedConfig } from '@/data/seed'
 import { SCHEMA_VERSION, type AppData } from '@/data/storage'
 import { localRepository } from '@/data/repository'
@@ -133,6 +140,7 @@ export interface AppState {
   reset: () => void
   completeOnboarding: () => void
   newDraft: (locale?: QuoteLocale) => void
+  adoptLocale: (locale: QuoteLocale) => void
 }
 
 const initialData = (() => {
@@ -647,6 +655,30 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set((state) => ({
       draft: createEmptyDraft(state.config, locale ?? state.draft.locale ?? 'it'),
     }))
+    get().persist()
+  },
+
+  adoptLocale: (locale) => {
+    set((state) => {
+      const previous = state.draft.locale
+      if (previous === locale) return state
+      if (draftHasContent(state.draft)) return state
+      return {
+        draft: {
+          ...state.draft,
+          locale,
+          name:
+            state.draft.name === EMPTY_DRAFT_NAMES[previous]
+              ? EMPTY_DRAFT_NAMES[locale]
+              : state.draft.name,
+          lines: state.draft.lines.map((line) =>
+            line.name === EMPTY_LINE_NAMES[previous]
+              ? { ...line, name: EMPTY_LINE_NAMES[locale] }
+              : line,
+          ),
+        },
+      }
+    })
     get().persist()
   },
 }))

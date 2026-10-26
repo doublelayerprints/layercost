@@ -51,6 +51,16 @@ export const settingsIt = {
   'settings.vatIncluded': 'IVA inclusa',
   'settings.vatRate': 'Aliquota IVA',
 
+  'settings.languageTitle': 'Lingua',
+  'settings.languageDescription':
+    'Lingua dell’interfaccia. I preventivi salvati mantengono la lingua con cui sono stati creati.',
+  'settings.languageLegend': 'Lingua dell’interfaccia',
+  'settings.languageIt': 'Italiano',
+  'settings.languageItDescription': 'Interfaccia, errori e formattazione in italiano.',
+  'settings.languageEn': 'English',
+  'settings.languageEnDescription': 'Interfaccia, errori e formattazione in inglese (en-GB).',
+  'settings.languageHint': 'La preferenza resta in questo browser e non entra nei backup.',
+
   'settings.appearanceTitle': 'Aspetto',
   'settings.appearanceDescription':
     'Il tema si applica subito e resta su questo browser. La stampa usa sempre fondo bianco e testo nero.',

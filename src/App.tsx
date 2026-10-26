@@ -4,6 +4,7 @@ import { Layout } from '@/app/Layout'
 import { I18nProvider } from '@/app/I18nProvider'
 import { ThemeController } from '@/app/ThemeController'
 import { useAppStore } from '@/state/app-store'
+import { useLocaleStore } from '@/state/locale-store'
 import { CalculatorPage } from '@/features/calculator/CalculatorPage'
 import { QuotesPage } from '@/features/quotes/QuotesPage'
 import { QuoteDetailPage } from '@/features/quotes/QuoteDetailPage'
@@ -18,10 +19,17 @@ import { NotFoundPage } from '@/features/NotFoundPage'
 
 export default function App() {
   const hydrate = useAppStore((state) => state.hydrate)
+  const hydrated = useAppStore((state) => state.hydrated)
+  const adoptLocale = useAppStore((state) => state.adoptLocale)
+  const locale = useLocaleStore((state) => state.locale)
 
   useEffect(() => {
     hydrate()
   }, [hydrate])
+
+  useEffect(() => {
+    if (hydrated) adoptLocale(locale)
+  }, [adoptLocale, hydrated, locale])
 
   return (
     <I18nProvider>

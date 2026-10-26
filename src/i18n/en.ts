@@ -12,6 +12,9 @@ const baseEn: Record<BaseMessageKey, string> = {
   'app.dataLocal': 'Data is saved only in this browser.',
   'app.exportBackup': 'Export a backup',
   'app.engineVersion': 'Engine v{version}',
+  'meta.title': 'LayerCost — Cost and price for 3D prints',
+  'meta.description':
+    'LayerCost — calculate the cost and price of 3D prints including materials, energy, wear and labor.',
 
   'nav.work': 'Work',
   'nav.configuration': 'Configuration',

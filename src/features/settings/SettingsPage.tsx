@@ -13,7 +13,9 @@ import { asMicroEur } from '@/domain/units'
 import { Alert, Button, Card, Modal, PageHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 import { useThemeStore } from '@/state/theme-store'
+import { useLocaleStore } from '@/state/locale-store'
 import type { ThemePreference } from '@/lib/theme'
+import type { Locale } from '@/i18n'
 
 const SAMPLE_COST = asMicroEur(5_000_000)
 
@@ -42,6 +44,9 @@ export function SettingsPage() {
   const reset = useAppStore((state) => state.reset)
   const themePreference = useThemeStore((state) => state.preference)
   const setThemePreference = useThemeStore((state) => state.setPreference)
+  const locale = useLocaleStore((state) => state.locale)
+  const setLocale = useLocaleStore((state) => state.setLocale)
+  const adoptLocale = useAppStore((state) => state.adoptLocale)
 
   const settings = config.settings
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -50,6 +55,24 @@ export function SettingsPage() {
   const [importOpen, setImportOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
   const [message, setMessage] = useState<string>()
+
+  const languageOptions: Array<{ value: Locale; label: string; description: string }> = [
+    {
+      value: 'it',
+      label: t('settings.languageIt'),
+      description: t('settings.languageItDescription'),
+    },
+    {
+      value: 'en',
+      label: t('settings.languageEn'),
+      description: t('settings.languageEnDescription'),
+    },
+  ]
+
+  const changeLocale = (next: Locale) => {
+    setLocale(next)
+    adoptLocale(next)
+  }
 
   const themeOptions: Array<{ value: ThemePreference; label: string; description: string }> = [
     {
@@ -291,6 +314,47 @@ export function SettingsPage() {
               />
             ) : null}
           </div>
+        </section>
+
+        <section
+          className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"
+          aria-labelledby="settings-lingua"
+        >
+          <div>
+            <h2 id="settings-lingua" className="text-base font-semibold text-ink">
+              {t('settings.languageTitle')}
+            </h2>
+            <p className="mt-1 text-sm leading-snug text-muted">
+              {t('settings.languageDescription')}
+            </p>
+          </div>
+          <fieldset>
+            <legend className="sr-only">{t('settings.languageLegend')}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {languageOptions.map((option) => (
+                <label
+                  key={option.value}
+                  className="flex cursor-pointer items-start gap-2.5 rounded-control border border-line bg-surface p-3 transition-feedback has-[:checked]:border-data has-[:checked]:bg-raised"
+                >
+                  <input
+                    type="radio"
+                    name="locale-preference"
+                    value={option.value}
+                    checked={locale === option.value}
+                    onChange={() => changeLocale(option.value)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-data"
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-ink">{option.label}</span>
+                    <span className="block text-xs leading-snug text-muted">
+                      {option.description}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">{t('settings.languageHint')}</p>
+          </fieldset>
         </section>
 
         <section
