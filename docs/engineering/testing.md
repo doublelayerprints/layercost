@@ -48,6 +48,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
 - `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con token chiari partendo dal tema scuro; nessuna richiesta esterna.
 - `tests/e2e/visual.spec.ts` — 3 test, 15 screenshot: calcolatore, dettaglio, preventivi, materiali e impostazioni a 1440/768/390 px. Saltati fuori dalla CI.
+- `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser arrivano in T5.3.2.
 
 ## 4. Golden case
 
@@ -63,6 +64,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Prova con screen reader reale (VoiceOver/NVDA) e su una stampante fisica.
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
 - Import via file chooser (E2E).
+- Parser `.3mf`: fixture pronte in T5.3.1, test in T5.3.2.
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 

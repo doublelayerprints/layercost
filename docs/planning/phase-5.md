@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** pianificazione completata; nessun codice scritto
+**Stato:** T5.3.1 completato (fixture reali verificate); nessun codice di import
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.3.1** (import `.3mf`)
+**Prossima sessione:** partire da **T5.3.2** (parser ZIP/XML)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -50,6 +50,32 @@ Il `.3mf` è un archivio ZIP/OPC. I file Orca/Bambu/Anycubic già slicati conten
 - `Metadata/project_settings.config` — JSON con `printer_model`, `printer_variant`, `filament_type`, `filament_colour`, `filament_density`, `filament_diameter`;
 - `Metadata/model_settings.config` — XML con i piatti e i riferimenti al G-code;
 - `Metadata/plate_N.gcode` — G-code incorporato, utile come fallback.
+
+### 2.2.1 Esito della verifica T5.3.1 (26/10/2026)
+
+Fixture ridotte in `tests/fixtures/3mf/`, con README e valori attesi:
+
+| Fixture                             | Slicer           | Stampante | Piatti | Esito                                           |
+| ----------------------------------- | ---------------- | --------- | ------ | ----------------------------------------------- |
+| `anycubic-kobra3-pla.gcode.3mf`     | Anycubic 2.0.0.3 | Kobra 3   | 1      | 200 s; 1,46 g; PLA                              |
+| `anycubic-kobrax-pla.gcode.3mf`     | Anycubic 2.0.0.3 | Kobra X   | 1      | 513 s; 3,76 g; PLA                              |
+| `anycubic-kobrax-2plates.gcode.3mf` | Anycubic 2.0.0.3 | Kobra X   | 2      | 6.069 s / 38,41 g + 2.650 s / 13,79 g; PLA      |
+| `anycubic-unsliced-project.3mf`     | Anycubic 1.4.1.1 | Kobra 3   | 0      | header presente, nessun `<plate>`: da rifiutare |
+
+**Struttura reale di `slice_info.config`:** `prediction`, `weight` e `printer_model_id` sono `<metadata key="…" value="…">` annidati nel `<plate>`; i filamenti sono `<filament id type color used_m used_g />` con attributi. Il piano iniziale era generico su questo punto; il parser deve leggere i metadata annidati e non solo gli attributi.
+
+**Mapping stampante:** `slice_info.printer_model_id` non è affidabile da solo. È vuoto nel file Kobra 3 generato, contiene `Anycubic Kobra X` nel file Kobra X ed è il codice interno `C12` in un file Bambu. La fonte primaria è `project_settings.printer_model`; `printer_settings_id` e `printer_model_id` sono fallback/conferma.
+
+**Altri esiti:**
+
+- `prediction` è in secondi interi; `weight` e `used_g` in grammi; `used_m` in metri.
+- `filament.id` è 1-based e punta a `project_settings.filament_type` / `filament_colour`.
+- `weight` coincide con la somma di `used_g` entro 0,01 g nei file verificati. Resta l'avviso previsto se la differenza supera l'1%.
+- Un progetto non slicato può avere `slice_info.config` con il solo header: la presenza del file non è prova di slicing. Servono almeno un `<plate>` con `prediction` e un `<filament>`.
+- `plater_name` è vuoto nei fixture: il fallback nome file + “piatto N” è necessario.
+- `3D/3dmodel.model` → `Application` è `BambuStudio-2.0.0.3` anche nei file Anycubic. Gli header `X-ACNext-Client-Version` (Anycubic) e `X-BBL-Client-Version` (Bambu) sono più affidabili di `Application`.
+- Un file Bambu Studio 01.10.02.73 (P1S, 8 piatti) è stato verificato localmente: stessa struttura, `printer_model_id` = `C12`, `weight` = somma `used_g` entro 0,01 g. Non è committato per la licenza del modello; serve un fixture Bambu con permesso o modello neutro in T5.3.2.
+- Non è stato possibile verificare se `prediction` include il riscaldamento iniziale: serve il confronto con una stampa reale (domanda 2).
 
 ### 2.3 Pipeline
 
@@ -130,14 +156,14 @@ Il `.3mf` è un archivio ZIP/OPC. I file Orca/Bambu/Anycubic già slicati conten
 
 ### 2.10 Domande aperte / spike iniziale
 
-1. **File reale Anycubic Slicer Next:** verificare che produca `slice_info.config` con gli stessi campi di Orca. Se no, mappare il formato effettivo.
-2. **`prediction` e avvio:** capire se include i minuti di riscaldamento; confrontare con una stampa reale.
-3. **Multi-piatto:** confermare che ogni piatto è una riga separata e che l'avvio si aggiunge per riga.
-4. **Materiali multipli dello stesso tipo:** sommare i grammi in un'unica voce o mantenere le bobine separate? Proposta: sommare per tipo, mostrare il dettaglio nell'anteprima.
-5. **Dipendenza ZIP:** `fflate` (piccolo, streaming) vs `jszip` (più noto). Preferenza: `fflate`, da confermare con un ADR o una nota tecnica.
-6. **XML:** `DOMParser` nel layer data vs parser puro testabile. Proposta: normalizzare in data, testare il mapping puro.
-7. **Limite dimensione:** 100 MB è sufficiente? Misurare con file reali.
-8. **Tracciabilità:** serve `PrintLine.source`? Rimandare.
+1. **File reale Anycubic Slicer Next:** **verificato** con Anycubic Slicer Next 2.0.0.3. Produce `slice_info.config` con `prediction`, `weight` e `<filament>`, stessa struttura di Orca/Bambu ma header `X-ACNext-Client-Version`. Dettagli in §2.2.1.
+2. **`prediction` e avvio:** **aperto.** I valori sono in secondi, ma non è verificato se includano il riscaldamento iniziale; serve il confronto con una stampa reale.
+3. **Multi-piatto:** **confermato** dal fixture a 2 piatti: ogni `<plate>` è una riga separata; l'avvio del motore resta per riga.
+4. **Materiali multipli dello stesso tipo:** **aperto.** Proposta invariata: sommare per tipo, mostrare il dettaglio nell'anteprima.
+5. **Dipendenza ZIP:** **aperto.** `fflate` resta il candidato; decisione in T5.3.2 con nota tecnica o ADR.
+6. **XML:** **aperto.** Proposta invariata: normalizzare in `data`, testare il mapping puro.
+7. **Limite dimensione:** **aperto.** I fixture sono piccoli; il limite di 100 MB va misurato con file reali.
+8. **Tracciabilità:** **rimandato.** `PrintLine.source` non serve al costo; valutare dopo il prototipo.
 
 ### 2.11 Stima
 
@@ -329,13 +355,12 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5) e `docs/planning/phase-5.md`. Parti da T5.3.1: chiedi al committente 2–3 file `.3mf` reali (Anycubic Slicer Next e Orca), verifica `Metadata/slice_info.config`, poi implementa parser e mapping. Non cambiare formule, `engineVersion`, snapshot o schema. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` e `tests/fixtures/3mf/README.md`. T5.3.1 è chiuso: le fixture reali sono pronte. Parti da T5.3.2: parser ZIP/XML nel layer `data`, normalizzazione a `ThreeMfSummary`, test sul fixture Kobra 3, Kobra X, multi-piatto e progetto non slicato. Non cambiare formule, `engineVersion`, snapshot o schema. Un task = un commit; `npm run check` verde.
 
-Prima di scrivere codice, il committente deve fornire:
+Prima di implementare la UI di T5.3.4, il committente deve confermare:
 
-- almeno un `.gcode.3mf` reale per Kobra 3 e uno per Kobra X;
-- la versione esatta dello slicer usato;
-- conferma se l'import deve aggiungere righe alla bozza o sostituirla.
+- se l'import deve **aggiungere** righe alla bozza o **sostituirla** (la conferma esistente `draftHasContent` copre entrambe, ma la scelta va esplicitata);
+- se serve un fixture Bambu committabile (permesso del modello o modello neutro).
 
 ---
 
