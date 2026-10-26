@@ -16,6 +16,12 @@ test('modifica un preventivo salvato e lo blocca dopo invio e completamento', as
     return { id: quote?.id, snapshotAt: quote?.snapshot?.capturedAt }
   })
 
+  const manageBox = await page
+    .getByRole('heading', { name: 'Gestione del preventivo' })
+    .boundingBox()
+  const priceBox = await page.getByText('Prezzo totale').first().boundingBox()
+  expect(manageBox?.y).toBeLessThan(priceBox?.y ?? Number.POSITIVE_INFINITY)
+
   await page.getByRole('button', { name: 'Modifica preventivo' }).click()
   await page.waitForURL(/#\/$/)
   await expect(page.getByText(/Stai modificando/)).toBeVisible()

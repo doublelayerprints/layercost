@@ -134,7 +134,7 @@ export function QuoteDetailPage() {
                 {quote.result ? (
                   <ShareQuoteButton quote={quote} result={quote.result} variant="secondary" />
                 ) : null}
-                <Button onClick={() => window.print()} disabled={!quote.result}>
+                <Button variant="secondary" onClick={() => window.print()} disabled={!quote.result}>
                   {t('print.action')}
                 </Button>
               </>
@@ -168,21 +168,7 @@ export function QuoteDetailPage() {
           </div>
         ) : null}
 
-        <div className="mt-6">
-          <QuoteOverview
-            quote={quote}
-            result={quote.result}
-            snapshotAction={
-              quote.snapshot ? (
-                <Button variant="ghost" size="sm" onClick={() => requestDraftAction('refresh')}>
-                  {t('quote.refresh')}
-                </Button>
-              ) : undefined
-            }
-          />
-        </div>
-
-        <Card className="mt-6 p-5 sm:p-6">
+        <Card className="mt-5 p-5 sm:p-6">
           <h2 className="text-base font-semibold text-ink">{t('quote.manage.title')}</h2>
           <p className="mt-0.5 text-sm text-muted">{t('quote.manage.description')}</p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -219,6 +205,20 @@ export function QuoteDetailPage() {
             </p>
           ) : null}
         </Card>
+
+        <div className="mt-6">
+          <QuoteOverview
+            quote={quote}
+            result={quote.result}
+            snapshotAction={
+              quote.snapshot ? (
+                <Button variant="ghost" size="sm" onClick={() => requestDraftAction('refresh')}>
+                  {t('quote.refresh')}
+                </Button>
+              ) : undefined
+            }
+          />
+        </div>
 
         <Modal
           open={pendingDraftAction !== undefined}
