@@ -124,6 +124,7 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 | `name`                   | string                                              |                              |
 | `quoteDate`              | `YYYY-MM-DD`                                        | Usata per le tariffe         |
 | `customer`               | string?                                             |                              |
+| `locale`                 | `'it' \| 'en'`                                      | Lingua del documento         |
 | `status`                 | `'draft' \| 'saved'`                                |                              |
 | `lines`                  | `PrintLine[]`                                       |                              |
 | `job`                    | `{ setupSeconds, designSeconds, extraIds, notes? }` |                              |
@@ -136,7 +137,7 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 
 `QuotePricing`: `{ mode, markupBp, marginBp, roundingStep, roundingMode, discountBp, vatMode, vatRateBp }`.
 
-> **Fase 5 — pianificato, non implementato:** ADR-0019 aggiunge `locale?: 'it' | 'en'` a `Quote` e porta lo schema a v2, con default `it` per i preventivi esistenti. La v1.0.0 resta a schema 1.
+> **Fase 5 — implementato (T5.6.3):** ADR-0019 aggiunge `locale: 'it' | 'en'` a `Quote` e porta lo schema a **v2**. La migrazione v1 → v2 assegna `locale: 'it'` ai preventivi esistenti e alla bozza, anche dentro un envelope di export. La lingua non entra nello snapshot economico: è un metadato del documento.
 
 ### 2.8 `QuoteSnapshot`
 
@@ -170,7 +171,7 @@ La copia completa rende il preventivo indipendente dalle modifiche future. Il ri
 
 ```ts
 interface AppData {
-  schemaVersion: 1
+  schemaVersion: 2
   config: CostConfig
   quotes: Quote[]
   draft: Quote
@@ -183,19 +184,27 @@ interface AppData {
 
 ### 3.1 Chiavi `localStorage`
 
-| Chiave                          | Contenuto                        |
-| ------------------------------- | -------------------------------- |
-| `layercost:data`                | `AppData` serializzato           |
-| `layercost:corrupt:<timestamp>` | Backup raw di dati non leggibili |
+| Chiave                          | Contenuto                         |
+| ------------------------------- | --------------------------------- |
+| `layercost:data`                | `AppData` serializzato            |
+| `layercost:corrupt:<timestamp>` | Backup raw di dati non leggibili  |
+| `layercost:backup:schema-<n>`   | Backup raw prima della migrazione |
+
+Il backup di migrazione usa una chiave stabile per versione di partenza (`layercost:backup:schema-1`), così non cresce a ogni avvio.
 
 ### 3.2 Export
 
 ```json
 {
   "app": "LayerCost",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "exportedAt": "2026-10-23T12:00:00.000Z",
-  "data": { "schemaVersion": 1, "config": {}, "quotes": [], "draft": {} }
+  "data": {
+    "schemaVersion": 2,
+    "config": {},
+    "quotes": [],
+    "draft": { "locale": "it" }
+  }
 }
 ```
 
@@ -205,7 +214,7 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 4. Invarianti
 
-1. `schemaVersion` è `1` in questa versione.
+1. `schemaVersion` è `2` in questa versione; la migrazione da v1 aggiunge `locale: 'it'` e salva un backup raw prima di applicarla.
 2. Ogni import viene validato con Zod prima di sostituire i dati.
 3. Un preventivo salvato non viene modificato: duplicazione o “aggiorna prezzi” creano una copia.
 4. Un'entità con `archived = true` non è selezionabile per nuove righe, ma resta nello snapshot storico.

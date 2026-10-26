@@ -52,6 +52,16 @@ export const settingsEn: Record<keyof typeof settingsIt, string> = {
   'settings.vatIncluded': 'VAT included',
   'settings.vatRate': 'VAT rate',
 
+  'settings.languageTitle': 'Language',
+  'settings.languageDescription':
+    'Interface language. Saved quotes keep the language they were created in.',
+  'settings.languageLegend': 'Interface language',
+  'settings.languageIt': 'Italiano',
+  'settings.languageItDescription': 'Italian interface, errors and formatting.',
+  'settings.languageEn': 'English',
+  'settings.languageEnDescription': 'English interface, errors and formatting (en-GB).',
+  'settings.languageHint': 'The preference stays in this browser and is not included in backups.',
+
   'settings.appearanceTitle': 'Appearance',
   'settings.appearanceDescription':
     'The theme applies immediately and stays in this browser. Printing always uses a white background and black text.',

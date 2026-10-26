@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useI18n, type I18nContextValue } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import type { Quote, QuoteResult } from '@/domain/types'
 import { Alert, Badge, Button, Card, Price } from '@/components/ui'
 import { CostStack } from '@/components/cost-stack'
 import { costBandLabel, costBands } from '@/lib/cost-bands'
 import { ShareQuoteButton } from '@/features/quotes/ShareQuoteButton'
-import { displayCents, formatCents, formatCurrency, formatGrams, formatPercent } from '@/lib/format'
+import { displayCents, type Formatters } from '@/lib/format'
 
 export interface QuickComparisonOption {
   id: string
@@ -22,11 +23,12 @@ export interface QuickComparison {
 function finding(
   result: QuoteResult,
   t: I18nContextValue['t'],
+  format: Formatters,
 ): { text: string; tone: 'default' | 'warning' } | undefined {
   if (result.totalCost <= 0) return undefined
   if (result.effectiveMarginBp < 0) {
     return {
-      text: t('summary.belowCost', { margin: formatPercent(result.effectiveMarginBp) }),
+      text: t('summary.belowCost', { margin: format.percent(result.effectiveMarginBp) }),
       tone: 'warning',
     }
   }
@@ -36,7 +38,7 @@ function finding(
   const shareBp = Math.round((largest.value / result.totalCost) * 10_000)
   return {
     text: t('summary.largestBand', {
-      share: formatPercent(shareBp),
+      share: format.percent(shareBp),
       band: costBandLabel(largest.key, t).toLowerCase(),
     }),
     tone: 'default',
@@ -53,6 +55,7 @@ function ComparisonLine({
   onSelect: (id: string) => void
 }) {
   const { t } = useI18n()
+  const format = useFormat()
   const current = comparison.options.find((option) => option.id === comparison.currentId)
   const selected = comparison.options.find((option) => option.id === selectedId) ?? current
   if (!current || !selected) return null
@@ -93,7 +96,7 @@ function ComparisonLine({
         ) : (
           <>
             {t('summary.withPrinter', { printer: selected.name })}{' '}
-            <span className="tabular-nums text-ink">{formatCurrency(selected.totalCost)}</span>,{' '}
+            <span className="tabular-nums text-ink">{format.currency(selected.totalCost)}</span>,{' '}
             <span
               className={
                 costDelta > 0
@@ -106,15 +109,15 @@ function ComparisonLine({
               {costDelta === 0
                 ? t('summary.same')
                 : costDelta > 0
-                  ? t('summary.more', { amount: formatCents(Math.abs(costDelta)) })
-                  : t('summary.less', { amount: formatCents(Math.abs(costDelta)) })}
+                  ? t('summary.more', { amount: format.cents(Math.abs(costDelta)) })
+                  : t('summary.less', { amount: format.cents(Math.abs(costDelta)) })}
             </span>
             {'. '}
             {t('summary.price')}{' '}
-            <span className="tabular-nums text-ink">{formatCents(selected.grossPriceCents)}</span>
+            <span className="tabular-nums text-ink">{format.cents(selected.grossPriceCents)}</span>
             {priceDelta === 0
               ? ''
-              : ` (${priceDelta > 0 ? '+' : '−'}${formatCents(Math.abs(priceDelta))})`}
+              : ` (${priceDelta > 0 ? '+' : '−'}${format.cents(Math.abs(priceDelta))})`}
             {'.'}
           </>
         )}
@@ -145,8 +148,9 @@ export function SummaryPanel({
   saveError?: string
 }) {
   const { t } = useI18n()
+  const format = useFormat()
   const [selectedPrinter, setSelectedPrinter] = useState<string>()
-  const insight = result ? finding(result, t) : undefined
+  const insight = result ? finding(result, t, format) : undefined
 
   return (
     <Card className="p-5 sm:p-6">
@@ -155,10 +159,10 @@ export function SummaryPanel({
           <p className="text-xs font-medium text-muted">{t('summary.totalPrice')}</p>
           {result ? (
             <Price
-              value={formatCents(result.grossPriceCents)}
+              value={format.cents(result.grossPriceCents)}
               hint={
                 result.vatCents > 0
-                  ? t('summary.vatIncluded', { amount: formatCents(result.vatCents) })
+                  ? t('summary.vatIncluded', { amount: format.cents(result.vatCents) })
                   : quote.pricing.vatMode === 'none'
                     ? t('pricing.vatNone')
                     : undefined
@@ -187,7 +191,7 @@ export function SummaryPanel({
             <div>
               <dt className="text-xs font-medium text-muted">{t('summary.fullCost')}</dt>
               <dd className="mt-0.5 text-2xl font-medium leading-tight tabular-nums text-ink">
-                {formatCurrency(result.totalCost)}
+                {format.currency(result.totalCost)}
               </dd>
             </div>
             <div>
@@ -199,7 +203,7 @@ export function SummaryPanel({
                     : 'mt-0.5 text-2xl font-medium leading-tight tabular-nums text-ink'
                 }
               >
-                {formatPercent(result.effectiveMarginBp)}
+                {format.percent(result.effectiveMarginBp)}
               </dd>
             </div>
           </dl>
@@ -281,8 +285,8 @@ export function SummaryPanel({
       {result ? (
         <p className="mt-4 text-xs leading-relaxed text-muted">
           {t('summary.footer', {
-            cost: formatCurrency(result.totalCost),
-            grams: totalGrams > 0 ? formatGrams(totalGrams) : '—',
+            cost: format.currency(result.totalCost),
+            grams: totalGrams > 0 ? format.grams(totalGrams) : '—',
           })}
         </p>
       ) : null}

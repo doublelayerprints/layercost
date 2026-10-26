@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
+import { displayCents, type Formatters } from '@/lib/format'
+import { domainErrorMessage } from '@/lib/domain-error-message'
 import { plural, type InterpolationParams, type MessageKey } from '@/i18n'
 import type { PrintLine, Quote, QuoteResult } from '@/domain/types'
 import { calculateQuote, pricingFromSettings } from '@/domain/cost/quote'
@@ -8,14 +11,6 @@ import { gramsToCg } from '@/domain/units'
 import { useAppStore } from '@/state/app-store'
 import { Alert, Badge, Button, Card, EmptyState, PageHeader, SectionHeader } from '@/components/ui'
 import { DurationField, NumberField, SelectField } from '@/components/number-fields'
-import {
-  displayCents,
-  formatCents,
-  formatCurrency,
-  formatDuration,
-  formatGrams,
-  formatPricePerUnit,
-} from '@/lib/format'
 import { nowIso, todayIsoDate } from '@/lib/date'
 import { newId } from '@/lib/id'
 
@@ -23,6 +18,7 @@ type Translate = (key: MessageKey, params?: InterpolationParams) => string
 
 export function ComparePage() {
   const { t, locale } = useI18n()
+  const format = useFormat()
   const config = useAppStore((state) => state.config)
   const navigate = useNavigate()
   const activePrinters = config.printers.filter((printer) => !printer.archived)
@@ -55,6 +51,7 @@ export function ComparePage() {
         id: newId(),
         name: 'Confronto stampanti',
         quoteDate: todayIsoDate(),
+        locale: 'it',
         status: 'draft',
         lines: [line],
         job: {
@@ -69,7 +66,7 @@ export function ComparePage() {
       try {
         return { result: calculateQuote(quote, config) }
       } catch (error) {
-        return { error: error instanceof Error ? error.message : t('compare.calculationFailed') }
+        return { error: domainErrorMessage(error, t) ?? t('compare.calculationFailed') }
       }
     }
 
@@ -95,7 +92,7 @@ export function ComparePage() {
   }))
   const materialOptions = activeMaterials.map((material) => ({
     value: material.id,
-    label: `${material.name} — ${formatCurrency(material.pricePerKg)}/kg`,
+    label: `${material.name} — ${format.currency(material.pricePerKg)}/kg`,
   }))
   const materialName =
     activeMaterials.find((material) => material.id === materialId)?.name ?? t('compare.material')
@@ -110,7 +107,9 @@ export function ComparePage() {
           : undefined
 
   const rows =
-    resultA && resultB && lineA && lineB ? comparisonRows(resultA, resultB, lineA, lineB, t) : []
+    resultA && resultB && lineA && lineB
+      ? comparisonRows(resultA, resultB, lineA, lineB, t, format)
+      : []
 
   if (activePrinters.length < 2) {
     return (
@@ -218,7 +217,7 @@ export function ComparePage() {
             <div>
               <p className="text-xs font-medium text-muted">{t('compare.costDifference')}</p>
               <p className="mt-0.5 text-price font-serif font-semibold tracking-price tabular-nums text-ink">
-                {deltaCost === 0 ? '—' : formatCents(Math.abs(deltaCost ?? 0))}
+                {deltaCost === 0 ? '—' : format.cents(Math.abs(deltaCost ?? 0))}
               </p>
             </div>
             <p className="max-w-xl text-sm leading-snug text-muted">
@@ -226,9 +225,9 @@ export function ComparePage() {
                 ? t('compare.sameCost')
                 : t('compare.cheaperBy', {
                     printer: cheaper ?? '',
-                    amount: formatCents(Math.abs(deltaCost ?? 0)),
+                    amount: format.cents(Math.abs(deltaCost ?? 0)),
                   })}{' '}
-              {formatGrams(gramsToCg(grams))} · {formatDuration(lineA.effectiveSeconds)} ·{' '}
+              {format.grams(gramsToCg(grams))} · {format.duration(lineA.effectiveSeconds)} ·{' '}
               {plural(locale, quantity, {
                 one: 'compare.pieces.one',
                 other: 'compare.pieces.other',
@@ -318,7 +317,7 @@ export function ComparePage() {
                 {deltaPerUnit === 0
                   ? t('compare.noDifference')
                   : t((deltaPerUnit ?? 0) > 0 ? 'compare.morePer' : 'compare.lessPer', {
-                      amount: formatCents(Math.abs(deltaPerUnit ?? 0)),
+                      amount: format.cents(Math.abs(deltaPerUnit ?? 0)),
                       printer: (deltaPerUnit ?? 0) > 0 ? lineB.printerName : lineA.printerName,
                     })}
               </dd>
@@ -331,9 +330,9 @@ export function ComparePage() {
                 {(() => {
                   const delta = resultB.grossPriceCents - resultA.grossPriceCents
                   const sign = delta > 0 ? '+' : delta < 0 ? '−' : ''
-                  return `${sign}${formatCents(Math.abs(delta))}`
+                  return `${sign}${format.cents(Math.abs(delta))}`
                 })()}{' '}
-                · {formatCents(resultA.grossPriceCents)} → {formatCents(resultB.grossPriceCents)}
+                · {format.cents(resultA.grossPriceCents)} → {format.cents(resultB.grossPriceCents)}
               </dd>
             </div>
           </dl>
@@ -375,49 +374,50 @@ function comparisonRows(
   lineA: QuoteResult['lines'][number],
   lineB: QuoteResult['lines'][number],
   t: Translate,
+  format: Formatters,
 ): ComparisonRow[] {
   return [
     {
       label: t('compare.rows.totalCost'),
-      a: formatCurrency(resultA.totalCost),
-      b: formatCurrency(resultB.totalCost),
+      a: format.currency(resultA.totalCost),
+      b: format.currency(resultB.totalCost),
       strong: true,
     },
     {
       label: t('compare.rows.unitCost'),
-      a: formatCurrency(lineA.fullyLoadedUnitCost),
-      b: formatCurrency(lineB.fullyLoadedUnitCost),
+      a: format.currency(lineA.fullyLoadedUnitCost),
+      b: format.currency(lineB.fullyLoadedUnitCost),
     },
     {
       label: t('compare.rows.totalPrice'),
-      a: formatCents(resultA.grossPriceCents),
-      b: formatCents(resultB.grossPriceCents),
+      a: format.cents(resultA.grossPriceCents),
+      b: format.cents(resultB.grossPriceCents),
       strong: true,
     },
     {
       label: t('compare.rows.unitPrice'),
-      a: formatPricePerUnit(lineA.priceCents, lineA.quantity),
-      b: formatPricePerUnit(lineB.priceCents, lineB.quantity),
+      a: format.pricePerUnit(lineA.priceCents, lineA.quantity),
+      b: format.pricePerUnit(lineB.priceCents, lineB.quantity),
     },
     {
       label: t('compare.rows.material'),
-      a: formatCurrency(lineA.material),
-      b: formatCurrency(lineB.material),
+      a: format.currency(lineA.material),
+      b: format.currency(lineB.material),
     },
     {
       label: t('compare.rows.energy'),
-      a: formatCurrency(lineA.energy),
-      b: formatCurrency(lineB.energy),
+      a: format.currency(lineA.energy),
+      b: format.currency(lineB.energy),
     },
     {
       label: t('compare.rows.wear'),
-      a: formatCurrency(lineA.depreciation + lineA.maintenance),
-      b: formatCurrency(lineB.depreciation + lineB.maintenance),
+      a: format.currency(lineA.depreciation + lineA.maintenance),
+      b: format.currency(lineB.depreciation + lineB.maintenance),
     },
     {
       label: t('compare.rows.effectiveTime'),
-      a: formatDuration(lineA.effectiveSeconds),
-      b: formatDuration(lineB.effectiveSeconds),
+      a: format.duration(lineA.effectiveSeconds),
+      b: format.duration(lineB.effectiveSeconds),
     },
     {
       label: t('compare.rows.consumption'),

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { useAppStore } from '@/state/app-store'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
 import { ENGINE_VERSION } from '@/domain/version'
@@ -8,11 +9,10 @@ import { draftHasContent } from '@/lib/draft'
 import { QuoteOverview } from './QuoteOverview'
 import { QuotePrint } from './QuotePrint'
 import { ShareQuoteButton } from './ShareQuoteButton'
-import { formatDateOnly } from '@/lib/format'
 import { plural } from '@/i18n'
 
 export function QuoteDetailPage() {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const quotes = useAppStore((state) => state.quotes)
   const draft = useAppStore((state) => state.draft)
@@ -33,6 +33,7 @@ export function QuoteDetailPage() {
   }, [cameFromSave, location.pathname, navigate])
 
   const quote = quotes.find((candidate) => candidate.id === id)
+  const format = useFormat(quote?.locale)
 
   if (!quote) {
     return (
@@ -86,9 +87,9 @@ export function QuoteDetailPage() {
         <div className="mt-2">
           <PageHeader
             title={quote.name}
-            description={`${formatDateOnly(quote.quoteDate)}${
+            description={`${format.dateOnly(quote.quoteDate)}${
               quote.customer ? ` · ${quote.customer}` : ''
-            } · ${plural(locale, quote.lines.length, {
+            } · ${plural(quote.locale, quote.lines.length, {
               one: 'quote.lineCount.one',
               other: 'quote.lineCount.other',
             })}`}

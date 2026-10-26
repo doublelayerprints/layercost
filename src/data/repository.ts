@@ -1,4 +1,4 @@
-import type { AppData } from './storage'
+import type { AppData, LoadWarning } from './storage'
 import {
   downloadAppData,
   loadAppData,
@@ -8,7 +8,7 @@ import {
 } from './storage'
 
 export interface DataRepository {
-  load: () => { data: AppData; warning?: string }
+  load: () => { data: AppData; warning?: LoadWarning }
   save: (data: AppData) => void
   export: (data: AppData) => void
   import: (file: File) => Promise<AppData>

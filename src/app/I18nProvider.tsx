@@ -1,19 +1,19 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { DEFAULT_LOCALE, translate, type Locale } from '@/i18n'
+import { useEffect, useMemo, type ReactNode } from 'react'
+import { translate } from '@/i18n'
+import { useLocaleStore } from '@/state/locale-store'
 import { I18nContext, type I18nContextValue } from './i18n-context'
 
-export function I18nProvider({
-  children,
-  initialLocale = DEFAULT_LOCALE,
-}: {
-  children: ReactNode
-  initialLocale?: Locale
-}) {
-  const [locale, setLocale] = useState<Locale>(initialLocale)
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const locale = useLocaleStore((state) => state.locale)
+  const setLocale = useLocaleStore((state) => state.setLocale)
 
   useEffect(() => {
     document.documentElement.lang = locale
     document.documentElement.dir = 'ltr'
+    document.title = translate(locale, 'meta.title')
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', translate(locale, 'meta.description'))
   }, [locale])
 
   const value = useMemo<I18nContextValue>(
@@ -22,7 +22,7 @@ export function I18nProvider({
       setLocale,
       t: (key, params) => translate(locale, key, params),
     }),
-    [locale],
+    [locale, setLocale],
   )
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>

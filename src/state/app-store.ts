@@ -7,6 +7,7 @@ import type {
   PrintLine,
   Printer,
   Quote,
+  QuoteLocale,
   QuotePricing,
   Settings,
 } from '@/domain/types'
@@ -14,6 +15,14 @@ import { calculateQuote } from '@/domain/cost/quote'
 import { ENGINE_VERSION } from '@/domain/version'
 import { nowIso } from '@/lib/date'
 import { newId } from '@/lib/id'
+import { draftHasContent } from '@/lib/draft'
+import {
+  EMPTY_DRAFT_NAMES,
+  EMPTY_LINE_NAMES,
+  QUOTE_COPY_SUFFIX,
+  QUOTE_IMPORT_SUFFIX,
+  QUOTE_REFRESH_SUFFIX,
+} from '@/lib/quote-defaults'
 import { createEmptyDraft, createEmptyLine, createSeedConfig } from '@/data/seed'
 import { SCHEMA_VERSION, type AppData } from '@/data/storage'
 import { localRepository } from '@/data/repository'
@@ -67,16 +76,18 @@ function cloneQuoteForDraft(quote: Quote, suffix: string): Quote {
   }
 }
 
+export type AppWarning = 'storageUnavailable' | 'corruptData' | 'saveFailed'
+
 export interface AppState {
   config: CostConfig
   quotes: Quote[]
   draft: Quote
   hydrated: boolean
-  warning?: string
+  warning?: AppWarning
 
   hydrate: () => void
   persist: () => void
-  setWarning: (warning?: string) => void
+  setWarning: (warning?: AppWarning) => void
 
   updateSettings: (patch: Partial<Settings>) => void
 
@@ -130,7 +141,8 @@ export interface AppState {
   exportData: () => void
   reset: () => void
   completeOnboarding: () => void
-  newDraft: () => void
+  newDraft: (locale?: QuoteLocale) => void
+  adoptLocale: (locale: QuoteLocale) => void
 }
 
 const initialData = (() => {
@@ -162,10 +174,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
   persist: () => {
     try {
       localRepository.save(toAppData(get()))
-    } catch (error) {
-      set({
-        warning: error instanceof Error ? error.message : 'Impossibile salvare i dati nel browser.',
-      })
+    } catch {
+      set({ warning: 'saveFailed' })
     }
   },
 
@@ -385,7 +395,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set((state) => ({
       draft: {
         ...state.draft,
-        lines: [...state.draft.lines, createEmptyLine(state.config)],
+        lines: [...state.draft.lines, createEmptyLine(state.config, state.draft.locale)],
         updatedAt: nowIso(),
       },
     }))
@@ -411,7 +421,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       const line = state.draft.lines[index]
       if (!line) return state
       const copy = cloneLineWithNewIds(line)
-      copy.name = `${line.name} (copia)`
+      copy.name = `${line.name}${QUOTE_COPY_SUFFIX[state.draft.locale]}`
       const lines = [...state.draft.lines]
       lines.splice(index + 1, 0, copy)
       return {
@@ -552,7 +562,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       }
       set((current) => ({
         quotes: [quote, ...current.quotes.filter((candidate) => candidate.id !== quote.id)],
-        draft: createEmptyDraft(current.config),
+        draft: createEmptyDraft(current.config, state.draft.locale),
       }))
       get().persist()
       return { quote }
@@ -568,7 +578,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const state = get()
     const quote = state.quotes.find((candidate) => candidate.id === quoteId)
     if (!quote) return
-    set({ draft: cloneQuoteForDraft(quote, ' (copia)') })
+    set({ draft: cloneQuoteForDraft(quote, QUOTE_COPY_SUFFIX[quote.locale]) })
     get().persist()
   },
 
@@ -576,7 +586,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const state = get()
     const quote = state.quotes.find((candidate) => candidate.id === quoteId)
     if (!quote) return
-    set({ draft: cloneQuoteForDraft(quote, ' (prezzi aggiornati)') })
+    set({ draft: cloneQuoteForDraft(quote, QUOTE_REFRESH_SUFFIX[quote.locale]) })
     get().persist()
   },
 
@@ -601,7 +611,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const imported: Quote = {
       ...structuredClone(quote),
       id: newId(),
-      name: `${quote.name} (importato)`,
+      name: `${quote.name}${QUOTE_IMPORT_SUFFIX[quote.locale]}`,
       status: 'saved',
       archived: false,
       createdAt: now,
@@ -641,8 +651,34 @@ export const useAppStore = create<AppState>()((set, get) => ({
     get().updateSettings({ onboardingComplete: true })
   },
 
-  newDraft: () => {
-    set((state) => ({ draft: createEmptyDraft(state.config) }))
+  newDraft: (locale) => {
+    set((state) => ({
+      draft: createEmptyDraft(state.config, locale ?? state.draft.locale ?? 'it'),
+    }))
+    get().persist()
+  },
+
+  adoptLocale: (locale) => {
+    set((state) => {
+      const previous = state.draft.locale
+      if (previous === locale) return state
+      if (draftHasContent(state.draft)) return state
+      return {
+        draft: {
+          ...state.draft,
+          locale,
+          name:
+            state.draft.name === EMPTY_DRAFT_NAMES[previous]
+              ? EMPTY_DRAFT_NAMES[locale]
+              : state.draft.name,
+          lines: state.draft.lines.map((line) =>
+            line.name === EMPTY_LINE_NAMES[previous]
+              ? { ...line, name: EMPTY_LINE_NAMES[locale] }
+              : line,
+          ),
+        },
+      }
+    })
     get().persist()
   },
 }))

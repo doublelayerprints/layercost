@@ -1,8 +1,9 @@
+import type { QuoteLocale } from '@/domain/types'
 import { en } from './en'
 import { it, type MessageKey, type Messages } from './it'
 
-export const SUPPORTED_LOCALES = ['it', 'en'] as const
-export type Locale = (typeof SUPPORTED_LOCALES)[number]
+export const SUPPORTED_LOCALES = ['it', 'en'] as const satisfies readonly QuoteLocale[]
+export type Locale = QuoteLocale
 export const DEFAULT_LOCALE: Locale = 'it'
 
 export const INTL_LOCALES: Record<Locale, string> = {

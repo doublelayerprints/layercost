@@ -874,7 +874,7 @@ Service worker, cache degli asset, promemoria backup.
 ## T5.6 — Interfaccia inglese
 
 **Dipende da:** ADR-0019
-**Stato:** `[~]` — T5.6.1–T5.6.2 chiusi; T5.6.3–T5.6.5 da fare
+**Stato:** `[~]` — T5.6.1–T5.6.4 chiusi; T5.6.5 in corso
 **Piano:** `docs/planning/phase-5.md` §3
 
 **Nota:** italiano predefinito, inglese selezionabile. Dizionari tipizzati `src/i18n/{it,en}.ts`, `useI18n`, nessuna libreria runtime. Formattazione con `Intl`, inglese `en-GB` (EUR, metrico, `gg/mm/aaaa`). `Quote.locale` richiede la migrazione schema v1 → v2, con default `it` per i preventivi esistenti. Stampa e link condivisi usano la lingua del preventivo; l'interfaccia usa la preferenza del dispositivo. `layercost:locale` resta fuori da `AppData`.
@@ -883,9 +883,9 @@ Sottotask:
 
 - **T5.6.1** — inventario delle stringhe e infrastruttura `i18n` con test di parità. → **fatto** (vedi nota sotto).
 - **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida. → **fatto** (vedi nota sotto).
-- **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2).
-- **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi.
-- **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy.
+- **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2). → **fatto** (vedi nota sotto).
+- **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi. → **fatto** (vedi nota sotto).
+- **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy. → **in corso** (vedi nota sotto).
 
 **Accettazione:** tutte le schermate in inglese senza stringhe residue; italiano invariato; preferenza persistente; stampa/link nella lingua del preventivo; migrazione senza perdita dati; `npm run check` verde.
 
@@ -919,6 +919,55 @@ Sottotask:
 - Budget JS alzato da 200 a 220 KB gzip per i due dizionari; totale 270 KB gzip su 350 KB. Il warning Vite sul chunk raw è stato portato a 650 KB con commento.
 
 **Accettazione:** tutte le schermate usano i dizionari; nessuna stringa italiana hardcoded nei componenti; italiano predefinito invariato; test e accessibilità verdi. → soddisfatta.
+
+### T5.6.3 — Formattazione locale e `Quote.locale`
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026.
+
+- `src/lib/format.ts` espone `createFormatters(locale)` e ogni funzione riceve la locale; `src/app/use-format.ts` la lega al contesto con `useFormat(locale?)`. Valuta, grammi, percentuali, date e ore passano da `Intl` con `it-IT` o `en-GB`.
+- `parseLocaleNumber` accetta virgola e punto come separatore decimale, tratta i separatori ripetuti come raggruppamento e non usa più la rimozione cieca dei punti. `formatInputNumber` mostra il separatore della locale attiva.
+- `Quote.locale: 'it' | 'en'` in `src/domain/types.ts`; `Locale` i18n è lo stesso tipo. La lingua non entra in snapshot, formule o `engineVersion`.
+- Schema v2: `appDataSchema` richiede `locale`; `migrateAppData` migra v1 → v2 aggiungendo `locale: 'it'` a preventivi e bozza, anche dentro un envelope di export. Prima della migrazione lo storage conserva il dato grezzo in `layercost:backup:schema-1`.
+- `createEmptyDraft(config, locale)` e `createEmptyLine(config, locale)` usano nomi predefiniti localizzati; copia, aggiornamento prezzi e import usano suffissi nella lingua del preventivo (`src/lib/quote-defaults.ts`).
+- `QuoteOverview`, `QuotePrint`, `CostDetails` e `CostStack` accettano una locale: dettaglio, stampa e link usano `quote.locale`; calcolatore e interfaccia usano la preferenza del dispositivo.
+- 7 nuovi test: formattazione inglese, parsing con virgola/punto, migrazione v1 → v2, envelope, backup raw, nomi predefiniti inglesi. Totale **90 unitari**; 26 E2E verdi; build e budget 270 KB gzip su 350 KB.
+- L’E2E di release verifica ora un export `schemaVersion: 2`.
+
+**Accettazione:** importi, date e numeri formattati con `Intl`; preventivi esistenti migrati senza perdita di dati; stampa e link nella lingua del preventivo; formule e `engineVersion` invariati. → soddisfatta.
+
+### T5.6.4 — Selettore lingua e persistenza
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026.
+
+- `src/data/locale.ts` legge e scrive `layercost:locale`, separata da `AppData`; `src/state/locale-store.ts` espone `locale` e `setLocale`. Default italiano, valori accettati `it`/`en`; un valore corrotto torna a `it`.
+- `I18nProvider` legge la preferenza dallo store e aggiorna `<html lang>`, `dir`, `document.title` e la meta description a ogni cambio.
+- Impostazioni → Lingua: Italiano / English con descrizione, applicazione immediata e persistenza al reload.
+- La bozza vuota adotta la lingua dell’interfaccia (nomi predefiniti compresi); una bozza con contenuto e un preventivo salvato mantengono la propria lingua.
+- Stampa, dettaglio e link condivisi usano `quote.locale`; l’interfaccia usa la preferenza del dispositivo.
+- 4 test di persistenza (default, valore valido, valore non supportato/storage bloccato, salvataggio); totale **94 unitari**. Nuovo E2E: cambio lingua, `<html lang>`, titolo, reload, salvataggio in inglese e stampa inglese dopo il ritorno all’italiano. **27 E2E** totali (24 eseguiti + 3 visual).
+- `layercost:locale` non entra in `AppData`, backup o migrazioni.
+
+**Accettazione:** cambio lingua immediato, preferenza persistente, `<html lang>` corretto, stampa/link nella lingua del preventivo, italiano invariato. → soddisfatta.
+
+### T5.6.5 — Verifiche e deploy in inglese
+
+**Stato:** `[~]`
+
+**Nota:** avviato il 26/10/2026.
+
+- Aggiunte 14 scansioni axe in inglese: 11 route, menu mobile, modale bozza, modale reset e import `.3mf`; 0 violazioni. Totale **40 scansioni** (26 italiane + 14 inglesi).
+- Aggiunti 18 screenshot di regressione in inglese (6 schermate × 1440/768/390) accanto ai 18 italiani; baseline Linux generate dalla workflow dedicata.
+- 31 E2E totali (29 Chromium, 2 WebKit; 6 visual) e 97 test unitari.
+- Mappati per codice gli errori di dominio (`DomainError`) in calcolatore e confronto; introdotto `StorageError` per backup, schema e salvataggio, con messaggi tradotti in Impostazioni. I warning di storage/corruzione dati usano codici e vengono tradotti nella shell.
+- Scansione statica: nessuna stringa italiana hardcoded nei componenti oltre al nome del prodotto. Restano come fallback tecnico i messaggi interni del parser `.3mf` e del dominio, non mostrati direttamente se non mappati.
+- Documentazione aggiornata (TASKS, STATUS, phase-5, architecture, persistence, testing, data-model, inventario i18n, ADR-0019, README, CHANGELOG).
+- Deploy di produzione da verificare dopo il merge.
+
+**Accettazione:** axe e visual verdi in entrambe le lingue, nessuna stringa residua nelle schermate, documentazione e deploy aggiornati. → in verifica.
 
 ## T5.7 — Registro manutenzioni e guasti
 

@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { Alert, Badge, Button, Field, Modal, Select } from '@/components/ui'
 import type { CostConfig, PrintLine } from '@/domain/types'
 import type {
@@ -16,7 +17,6 @@ import {
   type ThreeMfMapping,
 } from '@/domain/three-mf-mapping'
 import { cn } from '@/lib/cn'
-import { formatDuration, formatGrams } from '@/lib/format'
 import { newId } from '@/lib/id'
 import { materialFamilyLabel, type Translate } from '@/lib/labels'
 import { threeMfMappingErrorMessage, threeMfWarningMessage } from './three-mf-messages'
@@ -353,6 +353,7 @@ function PlateCard({
   onMaterialChange: (filamentId: number, materialId: string) => void
 }) {
   const { t } = useI18n()
+  const format = useFormat()
   const name = plate.name?.trim() || t('import.plate', { index: plate.index })
   const grams =
     plate.weightCentigrams ??
@@ -377,9 +378,9 @@ function PlateCard({
           </span>
           <span className="mt-0.5 block text-sm text-muted">
             {plate.predictionSeconds !== null
-              ? formatDuration(plate.predictionSeconds)
+              ? format.duration(plate.predictionSeconds)
               : t('import.timeMissing')}{' '}
-            · {formatGrams(grams)} ·{' '}
+            · {format.grams(grams)} ·{' '}
             {t(
               usedFilaments.length === 1
                 ? 'import.materialCount.one'
@@ -435,6 +436,7 @@ function FilamentRow({
   onChange: (materialId: string) => void
 }) {
   const { t } = useI18n()
+  const format = useFormat()
   const color = filament.color?.trim()
   const hasSwatch = Boolean(color && /^#[0-9a-f]{6}$/i.test(color))
   const filamentType = filament.type || t('import.unknownType')
@@ -451,7 +453,7 @@ function FilamentRow({
           />
         ) : null}
         <span className="truncate">
-          {filamentType} · {formatGrams(filament.usedCentigrams)}
+          {filamentType} · {format.grams(filament.usedCentigrams)}
         </span>
       </div>
       <Select

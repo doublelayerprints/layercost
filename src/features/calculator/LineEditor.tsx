@@ -1,5 +1,6 @@
 import type { CostConfig, LineResult, PrintLine } from '@/domain/types'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { asBasisPoints, asCentigrams, asWatts, asWh } from '@/domain/units'
 import { Badge, Button, InfoDot, Select } from '@/components/ui'
 import {
@@ -9,7 +10,6 @@ import {
   PercentField,
   SelectField,
 } from '@/components/number-fields'
-import { formatCurrency, formatDuration, formatGrams } from '@/lib/format'
 
 interface LineEditorProps {
   index: number
@@ -41,6 +41,7 @@ export function LineEditor({
   onToggleExtra,
 }: LineEditorProps) {
   const { t } = useI18n()
+  const format = useFormat()
   const printerOptions = config.printers
     .filter((printer) => !printer.archived || printer.id === line.printerId)
     .map((printer) => ({
@@ -55,7 +56,7 @@ export function LineEditor({
     )
     .map((material) => ({
       value: material.id,
-      label: `${material.name} — ${formatCurrency(material.pricePerKg)}/kg`,
+      label: `${material.name} — ${format.currency(material.pricePerKg)}/kg`,
     }))
 
   const perUnitExtras = config.extras.filter(
@@ -85,15 +86,15 @@ export function LineEditor({
             className="w-full min-w-0 border-b border-line bg-transparent py-0.5 text-base font-semibold text-ink transition-feedback hover:border-control focus:border-control focus:bg-surface"
           />
           <p className="mt-0.5 text-sm text-muted">
-            {formatGrams(totalGrams)}
+            {format.grams(totalGrams)}
             {line.quantity > 1
               ? ` ${t('line.perUnitTotal', {
-                  total: formatGrams(totalGrams * line.quantity),
+                  total: format.grams(totalGrams * line.quantity),
                 })}`
               : ''}
             {result
               ? ` · ${t('line.effectiveDuration', {
-                  duration: formatDuration(result.effectiveSeconds),
+                  duration: format.duration(result.effectiveSeconds),
                 })}`
               : ''}
             {line.quantity > 1 ? ` · ${t('line.pieces', { count: line.quantity })}` : ''}
@@ -102,7 +103,7 @@ export function LineEditor({
                 {' · '}
                 {t('line.directCost')}{' '}
                 <span className="font-medium tabular-nums text-ink">
-                  {formatCurrency(result.directLineCost)}
+                  {format.currency(result.directLineCost)}
                 </span>
               </>
             ) : null}
@@ -230,7 +231,7 @@ export function LineEditor({
                 />
                 <span>{extra.name}</span>
                 <span className="text-sm tabular-nums text-muted">
-                  {formatCurrency(extra.amount)}
+                  {format.currency(extra.amount)}
                 </span>
               </label>
             ))}

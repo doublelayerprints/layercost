@@ -5,6 +5,7 @@ import type {
   Material,
   PrintLine,
   Printer,
+  QuoteLocale,
   Settings,
 } from '@/domain/types'
 import {
@@ -19,6 +20,7 @@ import { pricingFromSettings } from '@/domain/cost/quote'
 import type { Quote } from '@/domain/types'
 import { nowIso, todayIsoDate } from '@/lib/date'
 import { newId } from '@/lib/id'
+import { EMPTY_DRAFT_NAMES, EMPTY_LINE_NAMES } from '@/lib/quote-defaults'
 
 export const SEED_TARIFF_ID = 'tariff-default'
 
@@ -208,13 +210,17 @@ export function createSeedConfig(): CostConfig {
   }
 }
 
-export function createEmptyLine(config: CostConfig, overrides: Partial<PrintLine> = {}): PrintLine {
+export function createEmptyLine(
+  config: CostConfig,
+  locale: QuoteLocale = 'it',
+  overrides: Partial<PrintLine> = {},
+): PrintLine {
   const printer = config.printers.find((candidate) => !candidate.archived) ?? config.printers[0]
   const material = config.materials.find((candidate) => !candidate.archived) ?? config.materials[0]
 
   return {
     id: newId(),
-    name: 'Stampa',
+    name: EMPTY_LINE_NAMES[locale],
     printerId: overrides.printerId ?? printer?.id ?? '',
     timeSeconds: overrides.timeSeconds ?? asSeconds(0),
     materials:
@@ -228,14 +234,19 @@ export function createEmptyLine(config: CostConfig, overrides: Partial<PrintLine
   }
 }
 
-export function createEmptyDraft(config: CostConfig, date = new Date()): Quote {
+export function createEmptyDraft(
+  config: CostConfig,
+  locale: QuoteLocale = 'it',
+  date = new Date(),
+): Quote {
   const now = nowIso(date)
   return {
     id: newId(),
-    name: 'Nuovo preventivo',
+    name: EMPTY_DRAFT_NAMES[locale],
     quoteDate: todayIsoDate(date),
+    locale,
     status: 'draft',
-    lines: [createEmptyLine(config)],
+    lines: [createEmptyLine(config, locale)],
     job: {
       setupSeconds: asSeconds(0),
       designSeconds: asSeconds(0),

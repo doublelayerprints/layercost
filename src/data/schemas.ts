@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { MATERIAL_FAMILIES } from '@/domain/types'
+import { StorageError } from './errors'
 import type { AppData } from './storage'
 
 const integer = z.number().int()
@@ -144,6 +145,7 @@ export const quoteSchema = z.object({
   name: z.string().min(1),
   quoteDate: dateString,
   customer: z.string().optional(),
+  locale: z.enum(['it', 'en']),
   status: z.enum(['draft', 'saved']),
   lines: z.array(printLineSchema),
   job: jobCostsSchema,
@@ -157,7 +159,7 @@ export const quoteSchema = z.object({
 })
 
 export const appDataSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   config: configSchema,
   quotes: z.array(quoteSchema),
   draft: quoteSchema,
@@ -176,7 +178,7 @@ export function parseAppData(raw: unknown): AppData {
   const maybeEnvelope = exportEnvelopeSchema.safeParse(raw)
   if (maybeEnvelope.success) {
     if (maybeEnvelope.data.app !== 'LayerCost' && maybeEnvelope.data.app !== '3dCosts') {
-      throw new Error('Il file non è un backup di LayerCost.')
+      throw new StorageError('invalidData', 'Il file non è un backup di LayerCost.')
     }
     return maybeEnvelope.data.data as unknown as AppData
   }
@@ -190,9 +192,12 @@ export function parseAppData(raw: unknown): AppData {
     typeof raw === 'object' && raw !== null && 'schemaVersion' in raw
       ? (raw as { schemaVersion?: unknown }).schemaVersion
       : undefined
-  if (typeof schemaVersion === 'number' && schemaVersion > 1) {
-    throw new Error('Il backup è stato creato con una versione più recente di LayerCost.')
+  if (typeof schemaVersion === 'number' && schemaVersion > 2) {
+    throw new StorageError(
+      'futureBackup',
+      'Il backup è stato creato con una versione più recente di LayerCost.',
+    )
   }
 
-  throw new Error('Il file di backup non è valido o è incompleto.')
+  throw new StorageError('invalidBackup', 'Il file di backup non è valido o è incompleto.')
 }

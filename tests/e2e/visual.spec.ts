@@ -12,11 +12,18 @@ const viewports = [
   { name: 'mobile', width: 390, height: 844 },
 ]
 
-async function seedQuote(page: Page) {
+async function seedQuote(page: Page, english = false) {
   await page.goto('/')
-  await page.locator('input[aria-label="Ore"]').first().fill('10')
-  await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
-  await page.getByRole('button', { name: 'Salva preventivo' }).click()
+  await page
+    .locator(`input[aria-label="${english ? 'Hours' : 'Ore'}"]`)
+    .first()
+    .fill('10')
+  await page
+    .locator(`input[aria-label="${english ? 'Material grams 1' : 'Grammi materiale 1'}"]`)
+    .fill('100')
+  await page
+    .getByRole('button', { name: english ? 'Save quote' : 'Salva preventivo' })
+    .click()
   await page.waitForURL(/#\/quotes\//)
   await page.reload()
   await page.evaluate(() => document.fonts.ready)
@@ -61,5 +68,35 @@ for (const viewport of viewports) {
 
     await page.goto('/#/settings')
     await screenshot(page, `${viewport.name}-impostazioni.png`)
+  })
+
+  test(`regressione visiva inglese a ${viewport.width} px`, async ({ page }) => {
+    await page.clock.setFixedTime(FIXED_TIME)
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    await page.addInitScript(() => localStorage.setItem('layercost:locale', 'en'))
+    await page.goto('/')
+    const quotePath = await seedQuote(page, true)
+
+    await page.goto('/')
+    await screenshot(page, `en-${viewport.name}-calcolatore.png`)
+
+    await page
+      .locator('input[type="file"]')
+      .setInputFiles('tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf')
+    await expect(page.getByRole('dialog', { name: 'Import .3mf' })).toBeVisible()
+    await screenshot(page, `en-${viewport.name}-import-3mf.png`)
+    await page.keyboard.press('Escape')
+
+    await page.goto(quotePath)
+    await screenshot(page, `en-${viewport.name}-dettaglio.png`)
+
+    await page.goto('/#/quotes')
+    await screenshot(page, `en-${viewport.name}-preventivi.png`)
+
+    await page.goto('/#/materials')
+    await screenshot(page, `en-${viewport.name}-materiali.png`)
+
+    await page.goto('/#/settings')
+    await screenshot(page, `en-${viewport.name}-impostazioni.png`)
   })
 }

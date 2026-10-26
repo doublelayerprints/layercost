@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Material } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import {
   Alert,
   Badge,
@@ -13,11 +14,11 @@ import {
   TableScroll,
 } from '@/components/ui'
 import { materialFamilyLabel } from '@/lib/labels'
-import { formatCurrency, formatPercent } from '@/lib/format'
 import { MaterialForm } from './MaterialForm'
 
 export function MaterialsPage() {
   const { t } = useI18n()
+  const format = useFormat()
   const config = useAppStore((state) => state.config)
   const addMaterial = useAppStore((state) => state.addMaterial)
   const updateMaterial = useAppStore((state) => state.updateMaterial)
@@ -116,10 +117,10 @@ export function MaterialsPage() {
                       {materialFamilyLabel(material.family, t)}
                     </td>
                     <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
-                      {formatCurrency(material.pricePerKg)}
+                      {format.currency(material.pricePerKg)}
                     </td>
                     <td className="py-3 pr-4 text-right tabular-nums text-muted">
-                      {formatCurrency(material.pricePerKg / 1000, 4)}
+                      {format.currency(material.pricePerKg / 1000, 4)}
                     </td>
                     <td className="py-3 pr-4 text-right tabular-nums text-muted">
                       {material.spoolNetWeightG} g
@@ -127,7 +128,7 @@ export function MaterialsPage() {
                     <td className="py-3 pr-4 text-right tabular-nums text-muted">
                       {material.failureRateBp === undefined
                         ? t('materials.failureGlobal')
-                        : formatPercent(material.failureRateBp)}
+                        : format.percent(material.failureRateBp)}
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-1">
@@ -175,16 +176,16 @@ export function MaterialsPage() {
                       {material.spoolNetWeightG} g · {t('materials.failuresLabel')}{' '}
                       {material.failureRateBp === undefined
                         ? t('materials.failureGlobalLower')
-                        : formatPercent(material.failureRateBp)}
+                        : format.percent(material.failureRateBp)}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-base font-medium tabular-nums text-ink">
-                      {formatCurrency(material.pricePerKg)}
+                      {format.currency(material.pricePerKg)}
                       <span className="text-xs font-normal text-muted">/kg</span>
                     </p>
                     <p className="text-xs text-muted">
-                      {formatCurrency(material.pricePerKg / 1000, 4)}/g
+                      {format.currency(material.pricePerKg / 1000, 4)}/g
                     </p>
                   </div>
                 </div>

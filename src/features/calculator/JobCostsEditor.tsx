@@ -1,8 +1,8 @@
 import type { CostConfig, JobCosts, QuoteResult } from '@/domain/types'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { SectionHeader } from '@/components/ui'
 import { DurationField, TextareaField } from '@/components/number-fields'
-import { formatCurrency } from '@/lib/format'
 
 export function JobCostsEditor({
   job,
@@ -18,6 +18,7 @@ export function JobCostsEditor({
   onToggleExtra: (extraId: string) => void
 }) {
   const { t } = useI18n()
+  const format = useFormat()
   const jobExtras = config.extras.filter(
     (extra) => extra.unit === 'perJob' && (!extra.archived || job.extraIds.includes(extra.id)),
   )
@@ -32,10 +33,10 @@ export function JobCostsEditor({
           result ? (
             <p className="text-sm text-muted">
               {t('job.labor')}{' '}
-              <span className="tabular-nums text-ink">{formatCurrency(result.jobLabor)}</span>
+              <span className="tabular-nums text-ink">{format.currency(result.jobLabor)}</span>
               {' · '}
               {t('job.extras')}{' '}
-              <span className="tabular-nums text-ink">{formatCurrency(result.jobExtras)}</span>
+              <span className="tabular-nums text-ink">{format.currency(result.jobExtras)}</span>
             </p>
           ) : null
         }
@@ -70,7 +71,7 @@ export function JobCostsEditor({
                 />
                 <span>{extra.name}</span>
                 <span className="text-sm tabular-nums text-muted">
-                  {formatCurrency(extra.amount)}
+                  {format.currency(extra.amount)}
                 </span>
               </label>
             ))}

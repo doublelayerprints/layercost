@@ -14,6 +14,9 @@ export const baseIt = {
   'app.dataLocal': 'Dati salvati solo su questo browser.',
   'app.exportBackup': 'Esporta un backup',
   'app.engineVersion': 'Motore v{version}',
+  'meta.title': 'LayerCost — Costo e prezzo delle stampe 3D',
+  'meta.description':
+    'LayerCost — calcola costo e prezzo delle stampe 3D con materiali, energia, usura e manodopera.',
 
   'nav.work': 'Lavoro',
   'nav.configuration': 'Configurazione',

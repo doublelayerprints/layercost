@@ -1,6 +1,6 @@
 # Persistenza e backup
 
-**Stato:** v1.0.0 — local-first
+**Stato:** v1.0.0 + T5.6.3 — local-first, schema v2
 
 ---
 
@@ -18,9 +18,10 @@ La preferenza del tema è un dato di interfaccia separato:
 
 ```text
 layercost:theme
+layercost:locale
 ```
 
-Valori: `system` (default), `light`, `dark`. Non entra in `AppData`, negli snapshot, nei backup o nelle migrazioni; “Ripristina dati iniziali” non la cancella.
+Il tema vale `system` (default), `light`, `dark`; la lingua vale `it` (default) o `en`. Nessuno dei due entra in `AppData`, negli snapshot, nei backup o nelle migrazioni; “Ripristina dati iniziali” non li cancella.
 
 In caso di dati non leggibili, il raw viene copiato in:
 
@@ -28,12 +29,21 @@ In caso di dati non leggibili, il raw viene copiato in:
 layercost:corrupt:<timestamp>
 ```
 
+Prima di una migrazione, il raw della versione precedente viene conservato in:
+
+```text
+layercost:backup:schema-<versione>
+```
+
+La chiave è stabile per versione di partenza (`layercost:backup:schema-1`), quindi il backup non cresce a ogni avvio.
+
 ## 2. Codice
 
 | File                       | Ruolo                                                |
 | -------------------------- | ---------------------------------------------------- |
 | `src/data/storage.ts`      | Chiavi, load/save, export, import, reset, migrazione |
 | `src/data/theme.ts`        | Preferenza del tema, separata dai dati               |
+| `src/data/locale.ts`       | Preferenza della lingua, separata dai dati           |
 | `src/data/repository.ts`   | Interfaccia `DataRepository` + adapter locale        |
 | `src/data/schemas.ts`      | Validazione Zod                                      |
 | `src/data/seed.ts`         | Configurazione iniziale                              |
@@ -44,10 +54,9 @@ Lo storage è l'unico punto che tocca `localStorage`.
 
 ## 3. Schema e migrazioni
 
-- `schemaVersion` corrente: **1**.
-- `migrateAppData` rifiuta versioni future e versioni non numeriche.
-- In futuro: una funzione per ogni versione e un fixture di test.
-- Prima di una migrazione distruttiva, conservare un backup raw.
+- `schemaVersion` corrente: **2**. `Quote.locale` è la lingua del documento (`it`/`en`), non un parametro di costo.
+- `migrateAppData` rifiuta versioni future e versioni non numeriche; la migrazione v1 → v2 aggiunge `locale: 'it'` a preventivi e bozza, anche dentro un envelope di export.
+- Prima di applicare la migrazione allo storage, il raw viene salvato in `layercost:backup:schema-1`.
 
 ## 4. Export
 
@@ -56,7 +65,7 @@ Pulsante “Esporta backup” in Impostazioni e nella pagina del preventivo (tra
 ```json
 {
   "app": "LayerCost",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "exportedAt": "2026-10-23T12:00:00.000Z",
   "data": { "...": "..." }
 }

@@ -211,11 +211,14 @@ export interface QuoteSnapshot {
   engineVersion: string
 }
 
+export type QuoteLocale = 'it' | 'en'
+
 export interface Quote {
   id: string
   name: string
   quoteDate: string
   customer?: string
+  locale: QuoteLocale
   status: 'draft' | 'saved'
   lines: PrintLine[]
   job: JobCosts

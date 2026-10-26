@@ -19,12 +19,13 @@ export function NewDraftButton({
   const { t } = useI18n()
   const draft = useAppStore((state) => state.draft)
   const newDraft = useAppStore((state) => state.newDraft)
+  const { locale } = useI18n()
   const navigate = useNavigate()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const buttonLabel = label ?? t('calculator.newDraft')
 
   const startNewDraft = () => {
-    newDraft()
+    newDraft(locale)
     setConfirmOpen(false)
     navigate('/')
   }

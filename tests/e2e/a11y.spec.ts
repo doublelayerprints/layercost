@@ -3,11 +3,16 @@ import { expect, test, type Page } from '@playwright/test'
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
-async function seedQuote(page: Page) {
+async function seedQuote(page: Page, english = false) {
   await page.goto('/')
-  await page.locator('input[aria-label="Ore"]').first().fill('10')
-  await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
-  await page.getByRole('button', { name: 'Salva preventivo' }).click()
+  await page
+    .locator(`input[aria-label="${english ? 'Hours' : 'Ore'}"]`)
+    .first()
+    .fill('10')
+  await page
+    .locator(`input[aria-label="${english ? 'Material grams 1' : 'Grammi materiale 1'}"]`)
+    .fill('100')
+  await page.getByRole('button', { name: english ? 'Save quote' : 'Salva preventivo' }).click()
   await page.waitForURL(/#\/quotes\//)
   const hash = new URL(page.url()).hash
   return `/${hash}`
@@ -96,6 +101,38 @@ test.describe('accessibilità WCAG 2.2 AA', () => {
       await audit(page, 'mobile scuro · modale import .3mf')
       await page.keyboard.press('Escape')
       await expect(page.getByRole('dialog', { name: 'Importa .3mf' })).toHaveCount(0)
+    })
+  })
+
+  test.describe('inglese, desktop chiaro', () => {
+    test.use({ colorScheme: 'light', viewport: { width: 1440, height: 900 } })
+
+    test('tutte le schermate passano axe in inglese', async ({ page }) => {
+      await page.addInitScript(() => localStorage.setItem('layercost:locale', 'en'))
+      const quotePath = await seedQuote(page, true)
+      await auditRoutes(page, quotePath, 'inglese chiaro')
+
+      await page.goto('/')
+      await page.locator('input[aria-label="Material grams 1"]').fill('50')
+      await page.getByRole('button', { name: 'New', exact: true }).click()
+      await expect(page.getByRole('dialog', { name: 'Start a new quote?' })).toBeVisible()
+      await audit(page, 'inglese chiaro · modale bozza')
+      await page.keyboard.press('Escape')
+
+      await page.goto('/#/settings')
+      await page.getByRole('button', { name: 'Restore initial data' }).click()
+      await expect(page.getByRole('dialog', { name: 'Restore initial data?' })).toBeVisible()
+      await audit(page, 'inglese chiaro · modale reset')
+      await page.keyboard.press('Escape')
+
+      await page.goto('/')
+      await page
+        .locator('input[type="file"]')
+        .setInputFiles('tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf')
+      await expect(page.getByRole('dialog', { name: 'Import .3mf' })).toBeVisible()
+      await audit(page, 'inglese chiaro · modale import .3mf')
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('dialog', { name: 'Import .3mf' })).toHaveCount(0)
     })
   })
 })

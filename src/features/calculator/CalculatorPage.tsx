@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { calculateQuote } from '@/domain/cost/quote'
 import { pricingFromSettings } from '@/domain/cost/quote'
 import type { QuoteResult } from '@/domain/types'
@@ -19,7 +20,7 @@ import { TextField } from '@/components/number-fields'
 import { OnboardingCard } from '@/features/onboarding/OnboardingCard'
 import { QuotePrint } from '@/features/quotes/QuotePrint'
 import { cn } from '@/lib/cn'
-import { formatDateOnly, formatGrams } from '@/lib/format'
+import { domainErrorMessage } from '@/lib/domain-error-message'
 import { CostDetails } from './CostDetails'
 import { JobCostsEditor } from './JobCostsEditor'
 import { LineEditor } from './LineEditor'
@@ -36,6 +37,7 @@ interface CalculationState {
 
 export function CalculatorPage() {
   const { t } = useI18n()
+  const format = useFormat()
   const config = useAppStore((state) => state.config)
   const draft = useAppStore((state) => state.draft)
   const updateDraftMeta = useAppStore((state) => state.updateDraftMeta)
@@ -98,7 +100,7 @@ export function CalculatorPage() {
     } catch (error) {
       return {
         result: undefined,
-        error: error instanceof Error ? error.message : t('calculator.calculationError'),
+        error: domainErrorMessage(error, t) ?? t('calculator.calculationError'),
       }
     }
   }, [draft, config, t])
@@ -183,12 +185,12 @@ export function CalculatorPage() {
         <PageHeader
           title={draft.name.trim() || t('calculator.newQuote')}
           description={t('calculator.meta', {
-            date: formatDateOnly(draft.quoteDate),
+            date: format.dateOnly(draft.quoteDate),
             count: paragraphCount,
             lines: t(
               paragraphCount === 1 ? 'calculator.lineCount.one' : 'calculator.lineCount.other',
             ),
-            grams: formatGrams(totalGrams),
+            grams: format.grams(totalGrams),
           })}
           meta={<span className="text-xs text-muted">{t('calculator.autosaveNote')}</span>}
           actions={

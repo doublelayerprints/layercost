@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { useAppStore } from '@/state/app-store'
 import { Badge, Button, EmptyState, Input, PageHeader, TableScroll } from '@/components/ui'
 import { NewDraftButton } from '@/features/calculator/NewDraftButton'
-import { formatCents, formatCurrency, formatDateOnly } from '@/lib/format'
 import { plural, type MessageKey } from '@/i18n'
 import type { Quote } from '@/domain/types'
 
@@ -19,6 +19,7 @@ function quoteStatus(quote: Quote): {
 
 export function QuotesPage() {
   const { t, locale } = useI18n()
+  const format = useFormat()
   const quotes = useAppStore((state) => state.quotes)
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
@@ -148,7 +149,7 @@ export function QuotesPage() {
                           {quote.name}
                         </Link>
                         <p className="mt-0.5 text-xs text-muted">
-                          {formatDateOnly(quote.quoteDate)}
+                          {format.dateOnly(quote.quoteDate)}
                           {quote.customer ? ` · ${quote.customer}` : ''}
                         </p>
                       </th>
@@ -159,10 +160,10 @@ export function QuotesPage() {
                         {quote.lines.length}
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums text-muted">
-                        {quote.result ? formatCurrency(quote.result.totalCost) : '—'}
+                        {quote.result ? format.currency(quote.result.totalCost) : '—'}
                       </td>
                       <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
-                        {quote.result ? formatCents(quote.result.grossPriceCents) : '—'}
+                        {quote.result ? format.cents(quote.result.grossPriceCents) : '—'}
                       </td>
                       <td className="py-3 text-right">
                         <Button
@@ -194,7 +195,7 @@ export function QuotesPage() {
                         {quote.name}
                       </Link>
                       <p className="mt-0.5 text-xs text-muted">
-                        {formatDateOnly(quote.quoteDate)}
+                        {format.dateOnly(quote.quoteDate)}
                         {quote.customer ? ` · ${quote.customer}` : ''} ·{' '}
                         {plural(locale, quote.lines.length, {
                           one: 'quote.lineCount.one',
@@ -207,10 +208,10 @@ export function QuotesPage() {
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="text-base font-medium tabular-nums text-ink">
-                        {quote.result ? formatCents(quote.result.grossPriceCents) : '—'}
+                        {quote.result ? format.cents(quote.result.grossPriceCents) : '—'}
                       </p>
                       <p className="text-xs text-muted">
-                        {quote.result ? formatCurrency(quote.result.totalCost) : ''}
+                        {quote.result ? format.currency(quote.result.totalCost) : ''}
                       </p>
                       <Link
                         to={`/quotes/${quote.id}`}
