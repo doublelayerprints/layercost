@@ -77,6 +77,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 - **T5.13:** `Quote.status` è `draft | saved | sent | completed`. Un preventivo `saved` si modifica in place con lo stesso `id`; la modifica usa lo snapshot e conserva `capturedAt`, quindi i prezzi restano congelati. `sent` e `completed` sono bloccati e si correggono duplicando. Conferme per invio/completamento, badge in lista/dettaglio/stampa, link condivisi con lo stato originale. Schema **v3** con catena v1 → v2 → v3 e backup raw.
 - **T5.14:** calcolatore diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; Duplica/Rimuovi sono nell’intestazione del pannello.
+- **Deploy:** build `index-CKBs4VCV.js` verificata in produzione: modifica in place con stesso id e snapshot invariato, invio che blocca il preventivo, schema 3 e interfaccia inglese.
 
 ### Seed
 
@@ -103,7 +104,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | Budget bundle      | 274 KB gzip totali su 350 KB (limite JS 220 KB)                                    |
 | CI GitHub `check`  | verde su `main`                                                                    |
 | CI GitHub `e2e`    | verde su `main`                                                                    |
-| Vercel produzione  | deploy `index-CiitaCgo.js` verificato: italiano, inglese, schema 2, stampa         |
+| Vercel produzione  | deploy `index-CKBs4VCV.js` verificato: modifica, stati, schema 3, inglese |
 
 Comandi:
 
