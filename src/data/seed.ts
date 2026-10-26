@@ -5,6 +5,7 @@ import type {
   Material,
   PrintLine,
   Printer,
+  QuoteLocale,
   Settings,
 } from '@/domain/types'
 import {
@@ -228,12 +229,17 @@ export function createEmptyLine(config: CostConfig, overrides: Partial<PrintLine
   }
 }
 
-export function createEmptyDraft(config: CostConfig, date = new Date()): Quote {
+export function createEmptyDraft(
+  config: CostConfig,
+  locale: QuoteLocale = 'it',
+  date = new Date(),
+): Quote {
   const now = nowIso(date)
   return {
     id: newId(),
     name: 'Nuovo preventivo',
     quoteDate: todayIsoDate(date),
+    locale,
     status: 'draft',
     lines: [createEmptyLine(config)],
     job: {

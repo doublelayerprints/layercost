@@ -135,6 +135,7 @@ function makeQuote(
     id: 'quote-test',
     name: 'Test',
     quoteDate: '2026-10-23',
+    locale: 'it',
     status: 'draft',
     lines,
     job: {

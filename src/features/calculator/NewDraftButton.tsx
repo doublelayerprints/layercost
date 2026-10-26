@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { useAppStore } from '@/state/app-store'
 import { draftHasContent } from '@/lib/draft'
 import { Button, Modal, type ButtonProps } from '@/components/ui'
@@ -17,11 +18,12 @@ export function NewDraftButton({
 }) {
   const draft = useAppStore((state) => state.draft)
   const newDraft = useAppStore((state) => state.newDraft)
+  const { locale } = useI18n()
   const navigate = useNavigate()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const startNewDraft = () => {
-    newDraft()
+    newDraft(locale)
     setConfirmOpen(false)
     navigate('/')
   }

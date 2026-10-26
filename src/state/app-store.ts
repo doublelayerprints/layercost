@@ -7,6 +7,7 @@ import type {
   PrintLine,
   Printer,
   Quote,
+  QuoteLocale,
   QuotePricing,
   Settings,
 } from '@/domain/types'
@@ -126,7 +127,7 @@ export interface AppState {
   exportData: () => void
   reset: () => void
   completeOnboarding: () => void
-  newDraft: () => void
+  newDraft: (locale?: QuoteLocale) => void
 }
 
 const initialData = (() => {
@@ -542,7 +543,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       }
       set((current) => ({
         quotes: [quote, ...current.quotes.filter((candidate) => candidate.id !== quote.id)],
-        draft: createEmptyDraft(current.config),
+        draft: createEmptyDraft(current.config, state.draft.locale),
       }))
       get().persist()
       return { quote }
@@ -630,8 +631,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
     get().updateSettings({ onboardingComplete: true })
   },
 
-  newDraft: () => {
-    set((state) => ({ draft: createEmptyDraft(state.config) }))
+  newDraft: (locale) => {
+    set((state) => ({
+      draft: createEmptyDraft(state.config, locale ?? state.draft.locale ?? 'it'),
+    }))
     get().persist()
   },
 }))

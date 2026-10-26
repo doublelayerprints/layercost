@@ -50,6 +50,7 @@ export function ComparePage() {
         id: newId(),
         name: 'Confronto stampanti',
         quoteDate: todayIsoDate(),
+        locale: 'it',
         status: 'draft',
         lines: [line],
         job: {

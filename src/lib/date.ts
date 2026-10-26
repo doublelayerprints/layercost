@@ -1,3 +1,6 @@
+import { DEFAULT_LOCALE, type Locale } from '@/i18n'
+import { formatDateOnly, formatDateTime } from './format'
+
 export function todayIsoDate(date = new Date()): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -9,20 +12,16 @@ export function nowIso(date = new Date()): string {
   return date.toISOString()
 }
 
+/** @deprecated Use `formatDateOnly` with an explicit locale. */
 export function formatDateIt(isoDate: string): string {
-  const [year, month, day] = isoDate.split('-')
-  if (!year || !month || !day) return isoDate
-  return `${day}/${month}/${year}`
+  return formatDateOnly(isoDate, 'it')
 }
 
+/** @deprecated Use `formatDateTime` with an explicit locale. */
 export function formatDateTimeIt(iso: string): string {
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return iso
-  return new Intl.DateTimeFormat('it-IT', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
+  return formatDateTime(iso, 'it')
+}
+
+export function formatDate(isoDate: string, locale: Locale = DEFAULT_LOCALE): string {
+  return formatDateOnly(isoDate, locale)
 }

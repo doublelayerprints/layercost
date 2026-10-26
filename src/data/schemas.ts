@@ -144,6 +144,7 @@ export const quoteSchema = z.object({
   name: z.string().min(1),
   quoteDate: dateString,
   customer: z.string().optional(),
+  locale: z.enum(['it', 'en']),
   status: z.enum(['draft', 'saved']),
   lines: z.array(printLineSchema),
   job: jobCostsSchema,
@@ -157,7 +158,7 @@ export const quoteSchema = z.object({
 })
 
 export const appDataSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   config: configSchema,
   quotes: z.array(quoteSchema),
   draft: quoteSchema,
@@ -190,7 +191,7 @@ export function parseAppData(raw: unknown): AppData {
     typeof raw === 'object' && raw !== null && 'schemaVersion' in raw
       ? (raw as { schemaVersion?: unknown }).schemaVersion
       : undefined
-  if (typeof schemaVersion === 'number' && schemaVersion > 1) {
+  if (typeof schemaVersion === 'number' && schemaVersion > 2) {
     throw new Error('Il backup è stato creato con una versione più recente di LayerCost.')
   }
 
