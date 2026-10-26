@@ -323,7 +323,7 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 - `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
 - `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **104 unitari/dati, 33 E2E** (27 eseguiti + 6 visual su CI).
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **112 unitari/dati, 35 E2E** (29 eseguiti + 6 visual su CI).
 
 ### 7.2 Manuali
 
@@ -438,7 +438,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Preferenze rapide (T5.15).** `QuickPreferences` in fondo alla sidebar e nel menu mobile: tre radio per il tema e due per la lingua, sincronizzate con Impostazioni e persistenti fuori da `AppData`. L'input invisibile copre l'etichetta, quindi il click è su tutto il pulsantino; il focus ring è sul contenitore. La lingua adotta la bozza vuota e non tocca i preventivi salvati.
 - **Azioni del preventivo (T5.16).** “Gestione del preventivo” è passata subito sotto testata e avvisi, prima di prezzo e righe; “Stampa / PDF” è secondaria. Il ciclo di vita e le conferme restano invariati.
 - **Colore filamento (T5.17).** `PrintLine.color?: string` (`#rrggbb`) è un dato opzionale di presentazione, senza migrazione e senza impatto su formule, `engineVersion` o snapshot. Swatch nel calcolatore (picker nativo + rimozione), nel dettaglio, nella tabella costi e in stampa A4.
-- **Verifiche.** `npm run check` verde (104 unitari, build, budget 275,4 KB totali su 350 KB); 33 E2E (27 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px vanno rigenerate in CI perché cambiano sidebar, dettaglio e impostazioni.
+- **Verifiche.** `npm run check` verde (112 unitari, build, budget 284,6 KB totali su 350 KB); 35 E2E (29 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px vanno rigenerate in CI perché cambiano sidebar, dettaglio, impostazioni e preventivi (T5.15–T5.17 e T5.12).
 
 ---
 

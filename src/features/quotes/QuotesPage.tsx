@@ -5,6 +5,7 @@ import { useFormat } from '@/app/use-format'
 import { useAppStore } from '@/state/app-store'
 import { Badge, Button, EmptyState, Input, PageHeader, TableScroll } from '@/components/ui'
 import { NewDraftButton } from '@/features/calculator/NewDraftButton'
+import { ExportXlsxButton } from './ExportXlsxButton'
 import { plural } from '@/i18n'
 import { quoteStatusDisplay } from './quote-status'
 
@@ -51,7 +52,12 @@ export function QuotesPage() {
       <PageHeader
         title={t('quotes.title')}
         description={t('quotes.description')}
-        actions={<NewDraftButton label={t('quotes.new')} />}
+        actions={
+          <>
+            <ExportXlsxButton />
+            <NewDraftButton label={t('quotes.new')} />
+          </>
+        }
       />
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

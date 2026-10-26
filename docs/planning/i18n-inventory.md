@@ -33,6 +33,7 @@
 | Calcolatore          | `CalculatorPage`, `LineEditor`, `JobCostsEditor`, `PricingEditor`, `SummaryPanel`, `CostDetails`, `NewDraftButton` | intestazioni, label, hint, unità, stati, conferme, microcopy, “Salva preventivo”, “Stampa”, “Condividi” | Unità e valuta passano da `lib/format.ts`                                        |
 | Import `.3mf`        | `use-three-mf-import.ts`, `ThreeMfImportDialog.tsx`, `data/three-mf/parse.ts`                                      | pulsanti, stati, titolo modale, piatti, mappatura, conferma, errori/warning                             | Le chiavi `import.*` sono già nel dizionario; T5.6.2 collega la UI               |
 | Preventivi           | `QuotesPage`, `QuoteDetailPage`, `QuoteOverview`, `QuotePrint`, `SharePage`, `ShareQuoteButton`                    | lista, ricerca, vuoti, dettaglio, azioni, stampa, link, import nel proprio archivio                     | Stampare nella lingua del preventivo (T5.6.4)                                    |
+| Export `.xlsx`       | `ExportXlsxButton`, `features/quotes/export-xlsx.ts`, `lib/xlsx.ts`                                               | pulsante, hint, nomi dei fogli, intestazioni di colonna, sì/no                                           | Area `xlsx`; intestazioni nella lingua dell’interfaccia (T5.12)                   |
 | Stampanti            | `PrintersPage`, `PrinterForm`                                                                                      | titoli, campi, unità, note, archivio, anteprima costo orario                                            |                                                                                  |
 | Materiali            | `MaterialsPage`, `MaterialForm`                                                                                    | campi, famiglie, prezzo/kg, peso bobina, colore, archivio                                               | `lib/labels.ts` per le famiglie                                                  |
 | Tariffe              | `TariffsPage`, `TariffForm`                                                                                        | storico, decorrenza, ultima tariffa, nota non eliminabile                                               |                                                                                  |
@@ -46,13 +47,15 @@
 | Metadati pagina      | `index.html`                                                                                                       | `title`, `description`, `lang`                                                                          | T5.6.4 imposta `lang`; title/description per lingua                              |
 | Stampa/PDF           | `QuotePrint`, `index.css` (@media print)                                                                           | intestazione, meta, tabelle, totali, note, footer                                                       | Usa la lingua del preventivo                                                     |
 
-**Stato T5.6.2:** tutte le aree della tabella sono state estratte, inclusi componenti condivisi, etichette di dominio, cost stack, logo, 404, errori import/share/save e guida. I dizionari sono divisi in `calculator`, `quotes`, `catalogs`, `settings`, `misc` (743 chiavi al momento di T5.6.2; **812** dopo T5.13–T5.17). Restano come fallback tecnico raro i messaggi di storage/schema e alcuni errori di dominio.
+**Stato T5.6.2:** tutte le aree della tabella sono state estratte, inclusi componenti condivisi, etichette di dominio, cost stack, logo, 404, errori import/share/save e guida. I dizionari sono divisi in `calculator`, `quotes`, `catalogs`, `settings`, `misc` (743 chiavi al momento di T5.6.2; **812** dopo T5.13–T5.17; **865** dopo T5.12 con l’area `xlsx`). Restano come fallback tecnico raro i messaggi di storage/schema e alcuni errori di dominio.
 
 **Stato T5.6.3:** formattazione `Intl` legata alla locale (`useFormat`), parsing con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Nomi predefiniti di bozza/riga e suffissi di copia/import localizzati.
 
 **Stato T5.6.4:** preferenza `layercost:locale` e selettore Italiano/English in Impostazioni; `I18nProvider` aggiorna `<html lang>`, titolo e meta description. La bozza vuota adotta la lingua, i preventivi salvati restano nella loro. Restano axe, screenshot e scansione finale delle stringhe in T5.6.5.
 
 **Stato T5.15–T5.17:** i selettori rapidi usano le stesse chiavi di Impostazioni (`settings.theme*`, `settings.language*`) e il colore filamento ha tre chiavi dedicate (`line.colorLabel`, `line.colorAria`, `line.colorClear`). Nessuna stringa hardcoded nelle nuove schermate; parità it/en portata a 812 chiavi.
+
+**Stato T5.12:** l’area `xlsx` aggiunge 53 chiavi per azione, hint, nomi dei fogli, valori sì/no e intestazioni di colonna in italiano e inglese. Parità it/en a **865** chiavi.
 
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 

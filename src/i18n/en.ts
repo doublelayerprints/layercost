@@ -3,6 +3,7 @@ import { catalogsEn } from './en/catalogs'
 import { miscEn } from './en/misc'
 import { quotesEn } from './en/quotes'
 import { settingsEn } from './en/settings'
+import { xlsxEn } from './en/xlsx'
 import type { BaseMessageKey, Messages } from './it'
 
 /** English dictionary. The `Messages` type keeps every key in sync with Italian. */
@@ -105,4 +106,5 @@ export const en: Messages = {
   ...catalogsEn,
   ...settingsEn,
   ...miscEn,
+  ...xlsxEn,
 }

@@ -1,13 +1,13 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 pianificata; CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 in corso; CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 26 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Prossimo **T5.4 sync** (rimandato) o **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.15–T5.17 rifiniture → T5.4 sync** (rimandato). ADR-0017, ADR-0018, ADR-0019 e ADR-0020 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive vanno rigenerate in CI perché sidebar, dettaglio e impostazioni cambiano.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.17 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019 e ADR-0020 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive vanno rigenerate in CI perché sidebar, dettaglio, impostazioni e preventivi cambiano.
 
 ---
 
@@ -343,16 +343,16 @@ Un task è chiuso solo se:
 ## T2.4 — Migrazioni
 
 **Dipende da:** T2.3
-**Stato:** `[~]`
+**Stato:** `[x]` — chiuso su indicazione del committente (26/10/2026)
 
-**Nota:** Framework di migrazione minimo (v1, rifiuto versioni future); manca una catena versionata con fixture.
+**Nota:** la catena v1 → v2 → v3, il backup raw e i test di migrazione esistono; la vecchia nota “manca una catena versionata con fixture” non è più valida.
 
 - `schemaVersion` e catena di migrazioni.
 - Backup raw prima della migrazione.
 - Migrazione fallita: dati originali intatti.
 - Import di schema più nuovo: rifiutato.
 
-**Accettazione:** fixture v1 migra; fixture rotta produce errore e backup; test di idempotenza.
+**Accettazione:** fixture v1 migra; fixture rotta produce errore e backup; test di idempotenza. → coperta da `src/data/storage.test.ts` e chiusa su conferma del committente.
 
 ---
 
@@ -454,15 +454,15 @@ Un task è chiuso solo se:
 ## T2.12 — Wizard iniziale
 
 **Dipende da:** T2.1, T2.6, T2.7, T2.8
-**Stato:** `[~]`
+**Stato:** `[x]` — chiuso su indicazione del committente (26/10/2026)
 
-**Nota:** Implementata come checklist di primo avvio nella dashboard, non come wizard multi-step.
+**Nota:** Implementata come checklist di primo avvio nella dashboard, non come wizard multi-step; questa è la forma accettata.
 
 - Passi: tariffa, stampanti (prezzo/vita), materiali (prezzo), preferenze prezzo.
 - Valori stimati evidenziati.
 - Può essere saltato; banner persistente finché i dati critici non sono confermati.
 
-**Accettazione:** i valori salvati sono quelli del wizard; skip non corrompe nulla; il banner scompare dopo la conferma.
+**Accettazione:** i valori salvati sono quelli del wizard; skip non corrompe nulla; il banner scompare dopo la conferma. → chiusa su conferma del committente.
 
 ---
 
@@ -751,22 +751,28 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-**Stato:** in corso dal 26/10/2026. T5.3.1 chiuso; prossimo T5.3.2. Piano completo, decisioni e domande aperte in `docs/planning/phase-5.md`. Ordine: **T5.3 → T5.6 → T5.4**.
+**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12 e T5.13–T5.17 chiusi; prossimo T5.4 sync (richiesto). Piano completo, decisioni e domande aperte in `docs/planning/phase-5.md`. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.17 → T5.4**.
+
+**Nota di scope (26/10/2026):** il committente ha indicato che T5.1, T5.2, T5.5 e T5.7–T5.11 sono fatte, non volute o svolte direttamente. Non sono più nel perimetro; restano **T5.4 sync** (richiesto) e **T5.12 export `.xlsx`** (chiuso).
 
 ## T5.0 — Piano fase 5
 
 **Dipende da:** v1.0.0
 **Stato:** `[x]`
 
-**Nota:** creati `docs/planning/phase-5.md`, ADR-0017 (import `.3mf`), ADR-0018 (sync free, rimandato) e ADR-0019 (inglese). Nessun codice. Le tre iniziative richieste dal committente sono documentate con scope, architettura, test, criteri di accettazione e stime. Il sync resta esplicitamente rimandato.
+**Nota:** creati `docs/planning/phase-5.md`, ADR-0017 (import `.3mf`), ADR-0018 (sync free, rimandato all’epoca) e ADR-0019 (inglese). Nessun codice. Le tre iniziative richieste dal committente sono documentate con scope, architettura, test, criteri di accettazione e stime. Il sync è stato richiesto il 26/10/2026 e resta da implementare.
 
 **Accettazione:** piano leggibile da una nuova sessione; ADR e fonti presenti; `TASKS.md`, `PLAN.md` e `STATUS.md` allineati.
 
 ## T5.1 — Magazzino bobine
 
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
+
 Tracciare bobine acquistate, grammi residui, costo effettivo, avvisi di esaurimento.
 
 ## T5.2 — Actual vs estimated
+
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
 
 Registrare tempo e filamento reali per stampa, confrontarli con le stime, suggerire calibrazioni.
 
@@ -859,15 +865,17 @@ Sottotask:
 
 **Accettazione:** performance sotto target, regressione visiva aggiornata, documentazione e deploy verificati; nessun cambio a formule/`engineVersion`/schema. → soddisfatta.
 
-## T5.4 — Sincronizzazione cloud (rimandata)
+## T5.4 — Sincronizzazione cloud
 
 **Dipende da:** ADR-0018, T5.3, T5.6
-**Stato:** `[ ]` — non iniziare senza esplicita richiesta del committente
+**Stato:** `[ ]` — richiesto il 26/10/2026; implementazione da pianificare
 **Piano:** `docs/planning/phase-5.md` §4
 
-**Nota:** il sync è opzionale, local-first e **solo su piano gratuito**. Il provider non è scelto: lo spike confronta Supabase Free (auth/RLS pronti, pausa dopo 1 settimana di inattività), Cloudflare Workers + D1 (limiti generosi, nessuna pausa, auth da scrivere) e Firebase Spark. Serve prima il refactor async di `DataRepository`/store. Dati sincronizzati: configurazione e preventivi; bozza, tema e lingua restano locali. Backup prima del primo sync, conflitti visibili, export sempre disponibile.
+**Nota:** il sync è opzionale, local-first e **solo su piano gratuito**. Decisioni del 26/10/2026: **Supabase Free** (auth/RLS pronti, pausa dopo 1 settimana di inattività), **workspace condiviso** per i due utenti e **magic link** con utenti pre-creati e signup pubblico disabilitato. Restano da definire lo spike sui limiti reali, la cifratura e la policy di conflitto. Serve prima il refactor async di `DataRepository`/store. Dati sincronizzati: configurazione e preventivi; bozza, tema e lingua restano locali. Backup prima del primo sync, conflitti visibili, export sempre disponibile.
 
 ## T5.5 — PWA/offline
+
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
 
 Service worker, cache degli asset, promemoria backup.
 
@@ -972,27 +980,49 @@ Sottotask:
 
 ## T5.7 — Registro manutenzioni e guasti
 
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
+
 Log di interventi, guasti, sostituzioni; calibrazione del tasso guasti.
 
 ## T5.8 — Import da presa intelligente
+
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
 
 CSV di consumo per stampa, calcolo dei W medi, confronto con il profilo.
 
 ## T5.9 — Clienti e listini
 
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
+
 Anagrafica clienti, listini, preventivi con scadenza, stati inviato/accettato.
 
 ## T5.10 — Grafici e trend
+
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
 
 Breakdown visuale, costo per mese, trend €/kg e €/h, confronto stampanti.
 
 ## T5.11 — Extra pass-through
 
+**Stato:** chiuso/non in scope su indicazione del committente (26/10/2026).
+
 Permettere a un extra (es. spedizione) di essere passato al cliente senza ricarico, con IVA e sconto coerenti.
 
-## T5.12 — Export CSV
+## T5.12 — Export `.xlsx`
 
-Esportare righe e preventivi in CSV per analisi esterne, mantenendo la formattazione it-IT e la precisione dichiarata.
+**Stato:** `[x]` — chiuso il 26/10/2026
+
+**Nota:** export locale per analisi esterne, senza nuove dipendenze. `src/lib/xlsx.ts` è un writer XLSX minimale (OPC/ZIP + XML) che usa `fflate`, già presente per l’import `.3mf`; `src/features/quotes/export-xlsx.ts` mappa i preventivi e `src/features/quotes/ExportXlsxButton.tsx` espone l’azione.
+
+- Workbook con tre fogli: **Preventivi**, **Righe** e **Materiali**. Include anche gli archiviati, con la colonna “Archiviato”; il preventivo senza risultato resta esportabile con le colonne economiche vuote.
+- Importi, grammi, ore, percentuali, kWh, watt e date sono **celle numeriche** con formati Excel (`#,##0.00 €`, `0.0%`, `0.00 g`, `0.00 h`, `dd/mm/yyyy`, ecc.), non testo formattato: i valori restano utilizzabili per filtri e pivot.
+- Intestazioni e nomi dei fogli sono localizzati in italiano e inglese; i nomi dei materiali e delle stampanti vengono dallo snapshot del preventivo.
+- Pulsante “Esporta .xlsx” in **Preventivi** e in **Impostazioni → Dati**. È disabilitato senza preventivi, ha una descrizione accessibile e scarica `layercost-quotes-YYYY-MM-DD.xlsx`.
+- Il file Excel è per analisi e **non sostituisce il backup JSON**, che resta l’unica copia esterna completa.
+
+**Test:** 5 test sul writer (pacchetto OPC, XML, formati, date, nomi dei fogli) e 3 sul mapping (tre fogli, italiano/inglese, preventivo senza risultato); 2 E2E (download reale con preventivo archiviato e contenuto del workbook, pulsante disabilitato senza preventivi). Totale **112 unitari** e **35 E2E** (29 eseguiti + 6 visual) con `npm run check` verde. Workbook verificato anche con `openpyxl` e LibreOffice; budget **220,1 KB JS / 225 KB** e **284,6 KB totali / 350 KB**.
+
+**Accettazione:** righe e preventivi esportabili in `.xlsx` con valori numerici e formati coerenti; archiviati inclusi; italiano e inglese; nessuna richiesta di rete; nessun cambio a formule, `engineVersion`, schema o snapshot. → soddisfatta.
 
 ## T5.13 — Ciclo di vita del preventivo
 
@@ -1056,7 +1086,7 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 3. T2.1 → T2.12
 4. T3.1 → T3.12
 5. T4.1 → T4.7
-6. T5.0 → T5.3 → T5.6 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.4 (sync solo su richiesta esplicita)
-7. Resto del backlog
+6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.4 (sync richiesto il 26/10/2026)
+7. Nessun altro task di fase 5: T5.1, T5.2, T5.5 e T5.7–T5.11 sono chiusi/non in scope su indicazione del committente.
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.

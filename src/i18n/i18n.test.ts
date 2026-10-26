@@ -6,6 +6,7 @@ import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
 import { quotesIt } from './it/quotes'
 import { settingsIt } from './it/settings'
+import { xlsxIt } from './it/xlsx'
 import { baseIt, it as itDictionary } from './it'
 
 describe('dizionari i18n', () => {
@@ -14,7 +15,7 @@ describe('dizionari i18n', () => {
   })
 
   it('le aree non duplicano chiavi', () => {
-    const parts = [baseIt, calculatorIt, quotesIt, catalogsIt, settingsIt, miscIt]
+    const parts = [baseIt, calculatorIt, quotesIt, catalogsIt, settingsIt, miscIt, xlsxIt]
     const keys = parts.flatMap((part) => Object.keys(part))
     expect(new Set(keys).size).toBe(keys.length)
     expect(Object.keys(itDictionary).length).toBe(keys.length)

@@ -92,7 +92,7 @@ src/
   domain/         units, money, types, version, cost/, three-mf
   features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding
   i18n/           it.ts, en.ts, index.ts
-  lib/            format, date, id, share, labels, cn, theme, draft
+  lib/            format, date, id, share, labels, cn, theme, draft, xlsx
   state/          app-store, theme-store
 ```
 
@@ -132,11 +132,19 @@ Limiti predefiniti: 100 MB compressi, 500 MB decompressi totali, 10.000 entry, 1
 
 Il parser non cambia `schemaVersion`, `engineVersion`, snapshot o `AppData`.
 
+## 9.1 Export `.xlsx`
+
+- `src/lib/xlsx.ts` è un writer XLSX minimale e puro: costruisce il pacchetto OPC/ZIP (`[Content_Types].xml`, relazioni, workbook, fogli, stili) e comprime con `fflate`, già presente per il parser `.3mf`. Non introduce dipendenze.
+- Supporta testo inline, numeri, date Excel e formati per denaro, percentuale, grammi, ore, kWh e watt. Non usa la tabella `sharedStrings`.
+- `src/features/quotes/export-xlsx.ts` mappa `Quote[]` e `CostConfig` in tre fogli (Preventivi, Righe, Materiali), usando lo snapshot del preventivo quando presente; i preventivi senza `result` restano esportabili con le colonne economiche vuote.
+- `ExportXlsxButton.tsx` è montato in Preventivi e Impostazioni → Dati. Il download avviene con un Blob locale; nessun upload o richiesta di rete. Il nome è `layercost-quotes-YYYY-MM-DD.xlsx`.
+- L'export non cambia schema, formule, `engineVersion`, snapshot o persistenza; il backup JSON resta l'unica copia esterna completa.
+
 ---
 
 ## 10. i18n
 
-- `src/i18n/it.ts` e `src/i18n/en.ts` combinano i dizionari per area (`calculator`, `quotes`, `catalogs`, `settings`, `misc`); una chiave mancante o un'area con chiavi duplicate fallisce typecheck/test.
+- `src/i18n/it.ts` e `src/i18n/en.ts` combinano i dizionari per area (`calculator`, `quotes`, `catalogs`, `settings`, `misc`, `xlsx`); una chiave mancante o un'area con chiavi duplicate fallisce typecheck/test.
 - `src/i18n/index.ts` espone `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `INTL_LOCALES`, `translate`, `t`, `plural` con `Intl.PluralRules` e `isLocale`.
 - `src/app/I18nProvider.tsx` monta il contesto e aggiorna `<html lang>`/`dir`; `src/app/i18n-context.ts` espone `useI18n`.
 - Tutte le schermate, i componenti condivisi, le etichette di dominio, la stampa e la guida usano i dizionari (T5.6.2); gli errori di import/share/save sono mappati per codice, mentre storage/schema e alcuni errori di dominio restano fallback tecnici.

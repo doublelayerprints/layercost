@@ -246,3 +246,4 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 - L'import non esegue codice: JSON + validazione Zod.
 - Nessun `eval`, nessun `dangerouslySetInnerHTML`.
 - Svuotare i dati del browser cancella i dati: il backup JSON è l'unica copia esterna.
+- L'export `.xlsx` è locale e di sola lettura: serve per analisi e non sostituisce il backup JSON.

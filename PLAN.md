@@ -1,14 +1,14 @@
 # LayerCost — Piano di prodotto e tecnico
 
-**Stato:** **v1.0.0 rilasciata** (fasi 0–4); fase 5 pianificata; CI verde su GitHub; deploy Vercel live
+**Stato:** **v1.0.0 rilasciata** (fasi 0–4); fase 5 in corso; CI verde su GitHub; deploy Vercel live
 **Data:** 26 ottobre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
-**Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione rimandata; preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel; fase 5: import `.3mf`, interfaccia inglese, sync gratuito rimandato (ADR-0017/0018/0019)
+**Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link); preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel; fase 5: import `.3mf`, interfaccia inglese, export `.xlsx`, sync gratuito (ADR-0017/0018/0019)
 
 ## Stato implementazione
 
-- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5). Release **v1.0.0** (T4.6) del 24/10/2026, tag `v1.0.0` su `cc949b3`, con axe WCAG 2.2 AA, WebKit, stampa/PDF, regressione visiva e budget del bundle. Fase 5: import `.3mf` (T5.3), interfaccia inglese (T5.6), preventivi modificabili fino all'invio (T5.13), card del calcolatore (T5.14), preferenze rapide (T5.15), azioni del preventivo in alto (T5.16) e colore filamento (T5.17).
-- **Da fare:** **T5.4 sync** (solo su richiesta esplicita e su piano gratuito) o **T5.7 manutenzioni**. Rigenerare le baseline visive e verificare la preview Vercel di T5.15–T5.17. Piano in `docs/planning/phase-5.md`. Restano rimandate le prove manuali su stampante fisica e screen reader.
+- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5). Release **v1.0.0** (T4.6) del 24/10/2026, tag `v1.0.0` su `cc949b3`, con axe WCAG 2.2 AA, WebKit, stampa/PDF, regressione visiva e budget del bundle. Fase 5: import `.3mf` (T5.3), interfaccia inglese (T5.6), preventivi modificabili fino all'invio (T5.13), card del calcolatore (T5.14), preferenze rapide (T5.15), azioni del preventivo in alto (T5.16), colore filamento (T5.17) ed export `.xlsx` (T5.12).
+- **Da fare:** **T5.4 sync** (richiesto il 26/10/2026, solo su piano gratuito: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Rigenerare le baseline visive e verificare la preview Vercel di T5.15–T5.17 e T5.12. Piano in `docs/planning/phase-5.md`. Restano rimandate le prove manuali su stampante fisica e screen reader.
 - **Non fatto (fuori v1, pianificato in fase 5):** sincronizzazione cloud, magazzino bobine, PWA; import da slicer e interfaccia inglese sono stati completati.
 
 ---
@@ -114,7 +114,7 @@ Il progetto deve essere:
 - Gestione clienti e listini.
 - Confronto actual vs estimated.
 
-La fase 5 pianificata riprende alcune di queste voci: import `.3mf`, interfaccia inglese e sync gratuito rimandato. Vedi `docs/planning/phase-5.md`.
+La fase 5 riprende alcune di queste voci: import `.3mf` e interfaccia inglese (chiusi), export `.xlsx` (chiuso) e sync gratuito (richiesto, da implementare). Vedi `docs/planning/phase-5.md`.
 
 ---
 
@@ -409,11 +409,11 @@ La specifica operativa è in `docs/README.md`; le regole per il coding agent son
 | **2 — Config e dati** | Seed, CRUD, tariffe, storage, migrazioni, export/import                    | Reload e roundtrip ok; vecchi preventivi invariati    | 1,5–3 giorni     |
 | **3 — UI funzionale** | Calcolatore, risultati, storico, PDF, link, confronto                      | Scenario end-to-end completo su Vercel                | 2–4 giorni       |
 | **4 — UI design**     | Skill design, design system, responsive, accessibilità                     | Review UX + nessuna regressione                       | 2–5 giorni       |
-| **5 — Extra**         | Import `.3mf`, inglese, sync gratuito (rimandato), inventory, actuals, PWA | `npm run check` verde, fixture reali, piano approvato | —                |
+| **5 — Extra**         | Import `.3mf`, inglese, export `.xlsx`, sync gratuito (richiesto), inventory, actuals, PWA | `npm run check` verde, fixture reali, piano approvato | —                |
 
 **MVP:** fasi 0–3 implementate. Deploy Vercel live su https://layercost.vercel.app.
 **v1.0:** fase 4 completata e rilasciata il 24/10/2026.
-**Fase 5:** pianificata il 26/10/2026 in `docs/planning/phase-5.md`; primo task T5.3.1.
+**Fase 5:** in corso dal 26/10/2026 in `docs/planning/phase-5.md`; T5.3, T5.6, T5.12 e T5.13–T5.17 chiusi, prossimo T5.4.
 Le stime sono indicative e si riferiscono a lavoro assistito da agente, non a giornate umane.
 
 ---
@@ -522,9 +522,10 @@ Ordine concordato per la fase 5:
 
 1. **Import diretto da `.3mf`** — file già slicato, tempo/grammi/materiali; piano in `docs/planning/phase-5.md` §2.
 2. **Interfaccia inglese** — italiano predefinito, dizionari tipizzati, `Quote.locale`; piano §3.
-3. **Sincronizzazione cloud** — rimandata, solo piano gratuito, provider da scegliere; piano §4.
+3. **Export `.xlsx`** — preventivi, righe e materiali; piano §5.4.
+4. **Sincronizzazione cloud** — richiesta, solo piano gratuito, Supabase Free, workspace condiviso, magic link; piano §4.
 
-Altri candidati:
+Altri candidati (non in scope attuale, salvo richiesta esplicita):
 
 - Magazzino bobine con grammi residui e avvisi.
 - Actual vs estimated: tempo e filamento reali, scostamenti.
@@ -537,7 +538,6 @@ Altri candidati:
 - Ottimizzazione del lotto: quale stampante per quale pezzo.
 - Multi-valuta e fasce orarie.
 - Extra pass-through (es. spedizione senza ricarico).
-- Export CSV di righe e preventivi.
 - Fatturazione elettronica (solo se necessario, con consulenza).
 
 ---
@@ -548,7 +548,7 @@ Non bloccano l'implementazione:
 
 - Prezzi di acquisto reali delle due stampanti e ore di vita stimate.
 - Se e quando inizierete a vendere, e con quale regime IVA.
-- Provider di sincronizzazione futuro (Supabase o altro).
+- Provider di sincronizzazione: **Supabase Free** (scelto il 26/10/2026).
 - Se il repository sarà pubblico o privato.
 - Nome definitivo e branding dell'app.
 - Lista materiali iniziale completa (oltre ai default).

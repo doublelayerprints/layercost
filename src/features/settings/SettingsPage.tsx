@@ -14,6 +14,7 @@ import { Alert, Button, Card, Modal, PageHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 import { useThemeStore } from '@/state/theme-store'
 import { useLocaleStore } from '@/state/locale-store'
+import { ExportXlsxButton } from '@/features/quotes/ExportXlsxButton'
 import type { ThemePreference } from '@/lib/theme'
 import type { Locale } from '@/i18n'
 import { storageErrorMessage } from '@/lib/storage-error-message'
@@ -439,6 +440,7 @@ export function SettingsPage() {
               <Button variant="secondary" onClick={exportData}>
                 {t('settings.exportJson')}
               </Button>
+              <ExportXlsxButton />
               <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
                 {t('settings.importJson')}
               </Button>

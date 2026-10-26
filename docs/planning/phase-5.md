@@ -3,7 +3,7 @@
 **Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento)
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** **T5.4** (sync, rimandato) oppure **T5.7** (registro manutenzioni)
+**Prossima sessione:** **T5.4** (sync, richiesto). Il resto del backlog è chiuso/non in scope.
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -351,7 +351,7 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - I link condivisi creati prima dello schema v2 ricevono `locale: 'it'` in lettura e restano utilizzabili.
 - Scansione statica dei componenti: nessuna stringa italiana hardcoded oltre al nome del prodotto. Restano fallback tecnici interni non mostrati direttamente.
 - Deploy di produzione verificato il 26/10/2026: build `index-CiitaCgo.js`, italiano predefinito, inglese persistente, `<html lang>` corretto, preventivo salvato con schema 2 e `locale: en`, stampa inglese con UI italiana.
-- **T5.6 chiuso.** Prossimo: T5.4 sync (rimandato) o T5.7 manutenzioni.
+- **T5.6 chiuso.** Prossimo: T5.4 sync (richiesto). Il resto del backlog è chiuso/non in scope.
 
 ### 3.16 Esito T5.13–T5.14 (26/10/2026)
 
@@ -363,7 +363,7 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 
 ---
 
-## 4. T5.4 — Sincronizzazione cloud (rimandata)
+## 4. T5.4 — Sincronizzazione cloud (richiesta)
 
 ### 4.1 Obiettivo
 
@@ -376,7 +376,7 @@ Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere i
 - **Sicurezza**: nessuna service role key nel client; RLS o equivalente; TLS.
 - **Nessuna perdita silenziosa**: backup prima del primo sync, conflitti visibili, export sempre disponibile.
 - **Nessun lock-in**: i dati restano esportabili in JSON; il provider è sostituibile.
-- **Rimandata**: non iniziare prima di 3MF e inglese.
+- **Richiesta**: il committente ha chiesto il sync il 26/10/2026; implementarlo dopo T5.3, T5.6 e T5.12.
 
 ### 4.3 Opzioni gratuite (verificate il 26/10/2026)
 
@@ -388,7 +388,7 @@ Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere i
 | **PocketBase self-host**    | Software gratuito, ma serve un host                                                                                                                               | Controllo totale; semplice                            | Non è €0 senza un server già disponibile            |
 | **GitHub repo privato**     | API e rate limit; nessuna concorrenza                                                                                                                             | Già disponibile                                       | Non è un database; sconsigliato                     |
 
-**Raccomandazione per lo spike:** provare **Supabase Free** per primo, perché auth e RLS riducono il codice. Mitigare la pausa con un keep-alive GitHub Actions ogni 2–3 giorni (costo €0, pochi secondi). Se la pausa o i limiti non sono accettabili, passare a **Cloudflare Workers + D1**. Firebase resta la terza opzione.
+**Decisione del 26/10/2026:** **Supabase Free**, con magic link, due utenti pre-creati, signup pubblico disabilitato e **workspace condiviso** (RLS per household). Mitigare la pausa con un keep-alive GitHub Actions ogni 2–3 giorni (costo €0, pochi secondi). Se la pausa o i limiti non sono accettabili, passare a **Cloudflare Workers + D1**. Firebase resta la terza opzione.
 
 ### 4.4 Architettura
 
@@ -432,7 +432,7 @@ Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere i
 
 ### 4.8 Domande aperte
 
-1. Provider: Supabase o Cloudflare? Serve uno spike con limiti reali.
+1. Provider: **Supabase Free scelto il 26/10/2026**. Resta lo spike sui limiti reali e sulla pausa.
 2. Serve la cifratura end-to-end subito o è sufficiente RLS + TLS?
 3. La configurazione si sincronizza per entità o come documento unico?
 4. Come si invita il secondo utente senza un servizio email a pagamento? Magic link Supabase o codice d'invito.
@@ -446,7 +446,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 ---
 
-## 5. Rifiniture richieste dal committente (T5.15–T5.17)
+## 5. Rifiniture ed export richiesti dal committente (T5.12, T5.15–T5.17)
 
 ### 5.1 T5.15 — Preferenze rapide nella sidebar
 
@@ -474,13 +474,23 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 - **Accessibilità:** il colore non è l’unica informazione; il nome della stampa resta leggibile. Il campo ha un’etichetta accessibile e un’azione di rimozione.
 - **Fuori scope:** nessun calcolo del colore, nessun supplemento AMS/ACE, nessuna dipendenza da materiali o slicer.
 
+### 5.4 T5.12 — Export `.xlsx`
+
+- **Obiettivo:** esportare preventivi, righe e materiali per analisi esterne senza passare da CSV o da un servizio online.
+- **Decisione del 26/10/2026:** il committente ha chiesto **`.xlsx`**, non CSV.
+- **Implementazione:** writer XLSX minimale in `src/lib/xlsx.ts` (OPC/ZIP + XML) con `fflate`, già usato dal parser `.3mf`; nessuna nuova dipendenza. Mapping in `src/features/quotes/export-xlsx.ts`, pulsante in Preventivi e Impostazioni → Dati.
+- **Contenuto:** fogli **Preventivi**, **Righe**, **Materiali**; archiviati inclusi; colonne economiche vuote per i preventivi non ricalcolabili; intestazioni in italiano e inglese.
+- **Formati:** importi, grammi, ore, percentuali, kWh, watt e date sono celle numeriche con formati Excel; niente stringhe formattate.
+- **Sicurezza:** tutto locale, nessun upload e nessuna richiesta di rete. Il backup JSON resta l’unica copia esterna completa.
+- **Esito:** chiuso il 26/10/2026. 5 test sul writer, 3 sul mapping, 2 E2E; workbook verificato con `openpyxl` e LibreOffice; `npm run check` verde con budget 220,1 KB JS / 225 KB e 284,6 KB totali / 350 KB.
+
 ---
 
 ## 6. Lavoro trasversale
 
 - **ADR:** 0017 (3MF), 0018 (sync), 0019 (inglese) sono la direzione. Ogni cambio di schema o formula richiede un ADR successivo.
 - **Schema:** v3 con `Quote.locale` (inglese), `Quote.status` (ciclo di vita, ADR-0020) e `PrintLine.color` opzionale (T5.17; nessuna migrazione). L'import 3MF non cambia lo schema.
-- **Test:** ogni iniziativa porta unit, property (dove ha senso), E2E, axe e visual. `npm run check` resta il gate.
+- **Test:** ogni iniziativa porta unit, property (dove ha senso), E2E, axe e visual. `npm run check` resta il gate. L’export `.xlsx` aggiunge test sul writer e sul mapping, più un E2E sul download reale.
 - **Documentazione:** aggiornare `cost-model.md` solo se cambia una formula (non previsto); `data-model.md` per `Quote.locale`, `Quote.status` e `PrintLine.color`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
 - **Deploy:** Vercel free; per il sync valutare env pubbliche (URL + anon key) e un progetto di test separato.
 - **Sicurezza:** nessun upload di `.3mf`; nessun analytics; nessuna chiamata esterna oltre al provider scelto per il sync.
@@ -491,7 +501,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md`, l’ADR-0019 e l’ADR-0020. T5.3, T5.6, T5.13–T5.17 sono chiusi. Prossimo: T5.4 sync (rimandato) oppure T5.7 manutenzioni. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019 e l’ADR-0020. T5.3, T5.6, T5.12 e T5.13–T5.17 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 

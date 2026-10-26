@@ -76,7 +76,7 @@ export const settingsIt = {
 
   'settings.dataTitle': 'Dati e backup',
   'settings.dataDescription':
-    'I dati vivono solo in questo browser. Un backup JSON è l’unica copia esterna: importarlo sostituisce configurazione, preventivi e bozza.',
+    'I dati vivono solo in questo browser. Un backup JSON è l’unica copia esterna; il file Excel serve per analisi e non sostituisce il backup. Importare un JSON sostituisce configurazione, preventivi e bozza.',
   'settings.schemaEngineVersion': 'Schema v{schema} · Motore v{engine}',
   'settings.exportJson': 'Esporta JSON',
   'settings.importJson': 'Importa JSON',

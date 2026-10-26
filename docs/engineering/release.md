@@ -107,13 +107,13 @@ Budget automatico in `scripts/check-budget.mjs`, eseguito da `npm run check`:
 
 | Voce       | Misura        | Limite |
 | ---------- | ------------- | ------ |
-| JavaScript | 141,9 KB gzip | 200 KB |
-| CSS        | 7,3 KB gzip   | 20 KB  |
+| JavaScript | 220,1 KB gzip | 225 KB |
+| CSS        | 7,7 KB gzip   | 20 KB  |
 | Font WOFF2 | 56,8 KB gzip  | 120 KB |
 | HTML       | 0,5 KB gzip   | 4 KB   |
-| Totale     | 206,0 KB gzip | 350 KB |
+| Totale     | 284,6 KB gzip | 350 KB |
 
-La build Vite riporta ~146,6 KB gzip per il JS e ~7,6 KB per il CSS: la differenza è dovuta al metodo di compressione dello script di budget. Entrambe le misure restano sotto i limiti.
+La build Vite riporta ~188 KB gzip per il JS e ~7,9 KB per il CSS: la differenza è dovuta al metodo di compressione dello script di budget. Entrambe le misure restano sotto i limiti.
 
 Nessuna richiesta di rete oltre agli asset statici same-origin: il test `l'app non chiama servizi esterni` fallisce se compare un host diverso da `127.0.0.1`.
 
@@ -172,6 +172,6 @@ gh workflow run visual-baselines.yml --ref main
 ## 10. Dopo la release
 
 - Raccogliere feedback reale sulle due stampanti e sui valori di seed.
-- Fase 5 pianificata in `docs/planning/phase-5.md` (`.3mf`, inglese, sync rimandato); ADR-0017/0018/0019.
+- Fase 5 in corso in `docs/planning/phase-5.md` (`.3mf`, inglese, `.xlsx`, sync richiesto); ADR-0017/0018/0019.
 - Valutare un audit con screen reader e una prova su stampante fisica.
 - Aggiornare le baseline visuali solo con una modifica intenzionale dell'interfaccia.

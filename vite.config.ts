@@ -8,8 +8,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     // The gzip budget is enforced by scripts/check-budget.mjs. The raw-size warning
-    // is only a Vite hint: the i18n dictionaries push the single chunk past 600 KB raw.
-    chunkSizeWarningLimit: 650,
+    // is only a Vite hint: the i18n dictionaries and the XLSX writer push the chunk past 650 KB raw.
+    chunkSizeWarningLimit: 700,
   },
   resolve: {
     alias: {

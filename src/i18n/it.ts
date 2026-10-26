@@ -3,6 +3,7 @@ import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
 import { quotesIt } from './it/quotes'
 import { settingsIt } from './it/settings'
+import { xlsxIt } from './it/xlsx'
 
 /**
  * Dizionario sorgente italiano.
@@ -108,6 +109,7 @@ export const it = {
   ...catalogsIt,
   ...settingsIt,
   ...miscIt,
+  ...xlsxIt,
 } as const
 
 export type BaseMessageKey = keyof typeof baseIt

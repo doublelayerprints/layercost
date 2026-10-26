@@ -76,7 +76,7 @@ export const settingsEn: Record<keyof typeof settingsIt, string> = {
 
   'settings.dataTitle': 'Data and backups',
   'settings.dataDescription':
-    'Data lives only in this browser. A JSON backup is the only external copy: importing it replaces the configuration, quotes and draft.',
+    'Data lives only in this browser. A JSON backup is the only external copy; the Excel file is for analysis and does not replace the backup. Importing JSON replaces the configuration, quotes and draft.',
   'settings.schemaEngineVersion': 'Schema v{schema} · Engine v{engine}',
   'settings.exportJson': 'Export JSON',
   'settings.importJson': 'Import JSON',
