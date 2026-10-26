@@ -1,6 +1,6 @@
 # LayerCost — Stato del progetto
 
-**Data:** 24 ottobre 2026
+**Data:** 26 ottobre 2026
 **Versione:** 1.0.0 — prima release stabile
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
@@ -20,6 +20,8 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 - direzione **A — Strato**, design system, dark mode, stati e verifiche di release.
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
+
+**Fase 5:** T5.3.1 è chiuso il 26/10/2026 con fixture `.3mf` reali e verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il prossimo task è **T5.3.2** (parser ZIP/XML).
 
 ---
 
@@ -129,7 +131,7 @@ npx vercel --prod
 - Audit `axe` automatico su tutte le route; resta consigliata una prova con screen reader reale (VoiceOver/NVDA).
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
 - Nessuna sincronizzazione cloud (pianificata e rimandata: ADR-0018).
-- Nessun import diretto da slicer: il `.3mf` è pianificato in T5.3 (ADR-0017).
+- Nessun import diretto da slicer: fixture `.3mf` verificate in T5.3.1, parser e UI in T5.3.2–T5.3.4 (ADR-0017).
 - Nessuna interfaccia inglese: pianificata in T5.6 (ADR-0019).
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v1; rifiuto versioni future).
@@ -139,18 +141,19 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. **T5.3 — Import diretto da `.3mf`**: chiedere i file reali, verificare `slice_info.config`, parser e mapping.
+1. **T5.3 — Import diretto da `.3mf`**: T5.3.1 chiuso (fixture reali Kobra 3/Kobra X, multi-piatto e non slicato); prossimo **T5.3.2** parser ZIP/XML e `ThreeMfSummary`, poi mapping e UI.
 2. **T5.6 — Interfaccia inglese**: dizionari tipizzati, `Quote.locale`, migrazione schema v2.
 3. **T5.4 — Sync cloud**: rimandato, solo dopo 3MF e inglese e su richiesta esplicita.
-4. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
-5. Eventuale magazzino bobine, actual vs estimated, PWA.
+4. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
+5. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
+6. Eventuale magazzino bobine, actual vs estimated, PWA.
 
 ---
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Fase 5 pianificata; prossimo task **T5.3.1** (fixture `.3mf`).
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Fase 5 in corso: **T5.3.1 chiuso**, fixture in `tests/fixtures/3mf/`; prossimo task **T5.3.2** (parser ZIP/XML e `ThreeMfSummary`).
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
 - **Punti aperti:** prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali vanno rigenerate solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
