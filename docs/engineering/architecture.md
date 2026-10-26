@@ -118,10 +118,10 @@ src/
 
 ## 9. Import `.3mf`
 
-Il parser sta in `src/data/three-mf/` e non è ancora collegato alla UI (T5.3.4). Il tipo normalizzato `ThreeMfSummary` vive in `src/domain/three-mf.ts`; il mapping puro vive in `src/domain/three-mf-mapping.ts`.
+Il parser sta in `src/data/three-mf/` ed è collegato al calcolatore tramite `src/features/calculator/use-three-mf-import.ts` e `ThreeMfImportDialog.tsx` (T5.3.4). Il tipo normalizzato `ThreeMfSummary` vive in `src/domain/three-mf.ts`; il mapping puro vive in `src/domain/three-mf-mapping.ts`.
 
 - `zip.ts` — legge l'indice centrale ZIP; rifiuta cifratura, path traversal, ZIP64, compressioni non supportate, duplicati e superamenti dei limiti; estrae solo i metadati necessari.
-- `xml.ts` — usa `DOMParser` nel browser e rifiuta `<!DOCTYPE`/`<!ENTITY`. Nei test Node `@xmldom/xmldom` è una devDependency; non entra nel bundle.
+- `xml.ts` — rifiuta `<!DOCTYPE`/`<!ENTITY`. Nel thread principale usa il `DOMParser` nativo; nel Web Worker, dove `DOMParser` non è disponibile, passa a `@xmldom/xmldom` (dipendenza runtime usata anche nei test Node).
 - `parse.ts` — normalizza `slice_info.config`, `project_settings.config`, `model_settings.config` e `3D/3dmodel.model`; se manca `slice_info.config` prova il fallback dal G-code.
 - `three-mf.worker.ts` + `worker-client.ts` — parsing fuori dal thread principale; il buffer viene trasferito al worker.
 - `three-mf-mapping.ts` — `proposeThreeMfMapping` propone stampante/materiali senza creare entità; `mapThreeMfToLines` converte i piatti selezionati in `PrintLine[]` con ID iniettati. I grammi si sommano per materiale scelto, senza supplementi AMS/ACE.

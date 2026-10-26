@@ -406,37 +406,49 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Documentazione.** Checklist e risultati in `docs/engineering/release.md`; changelog in `CHANGELOG.md`; stato in `STATUS.md`.
 - **Deploy.** Tag `v1.0.0` su `cc949b3` e produzione Vercel verificata con la build `index-C_5bQZYu.js`; gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, tema scuro persistente e PDF A4 chiaro.
 
+### 8.7 Import `.3mf` — esito (T5.3.4)
+
+- **Ingresso.** “Importa .3mf” nella testata del calcolatore e nella sezione Stampe, accanto ad “Aggiungi riga”. La sezione Stampe è una drop zone: durante il drag mostra un outline tratteggiato `data` e l’overlay “Rilascia il file qui”.
+- **Dialogo.** Un solo `Modal` (`xl`) con file/slicer, stampante, piatti selezionabili, tempo, grammi, filamenti, colore, select materiale per filamento e avvisi globali/per piatto. I piatti incompleti sono disabilitati con motivazione; il footer spiega perché l’import è disabilitato.
+- **Conferma.** Se la bozza ha contenuto, lo stesso dialogo passa allo step “Aggiungere o sostituire?”: “Indietro” secondario, “Aggiungi alla bozza” primario, “Sostituisci le righe” pericoloso. Nessun modale annidato. Nome, cliente, costi di lavoro e prezzo restano invariati.
+- **Esito.** Alert di caricamento/errore/successo con `role`; focus sul nome della prima riga importata. Il pulsante primario riceve il focus quando cambia lo step.
+- **Responsive e accessibilità.** A 375 px il footer va a capo, il dialogo non crea overflow e i controlli restano a 44 px; a 1440 px il dialogo resta centrato. Esc, focus trap e focus restituito usano il `Modal` esistente. Axe WCAG 2.2 AA passa anche sul modale in tema scuro.
+- **Dati dinamici.** Il colore del filamento è mostrato con uno swatch solo se è un esadecimale valido; è un dato dello slicer, non un token di design, e non entra nel prezzo.
+
 ---
 
 ## 9. Mappa dei file
 
-| File                                         | Contenuto                                                                                                                                         |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/index.css`                              | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                                 |
-| `src/lib/theme.ts`                           | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                                          |
-| `src/lib/draft.ts`                           | rileva se la bozza contiene lavoro da non perdere                                                                                                 |
-| `src/features/calculator/NewDraftButton.tsx` | conferma accessibile prima di scartare la bozza                                                                                                   |
-| `src/data/theme.ts`                          | chiave `layercost:theme`, load/save fuori da `AppData`                                                                                            |
-| `src/state/theme-store.ts`                   | stato Zustand della preferenza                                                                                                                    |
-| `src/app/theme.ts`                           | applicazione del tema e `meta theme-color`                                                                                                        |
-| `src/app/ThemeController.tsx`                | sincronizzazione con `prefers-color-scheme`                                                                                                       |
-| `src/features/settings/SettingsPage.tsx`     | sezione Aspetto con le tre radio                                                                                                                  |
-| `src/components/ui.tsx`                      | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, TableScroll, Table, Tabs |
-| `src/components/field-context.ts`            | id di label/hint/error condivisi                                                                                                                  |
-| `src/components/cost-stack.tsx`              | stack dei costi                                                                                                                                   |
-| `src/lib/cost-bands.ts`                      | raggruppamento delle bande e test                                                                                                                 |
-| `src/lib/cost-details.ts`                    | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                             |
-| `src/lib/format.ts`                          | formattazione it-IT e arrotondamento dei centesimi                                                                                                |
-| `src/lib/format.test.ts`                     | test dei centesimi e della formattazione                                                                                                          |
-| `src/components/logo.tsx`                    | marchio a tre strati                                                                                                                              |
-| `src/assets/fonts/`                          | WOFF2 self-hosted                                                                                                                                 |
-| `public/fonts/`                              | licenze OFL                                                                                                                                       |
-| `tests/e2e/design-system.spec.ts`            | token, focus, responsive, menu                                                                                                                    |
-| `tests/e2e/theme.spec.ts`                    | preferenza, persistenza, sistema, screenshot scuro                                                                                                |
-| `tests/e2e/states.spec.ts`                   | conferma della bozza, sostituzione dal dettaglio                                                                                                  |
-| `tests/e2e/a11y.spec.ts`                     | axe WCAG 2.2 AA su tutte le route, chiaro/scuro, menu e modali                                                                                    |
-| `tests/e2e/webkit.spec.ts`                   | flusso critico e link condiviso su WebKit                                                                                                         |
-| `tests/e2e/release.spec.ts`                  | PDF A4 chiaro da tema scuro, nessuna richiesta esterna                                                                                            |
-| `tests/e2e/visual.spec.ts`                   | 15 screenshot di regressione a 1440/768/390 px                                                                                                    |
-| `scripts/check-budget.mjs`                   | budget gzip di JS, CSS, font, HTML e totale                                                                                                       |
-| `docs/engineering/release.md`                | checklist e verifiche della v1.0.0                                                                                                                |
+| File                                              | Contenuto                                                                                                                                         |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/index.css`                                   | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                                 |
+| `src/lib/theme.ts`                                | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                                          |
+| `src/lib/draft.ts`                                | rileva se la bozza contiene lavoro da non perdere                                                                                                 |
+| `src/features/calculator/NewDraftButton.tsx`      | conferma accessibile prima di scartare la bozza                                                                                                   |
+| `src/features/calculator/use-three-mf-import.ts`  | file input, drag & drop, parsing in worker e stati dell’import                                                                                    |
+| `src/features/calculator/ThreeMfImportDialog.tsx` | anteprima piatti, mappatura stampante/materiali e conferma append/replace                                                                         |
+| `src/data/theme.ts`                               | chiave `layercost:theme`, load/save fuori da `AppData`                                                                                            |
+| `src/state/theme-store.ts`                        | stato Zustand della preferenza                                                                                                                    |
+| `src/app/theme.ts`                                | applicazione del tema e `meta theme-color`                                                                                                        |
+| `src/app/ThemeController.tsx`                     | sincronizzazione con `prefers-color-scheme`                                                                                                       |
+| `src/features/settings/SettingsPage.tsx`          | sezione Aspetto con le tre radio                                                                                                                  |
+| `src/components/ui.tsx`                           | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, TableScroll, Table, Tabs |
+| `src/components/field-context.ts`                 | id di label/hint/error condivisi                                                                                                                  |
+| `src/components/cost-stack.tsx`                   | stack dei costi                                                                                                                                   |
+| `src/lib/cost-bands.ts`                           | raggruppamento delle bande e test                                                                                                                 |
+| `src/lib/cost-details.ts`                         | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                             |
+| `src/lib/format.ts`                               | formattazione it-IT e arrotondamento dei centesimi                                                                                                |
+| `src/lib/format.test.ts`                          | test dei centesimi e della formattazione                                                                                                          |
+| `src/components/logo.tsx`                         | marchio a tre strati                                                                                                                              |
+| `src/assets/fonts/`                               | WOFF2 self-hosted                                                                                                                                 |
+| `public/fonts/`                                   | licenze OFL                                                                                                                                       |
+| `tests/e2e/design-system.spec.ts`                 | token, focus, responsive, menu                                                                                                                    |
+| `tests/e2e/theme.spec.ts`                         | preferenza, persistenza, sistema, screenshot scuro                                                                                                |
+| `tests/e2e/states.spec.ts`                        | conferma della bozza, sostituzione dal dettaglio                                                                                                  |
+| `tests/e2e/import.spec.ts`                        | import `.3mf`, drag & drop, mappatura, conferma e overflow                                                                                        |
+| `tests/e2e/a11y.spec.ts`                          | axe WCAG 2.2 AA su tutte le route, chiaro/scuro, menu, modali e import                                                                            |
+| `tests/e2e/webkit.spec.ts`                        | flusso critico e link condiviso su WebKit                                                                                                         |
+| `tests/e2e/release.spec.ts`                       | PDF A4 chiaro da tema scuro, nessuna richiesta esterna                                                                                            |
+| `tests/e2e/visual.spec.ts`                        | 15 screenshot di regressione a 1440/768/390 px                                                                                                    |
+| `scripts/check-budget.mjs`                        | budget gzip di JS, CSS, font, HTML e totale                                                                                                       |
+| `docs/engineering/release.md`                     | checklist e verifiche della v1.0.0                                                                                                                |

@@ -103,6 +103,7 @@ export interface AppState {
 
   updateLine: (lineId: string, patch: Partial<PrintLine>) => void
   addLine: () => void
+  importLines: (lines: PrintLine[], mode: 'append' | 'replace') => void
   duplicateLine: (lineId: string) => void
   removeLine: (lineId: string) => void
   updateLineMaterial: (
@@ -381,6 +382,19 @@ export const useAppStore = create<AppState>()((set, get) => ({
       draft: {
         ...state.draft,
         lines: [...state.draft.lines, createEmptyLine(state.config)],
+        updatedAt: nowIso(),
+      },
+    }))
+    get().persist()
+  },
+
+  importLines: (lines, mode) => {
+    if (lines.length === 0) return
+    const imported = structuredClone(lines)
+    set((state) => ({
+      draft: {
+        ...state.draft,
+        lines: mode === 'append' ? [...state.draft.lines, ...imported] : imported,
         updatedAt: nowIso(),
       },
     }))

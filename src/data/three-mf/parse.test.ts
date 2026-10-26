@@ -176,13 +176,20 @@ describe('parser .3mf', () => {
     expect(summary.warnings.some((warning) => warning.code === 'UNKNOWN_MATERIAL')).toBe(true)
   })
 
-  it('segnala un piatto senza tempo come non utilizzabile', () => {
+  it('segnala un piatto senza tempo o con tempo zero come non utilizzabile', () => {
     const files = fixtureFiles('anycubic-kobra3-pla.gcode.3mf')
     const sliceInfo = new TextDecoder().decode(files['Metadata/slice_info.config'])
     files['Metadata/slice_info.config'] = new TextEncoder().encode(
       sliceInfo.replace(/\s*<metadata key="prediction" value="[^"]*"\/>/, ''),
     )
     expect(errorCode(buildZip(files))).toBe('NO_USABLE_PLATES')
+
+    const zero = fixtureFiles('anycubic-kobra3-pla.gcode.3mf')
+    const zeroInfo = new TextDecoder().decode(zero['Metadata/slice_info.config'])
+    zero['Metadata/slice_info.config'] = new TextEncoder().encode(
+      zeroInfo.replace(/key="prediction" value="[^"]*"/, 'key="prediction" value="0"'),
+    )
+    expect(errorCode(buildZip(zero))).toBe('NO_USABLE_PLATES')
   })
 
   it('rifiuta XML malformato e DOCTYPE', () => {

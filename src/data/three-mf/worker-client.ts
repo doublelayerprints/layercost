@@ -52,14 +52,21 @@ export async function parseThreeMfInWorker(
   const buffer = await file.arrayBuffer()
 
   if (typeof Worker === 'undefined') {
-    return parseThreeMf(file.name, new Uint8Array(buffer), { limits })
+    throw new ThreeMfImportError(
+      'UNKNOWN',
+      'Il browser non supporta il parsing in background. Aggiorna il browser e riprova.',
+    )
   }
 
   let worker: Worker
   try {
     worker = new Worker(new URL('./three-mf.worker.ts', import.meta.url), { type: 'module' })
-  } catch {
-    return parseThreeMf(file.name, new Uint8Array(buffer), { limits })
+  } catch (error) {
+    throw new ThreeMfImportError(
+      'UNKNOWN',
+      'Impossibile avviare il parser in background. Aggiorna il browser e riprova.',
+      { cause: error },
+    )
   }
 
   const id = nextRequestId

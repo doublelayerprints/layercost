@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.3 — 75 test unitari + 18 E2E (3 visual su CI)
+**Stato:** v1.0.0 + T5.3.4 — 75 test unitari + 26 E2E (3 visual su CI)
 
 ---
 
@@ -42,11 +42,12 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/lib/draft.test.ts` — 6 test: bozza vuota, metadati, righe, costi di lavoro, prezzo, override.
 - `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
+- `tests/e2e/import.spec.ts` — 8 test: file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload e overflow a 375 px.
 - `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload, condivisione/import in contesto pulito, navigazione sezioni.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375 e menu mobile.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro esplicito, persistenza, “Sistema” che segue il dispositivo.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza, sostituzione della bozza dal dettaglio.
-- `tests/e2e/a11y.spec.ts` — 2 test: 25 scansioni axe su tutte le route, tema chiaro desktop e tema scuro mobile, menu e modali inclusi; 0 violazioni.
+- `tests/e2e/a11y.spec.ts` — 2 test: 26 scansioni axe su tutte le route, tema chiaro desktop e tema scuro mobile, menu, modali e import `.3mf` inclusi; 0 violazioni.
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
 - `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con token chiari partendo dal tema scuro; nessuna richiesta esterna.
 - `tests/e2e/visual.spec.ts` — 3 test, 15 screenshot: calcolatore, dettaglio, preventivi, materiali e impostazioni a 1440/768/390 px. Saltati fuori dalla CI.
@@ -55,9 +56,9 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 ### 3.1 Fixture `.3mf`
 
 - I fixture sono ridotti: niente G-code, geometrie o immagini, solo i metadati necessari al parser.
-- `parse.test.ts` usa `@xmldom/xmldom` (devDependency) per il `DOMParser` in Node; nel browser il parser usa `DOMParser` nativo.
+- `parse.test.ts` usa `@xmldom/xmldom` per il `DOMParser` in Node; nel browser il thread principale usa `DOMParser` nativo, mentre il Web Worker usa `@xmldom/xmldom` perché `DOMParser` non esiste nei worker.
 - Il fixture Bambu reale non è committato per la licenza del modello; il percorso Bambu è coperto da un test sintetico con lo stesso schema (`X-BBL-Client-Version`, `printer_model_id = C12`).
-- Per i test del worker in browser si rimanda all'E2E della UI (T5.3.4).
+- Il worker `.3mf` viene esercitato dall'E2E di import; non è testato in isolamento in Node.
 
 ## 4. Golden case
 
@@ -72,8 +73,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 - Prova con screen reader reale (VoiceOver/NVDA) e su una stampante fisica.
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
-- Import via file chooser (E2E).
-- Worker `.3mf` in un browser reale: arriva con l'E2E della UI in T5.3.4.
+- Performance dell'import su file reali da 50–100 MB (T5.3.5).
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
@@ -87,7 +87,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (75 unitari, 18 E2E).
+Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (75 unitari, 26 E2E).
 
 ## 7. Come aggiungere un test
 
@@ -95,6 +95,7 @@ Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (75 unitari,
 - Per uno schema: aggiungi un fixture valido/invalido in `storage.test.ts`.
 - Per il parser `.3mf`: aggiungi un caso in `src/data/three-mf/parse.test.ts`; se serve un nuovo file reale, aggiungi una fixture ridotta in `tests/fixtures/3mf/` e aggiorna il README.
 - Per il mapping `.3mf`: aggiungi un caso in `src/domain/three-mf-mapping.test.ts`; per le invarianti usa `fast-check`.
+- Per l'import `.3mf` lato UI: aggiungi un caso in `tests/e2e/import.spec.ts`, usando una fixture di `tests/fixtures/3mf/`.
 - Per un flusso UI: aggiungi un E2E in `tests/e2e`.
 - Per un token o un componente: aggiungi un test in `tests/e2e/design-system.spec.ts` (font, token, focus, touch, overflow).
 - Per una schermata: aggiungi la route in `tests/e2e/a11y.spec.ts` e, se è stabile, in `tests/e2e/visual.spec.ts`.

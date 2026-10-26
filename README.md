@@ -18,6 +18,7 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Passa dal costo al prezzo con ricarico o margine, sconto, arrotondamento e IVA opzionale.
 - Salva preventivi con snapshot dei prezzi usati; “Aggiorna prezzi” crea una copia.
 - Confronta Kobra 3 e Kobra X sullo stesso lavoro.
+- Importa un `.3mf` già slicato con anteprima dei piatti, mappatura di stampante e materiali e import nel preventivo.
 - Esporta/importa JSON, condivide un preventivo via link, stampa il PDF dal browser.
 - Tema chiaro, scuro o di sistema, con stampa sempre in nero su bianco.
 - Funziona interamente nel browser: nessun backend, nessun account, nessun analytics.
@@ -100,9 +101,9 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 75 unitari, 18 E2E (Chromium + WebKit), axe 0 violazioni, stampa/PDF, regressione visiva e budget.
-- **Fuori v1:** sync cloud, magazzino bobine, import slicer, PWA, inglese.
-- **Fase 5 in corso:** fixture `.3mf` reali (T5.3.1), parser ZIP/XML locale con worker (T5.3.2) e mapping puro (T5.3.3); UI di import in sviluppo; interfaccia inglese e sync gratuito rimandato. Piano in `docs/planning/phase-5.md`.
+- **Verifiche:** 75 unitari, 26 E2E (Chromium + WebKit), axe 0 violazioni, stampa/PDF, regressione visiva e budget.
+- **Fuori v1:** sync cloud, magazzino bobine, PWA, inglese.
+- **Fase 5 in corso:** import `.3mf` disponibile con fixture reali, parser ZIP/XML in worker, mapping puro e UI (T5.3.1–T5.3.4); restano performance/fixture Bambu (T5.3.5), interfaccia inglese e sync gratuito rimandato. Piano in `docs/planning/phase-5.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

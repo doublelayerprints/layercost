@@ -63,7 +63,10 @@ export function LineEditor({
   const totalGrams = line.materials.reduce((sum, usage) => sum + usage.grams, 0)
 
   return (
-    <fieldset className="mt-5 border-t border-line pt-5 first:mt-1 first:border-t-0 first:pt-0">
+    <fieldset
+      id={`line-${line.id}`}
+      className="mt-5 border-t border-line pt-5 first:mt-1 first:border-t-0 first:pt-0"
+    >
       <legend className="sr-only">
         Riga {index + 1}: {line.name.trim() || 'stampa senza nome'}
       </legend>
@@ -206,10 +209,7 @@ export function LineEditor({
           <h3 className="text-sm font-semibold text-ink">Extra per pezzo</h3>
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2.5">
             {perUnitExtras.map((extra) => (
-              <label
-                key={extra.id}
-                className="flex min-h-6 items-center gap-2 text-sm text-ink"
-              >
+              <label key={extra.id} className="flex min-h-6 items-center gap-2 text-sm text-ink">
                 <input
                   type="checkbox"
                   checked={line.extraIds.includes(extra.id)}

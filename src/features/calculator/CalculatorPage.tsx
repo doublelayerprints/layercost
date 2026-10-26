@@ -1,20 +1,32 @@
-import { useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { calculateQuote } from '@/domain/cost/quote'
 import { pricingFromSettings } from '@/domain/cost/quote'
 import type { QuoteResult } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
-import { Button, Card, EmptyState, Field, Input, PageHeader, SectionHeader } from '@/components/ui'
+import {
+  Alert,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Input,
+  PageHeader,
+  SectionHeader,
+} from '@/components/ui'
 import { TextField } from '@/components/number-fields'
 import { OnboardingCard } from '@/features/onboarding/OnboardingCard'
 import { QuotePrint } from '@/features/quotes/QuotePrint'
+import { cn } from '@/lib/cn'
+import { formatDateOnly, formatGrams } from '@/lib/format'
 import { CostDetails } from './CostDetails'
 import { JobCostsEditor } from './JobCostsEditor'
 import { LineEditor } from './LineEditor'
 import { NewDraftButton } from './NewDraftButton'
 import { PricingEditor } from './PricingEditor'
 import { SummaryPanel, type QuickComparison } from './SummaryPanel'
-import { formatDateOnly, formatGrams } from '@/lib/format'
+import { ThreeMfImportDialog } from './ThreeMfImportDialog'
+import { useThreeMfImport } from './use-three-mf-import'
 
 interface CalculationState {
   result?: QuoteResult
@@ -41,6 +53,40 @@ export function CalculatorPage() {
   const dateFieldId = useId()
 
   const [saveError, setSaveError] = useState<string>()
+  const pendingFocusRef = useRef<string | undefined>(undefined)
+  const {
+    fileInputRef,
+    openFilePicker,
+    handleFileInput,
+    dragHandlers,
+    isDragging,
+    isLoading,
+    error: importError,
+    clearError,
+    success: importSuccess,
+    clearSuccess,
+    summary: importSummary,
+    stage: importStage,
+    pendingLines,
+    dialogKey,
+    closeDialog,
+    backToPreview,
+    requestImport,
+    confirmAppend,
+    confirmReplace,
+  } = useThreeMfImport((lineId) => {
+    pendingFocusRef.current = lineId
+  })
+
+  useEffect(() => {
+    const lineId = pendingFocusRef.current
+    if (!lineId) return
+    pendingFocusRef.current = undefined
+    const line = document.getElementById(`line-${lineId}`)
+    const nameInput = line?.querySelector<HTMLInputElement>('input[aria-label="Nome della stampa"]')
+    nameInput?.focus()
+    line?.scrollIntoView({ block: 'center' })
+  }, [draft.lines])
 
   const calculation = useMemo<CalculationState>(() => {
     try {
@@ -141,12 +187,45 @@ export function CalculatorPage() {
               storico.
             </span>
           }
-          actions={<NewDraftButton label="Nuovo" />}
+          actions={
+            <>
+              <Button variant="secondary" onClick={openFilePicker} disabled={isLoading}>
+                {isLoading ? 'Analisi…' : 'Importa .3mf'}
+              </Button>
+              <NewDraftButton label="Nuovo" />
+            </>
+          }
         />
 
         <div className="mt-6">
           <OnboardingCard />
         </div>
+
+        {importError || isLoading || importSuccess ? (
+          <div className="mt-6 space-y-3">
+            {importError ? (
+              <div role="alert">
+                <Alert tone="danger" title="Importazione non riuscita" onClose={clearError}>
+                  {importError}
+                </Alert>
+              </div>
+            ) : null}
+            {isLoading ? (
+              <div role="status">
+                <Alert tone="info" title="Analisi del file in corso">
+                  Il file viene letto in locale e non lascia il browser.
+                </Alert>
+              </div>
+            ) : null}
+            {importSuccess ? (
+              <div role="status">
+                <Alert tone="success" title="Import completato" onClose={clearSuccess}>
+                  {importSuccess}
+                </Alert>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="mt-6 grid items-start gap-6 lg:grid-cols-12">
           <div className="min-w-0 lg:col-span-7">
@@ -183,15 +262,42 @@ export function CalculatorPage() {
                 </div>
               </section>
 
-              <section className="mt-8 border-t border-line pt-6" aria-labelledby="section-stampe">
+              <section
+                {...dragHandlers}
+                className={cn(
+                  'relative mt-8 border-t border-line pt-6 transition-feedback',
+                  isDragging &&
+                    'rounded-control outline-2 outline-dashed outline-offset-4 outline-data',
+                )}
+                aria-labelledby="section-stampe"
+                data-dropzone="3mf"
+              >
+                {isDragging ? (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-control border-2 border-dashed border-data bg-surface/95"
+                  >
+                    <p className="text-sm font-medium text-ink">Rilascia il file qui</p>
+                  </div>
+                ) : null}
                 <SectionHeader
                   id="section-stampe"
                   title="Stampe"
-                  description="Una riga per ogni stampa o pezzo diverso; la quantità gestisce le copie."
+                  description="Una riga per ogni stampa o pezzo diverso; la quantità gestisce le copie. Puoi anche trascinare qui un .3mf già slicato."
                   actions={
-                    <Button variant="secondary" size="sm" onClick={addLine}>
-                      Aggiungi riga
-                    </Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={openFilePicker}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Analisi…' : 'Importa .3mf'}
+                      </Button>
+                      <Button variant="secondary" size="sm" onClick={addLine}>
+                        Aggiungi riga
+                      </Button>
+                    </>
                   }
                 />
 
@@ -271,6 +377,30 @@ export function CalculatorPage() {
           <div id="dettaglio" className="mt-6 scroll-mt-6">
             <CostDetails quote={draft} result={calculation.result} />
           </div>
+        ) : null}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".3mf,application/zip"
+          className="hidden"
+          tabIndex={-1}
+          onChange={handleFileInput}
+        />
+
+        {importSummary ? (
+          <ThreeMfImportDialog
+            key={dialogKey}
+            summary={importSummary}
+            config={config}
+            stage={importStage}
+            pendingCount={pendingLines?.length ?? 0}
+            onClose={closeDialog}
+            onBack={backToPreview}
+            onRequestImport={requestImport}
+            onAppend={confirmAppend}
+            onReplace={confirmReplace}
+          />
         ) : null}
       </div>
 
