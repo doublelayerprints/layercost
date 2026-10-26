@@ -1,6 +1,6 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso**; **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore)
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore)
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
 **Prossima sessione:** **T5.4** (sync, rimandato) oppure **T5.7** (registro manutenzioni)
@@ -449,9 +449,9 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 ## 5. Lavoro trasversale
 
 - **ADR:** 0017 (3MF), 0018 (sync), 0019 (inglese) sono la direzione. Ogni cambio di schema o formula richiede un ADR successivo.
-- **Schema:** l'unico cambio previsto è `Quote.locale` (v2) per l'inglese. L'import 3MF non cambia lo schema nella prima iterazione.
+- **Schema:** v3 con `Quote.locale` (inglese) e `Quote.status` (ciclo di vita, ADR-0020). L'import 3MF non cambia lo schema.
 - **Test:** ogni iniziativa porta unit, property (dove ha senso), E2E, axe e visual. `npm run check` resta il gate.
-- **Documentazione:** aggiornare `cost-model.md` solo se cambia una formula (non previsto); `data-model.md` per `Quote.locale`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
+- **Documentazione:** aggiornare `cost-model.md` solo se cambia una formula (non previsto); `data-model.md` per `Quote.locale` e `Quote.status`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
 - **Deploy:** Vercel free; per il sync valutare env pubbliche (URL + anon key) e un progetto di test separato.
 - **Sicurezza:** nessun upload di `.3mf`; nessun analytics; nessuna chiamata esterna oltre al provider scelto per il sync.
 
