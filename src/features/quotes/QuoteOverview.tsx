@@ -3,6 +3,7 @@ import { useTranslator } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import type { Quote, QuoteResult } from '@/domain/types'
 import { Alert, Card, Price, SectionHeader, TableScroll } from '@/components/ui'
+import { LineColorSwatch } from '@/components/line-color'
 import { CostStack } from '@/components/cost-stack'
 import { costBands } from '@/lib/cost-bands'
 import { CostDetails } from '@/features/calculator/CostDetails'
@@ -172,14 +173,20 @@ export function QuoteOverview({
                 return (
                   <tr key={line.id} className="border-t border-rule align-top">
                     <th scope="row" className="py-3 pr-4 text-left font-normal">
-                      <p className="font-medium text-ink">{line.name}</p>
-                      <p className="mt-0.5 text-xs text-muted">
-                        {materialNames(line) || t('quote.noMaterial')} · {format.grams(lineGrams)}
-                        {line.quantity > 1 ? ` ${t('quote.perPiece')}` : ''}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted">
-                        {lineResult?.printerName ?? t('quote.printerUnavailable')}
-                      </p>
+                      <div className="flex items-start gap-2">
+                        <LineColorSwatch color={line.color} className="mt-1 h-3 w-3" />
+                        <div className="min-w-0">
+                          <p className="font-medium text-ink">{line.name}</p>
+                          <p className="mt-0.5 text-xs text-muted">
+                            {materialNames(line) || t('quote.noMaterial')} ·{' '}
+                            {format.grams(lineGrams)}
+                            {line.quantity > 1 ? ` ${t('quote.perPiece')}` : ''}
+                          </p>
+                          <p className="mt-0.5 text-xs text-muted">
+                            {lineResult?.printerName ?? t('quote.printerUnavailable')}
+                          </p>
+                        </div>
+                      </div>
                     </th>
                     <td className="py-3 pr-4 text-right tabular-nums">{line.quantity}</td>
                     <td className="py-3 pr-4 text-right tabular-nums text-muted">
@@ -217,16 +224,19 @@ export function QuoteOverview({
             return (
               <li key={line.id} className="border-b border-rule py-3">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink">{line.name}</p>
-                    <p className="mt-0.5 text-xs text-muted">
-                      {materialNames(line) || t('quote.noMaterial')} · {format.grams(lineGrams)}
-                      {line.quantity > 1 ? ` ${t('quote.perPiece')}` : ''}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted">
-                      {line.quantity} {t('quote.unit.pieces')} ·{' '}
-                      {format.duration(lineResult?.effectiveSeconds ?? line.timeSeconds)}
-                    </p>
+                  <div className="flex min-w-0 items-start gap-2">
+                    <LineColorSwatch color={line.color} className="mt-1 h-3 w-3" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-ink">{line.name}</p>
+                      <p className="mt-0.5 text-xs text-muted">
+                        {materialNames(line) || t('quote.noMaterial')} · {format.grams(lineGrams)}
+                        {line.quantity > 1 ? ` ${t('quote.perPiece')}` : ''}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted">
+                        {line.quantity} {t('quote.unit.pieces')} ·{' '}
+                        {format.duration(lineResult?.effectiveSeconds ?? line.timeSeconds)}
+                      </p>
+                    </div>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm font-medium tabular-nums text-ink">

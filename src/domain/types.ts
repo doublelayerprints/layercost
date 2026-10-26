@@ -120,6 +120,8 @@ export interface PrintLine {
   finishingSecondsPerUnit: Seconds
   extraIds: string[]
   overrides: LineOverrides
+  /** Filament colour as #rrggbb. Presentation only: it never enters the cost. */
+  color?: string
   notes?: string
 }
 

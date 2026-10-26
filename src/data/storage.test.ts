@@ -32,6 +32,16 @@ describe('dati persistiti', () => {
     expect(data.draft.locale).toBe('it')
   })
 
+  it('accetta il colore esadecimale della riga e rifiuta un formato non valido', () => {
+    const colored = createInitialData()
+    colored.draft.lines[0]!.color = '#ff0000'
+    expect(appDataSchema.safeParse(colored).success).toBe(true)
+
+    const invalid = structuredClone(colored)
+    invalid.draft.lines[0]!.color = 'red'
+    expect(appDataSchema.safeParse(invalid).success).toBe(false)
+  })
+
   it('rifiuta uno schema futuro', () => {
     expect(() => migrateAppData({ schemaVersion: 99 })).toThrow()
     expect(() => parseAppData({ schemaVersion: 99 })).toThrow()

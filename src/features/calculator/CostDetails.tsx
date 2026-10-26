@@ -3,6 +3,7 @@ import { useTranslator } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import type { Locale } from '@/i18n'
 import { Badge, Card, SectionHeader, TableScroll } from '@/components/ui'
+import { LineColorSwatch } from '@/components/line-color'
 import { costDetailRows, costDetailTotals } from '@/lib/cost-details'
 
 export function CostDetails({
@@ -19,6 +20,7 @@ export function CostDetails({
   const rows = costDetailRows(result)
   const totals = costDetailTotals(rows)
   const rowsById = new Map(rows.map((row) => [row.lineId, row]))
+  const colorsByLineId = new Map(quote.lines.map((line) => [line.id, line.color]))
   const totalGrams = result.lines.reduce(
     (sum, line) =>
       sum +
@@ -89,7 +91,13 @@ export function CostDetails({
                     scope="row"
                     className="sticky left-0 bg-surface py-3 pr-4 text-left font-normal"
                   >
-                    <p className="font-medium text-ink">{line.name}</p>
+                    <p className="flex items-center gap-1.5 font-medium text-ink">
+                      <LineColorSwatch
+                        color={colorsByLineId.get(line.lineId)}
+                        className="h-3 w-3"
+                      />
+                      {line.name}
+                    </p>
                     <p className="mt-0.5 text-xs text-muted">
                       {t('details.lineMeta', {
                         printer: line.printerName,

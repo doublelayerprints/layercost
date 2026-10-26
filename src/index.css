@@ -217,6 +217,12 @@
     print-color-adjust: exact;
   }
 
+  /* The filament colour is document data, so it prints even when the UI is in dark mode. */
+  [data-line-color] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   [data-stack-tone='data'] {
     background-color: #000 !important;
   }

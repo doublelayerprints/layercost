@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { MATERIAL_FAMILIES } from '@/domain/types'
+import { HEX_COLOR_PATTERN } from '@/lib/color'
 import { StorageError } from './errors'
 import type { AppData } from './storage'
 
@@ -113,6 +114,7 @@ export const printLineSchema = z.object({
   finishingSecondsPerUnit: nonNegativeInteger,
   extraIds: z.array(z.string()),
   overrides: lineOverridesSchema,
+  color: z.string().regex(HEX_COLOR_PATTERN).optional(),
   notes: z.string().optional(),
 })
 

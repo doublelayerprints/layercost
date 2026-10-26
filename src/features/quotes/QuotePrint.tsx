@@ -3,6 +3,7 @@ import type { Quote, QuoteResult } from '@/domain/types'
 import { useTranslator } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { CostStack } from '@/components/cost-stack'
+import { LineColorSwatch } from '@/components/line-color'
 import { costBands } from '@/lib/cost-bands'
 import { todayIsoDate } from '@/lib/date'
 import { plural } from '@/i18n'
@@ -106,9 +107,15 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
             const materials = line.materialDetails
               .map((detail) => `${detail.name} ${format.grams(detail.grams)}`)
               .join(', ')
+            const quoteLine = quote.lines.find((candidate) => candidate.id === line.lineId)
             return (
               <tr key={line.lineId} className="print-break border-b border-black/25 align-top">
-                <td className="py-1.5 pr-2 font-medium">{line.name}</td>
+                <td className="py-1.5 pr-2 font-medium">
+                  <span className="inline-flex items-center gap-1.5">
+                    <LineColorSwatch color={quoteLine?.color} className="h-2.5 w-2.5" />
+                    {line.name}
+                  </span>
+                </td>
                 <td className="py-1.5 pr-2">{line.printerName}</td>
                 <td className="py-1.5 pr-2">
                   {materials || format.grams(grams)}

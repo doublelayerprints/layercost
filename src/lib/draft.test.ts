@@ -52,6 +52,7 @@ describe('contenuto della bozza', () => {
     ).toBe(true)
     expect(draftHasContent({ ...base, lines: [{ ...line, quantity: 2 }] })).toBe(true)
     expect(draftHasContent({ ...base, lines: [{ ...line, extraIds: ['extra-1'] }] })).toBe(true)
+    expect(draftHasContent({ ...base, lines: [{ ...line, color: '#ff0000' }] })).toBe(true)
   })
 
   it('riconosce costi di lavoro e note', () => {

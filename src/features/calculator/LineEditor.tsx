@@ -3,6 +3,7 @@ import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { asBasisPoints, asCentigrams, asWatts, asWh } from '@/domain/units'
 import { Badge, Button, InfoDot, Select } from '@/components/ui'
+import { LineColorField } from '@/components/line-color'
 import {
   DurationField,
   GramsField,
@@ -91,36 +92,44 @@ export function LineEditor({
         </div>
       </div>
 
-      <div className="mt-1.5">
-        <input
-          value={line.name}
-          onChange={(event) => onUpdate({ name: event.target.value })}
-          aria-label={t('line.nameLabel')}
-          className="w-full min-w-0 border-b border-line bg-transparent py-0.5 text-base font-semibold text-ink transition-feedback hover:border-control focus:border-control focus:bg-surface"
+      <div className="mt-1.5 flex items-start gap-2">
+        <LineColorField
+          color={line.color}
+          label={t('line.colorAria', { index: index + 1 })}
+          clearLabel={t('line.colorClear')}
+          onChange={(color) => onUpdate({ color })}
         />
-        <p className="mt-0.5 text-sm text-muted">
-          {format.grams(totalGrams)}
-          {line.quantity > 1
-            ? ` ${t('line.perUnitTotal', {
-                total: format.grams(totalGrams * line.quantity),
-              })}`
-            : ''}
-          {result
-            ? ` · ${t('line.effectiveDuration', {
-                duration: format.duration(result.effectiveSeconds),
-              })}`
-            : ''}
-          {line.quantity > 1 ? ` · ${t('line.pieces', { count: line.quantity })}` : ''}
-          {result ? (
-            <>
-              {' · '}
-              {t('line.directCost')}{' '}
-              <span className="font-medium tabular-nums text-ink">
-                {format.currency(result.directLineCost)}
-              </span>
-            </>
-          ) : null}
-        </p>
+        <div className="min-w-0 flex-1">
+          <input
+            value={line.name}
+            onChange={(event) => onUpdate({ name: event.target.value })}
+            aria-label={t('line.nameLabel')}
+            className="w-full min-w-0 border-b border-line bg-transparent py-0.5 text-base font-semibold text-ink transition-feedback hover:border-control focus:border-control focus:bg-surface"
+          />
+          <p className="mt-0.5 text-sm text-muted">
+            {format.grams(totalGrams)}
+            {line.quantity > 1
+              ? ` ${t('line.perUnitTotal', {
+                  total: format.grams(totalGrams * line.quantity),
+                })}`
+              : ''}
+            {result
+              ? ` · ${t('line.effectiveDuration', {
+                  duration: format.duration(result.effectiveSeconds),
+                })}`
+              : ''}
+            {line.quantity > 1 ? ` · ${t('line.pieces', { count: line.quantity })}` : ''}
+            {result ? (
+              <>
+                {' · '}
+                {t('line.directCost')}{' '}
+                <span className="font-medium tabular-nums text-ink">
+                  {format.currency(result.directLineCost)}
+                </span>
+              </>
+            ) : null}
+          </p>
+        </div>
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
