@@ -2,7 +2,8 @@ import { useState, type FormEvent } from 'react'
 import type { Material } from '@/domain/types'
 import { MATERIAL_FAMILIES } from '@/domain/types'
 import { asBasisPoints, asMicroEur } from '@/domain/units'
-import { materialFamilyLabels } from '@/lib/labels'
+import { useI18n } from '@/app/i18n-context'
+import { materialFamilyLabel } from '@/lib/labels'
 import { formatCurrency } from '@/lib/format'
 import { Alert, Button } from '@/components/ui'
 import {
@@ -23,6 +24,7 @@ export function MaterialForm({
   onSave: (data: Omit<Material, 'id'>) => void
   onCancel: () => void
 }) {
+  const { t } = useI18n()
   const [name, setName] = useState(material?.name ?? '')
   const [family, setFamily] = useState<Material['family']>(material?.family ?? 'PLA')
   const [pricePerKg, setPricePerKg] = useState(material?.pricePerKg ?? 0)
@@ -37,15 +39,15 @@ export function MaterialForm({
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     if (!name.trim()) {
-      setError('Il nome del materiale è obbligatorio.')
+      setError(t('material.errorName'))
       return
     }
     if (pricePerKg < 0) {
-      setError('Il prezzo non può essere negativo.')
+      setError(t('material.errorPrice'))
       return
     }
     if (spoolNetWeightG <= 0) {
-      setError('Il peso netto della bobina deve essere maggiore di zero.')
+      setError(t('material.errorSpool'))
       return
     }
 
@@ -65,63 +67,67 @@ export function MaterialForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error ? (
-        <Alert tone="danger" title="Controlla i dati">
+        <Alert tone="danger" title={t('material.errorTitle')}>
           {error}
         </Alert>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          label="Nome"
+          label={t('material.name')}
           value={name}
           onChange={setName}
           required
-          placeholder="Es. PLA bianco"
+          placeholder={t('material.namePlaceholder')}
         />
         <SelectField
-          label="Famiglia"
+          label={t('material.family')}
           value={family}
           onChange={(value) => setFamily(value as Material['family'])}
           options={MATERIAL_FAMILIES.map((item) => ({
             value: item,
-            label: materialFamilyLabels[item],
+            label: materialFamilyLabel(item, t),
           }))}
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <MoneyField
-          label="Prezzo al kg"
+          label={t('material.pricePerKg')}
           valueMicro={pricePerKg}
           onChangeMicro={setPricePerKg}
           decimals={2}
-          hint={`Prezzo al grammo: ${formatCurrency(pricePerKg / 1000, 4)}`}
+          hint={t('material.priceHint', { price: formatCurrency(pricePerKg / 1000, 4) })}
         />
         <NumberField
-          label="Peso netto bobina"
+          label={t('material.spoolWeight')}
           value={spoolNetWeightG}
           onChange={setSpoolNetWeightG}
           min={1}
           max={100_000}
           decimals={0}
           suffix="g"
-          hint="Solo filamento, senza tara."
+          hint={t('material.spoolWeightHint')}
         />
       </div>
 
       <div className="rounded-control bg-raised px-3 py-2 text-xs text-muted">
-        Se hai il prezzo della bobina, calcola il prezzo al kg: prezzo bobina ÷ peso netto × 1000.
-        Esempio: €19,90 per 1000 g → €19,90/kg.
+        {t('material.priceFormula')}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          label="Fornitore"
+          label={t('material.supplier')}
           value={supplier}
           onChange={setSupplier}
-          placeholder="Opzionale"
+          placeholder={t('material.optionalPlaceholder')}
         />
-        <TextField label="Colore" value={color} onChange={setColor} placeholder="Opzionale" />
+        <TextField
+          label={t('material.color')}
+          value={color}
+          onChange={setColor}
+          placeholder={t('material.optionalPlaceholder')}
+        />
       </div>
 
       <div className="rounded-control border border-line p-3">
@@ -132,15 +138,13 @@ export function MaterialForm({
             onChange={(event) => setFailureEnabled(event.target.checked)}
             className="h-4 w-4 rounded border-control accent-data"
           />
-          Tasso guasti specifico per questo materiale
+          {t('material.failureSpecific')}
         </label>
-        <p className="mt-1 text-xs text-muted">
-          Se disattivato, usa il tasso globale. Utile per ABS/ASA su telaio aperto.
-        </p>
+        <p className="mt-1 text-xs text-muted">{t('material.failureHint')}</p>
         {failureEnabled ? (
           <div className="mt-3 max-w-xs">
             <PercentField
-              label="Tasso guasti"
+              label={t('material.failureRate')}
               valueBp={failureBp}
               onChangeBp={setFailureBp}
               decimals={1}
@@ -151,17 +155,17 @@ export function MaterialForm({
       </div>
 
       <TextareaField
-        label="Note"
+        label={t('material.notes')}
         value={notes}
         onChange={setNotes}
-        placeholder="Essiccazione, temperatura, ugello consigliato…"
+        placeholder={t('material.notesPlaceholder')}
       />
 
       <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
         <Button variant="secondary" onClick={onCancel} type="button">
-          Annulla
+          {t('common.cancel')}
         </Button>
-        <Button type="submit">Salva materiale</Button>
+        <Button type="submit">{t('material.save')}</Button>
       </div>
     </form>
   )

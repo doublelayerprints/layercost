@@ -1,6 +1,6 @@
 # ADR-0019 — Interfaccia inglese con italiano predefinito
 
-**Stato:** Accettato (T5.6.1: infrastruttura pronta; estrazione in corso)
+**Stato:** Accettato (T5.6.1–T5.6.2: infrastruttura ed estrazione completate)
 **Data:** 26 ottobre 2026
 
 ## Contesto

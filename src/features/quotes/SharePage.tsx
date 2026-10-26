@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { useAppStore } from '@/state/app-store'
 import { Alert, Button, EmptyState, PageHeader } from '@/components/ui'
-import { decodeSharedQuote } from '@/lib/share'
+import { decodeSharedQuote, ShareError } from '@/lib/share'
 import { QuoteOverview } from './QuoteOverview'
 import { QuotePrint } from './QuotePrint'
 
+const SHARE_ERROR_KEYS = {
+  empty: 'share.error.empty',
+  invalidData: 'share.error.invalidData',
+  noQuote: 'share.error.noQuote',
+  invalidQuote: 'share.error.invalidQuote',
+} as const
+
 export function SharePage() {
+  const { t } = useI18n()
   const [searchParams] = useSearchParams()
   const payload = searchParams.get('d')
   const importSharedQuote = useAppStore((state) => state.importSharedQuote)
@@ -15,26 +24,27 @@ export function SharePage() {
 
   const decoded = useMemo(() => {
     if (!payload) {
-      return { error: 'Il link non contiene un preventivo.' }
+      return { error: t('share.error.noPayload') }
     }
     try {
       return { quote: decodeSharedQuote(payload) }
     } catch (error) {
       return {
-        error: error instanceof Error ? error.message : 'Il link non è valido.',
+        error:
+          error instanceof ShareError ? t(SHARE_ERROR_KEYS[error.code]) : t('share.error.invalid'),
       }
     }
-  }, [payload])
+  }, [payload, t])
 
   if (!decoded.quote) {
     return (
       <div>
-        <PageHeader title="Link non valido" />
+        <PageHeader title={t('share.invalid.title')} />
         <div className="mt-6">
           <EmptyState
-            title="Impossibile aprire il preventivo"
-            description={decoded.error ?? 'Il link è incompleto o danneggiato.'}
-            action={<Button onClick={() => navigate('/')}>Vai a LayerCost</Button>}
+            title={t('share.invalid.heading')}
+            description={decoded.error ?? t('share.invalid.description')}
+            action={<Button onClick={() => navigate('/')}>{t('share.invalid.action')}</Button>}
           />
         </div>
       </div>
@@ -47,7 +57,7 @@ export function SharePage() {
       const id = importSharedQuote(quote)
       navigate(`/quotes/${id}`, { state: { saved: true } })
     } catch (error) {
-      setImportError(error instanceof Error ? error.message : 'Importazione non riuscita.')
+      setImportError(error instanceof Error ? error.message : t('import.errorTitle'))
     }
   }
 
@@ -56,30 +66,29 @@ export function SharePage() {
       <div className="print:hidden">
         <PageHeader
           title={quote.name}
-          description="Preventivo condiviso in sola lettura. I numeri sono quelli salvati dal mittente."
-          meta={<span className="text-xs text-muted">Link condiviso</span>}
+          description={t('share.description')}
+          meta={<span className="text-xs text-muted">{t('share.badge')}</span>}
           actions={
             <>
               <Button variant="secondary" onClick={() => window.print()}>
-                Stampa / PDF
+                {t('print.action')}
               </Button>
-              <Button onClick={handleImport}>Importa nel mio archivio</Button>
+              <Button onClick={handleImport}>{t('share.import')}</Button>
             </>
           }
         />
 
         {importError ? (
           <div className="mt-5">
-            <Alert tone="danger" title="Importazione non riuscita">
+            <Alert tone="danger" title={t('import.errorTitle')}>
               {importError}
             </Alert>
           </div>
         ) : null}
 
         <div className="mt-5">
-          <Alert tone="info" title="Cosa stai vedendo">
-            Questa pagina mostra solo il preventivo contenuto nel link. Non hai accesso alla
-            configurazione o agli altri dati del mittente.
+          <Alert tone="info" title={t('share.info.title')}>
+            {t('share.info.body')}
           </Alert>
         </div>
 

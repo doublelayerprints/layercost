@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; T5.6.1 completato (infrastruttura i18n); prossimo T5.6.2
+**Stato:** T5.3 completato; T5.6.1–T5.6.2 completati (infrastruttura ed estrazione i18n); prossimo T5.6.3
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.6.2** (estrazione stringhe)
+**Prossima sessione:** partire da **T5.6.3** (formattazione locale e `Quote.locale`)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -315,6 +315,16 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - 5 nuovi test: parità chiavi, valori non vuoti, locale supportata, interpolazione, plurali. Totale 80 unitari.
 - **Prossimo:** T5.6.2 — estrazione delle stringhe dalle schermate, errori, `aria-label`, stampa e guida.
 
+### 3.12 Esito T5.6.2 (26/10/2026)
+
+- Dizionari divisi per area in `src/i18n/it/{calculator,quotes,catalogs,settings,misc}.ts` e `src/i18n/en/...`; **743 chiavi** con parità verificata, niente chiavi duplicate tra aree e placeholder coerenti.
+- Estratte tutte le schermate (calcolatore, import `.3mf`, preventivi, stampa, condivisione, stampanti, materiali, tariffe, extra, impostazioni, confronto, guida) e i componenti condivisi (`ui`, `number-fields`, `cost-stack`, `logo`, 404).
+- `lib/labels.ts` e `lib/cost-bands.ts` espongono etichette locale-aware; la shell usa già `useI18n`.
+- Errori di import mappati per codice (`ThreeMfImportError`), warning del parser per codice, errori di mapping, condivisione e salvataggio bozza tradotti. Restano fallback tecnici rari per storage/schema e alcuni errori di dominio.
+- **Test:** 8 test i18n (parità, aree, plurali, placeholder, interpolazione, locale) e 83 unitari totali; 26 E2E, 26 scansioni axe, 18 screenshot.
+- **Budget:** JS 206 KB gzip su 220 KB (limite alzato da 200 per i due dizionari), totale 270 KB su 350 KB. Il warning raw di Vite è a 650 KB con commento.
+- **Prossimo:** T5.6.3 — formattazione `Intl`, `Quote.locale`, migrazione schema v2.
+
 ---
 
 ## 4. T5.4 — Sincronizzazione cloud (rimandata)
@@ -415,7 +425,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3 e l’ADR-0019. T5.3 è chiuso. Parti da T5.6: infrastruttura i18n tipizzata, estrazione stringhe, formattazione locale e migrazione `Quote.locale` (schema v2), selettore lingua e test E2E/axe/visual in inglese. Non cambiare formule, `engineVersion`, snapshot o i dati esistenti senza migrazione e test. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 è chiuso; T5.6.1–T5.6.2 sono chiusi. Parti da T5.6.3: formattazione `Intl` locale-aware, `Quote.locale`, migrazione schema v1 → v2 con backup e test sui preventivi esistenti. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 

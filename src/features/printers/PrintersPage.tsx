@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import type { Printer } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
+import { useI18n } from '@/app/i18n-context'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
-import { materialFamilyLabels, powerSourceLabels } from '@/lib/labels'
+import { materialFamilyLabel, materialFamilyLabels, powerSourceLabel } from '@/lib/labels'
 import { formatCurrency, formatPercent } from '@/lib/format'
 import { PrinterForm } from './PrinterForm'
 
 export function PrintersPage() {
+  const { t } = useI18n()
   const config = useAppStore((state) => state.config)
   const addPrinter = useAppStore((state) => state.addPrinter)
   const updatePrinter = useAppStore((state) => state.updatePrinter)
@@ -28,24 +30,23 @@ export function PrintersPage() {
   return (
     <div>
       <PageHeader
-        title="Stampanti"
-        description="Prezzo, vita utile, manutenzione e consumi medi. Ogni stampante può avere la sua tariffa energia."
-        actions={<Button onClick={() => setEditing('new')}>Aggiungi stampante</Button>}
+        title={t('nav.printers')}
+        description={t('printers.description')}
+        actions={<Button onClick={() => setEditing('new')}>{t('printers.add')}</Button>}
       />
 
       <div className="mt-6">
-        <Alert tone="info" title="I valori di partenza sono stime">
-          Prezzi di acquisto, potenze medie e ore di vita sono modificabili. Se misuri i consumi con
-          una presa intelligente, puoi inserire i Wh direttamente nella riga del calcolatore.
+        <Alert tone="info" title={t('printers.estimatesTitle')}>
+          {t('printers.estimatesBody')}
         </Alert>
       </div>
 
       {printers.length === 0 ? (
         <div className="mt-6">
           <EmptyState
-            title="Nessuna stampante configurata"
-            description="Aggiungi la tua prima stampante per iniziare a calcolare."
-            action={<Button onClick={() => setEditing('new')}>Aggiungi stampante</Button>}
+            title={t('printers.emptyTitle')}
+            description={t('printers.emptyBody')}
+            action={<Button onClick={() => setEditing('new')}>{t('printers.add')}</Button>}
           />
         </div>
       ) : (
@@ -68,80 +69,94 @@ export function PrintersPage() {
               : undefined
 
             return (
-              <section key={printer.id} className="p-5 sm:p-6" aria-labelledby={`printer-${printer.id}`}>
+              <section
+                key={printer.id}
+                className="p-5 sm:p-6"
+                aria-labelledby={`printer-${printer.id}`}
+              >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2
-                        id={`printer-${printer.id}`}
-                        className="text-base font-semibold text-ink"
-                      >
+                      <h2 id={`printer-${printer.id}`} className="text-base font-semibold text-ink">
                         {printer.name}
                       </h2>
-                      {printer.multicolor ? <Badge tone="info">Multicolore</Badge> : null}
-                      {printer.archived ? <Badge tone="warning">Archiviata</Badge> : null}
+                      {printer.multicolor ? (
+                        <Badge tone="info">{t('printer.badgeMulticolor')}</Badge>
+                      ) : null}
+                      {printer.archived ? (
+                        <Badge tone="warning">{t('printer.badgeArchived')}</Badge>
+                      ) : null}
                       <Badge tone={hasEstimates ? 'warning' : 'success'}>
-                        {hasEstimates ? 'Stime' : 'Misurata'}
+                        {hasEstimates ? t('printer.badgeEstimated') : t('printer.badgeMeasured')}
                       </Badge>
                     </div>
                     <p className="mt-0.5 text-sm text-muted">{printer.model}</p>
                   </div>
                   <div className="flex shrink-0 gap-1">
                     <Button variant="secondary" size="sm" onClick={() => setEditing(printer)}>
-                      Modifica
+                      {t('printers.edit')}
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => archivePrinter(printer.id)}>
-                      {printer.archived ? 'Ripristina' : 'Archivia'}
+                      {printer.archived ? t('printers.restore') : t('printers.archive')}
                     </Button>
                   </div>
                 </div>
 
                 <div className="mt-4 grid gap-x-6 gap-y-4 border-t border-line pt-4 sm:grid-cols-2 lg:grid-cols-[1.2fr_repeat(3,1fr)]">
                   <div>
-                    <p className="text-xs font-medium text-muted">Usura e manutenzione</p>
+                    <p className="text-xs font-medium text-muted">{t('printer.wear')}</p>
                     <p className="mt-0.5 text-xl font-medium tabular-nums text-ink">
                       {formatCurrency(hourly)}
                       <span className="ml-0.5 text-sm font-normal text-muted">/h</span>
                     </p>
-                    <p className="mt-0.5 text-xs text-muted">
-                      Ammortamento + manutenzione
-                    </p>
+                    <p className="mt-0.5 text-xs text-muted">{t('printer.wearHint')}</p>
                   </div>
-                  <Metric label="Prezzo di acquisto" value={formatCurrency(printer.purchasePrice)} />
-                  <Metric label="Vita utile" value={`${printer.expectedLifeHours} h`} />
                   <Metric
-                    label="Manutenzione"
+                    label={t('printer.purchasePrice')}
+                    value={formatCurrency(printer.purchasePrice)}
+                  />
+                  <Metric label={t('printer.lifeHours')} value={`${printer.expectedLifeHours} h`} />
+                  <Metric
+                    label={t('printer.maintenance')}
                     value={`${formatCurrency(printer.maintenancePerHour)}/h`}
                   />
-                  <Metric label="Valore residuo" value={formatPercent(printer.residualValueBp)} />
-                  <Metric label="Avvio" value={`${printer.startupMinutes} min`} />
                   <Metric
-                    label="Volume"
+                    label={t('printer.residualValue')}
+                    value={formatPercent(printer.residualValueBp)}
+                  />
+                  <Metric label={t('printer.startup')} value={`${printer.startupMinutes} min`} />
+                  <Metric
+                    label={t('printer.volume')}
                     value={`${printer.buildVolumeMm[0]}×${printer.buildVolumeMm[1]}×${printer.buildVolumeMm[2]} mm`}
                   />
-                  <Metric label="Tariffa energia" value={tariff?.label ?? 'Globale'} />
+                  <Metric
+                    label={t('printer.energyTariff')}
+                    value={tariff?.label ?? t('printer.tariffGlobal')}
+                  />
                 </div>
 
                 <div className="mt-4 border-t border-line pt-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-ink">Potenza media</h3>
+                    <h3 className="text-sm font-semibold text-ink">{t('printer.powerSection')}</h3>
                     <p className="text-xs text-muted">
-                      Default {printer.defaultAvgWatts} W · Nominale {printer.ratedPowerW} W, non
-                      usata nel costo
+                      {t('printer.powerSummary', {
+                        default: printer.defaultAvgWatts,
+                        rated: printer.ratedPowerW,
+                      })}
                     </p>
                   </div>
                   <ul className="mt-2 flex flex-wrap gap-1.5">
                     {profiles.length === 0 ? (
-                      <li className="text-sm text-muted">Nessun profilo per famiglia.</li>
+                      <li className="text-sm text-muted">{t('printer.noProfiles')}</li>
                     ) : (
                       profiles.map(([family, profile]) =>
                         profile ? (
                           <li
                             key={family}
                             className="rounded-full bg-raised px-2.5 py-1 text-xs text-ink"
-                            title={profile.note ?? powerSourceLabels[profile.source]}
+                            title={profile.note ?? powerSourceLabel(profile.source, t)}
                           >
-                            {materialFamilyLabels[family as keyof typeof materialFamilyLabels]}{' '}
+                            {materialFamilyLabel(family as keyof typeof materialFamilyLabels, t)}{' '}
                             <span className="tabular-nums">{profile.avgWatts} W</span>
                           </li>
                         ) : null,
@@ -161,7 +176,7 @@ export function PrintersPage() {
       <Modal
         open={editing !== null}
         onClose={() => setEditing(null)}
-        title={editing === 'new' ? 'Nuova stampante' : 'Modifica stampante'}
+        title={editing === 'new' ? t('printer.newTitle') : t('printer.editTitle')}
         size="lg"
       >
         <PrinterForm

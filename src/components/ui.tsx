@@ -12,6 +12,7 @@ import {
   type TextareaHTMLAttributes,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { useI18n } from '@/app/i18n-context'
 import { cn } from '@/lib/cn'
 import { FieldContext, useFieldIds, type FieldIds } from './field-context'
 
@@ -239,6 +240,7 @@ export function Alert({
   children?: ReactNode
   onClose?: () => void
 }) {
+  const { t } = useI18n()
   const tones = {
     info: 'border-l-data',
     warning: 'border-l-warning',
@@ -262,7 +264,7 @@ export function Alert({
             type="button"
             onClick={onClose}
             className="-m-1 rounded-control p-1 text-muted hover:bg-raised hover:text-ink"
-            aria-label="Chiudi avviso"
+            aria-label={t('common.closeAlert')}
           >
             <span aria-hidden="true">×</span>
           </button>
@@ -287,6 +289,7 @@ export function Modal({
   footer?: ReactNode
   size?: 'sm' | 'md' | 'lg' | 'xl'
 }) {
+  const { t } = useI18n()
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
   const onCloseRef = useRef(onClose)
@@ -370,7 +373,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             className="rounded-control p-1.5 text-muted hover:bg-raised hover:text-ink"
-            aria-label="Chiudi"
+            aria-label={t('common.close')}
           >
             <span aria-hidden="true">×</span>
           </button>

@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import type { EnergyTariff } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
+import { useI18n } from '@/app/i18n-context'
 import { Badge, Button, Card, EmptyState, Modal, PageHeader, TableScroll } from '@/components/ui'
 import { formatCurrency, formatDateOnly } from '@/lib/format'
 import { todayIsoDate } from '@/lib/date'
 import { TariffForm } from './TariffForm'
 
 export function TariffsPage() {
+  const { t } = useI18n()
   const config = useAppStore((state) => state.config)
   const addTariff = useAppStore((state) => state.addTariff)
   const updateTariff = useAppStore((state) => state.updateTariff)
@@ -46,15 +48,15 @@ export function TariffsPage() {
   return (
     <div>
       <PageHeader
-        title="Tariffe energia"
-        description="Una tariffa per ogni contratto o periodo. I preventivi salvati conservano il prezzo usato."
-        actions={<Button onClick={() => setEditing('new')}>Aggiungi tariffa</Button>}
+        title={t('nav.tariffs')}
+        description={t('tariffs.description')}
+        actions={<Button onClick={() => setEditing('new')}>{t('tariffs.add')}</Button>}
       />
 
       <Card className="mt-6 border-l-4 border-l-data p-5 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-medium text-muted">Tariffa corrente</p>
+            <p className="text-xs font-medium text-muted">{t('tariff.current')}</p>
             {current ? (
               <>
                 <p className="mt-1 text-base font-semibold text-ink">{current.label}</p>
@@ -63,56 +65,54 @@ export function TariffsPage() {
                   <span className="text-sm font-normal text-muted">/kWh</span>
                 </p>
                 <p className="mt-0.5 text-sm text-muted">
-                  In vigore dal {formatDateOnly(current.effectiveFrom)}
+                  {t('tariff.inForceSince', { date: formatDateOnly(current.effectiveFrom) })}
                 </p>
               </>
             ) : (
-              <p className="mt-1 text-sm font-medium text-negative">
-                Nessuna tariffa valida oggi: i calcoli non possono essere eseguiti.
-              </p>
+              <p className="mt-1 text-sm font-medium text-negative">{t('tariff.noneToday')}</p>
             )}
           </div>
-          {current ? <Badge tone="success">In uso</Badge> : null}
+          {current ? <Badge tone="success">{t('tariff.inUse')}</Badge> : null}
         </div>
       </Card>
 
       {tariffs.length === 0 ? (
         <div className="mt-6">
           <EmptyState
-            title="Nessuna tariffa"
-            description="Aggiungi il costo marginale al kWh per poter calcolare l’energia."
-            action={<Button onClick={() => setEditing('new')}>Aggiungi tariffa</Button>}
+            title={t('tariffs.emptyTitle')}
+            description={t('tariffs.emptyBody')}
+            action={<Button onClick={() => setEditing('new')}>{t('tariffs.add')}</Button>}
           />
         </div>
       ) : (
         <Card className="mt-6 p-5 sm:p-6">
           <p className="text-sm text-muted">
-            {tariffs.length} {tariffs.length === 1 ? 'tariffa' : 'tariffe'} in archivio
+            {tariffs.length === 1
+              ? t('tariffs.count.one', { count: tariffs.length })
+              : t('tariffs.count.other', { count: tariffs.length })}
           </p>
           {tariffs.length === 1 ? (
-            <p className="mt-1 text-xs text-muted">
-              Serve almeno una tariffa: l’ultima non può essere eliminata.
-            </p>
+            <p className="mt-1 text-xs text-muted">{t('tariffs.lastRemaining')}</p>
           ) : null}
-          <TableScroll label="Tariffe energia in ordine di decorrenza" className="mt-3">
+          <TableScroll label={t('tariffs.tableLabel')} className="mt-3">
             <table className="w-full border-collapse text-sm">
-              <caption className="sr-only">Tariffe energia in ordine di decorrenza</caption>
+              <caption className="sr-only">{t('tariffs.tableLabel')}</caption>
               <thead>
                 <tr className="text-xs text-muted">
                   <th scope="col" className="py-2 pr-4 text-left font-medium">
-                    Etichetta
+                    {t('tariffs.colLabel')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    Prezzo
+                    {t('tariffs.colPrice')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    Decorrenza
+                    {t('tariffs.colEffectiveFrom')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-left font-medium">
-                    Stato
+                    {t('tariffs.colStatus')}
                   </th>
                   <th scope="col" className="py-2 text-right font-medium">
-                    <span className="sr-only">Azioni</span>
+                    <span className="sr-only">{t('tariffs.actions')}</span>
                   </th>
                 </tr>
               </thead>
@@ -133,17 +133,17 @@ export function TariffsPage() {
                     </td>
                     <td className="py-3 pr-4">
                       {current?.id === tariff.id ? (
-                        <Badge tone="success">Corrente</Badge>
+                        <Badge tone="success">{t('tariff.statusCurrent')}</Badge>
                       ) : tariff.effectiveFrom > today ? (
-                        <Badge tone="info">Futura</Badge>
+                        <Badge tone="info">{t('tariff.statusFuture')}</Badge>
                       ) : (
-                        <Badge tone="neutral">Storica</Badge>
+                        <Badge tone="neutral">{t('tariff.statusPast')}</Badge>
                       )}
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-1">
                         <Button variant="secondary" size="sm" onClick={() => setEditing(tariff)}>
-                          Modifica
+                          {t('tariffs.edit')}
                         </Button>
                         <Button
                           variant="ghost"
@@ -152,7 +152,7 @@ export function TariffsPage() {
                           disabled={config.settings.tariffs.length <= 1}
                           className="text-negative hover:bg-raised"
                         >
-                          Elimina
+                          {t('tariffs.delete')}
                         </Button>
                       </div>
                     </td>
@@ -164,15 +164,12 @@ export function TariffsPage() {
         </Card>
       )}
 
-      <p className="mt-4 max-w-2xl text-sm leading-snug text-muted">
-        Se una stampante è in una casa con un contratto diverso, assegnale una tariffa specifica
-        dalla scheda della stampante. Altrimenti usa la tariffa globale.
-      </p>
+      <p className="mt-4 max-w-2xl text-sm leading-snug text-muted">{t('tariffs.note')}</p>
 
       <Modal
         open={editing !== null}
         onClose={() => setEditing(null)}
-        title={editing === 'new' ? 'Nuova tariffa' : 'Modifica tariffa'}
+        title={editing === 'new' ? t('tariff.newTitle') : t('tariff.editTitle')}
       >
         <TariffForm
           tariff={editing && editing !== 'new' ? editing : undefined}
@@ -184,24 +181,21 @@ export function TariffsPage() {
       <Modal
         open={pendingDelete !== undefined}
         onClose={() => setPendingDelete(undefined)}
-        title="Eliminare la tariffa?"
+        title={t('tariff.deleteTitle')}
         footer={
           <>
             <Button variant="secondary" onClick={() => setPendingDelete(undefined)}>
-              Annulla
+              {t('common.cancel')}
             </Button>
             <Button variant="danger" onClick={confirmRemove}>
-              Elimina tariffa
+              {t('tariff.deleteConfirm')}
             </Button>
           </>
         }
       >
         <div className="space-y-3 text-sm text-muted">
-          <p>
-            “{pendingDelete?.label}” verrà rimossa. Le stampanti che la usano torneranno alla
-            tariffa globale.
-          </p>
-          <p>I preventivi già salvati conservano il prezzo dell’energia nel loro snapshot.</p>
+          <p>{t('tariff.deleteBody', { label: pendingDelete?.label ?? '' })}</p>
+          <p>{t('tariff.deleteQuotes')}</p>
         </div>
       </Modal>
     </div>

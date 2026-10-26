@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import type { Extra } from '@/domain/types'
 import { asMicroEur } from '@/domain/units'
+import { useI18n } from '@/app/i18n-context'
 import { Alert, Button } from '@/components/ui'
 import { MoneyField, SelectField, TextField } from '@/components/number-fields'
 
@@ -13,6 +14,7 @@ export function ExtraForm({
   onSave: (data: Omit<Extra, 'id'>) => void
   onCancel: () => void
 }) {
+  const { t } = useI18n()
   const [name, setName] = useState(extra?.name ?? '')
   const [amount, setAmount] = useState(extra?.amount ?? 0)
   const [unit, setUnit] = useState<Extra['unit']>(extra?.unit ?? 'perUnit')
@@ -22,11 +24,11 @@ export function ExtraForm({
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     if (!name.trim()) {
-      setError('Il nome è obbligatorio.')
+      setError(t('extra.errorName'))
       return
     }
     if (amount < 0) {
-      setError('L’importo non può essere negativo.')
+      setError(t('extra.errorAmount'))
       return
     }
 
@@ -42,47 +44,48 @@ export function ExtraForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error ? (
-        <Alert tone="danger" title="Controlla i dati">
+        <Alert tone="danger" title={t('extra.errorTitle')}>
           {error}
         </Alert>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          label="Nome"
+          label={t('extra.name')}
           value={name}
           onChange={setName}
           required
-          placeholder="Es. Sacchetto zip"
+          placeholder={t('extra.namePlaceholder')}
         />
-        <MoneyField label="Importo" valueMicro={amount} onChangeMicro={setAmount} decimals={2} />
+        <MoneyField
+          label={t('extra.amount')}
+          valueMicro={amount}
+          onChangeMicro={setAmount}
+          decimals={2}
+        />
         <SelectField
-          label="Unità"
+          label={t('extra.unit')}
           value={unit}
           onChange={(value) => setUnit(value as Extra['unit'])}
           options={[
-            { value: 'perUnit', label: 'Per pezzo' },
-            { value: 'perJob', label: 'Per lavoro' },
+            { value: 'perUnit', label: t('extra.unitPerUnit') },
+            { value: 'perJob', label: t('extra.unitPerJob') },
           ]}
-          hint={
-            unit === 'perUnit'
-              ? 'Viene moltiplicato per la quantità della riga.'
-              : 'Viene applicato una volta al preventivo.'
-          }
+          hint={unit === 'perUnit' ? t('extra.unitPerUnitHint') : t('extra.unitPerJobHint')}
         />
         <TextField
-          label="Categoria"
+          label={t('extra.category')}
           value={category}
           onChange={setCategory}
-          placeholder="Imballaggio, spedizione, hardware…"
+          placeholder={t('extra.categoryPlaceholder')}
         />
       </div>
 
       <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
         <Button variant="secondary" onClick={onCancel} type="button">
-          Annulla
+          {t('common.cancel')}
         </Button>
-        <Button type="submit">Salva extra</Button>
+        <Button type="submit">{t('extra.save')}</Button>
       </div>
     </form>
   )

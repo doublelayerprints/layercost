@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useI18n } from '@/app/i18n-context'
 import type { Quote, QuoteResult } from '@/domain/types'
 import { Alert, Card, Price, SectionHeader, TableScroll } from '@/components/ui'
 import { CostStack } from '@/components/cost-stack'
@@ -13,6 +14,7 @@ import {
   formatPricePerUnit,
 } from '@/lib/format'
 import { formatDateTimeIt } from '@/lib/date'
+import { plural } from '@/i18n'
 
 export function QuoteOverview({
   quote,
@@ -23,6 +25,7 @@ export function QuoteOverview({
   result?: QuoteResult
   snapshotAction?: ReactNode
 }) {
+  const { t, locale } = useI18n()
   const totalGrams = result
     ? result.lines.reduce(
         (sum, line) =>
@@ -50,46 +53,49 @@ export function QuoteOverview({
   return (
     <div className="space-y-6">
       {!result ? (
-        <Alert tone="warning" title="Preventivo non ricalcolabile">
-          La configurazione usata da questo preventivo non è più disponibile o contiene dati non
-          validi. I numeri salvati restano consultabili; usa “Duplica nel calcolatore” e correggi le
-          righe per ricalcolarlo.
+        <Alert tone="warning" title={t('quote.notRecalculable.title')}>
+          {t('quote.notRecalculable.body')}
         </Alert>
       ) : (
         <Card className="p-5 sm:p-6">
           <div className="grid items-start gap-6 lg:grid-cols-12">
             <div className="lg:col-span-7">
-              <p className="text-xs font-medium text-muted">Prezzo totale</p>
+              <p className="text-xs font-medium text-muted">{t('quote.totalPrice')}</p>
               <Price
                 value={formatCents(result.grossPriceCents)}
                 hint={
                   result.vatCents > 0
-                    ? `${formatCents(result.netPriceCents)} netto + ${formatCents(result.vatCents)} IVA`
-                    : 'Nessuna IVA'
+                    ? t('quote.price.netAndVat', {
+                        net: formatCents(result.netPriceCents),
+                        vat: formatCents(result.vatCents),
+                      })
+                    : t('quote.price.noVat')
                 }
               />
 
               <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 sm:grid-cols-4">
                 <div>
-                  <dt className="text-xs font-medium text-muted">Costo pieno</dt>
+                  <dt className="text-xs font-medium text-muted">
+                    {t('quote.label.fullyLoadedCost')}
+                  </dt>
                   <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
                     {formatCurrency(result.totalCost)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium text-muted">Costo diretto</dt>
+                  <dt className="text-xs font-medium text-muted">{t('quote.directCost')}</dt>
                   <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
                     {formatCurrency(result.directTotal)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium text-muted">Costi fissi</dt>
+                  <dt className="text-xs font-medium text-muted">{t('quote.fixedCosts')}</dt>
                   <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
                     {formatCurrency(result.jobFixedTotal)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium text-muted">Margine effettivo</dt>
+                  <dt className="text-xs font-medium text-muted">{t('quote.effectiveMargin')}</dt>
                   <dd
                     className={
                       result.effectiveMarginBp < 0
@@ -104,7 +110,7 @@ export function QuoteOverview({
             </div>
 
             <div className="lg:col-span-5">
-              <h2 className="text-sm font-semibold text-ink">Composizione del costo</h2>
+              <h2 className="text-sm font-semibold text-ink">{t('quote.costComposition')}</h2>
               <CostStack bands={costBands(result)} className="mt-3" />
             </div>
           </div>
@@ -112,10 +118,13 @@ export function QuoteOverview({
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
             <p className="text-xs text-muted">
               {quote.snapshot
-                ? `Tariffe congelate al ${formatDateTimeIt(quote.snapshot.capturedAt)} · Motore v${quote.snapshot.engineVersion}`
+                ? t('quote.snapshot.frozen', {
+                    date: formatDateTimeIt(quote.snapshot.capturedAt),
+                    version: quote.snapshot.engineVersion,
+                  })
                 : quote.engineVersion
-                  ? `Motore v${quote.engineVersion}`
-                  : 'Prezzi dalla configurazione corrente'}
+                  ? t('app.engineVersion', { version: quote.engineVersion })
+                  : t('quote.currentPrices')}
             </p>
             {snapshotAction}
           </div>
@@ -125,35 +134,39 @@ export function QuoteOverview({
       <Card className="p-5 sm:p-6">
         <SectionHeader
           id="section-righe"
-          title="Righe del preventivo"
-          description="I prezzi di riga sono una quota del prezzo totale, non prezzi indipendenti."
+          title={t('quote.lines.title')}
+          description={t('quote.lines.description')}
           actions={
             <p className="text-sm text-muted">
-              {quote.lines.length} {quote.lines.length === 1 ? 'riga' : 'righe'} ·{' '}
-              {formatGrams(totalGrams)} · {quote.customer ? quote.customer : 'Nessun cliente'}
+              {plural(locale, quote.lines.length, {
+                one: 'quote.lineCount.one',
+                other: 'quote.lineCount.other',
+              })}{' '}
+              · {formatGrams(totalGrams)} ·{' '}
+              {quote.customer ? quote.customer : t('quote.noCustomer')}
             </p>
           }
         />
 
-        <TableScroll label="Righe del preventivo" className="mt-4 hidden sm:block">
+        <TableScroll label={t('quote.lines.title')} className="mt-4 hidden sm:block">
           <table className="w-full border-collapse text-sm">
-            <caption className="sr-only">Righe del preventivo</caption>
+            <caption className="sr-only">{t('quote.lines.title')}</caption>
             <thead>
               <tr className="text-xs text-muted">
                 <th scope="col" className="py-2 pr-4 text-left font-medium">
-                  Stampa
+                  {t('quote.label.print')}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  Pezzi
+                  {t('quote.label.pieces')}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  Tempo
+                  {t('quote.label.time')}
                 </th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  Costo pieno
+                  {t('quote.label.fullyLoadedCost')}
                 </th>
                 <th scope="col" className="py-2 text-right font-medium">
-                  Prezzo
+                  {t('quote.label.price')}
                 </th>
               </tr>
             </thead>
@@ -166,11 +179,11 @@ export function QuoteOverview({
                     <th scope="row" className="py-3 pr-4 text-left font-normal">
                       <p className="font-medium text-ink">{line.name}</p>
                       <p className="mt-0.5 text-xs text-muted">
-                        {materialNames(line) || 'Nessun materiale'} · {formatGrams(lineGrams)}
-                        {line.quantity > 1 ? ' per pezzo' : ''}
+                        {materialNames(line) || t('quote.noMaterial')} · {formatGrams(lineGrams)}
+                        {line.quantity > 1 ? ` ${t('quote.perPiece')}` : ''}
                       </p>
                       <p className="mt-0.5 text-xs text-muted">
-                        {lineResult?.printerName ?? 'Stampante non disponibile'}
+                        {lineResult?.printerName ?? t('quote.printerUnavailable')}
                       </p>
                     </th>
                     <td className="py-3 pr-4 text-right tabular-nums">{line.quantity}</td>
@@ -187,7 +200,8 @@ export function QuoteOverview({
                             {formatCents(lineResult.priceCents)}
                           </span>
                           <span className="block text-xs text-muted">
-                            {formatPricePerUnit(lineResult.priceCents, lineResult.quantity)}/pz
+                            {formatPricePerUnit(lineResult.priceCents, lineResult.quantity)}
+                            {t('quote.unit.pricePerPiece')}
                           </span>
                         </>
                       ) : (
@@ -211,11 +225,11 @@ export function QuoteOverview({
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink">{line.name}</p>
                     <p className="mt-0.5 text-xs text-muted">
-                      {materialNames(line) || 'Nessun materiale'} · {formatGrams(lineGrams)}
-                      {line.quantity > 1 ? ' per pezzo' : ''}
+                      {materialNames(line) || t('quote.noMaterial')} · {formatGrams(lineGrams)}
+                      {line.quantity > 1 ? ` ${t('quote.perPiece')}` : ''}
                     </p>
                     <p className="mt-0.5 text-xs text-muted">
-                      {line.quantity} pz ·{' '}
+                      {line.quantity} {t('quote.unit.pieces')} ·{' '}
                       {formatDuration(lineResult?.effectiveSeconds ?? line.timeSeconds)}
                     </p>
                   </div>
@@ -235,7 +249,7 @@ export function QuoteOverview({
 
         {quote.job.notes ? (
           <div className="mt-4 border-t border-line pt-3">
-            <p className="text-sm font-medium text-ink">Note</p>
+            <p className="text-sm font-medium text-ink">{t('quote.notes')}</p>
             <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{quote.job.notes}</p>
           </div>
         ) : null}

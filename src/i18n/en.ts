@@ -1,7 +1,12 @@
-import type { Messages } from './it'
+import { calculatorEn } from './en/calculator'
+import { catalogsEn } from './en/catalogs'
+import { miscEn } from './en/misc'
+import { quotesEn } from './en/quotes'
+import { settingsEn } from './en/settings'
+import type { BaseMessageKey, Messages } from './it'
 
 /** English dictionary. The `Messages` type keeps every key in sync with Italian. */
-export const en: Messages = {
+const baseEn: Record<BaseMessageKey, string> = {
   'app.name': 'LayerCost',
   'app.tagline': 'Cost and price for 3D prints',
   'app.dataLocal': 'Data is saved only in this browser.',
@@ -88,4 +93,13 @@ export const en: Messages = {
   'import.mappingIncomplete': 'Incomplete mapping',
   'import.mappingError': 'Could not import the selected plates. Check the mapping.',
   'import.fileTooLarge': 'The file exceeds {size} MB. Export a single plate or reduce the project.',
+}
+
+export const en: Messages = {
+  ...baseEn,
+  ...calculatorEn,
+  ...quotesEn,
+  ...catalogsEn,
+  ...settingsEn,
+  ...miscEn,
 }

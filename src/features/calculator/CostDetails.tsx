@@ -1,4 +1,5 @@
 import type { Quote, QuoteResult } from '@/domain/types'
+import { useI18n } from '@/app/i18n-context'
 import { Badge, Card, SectionHeader, TableScroll } from '@/components/ui'
 import { costDetailRows, costDetailTotals } from '@/lib/cost-details'
 import {
@@ -11,6 +12,7 @@ import {
 } from '@/lib/format'
 
 export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResult }) {
+  const { t } = useI18n()
   const rows = costDetailRows(result)
   const totals = costDetailTotals(rows)
   const rowsById = new Map(rows.map((row) => [row.lineId, row]))
@@ -25,50 +27,52 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
     <Card className="p-5 sm:p-6">
       <SectionHeader
         id="section-dettaglio"
-        title="Dettaglio costi"
-        description="Importi riferiti all’intera riga, quantità inclusa. Le componenti sono arrotondate in modo che la loro somma coincida con il costo diretto mostrato; la quota di prezzo di ogni riga è una parte del totale."
-        actions={<Badge tone="neutral">{formatGrams(totalGrams)} totali</Badge>}
+        title={t('details.title')}
+        description={t('details.description')}
+        actions={
+          <Badge tone="neutral">
+            {t('details.totalGrams', { grams: formatGrams(totalGrams) })}
+          </Badge>
+        }
       />
 
-      <TableScroll label="Dettaglio costi per riga" className="mt-4">
+      <TableScroll label={t('details.tableLabel')} className="mt-4">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
-          <caption className="sr-only">
-            Componenti di costo e prezzo per ogni riga del preventivo
-          </caption>
+          <caption className="sr-only">{t('details.caption')}</caption>
           <thead>
             <tr className="text-xs text-muted">
               <th scope="col" className="sticky left-0 bg-surface py-2 pr-4 text-left font-medium">
-                Riga
+                {t('details.colLine')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Materiale
+                {t('details.colMaterial')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Energia
+                {t('details.colEnergy')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Usura
+                {t('details.colWear')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Manodopera
+                {t('details.colLabor')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Extra
+                {t('details.colExtras')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Guasti
+                {t('details.colFailures')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Costo diretto
+                {t('details.colDirectCost')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Quota fissa
+                {t('details.colFixedShare')}
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">
-                Costo pieno
+                {t('details.colFullCost')}
               </th>
               <th scope="col" className="py-2 text-right font-medium">
-                Prezzo
+                {t('details.colPrice')}
               </th>
             </tr>
           </thead>
@@ -84,12 +88,18 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
                   >
                     <p className="font-medium text-ink">{line.name}</p>
                     <p className="mt-0.5 text-xs text-muted">
-                      {line.printerName} · {line.quantity} pz ·{' '}
-                      {formatDuration(line.effectiveSeconds)}
+                      {t('details.lineMeta', {
+                        printer: line.printerName,
+                        count: line.quantity,
+                        duration: formatDuration(line.effectiveSeconds),
+                      })}
                     </p>
                     <p className="mt-0.5 text-xs text-muted">
-                      {line.avgWatts} W · {line.tariffLabel} · guasti{' '}
-                      {formatPercent(line.failureRateBp)}
+                      {t('details.lineTechnical', {
+                        power: line.avgWatts,
+                        tariff: line.tariffLabel,
+                        percent: formatPercent(line.failureRateBp),
+                      })}
                     </p>
                   </th>
                   {row.components.map((cents, index) => (
@@ -111,7 +121,8 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
                       {formatCents(row.priceCents)}
                     </span>
                     <span className="block text-xs text-muted">
-                      {formatPricePerUnit(row.priceCents, line.quantity)}/pz
+                      {formatPricePerUnit(row.priceCents, line.quantity)}
+                      {t('details.perPiece')}
                     </span>
                   </td>
                 </tr>
@@ -121,7 +132,7 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
           <tfoot>
             <tr className="border-t border-control font-medium text-ink">
               <th scope="row" className="sticky left-0 bg-surface py-3 pr-4 text-left">
-                Totale
+                {t('details.total')}
               </th>
               {totals.components.map((cents, index) => (
                 <td key={index} className="py-3 pr-4 text-right tabular-nums">
@@ -142,10 +153,10 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
       </TableScroll>
 
       <dl className="mt-5 grid gap-4 border-t border-line pt-4 sm:grid-cols-2 lg:grid-cols-4">
-        <DetailTerm label="Setup" value={formatCurrency(result.jobLaborDetails.setup)} />
-        <DetailTerm label="Progettazione" value={formatCurrency(result.jobLaborDetails.design)} />
+        <DetailTerm label={t('job.setup')} value={formatCurrency(result.jobLaborDetails.setup)} />
+        <DetailTerm label={t('job.design')} value={formatCurrency(result.jobLaborDetails.design)} />
         <DetailTerm
-          label="Extra di lavoro"
+          label={t('details.jobExtras')}
           value={formatCurrency(result.jobExtras)}
           hint={
             result.jobExtraDetails.length > 0
@@ -154,19 +165,22 @@ export function CostDetails({ quote, result }: { quote: Quote; result: QuoteResu
           }
         />
         <DetailTerm
-          label="Prezzo netto"
+          label={t('details.netPrice')}
           value={formatCents(result.netPriceCents)}
           hint={
             result.vatCents > 0
-              ? `IVA ${formatCents(result.vatCents)} · lordo ${formatCents(result.grossPriceCents)}`
-              : 'Nessuna IVA'
+              ? t('details.vatAndGross', {
+                  vat: formatCents(result.vatCents),
+                  gross: formatCents(result.grossPriceCents),
+                })
+              : t('pricing.vatNone')
           }
         />
       </dl>
 
       {quote.job.notes ? (
         <div className="mt-4 border-t border-line pt-3">
-          <p className="text-sm font-medium text-ink">Note</p>
+          <p className="text-sm font-medium text-ink">{t('details.notes')}</p>
           <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{quote.job.notes}</p>
         </div>
       ) : null}

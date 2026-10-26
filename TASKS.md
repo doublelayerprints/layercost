@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf` completo) e **T5.6.1 chiuso** (infrastruttura i18n); prossimo **T5.6.2** (estrazione stringhe). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf` completo), **T5.6.1 e T5.6.2 chiusi** (infrastruttura i18n ed estrazione stringhe); prossimo **T5.6.3** (formattazione e `Quote.locale`). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -874,7 +874,7 @@ Service worker, cache degli asset, promemoria backup.
 ## T5.6 — Interfaccia inglese
 
 **Dipende da:** ADR-0019
-**Stato:** `[~]` — T5.6.1 chiuso; T5.6.2–T5.6.5 da fare
+**Stato:** `[~]` — T5.6.1–T5.6.2 chiusi; T5.6.3–T5.6.5 da fare
 **Piano:** `docs/planning/phase-5.md` §3
 
 **Nota:** italiano predefinito, inglese selezionabile. Dizionari tipizzati `src/i18n/{it,en}.ts`, `useI18n`, nessuna libreria runtime. Formattazione con `Intl`, inglese `en-GB` (EUR, metrico, `gg/mm/aaaa`). `Quote.locale` richiede la migrazione schema v1 → v2, con default `it` per i preventivi esistenti. Stampa e link condivisi usano la lingua del preventivo; l'interfaccia usa la preferenza del dispositivo. `layercost:locale` resta fuori da `AppData`.
@@ -882,7 +882,7 @@ Service worker, cache degli asset, promemoria backup.
 Sottotask:
 
 - **T5.6.1** — inventario delle stringhe e infrastruttura `i18n` con test di parità. → **fatto** (vedi nota sotto).
-- **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida.
+- **T5.6.2** — estrazione stringhe da schermate, errori, `aria-label`, stampa e guida. → **fatto** (vedi nota sotto).
 - **T5.6.3** — formattazione locale e migrazione `Quote.locale` (schema v2).
 - **T5.6.4** — selettore lingua, persistenza, `<html lang>`, stampa/link condivisi.
 - **T5.6.5** — test E2E/axe/visual in inglese, documentazione e deploy.
@@ -902,7 +902,23 @@ Sottotask:
 - Inventario in `docs/planning/i18n-inventory.md`: aree, file, regole, ordine di estrazione e note su errori dati/dominio.
 - 5 test in `src/i18n/i18n.test.ts`: parità chiavi, valori non vuoti, locale supportata, interpolazione, plurali. Totale 80 unitari.
 
-**Accettazione:** inventario completo, dizionari tipizzati, provider funzionante, nessuna regressione visibile, test di parità verdi. → soddisfatta; prossimo T5.6.2.
+**Accettazione:** inventario completo, dizionari tipizzati, provider funzionante, nessuna regressione visibile, test di parità verdi. → soddisfatta.
+
+### T5.6.2 — Estrazione stringhe
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026.
+
+- Estratte le stringhe di tutte le schermate: calcolatore e import `.3mf`, preventivi/stampa/condivisione, stampanti, materiali, tariffe, extra, impostazioni, confronto e guida iniziale.
+- Estratti anche i componenti condivisi: `ui.tsx` (chiusura modali/alert), `number-fields.tsx` (Durata/Ore/Minuti/Valore numerico), `cost-stack.tsx` e `cost-bands.ts` (bande e aria-label), `logo.tsx`, `NotFoundPage`.
+- `lib/labels.ts` ora espone funzioni locale-aware per famiglie materiale, fonte potenza, modalità prezzo, arrotondamento, IVA, allocazione ed extra; i testi italiani restano invariati.
+- Errori import `.3mf` mappati per codice (`ThreeMfImportError`), warning del parser mappati per codice, errori di mapping, errori di condivisione e errori di salvataggio della bozza tradotti. Restano come fallback tecnico i messaggi di storage/schema e alcuni errori di dominio non comuni (T5.6.3/T5.6.5).
+- Dizionari divisi in `src/i18n/it/{calculator,quotes,catalogs,settings,misc}.ts` e `src/i18n/en/...` per evitare collisioni; 743 chiavi totali, parità verificata.
+- 8 test i18n (parità, valori non vuoti, aree senza duplicati, plurali, placeholder, locale, interpolazione); totale **83 unitari**. `npm run check` verde; 26 E2E e 26 scansioni axe verdi.
+- Budget JS alzato da 200 a 220 KB gzip per i due dizionari; totale 270 KB gzip su 350 KB. Il warning Vite sul chunk raw è stato portato a 650 KB con commento.
+
+**Accettazione:** tutte le schermate usano i dizionari; nessuna stringa italiana hardcoded nei componenti; italiano predefinito invariato; test e accessibilità verdi. → soddisfatta.
 
 ## T5.7 — Registro manutenzioni e guasti
 

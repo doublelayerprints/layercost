@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { calculateQuote } from '@/domain/cost/quote'
 import { pricingFromSettings } from '@/domain/cost/quote'
 import type { QuoteResult } from '@/domain/types'
@@ -34,6 +35,7 @@ interface CalculationState {
 }
 
 export function CalculatorPage() {
+  const { t } = useI18n()
   const config = useAppStore((state) => state.config)
   const draft = useAppStore((state) => state.draft)
   const updateDraftMeta = useAppStore((state) => state.updateDraftMeta)
@@ -83,10 +85,12 @@ export function CalculatorPage() {
     if (!lineId) return
     pendingFocusRef.current = undefined
     const line = document.getElementById(`line-${lineId}`)
-    const nameInput = line?.querySelector<HTMLInputElement>('input[aria-label="Nome della stampa"]')
+    const nameInput = line?.querySelector<HTMLInputElement>(
+      `input[aria-label="${t('line.nameLabel')}"]`,
+    )
     nameInput?.focus()
     line?.scrollIntoView({ block: 'center' })
-  }, [draft.lines])
+  }, [draft.lines, t])
 
   const calculation = useMemo<CalculationState>(() => {
     try {
@@ -94,10 +98,10 @@ export function CalculatorPage() {
     } catch (error) {
       return {
         result: undefined,
-        error: error instanceof Error ? error.message : 'Completa i dati del preventivo.',
+        error: error instanceof Error ? error.message : t('calculator.calculationError'),
       }
     }
-  }, [draft, config])
+  }, [draft, config, t])
 
   const totalGrams = draft.lines.reduce(
     (sum, line) =>
@@ -154,7 +158,7 @@ export function CalculatorPage() {
     setSaveError(undefined)
     const result = saveDraft()
     if (result.error) {
-      setSaveError(result.error)
+      setSaveError(result.errorCode ? t(`calculator.saveError.${result.errorCode}`) : result.error)
       return
     }
     if (result.quote) {
@@ -177,22 +181,22 @@ export function CalculatorPage() {
     <>
       <div className="print:hidden">
         <PageHeader
-          title={draft.name.trim() || 'Nuovo preventivo'}
-          description={`Bozza · preventivo del ${formatDateOnly(draft.quoteDate)} · ${paragraphCount} ${
-            paragraphCount === 1 ? 'riga' : 'righe'
-          } · ${formatGrams(totalGrams)}`}
-          meta={
-            <span className="text-xs text-muted">
-              La bozza si salva da sola in questo browser; “Salva preventivo” la aggiunge allo
-              storico.
-            </span>
-          }
+          title={draft.name.trim() || t('calculator.newQuote')}
+          description={t('calculator.meta', {
+            date: formatDateOnly(draft.quoteDate),
+            count: paragraphCount,
+            lines: t(
+              paragraphCount === 1 ? 'calculator.lineCount.one' : 'calculator.lineCount.other',
+            ),
+            grams: formatGrams(totalGrams),
+          })}
+          meta={<span className="text-xs text-muted">{t('calculator.autosaveNote')}</span>}
           actions={
             <>
               <Button variant="secondary" onClick={openFilePicker} disabled={isLoading}>
-                {isLoading ? 'Analisi…' : 'Importa .3mf'}
+                {isLoading ? t('import.analyzing') : t('import.button')}
               </Button>
-              <NewDraftButton label="Nuovo" />
+              <NewDraftButton label={t('calculator.newDraft')} />
             </>
           }
         />
@@ -205,21 +209,21 @@ export function CalculatorPage() {
           <div className="mt-6 space-y-3">
             {importError ? (
               <div role="alert">
-                <Alert tone="danger" title="Importazione non riuscita" onClose={clearError}>
+                <Alert tone="danger" title={t('import.errorTitle')} onClose={clearError}>
                   {importError}
                 </Alert>
               </div>
             ) : null}
             {isLoading ? (
               <div role="status">
-                <Alert tone="info" title="Analisi del file in corso">
-                  Il file viene letto in locale e non lascia il browser.
+                <Alert tone="info" title={t('import.loadingTitle')}>
+                  {t('import.loadingDetail')}
                 </Alert>
               </div>
             ) : null}
             {importSuccess ? (
               <div role="status">
-                <Alert tone="success" title="Import completato" onClose={clearSuccess}>
+                <Alert tone="success" title={t('import.successTitle')} onClose={clearSuccess}>
                   {importSuccess}
                 </Alert>
               </div>
@@ -233,19 +237,19 @@ export function CalculatorPage() {
               <section aria-labelledby="section-intestazione">
                 <SectionHeader
                   id="section-intestazione"
-                  title="Preventivo"
-                  description="Il nome identifica il lavoro; data e cliente compaiono in stampa e nei link condivisi."
+                  title={t('calculator.quoteSection')}
+                  description={t('calculator.quoteDescription')}
                 />
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <TextField
-                    label="Nome preventivo"
+                    label={t('calculator.nameLabel')}
                     value={draft.name}
                     onChange={(value) => updateDraftMeta({ name: value })}
-                    placeholder="Es. Set organizer scrivania"
+                    placeholder={t('calculator.namePlaceholder')}
                     required
                     className="sm:col-span-2"
                   />
-                  <Field label="Data" htmlFor={dateFieldId}>
+                  <Field label={t('calculator.date')} htmlFor={dateFieldId}>
                     <Input
                       id={dateFieldId}
                       type="date"
@@ -254,10 +258,10 @@ export function CalculatorPage() {
                     />
                   </Field>
                   <TextField
-                    label="Cliente (opzionale)"
+                    label={`${t('calculator.customer')} (${t('common.optional')})`}
                     value={draft.customer ?? ''}
                     onChange={(value) => updateDraftMeta({ customer: value || undefined })}
-                    placeholder="Nome o riferimento"
+                    placeholder={t('calculator.customerPlaceholder')}
                   />
                 </div>
               </section>
@@ -277,13 +281,13 @@ export function CalculatorPage() {
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-control border-2 border-dashed border-data bg-surface/95"
                   >
-                    <p className="text-sm font-medium text-ink">Rilascia il file qui</p>
+                    <p className="text-sm font-medium text-ink">{t('import.dropHint')}</p>
                   </div>
                 ) : null}
                 <SectionHeader
                   id="section-stampe"
-                  title="Stampe"
-                  description="Una riga per ogni stampa o pezzo diverso; la quantità gestisce le copie. Puoi anche trascinare qui un .3mf già slicato."
+                  title={t('calculator.printsSection')}
+                  description={t('calculator.printsDescription')}
                   actions={
                     <>
                       <Button
@@ -292,10 +296,10 @@ export function CalculatorPage() {
                         onClick={openFilePicker}
                         disabled={isLoading}
                       >
-                        {isLoading ? 'Analisi…' : 'Importa .3mf'}
+                        {isLoading ? t('import.analyzing') : t('import.button')}
                       </Button>
                       <Button variant="secondary" size="sm" onClick={addLine}>
-                        Aggiungi riga
+                        {t('line.add')}
                       </Button>
                     </>
                   }
@@ -304,9 +308,9 @@ export function CalculatorPage() {
                 {draft.lines.length === 0 ? (
                   <div className="mt-4">
                     <EmptyState
-                      title="Nessuna stampa nel preventivo"
-                      description="Aggiungi una riga con stampante, tempo e grammi per iniziare."
-                      action={<Button onClick={addLine}>Aggiungi la prima riga</Button>}
+                      title={t('line.emptyTitle')}
+                      description={t('line.emptyDescription')}
+                      action={<Button onClick={addLine}>{t('line.addFirst')}</Button>}
                     />
                   </div>
                 ) : (
@@ -357,7 +361,7 @@ export function CalculatorPage() {
 
           <aside
             className="min-w-0 lg:col-span-5 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto"
-            aria-label="Risultato"
+            aria-label={t('summary.region')}
           >
             <SummaryPanel
               quote={draft}

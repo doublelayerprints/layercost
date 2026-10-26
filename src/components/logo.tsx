@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { cn } from '@/lib/cn'
 
 export function Logo({
@@ -10,11 +11,12 @@ export function Logo({
   tagline?: boolean
   className?: string
 }) {
+  const { t } = useI18n()
   return (
     <Link
       to="/"
       className={cn('flex items-center gap-2.5 rounded-control', className)}
-      aria-label={compact ? 'LayerCost' : undefined}
+      aria-label={compact ? t('app.name') : undefined}
     >
       <svg
         width="24"
@@ -31,9 +33,7 @@ export function Logo({
       {!compact ? (
         <span>
           <span className="block text-base font-semibold tracking-title text-ink">LayerCost</span>
-          {tagline ? (
-            <span className="block text-xs text-muted">Costo e prezzo delle stampe 3D</span>
-          ) : null}
+          {tagline ? <span className="block text-xs text-muted">{t('logo.tagline')}</span> : null}
         </span>
       ) : null}
     </Link>

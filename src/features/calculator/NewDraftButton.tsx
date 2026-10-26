@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { useAppStore } from '@/state/app-store'
 import { draftHasContent } from '@/lib/draft'
 import { Button, Modal, type ButtonProps } from '@/components/ui'
 
 export function NewDraftButton({
-  label = 'Nuovo',
+  label,
   variant = 'secondary',
   size = 'md',
   className,
@@ -15,10 +16,12 @@ export function NewDraftButton({
   size?: ButtonProps['size']
   className?: string
 }) {
+  const { t } = useI18n()
   const draft = useAppStore((state) => state.draft)
   const newDraft = useAppStore((state) => state.newDraft)
   const navigate = useNavigate()
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const buttonLabel = label ?? t('calculator.newDraft')
 
   const startNewDraft = () => {
     newDraft()
@@ -37,29 +40,26 @@ export function NewDraftButton({
   return (
     <>
       <Button variant={variant} size={size} className={className} onClick={handleClick}>
-        {label}
+        {buttonLabel}
       </Button>
       <Modal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        title="Iniziare un nuovo preventivo?"
+        title={t('calculator.newDraftTitle')}
         footer={
           <>
             <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
-              Continua a modificare
+              {t('calculator.continueEditing')}
             </Button>
             <Button variant="danger" onClick={startNewDraft}>
-              Scarta la bozza
+              {t('calculator.discardDraft')}
             </Button>
           </>
         }
       >
         <div className="space-y-3 text-sm text-muted">
-          <p>
-            La bozza attuale non è ancora nello storico. Se vuoi conservarla, salvala prima di
-            continuare.
-          </p>
-          <p>La nuova bozza parte dai valori predefiniti delle impostazioni.</p>
+          <p>{t('calculator.newDraftBody')}</p>
+          <p>{t('calculator.newDraftDefaults')}</p>
         </div>
       </Modal>
     </>
