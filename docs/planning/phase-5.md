@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3.1 e T5.3.2 completati (fixture e parser); nessuna UI di import
+**Stato:** T5.3.1–T5.3.3 completati (fixture, parser e mapping); nessuna UI di import
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.3.3** (mapping puro `ThreeMfSummary → PrintLine[]`)
+**Prossima sessione:** partire da **T5.3.4** (UI “Importa .3mf”)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -117,6 +117,18 @@ Parser implementato in `src/data/three-mf/`; il tipo normalizzato è in `src/dom
 
 **Attenzione:** `prediction` è una stima dello slicer e può non includere i minuti di avvio della stampante. Il motore aggiunge `startupMinutes` per riga; non si deve aggiungere una seconda volta. Documentare l'assunzione e verificarla con una stampa reale.
 
+### 2.4.1 Esito T5.3.3 (26/10/2026)
+
+Mapping puro in `src/domain/three-mf-mapping.ts`:
+
+- **`proposeThreeMfMapping(summary, config)`** propone stampante e materiali senza creare entità. La stampante è cercata per nome/modello normalizzato (`exact`, `contains`, `ambiguous`, `missing`); i materiali per famiglia (`family`, `ambiguous`, `missing`). Solo stampanti e materiali attivi; le proposte ambigue espongono `candidateIds` per la select dell'anteprima.
+- **`mapThreeMfToLines(summary, mapping, config, idFactory)`** converte i piatti selezionati in `PrintLine[]`. Richiede `printerId`, `plateIndexes` e una scelta di materiale per ogni filamento con grammi > 0.
+- Ogni piatto selezionato produce una riga con `quantity: 1`, `finishingSecondsPerUnit: 0`, `extraIds: []`, `overrides: {}`; il nome usa `plater_name` o il fallback `file — piatto N`.
+- I grammi sono in centigrammi e si sommano solo quando due filamenti sono mappati sullo stesso materiale. Nessun supplemento AMS/ACE, nessuna creazione automatica di materiali, nessun cambio di schema.
+- I materiali e le stampanti archiviati vengono rifiutati; gli ID delle righe sono iniettati dall'esterno e devono essere univoci.
+- **Test:** 15 in `src/domain/three-mf-mapping.test.ts` (unitari + property test su una riga per piatto, somma esatta e nessun supplemento); 75 unitari totali.
+- **Aperto:** la UI di T5.3.4 deve confermare se l'import aggiunge o sostituisce le righe della bozza.
+
 ### 2.5 Modello dati
 
 - **Nessun cambio di schema** nella prima iterazione: l'import produce solo `PrintLine` esistenti.
@@ -158,7 +170,9 @@ Parser implementato in `src/data/three-mf/`; il tipo normalizzato è in `src/dom
 - **Fixture**: file reali ridotti, con permesso d'uso; niente dati personali. Salvarli in `tests/fixtures/3mf/` con README che indica slicer e versione. Il fixture Bambu reale è ancora da autorizzare.
 - **Performance**: un file da 50 MB viene letto senza bloccare la UI; target < 3 s su MacBook recente.
 
-**Stato T5.3.2:** 17 test in `src/data/three-mf/parse.test.ts`. Coperti Anycubic reale, Bambu sintetico, multi-piatto, XML/DOCTYPE, `project_settings`, pesi, materiali, fallback G-code e limiti ZIP. Orca reale, file da 50–100 MB e worker in browser restano da verificare in T5.3.5.
+**Stato T5.3.2:** 18 test in `src/data/three-mf/parse.test.ts`. Coperti Anycubic reale, Bambu sintetico, multi-piatto, XML/DOCTYPE, `project_settings`, pesi, materiali, fallback G-code e limiti ZIP. Orca reale, file da 50–100 MB e worker in browser restano da verificare in T5.3.5.
+
+**Stato T5.3.3:** 15 test in `src/domain/three-mf-mapping.test.ts` (unitari + property), 75 unitari totali. Coperti mapping, aggregazione per materiale, zero grammi, errori di mapping, proposte exact/contains/family/ambiguous/missing e filtro archiviati. La UI e l'E2E restano in T5.3.4–T5.3.5.
 
 ### 2.9 Criteri di accettazione
 
@@ -173,7 +187,7 @@ Parser implementato in `src/data/three-mf/`; il tipo normalizzato è in `src/dom
 1. **File reale Anycubic Slicer Next:** **verificato** con Anycubic Slicer Next 2.0.0.3. Produce `slice_info.config` con `prediction`, `weight` e `<filament>`, stessa struttura di Orca/Bambu ma header `X-ACNext-Client-Version`. Dettagli in §2.2.1.
 2. **`prediction` e avvio:** **aperto.** I valori sono in secondi, ma non è verificato se includano il riscaldamento iniziale; serve il confronto con una stampa reale.
 3. **Multi-piatto:** **confermato** dal fixture a 2 piatti: ogni `<plate>` è una riga separata; l'avvio del motore resta per riga.
-4. **Materiali multipli dello stesso tipo:** **aperto.** Proposta invariata: sommare per tipo, mostrare il dettaglio nell'anteprima.
+4. **Materiali multipli dello stesso tipo:** **risolto in T5.3.3.** Ogni filamento viene mappato a un materiale scelto; i grammi si sommano solo quando due filamenti finiscono sullo stesso materiale. La proposta automatica è per famiglia e, se ci sono più materiali della stessa famiglia, chiede conferma.
 5. **Dipendenza ZIP:** **risolto in T5.3.2:** `fflate` 0.8.3 come dipendenza runtime; nota tecnica in `docs/engineering/architecture.md` §9.
 6. **XML:** **risolto in T5.3.2:** `DOMParser` nel browser, `@xmldom/xmldom` solo nei test Node; DOCTYPE/ENTITY rifiutati.
 7. **Limite dimensione:** **aperto.** Limiti di sicurezza impostati; vanno misurati con file reali da 50–100 MB in T5.3.5.
@@ -369,7 +383,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.3.1, `docs/engineering/architecture.md` §9 e `tests/fixtures/3mf/README.md`. T5.3.1 e T5.3.2 sono chiusi. Parti da T5.3.3: mapping puro `ThreeMfSummary → PrintLine[]` nel dominio, con test unitari e property test su piatti, materiali, tempo e grammi. Non cambiare formule, `engineVersion`, snapshot o schema. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.3.1 e §2.4.1, `docs/engineering/architecture.md` §9 e `tests/fixtures/3mf/README.md`. T5.3.1–T5.3.3 sono chiusi. Parti da T5.3.4: UI “Importa .3mf” con drag & drop, anteprima piatti, mappatura tramite `proposeThreeMfMapping`, import con `mapThreeMfToLines`, conferma bozza e stati di errore. Non cambiare formule, `engineVersion`, snapshot o schema. Un task = un commit; `npm run check` verde.
 
 Prima di implementare la UI di T5.3.4, il committente deve confermare:
 

@@ -114,6 +114,8 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 | `overrides`               | `{ powerOverrideW?, energyOverrideWh?, failureRateBp? }` |                 |
 | `notes`                   | string?                                                  |                 |
 
+> **Import `.3mf` (T5.3.3):** il mapping produce solo `PrintLine` esistenti. Ogni piatto selezionato diventa una riga con `quantity: 1`, `finishingSecondsPerUnit: 0`, `extraIds: []` e `overrides: {}`. `timeSeconds` è il `prediction` dello slicer; i grammi sono la somma dei filamenti mappati sullo stesso materiale, in centigrammi. Nessun campo `source` e nessun supplemento AMS/ACE.
+
 ### 2.7 `Quote`
 
 | Campo                    | Tipo                                                | Note                         |

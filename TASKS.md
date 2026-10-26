@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3.1 e T5.3.2 chiusi** (fixture `.3mf` reali e parser ZIP/XML); prossimo **T5.3.3** (mapping puro). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3.1–T5.3.3 chiusi** (fixture `.3mf` reali, parser ZIP/XML e mapping puro); prossimo **T5.3.4** (UI “Importa .3mf”). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -773,7 +773,7 @@ Registrare tempo e filamento reali per stampa, confrontarli con le stime, sugger
 ## T5.3 — Import diretto da `.3mf`
 
 **Dipende da:** ADR-0017, fixture reali
-**Stato:** `[~]` — T5.3.1–T5.3.2 chiusi; T5.3.3–T5.3.5 da fare
+**Stato:** `[~]` — T5.3.1–T5.3.3 chiusi; T5.3.4–T5.3.5 da fare
 **Piano:** `docs/planning/phase-5.md` §2
 
 **Nota:** il `.3mf` è un archivio ZIP/OPC. Il percorso supportato è il file **già slicato** (`.gcode.3mf`) di Anycubic Slicer Next, OrcaSlicer o Bambu Studio: `Metadata/slice_info.config` contiene `prediction` in secondi e `used_g` per filamento. Un progetto non slicato non ha tempo/grammi affidabili e va rifiutato con un messaggio azionabile. Nessun upload, nessun cambio a formule o `engineVersion`, nessun supplemento AMS/ACE (ADR-0006). Le fixture verificate di T5.3.1 sono in `tests/fixtures/3mf/`.
@@ -782,7 +782,7 @@ Sottotask:
 
 - **T5.3.1** — chiedere 2–3 file reali (Kobra 3 e Kobra X), verificare formato e campi, salvare fixture ridotte in `tests/fixtures/3mf/`. → **fatto** (vedi nota sotto).
 - **T5.3.2** — parser ZIP/XML nel layer `data`, con limiti di sicurezza e Web Worker; normalizzazione a `ThreeMfSummary`. → **fatto** (vedi nota sotto).
-- **T5.3.3** — mapping puro `ThreeMfSummary → PrintLine[]` nel dominio: tempo, grammi per tipo, stampante, piatti multipli.
+- **T5.3.3** — mapping puro `ThreeMfSummary → PrintLine[]` nel dominio: tempo, grammi per tipo, stampante, piatti multipli. → **fatto** (vedi nota sotto).
 - **T5.3.4** — UI “Importa .3mf”: drag & drop, anteprima piatti, mappatura stampante/materiale, conferma bozza, errori.
 - **T5.3.5** — test unit/property/E2E/axe, documentazione e deploy.
 
@@ -809,6 +809,21 @@ Sottotask:
 **Test:** 18 nuovi test in `src/data/three-mf/parse.test.ts` (60 unitari totali): fixture Kobra 3, Kobra X e multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti, path traversal e cifratura. Il worker viene costruito da Vite in un chunk separato; il test browser arriva con l'E2E di T5.3.4.
 
 **Accettazione:** parser locale con limiti, normalizzazione completa, errore azionabile per file non slicato/malformato, nessun cambio a formule/`engineVersion`/schema, `npm run check` verde. → soddisfatta.
+
+### T5.3.3 — Mapping puro `ThreeMfSummary → PrintLine[]`
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026. Implementato `src/domain/three-mf-mapping.ts`:
+
+- `proposeThreeMfMapping(summary, config)` propone stampante e materiali senza creare entità; match stampante `exact`/`contains`/`ambiguous`/`missing`, materiali per famiglia con `candidateIds` per le scelte ambigue;
+- `mapThreeMfToLines(summary, mapping, config, idFactory)` produce una riga per piatto selezionato con quantità 1, tempo dello slicer, grammi in centigrammi e ID iniettati;
+- i grammi si sommano solo quando più filamenti sono mappati sullo stesso materiale; filamenti a 0 g ignorati; stampanti/materiali archiviati rifiutati;
+- nessun supplemento AMS/ACE, nessuna creazione automatica, nessun cambio a formule, `engineVersion`, schema o persistenza.
+
+**Test:** 15 test in `src/domain/three-mf-mapping.test.ts` (unitari + property test su una riga per piatto, somma esatta e nessun supplemento); 75 unitari totali. La UI userà queste funzioni in T5.3.4.
+
+**Accettazione:** mapping puro, proposte senza entità silenziose, righe valide per il motore, test unitari e property verdi. → soddisfatta.
 
 ## T5.4 — Sincronizzazione cloud (rimandata)
 
