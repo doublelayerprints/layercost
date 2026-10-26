@@ -5,7 +5,8 @@
 ### Added
 
 - Import `.3mf` (T5.3.1–T5.3.5): fixture reali verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; parser ZIP/XML locale con limiti di sicurezza, Web Worker e fallback G-code; mapping puro con proposte di stampante/materiali e righe `PrintLine` senza supplementi AMS/ACE; UI con drag & drop, anteprima piatti, mappatura, conferma append/replace, focus e alert di esito; performance verificata con un file reale da 22 MB compressi/75 MB decompressi e con un archivio sintetico da 50 MB; regressione visiva del modale. Il worker usa `@xmldom/xmldom` perché `DOMParser` non è disponibile nei Web Worker.
-- Test: 75 unitari, 26 E2E, 18 screenshot visuali.
+- Infrastruttura inglese (T5.6.1): dizionari tipizzati it/en, `translate`/`t`/`plural`, `I18nProvider` e `useI18n`, `<html lang>`, shell collegata e inventario stringhe. Estratto il testo italiano invariato; l’estrazione completa arriva in T5.6.2.
+- Test: 80 unitari, 26 E2E, 18 screenshot visuali.
 
 ## [1.0.0] — 2026-10-24
 

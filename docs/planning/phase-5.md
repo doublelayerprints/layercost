@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato (fixture, parser, mapping, UI, performance); prossimo T5.6
+**Stato:** T5.3 completato; T5.6.1 completato (infrastruttura i18n); prossimo T5.6.2
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.6** (interfaccia inglese)
+**Prossima sessione:** partire da **T5.6.2** (estrazione stringhe)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -230,12 +230,13 @@ Permettere di usare tutta l'interfaccia in inglese, mantenendo l'italiano come l
 
 - `src/i18n/it.ts` — dizionario sorgente, con chiavi namespaced (`nav.calculator`, `calculator.title`, `quote.saved`, `errors.import.invalid`).
 - `src/i18n/en.ts` — stessa interfaccia TypeScript; una chiave mancante fallisce il typecheck o un test di parità.
-- `src/i18n/index.ts` — `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `t(key, params)`.
-- `src/state/locale-store.ts` — preferenza `it`/`en`.
-- `src/data/locale.ts` — persistenza in `layercost:locale`, separata da `AppData`.
-- `src/app/I18nProvider.tsx` — contesto, `useI18n()`, aggiornamento di `<html lang>` e `dir`.
-- `src/lib/format.ts` — `formatCurrency`, `formatDateOnly`, `formatDuration`, `formatGrams`, `formatPercent` ricevono la locale; default `it-IT`.
-- `src/lib/labels.ts` — etichette di dominio tradotte, non costanti globali.
+- `src/i18n/index.ts` — `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `INTL_LOCALES`, `translate`, `t`, `plural` con `Intl.PluralRules`, `isLocale`.
+- `src/state/locale-store.ts` — preferenza `it`/`en` (T5.6.4).
+- `src/data/locale.ts` — persistenza in `layercost:locale`, separata da `AppData` (T5.6.4).
+- `src/app/I18nProvider.tsx` — provider e aggiornamento di `<html lang>` e `dir`.
+- `src/app/i18n-context.ts` — contesto e `useI18n()`.
+- `src/lib/format.ts` — `formatCurrency`, `formatDateOnly`, `formatDuration`, `formatGrams`, `formatPercent` ricevono la locale; default `it-IT` (T5.6.3).
+- `src/lib/labels.ts` — etichette di dominio tradotte, non costanti globali (T5.6.2/T5.6.3).
 
 ### 3.3 Lingua e formattazione
 
@@ -298,11 +299,21 @@ Non tradurre: codice, tipi, commenti tecnici, documentazione per sviluppatori, n
 2. Auto-detect della lingua al primo accesso? Proposta: no, default italiano.
 3. Tradurre anche il README o solo la UI? Proposta: UI ora; README con sezione inglese in un secondo momento.
 4. La lingua del preventivo è modificabile dopo la creazione? Proposta: no, si crea una copia.
-5. Quante stringhe sono? Serve un inventario prima di stimare.
+5. Quante stringhe sono? **Inventario in `docs/planning/i18n-inventory.md`**, con aree, file e note di estrazione.
 
 ### 3.10 Stima
 
 Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 giorno. Migrazione e test: 1 giorno. Totale indicativo: **3–4 giorni assistiti**.
+
+### 3.11 Esito T5.6.1 (26/10/2026)
+
+- Creati `src/i18n/it.ts`, `src/i18n/en.ts` e `src/i18n/index.ts`; le chiavi sono tipizzate e la parità è garantita dal typecheck e da `src/i18n/i18n.test.ts`.
+- `translate`, `t`, `plural` con `Intl.PluralRules`, `INTL_LOCALES`, `isLocale`.
+- `src/app/I18nProvider.tsx` + `src/app/i18n-context.ts` con `useI18n`, `<html lang>` e `dir`; il provider è montato in `App.tsx`.
+- La shell (`Layout`) usa già `useI18n` per navigazione, skip link, footer, versione motore e titolo dell’alert; il testo italiano è invariato.
+- Inventario completo in `docs/planning/i18n-inventory.md`: aree, file, regole e ordine di estrazione.
+- 5 nuovi test: parità chiavi, valori non vuoti, locale supportata, interpolazione, plurali. Totale 80 unitari.
+- **Prossimo:** T5.6.2 — estrazione delle stringhe dalle schermate, errori, `aria-label`, stampa e guida.
 
 ---
 
