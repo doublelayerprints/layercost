@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.6.5 (in verifica) — 97 test unitari + 27 E2E (6 visual su CI, 36 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.6.5 (in verifica) — 97 test unitari + 31 E2E (6 visual su CI, 36 screenshot)
 
 ---
 
@@ -102,7 +102,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (97 unitari, 27 E2E).
+Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (97 unitari, 31 E2E).
 
 ## 7. Come aggiungere un test
 

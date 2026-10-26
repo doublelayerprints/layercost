@@ -961,6 +961,7 @@ Sottotask:
 
 - Aggiunte 14 scansioni axe in inglese: 11 route, menu mobile, modale bozza, modale reset e import `.3mf`; 0 violazioni. Totale **40 scansioni** (26 italiane + 14 inglesi).
 - Aggiunti 18 screenshot di regressione in inglese (6 schermate × 1440/768/390) accanto ai 18 italiani; baseline Linux generate dalla workflow dedicata.
+- 31 E2E totali (29 Chromium, 2 WebKit; 6 visual) e 97 test unitari.
 - Mappati per codice gli errori di dominio (`DomainError`) in calcolatore e confronto; introdotto `StorageError` per backup, schema e salvataggio, con messaggi tradotti in Impostazioni. I warning di storage/corruzione dati usano codici e vengono tradotti nella shell.
 - Scansione statica: nessuna stringa italiana hardcoded nei componenti oltre al nome del prodotto. Restano come fallback tecnico i messaggi interni del parser `.3mf` e del dominio, non mostrati direttamente se non mappati.
 - Documentazione aggiornata (TASKS, STATUS, phase-5, architecture, persistence, testing, data-model, inventario i18n, ADR-0019, README, CHANGELOG).

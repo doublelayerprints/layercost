@@ -346,7 +346,7 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 ### 3.15 Esito T5.6.5 (26/10/2026, in verifica)
 
 - Axe in inglese su 11 route e 3 modali (bozza, reset, import) con 0 violazioni; **40 scansioni** totali.
-- **36 screenshot** di regressione: 18 italiani e 18 inglesi a 1440/768/390 px, baseline Linux.
+- **36 screenshot** di regressione: 18 italiani e 18 inglesi a 1440/768/390 px, baseline Linux; **31 E2E** e **97 test unitari**.
 - Errori di dominio mappati per codice in calcolatore e confronto; `StorageError` per backup/schema/salvataggio e warning di storage tradotti nella shell.
 - Scansione statica dei componenti: nessuna stringa italiana hardcoded oltre al nome del prodotto. Restano fallback tecnici interni non mostrati direttamente.
 - **Prossimo:** merge, deploy di produzione e chiusura di T5.6.
