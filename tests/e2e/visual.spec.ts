@@ -43,6 +43,13 @@ for (const viewport of viewports) {
     await page.goto('/')
     await screenshot(page, `${viewport.name}-calcolatore.png`)
 
+    await page
+      .locator('input[type="file"]')
+      .setInputFiles('tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf')
+    await expect(page.getByRole('dialog', { name: 'Importa .3mf' })).toBeVisible()
+    await screenshot(page, `${viewport.name}-import-3mf.png`)
+    await page.keyboard.press('Escape')
+
     await page.goto(quotePath)
     await screenshot(page, `${viewport.name}-dettaglio.png`)
 

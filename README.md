@@ -101,9 +101,9 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 75 unitari, 26 E2E (Chromium + WebKit), axe 0 violazioni, stampa/PDF, regressione visiva e budget.
+- **Verifiche:** 75 unitari, 26 E2E (Chromium + WebKit), 18 screenshot di regressione, axe 0 violazioni, stampa/PDF e budget.
 - **Fuori v1:** sync cloud, magazzino bobine, PWA, inglese.
-- **Fase 5 in corso:** import `.3mf` disponibile con fixture reali, parser ZIP/XML in worker, mapping puro e UI (T5.3.1–T5.3.4); restano performance/fixture Bambu (T5.3.5), interfaccia inglese e sync gratuito rimandato. Piano in `docs/planning/phase-5.md`.
+- **Fase 5:** import `.3mf` completo (T5.3) con fixture, parser ZIP/XML in worker, mapping, UI, performance e deploy; prossima interfaccia inglese (T5.6), sync gratuito rimandato. Piano in `docs/planning/phase-5.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.
