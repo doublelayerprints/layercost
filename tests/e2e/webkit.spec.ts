@@ -26,7 +26,7 @@ test('WebKit calcola, salva, ricarica e stampa', async ({ page }) => {
   await page.emulateMedia({ media: 'screen' })
 
   await page.goto('/#/settings')
-  await page.getByRole('radio', { name: /Scuro/ }).check()
+  await page.locator('main').getByRole('radio', { name: /Scuro/ }).check()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')

@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/app/i18n-context'
+import { QuickPreferences } from '@/app/QuickPreferences'
 import { useAppStore } from '@/state/app-store'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
@@ -95,7 +96,10 @@ function MobileHeader() {
           aria-label={t('nav.main')}
         >
           <NavItems mobile onNavigate={() => setMenuOpen(false)} />
-          <div className="mt-6 border-t border-line pt-3 text-xs text-muted">
+          <div className="mt-6 border-t border-line pt-4">
+            <QuickPreferences mobile />
+          </div>
+          <div className="mt-4 border-t border-line pt-3 text-xs text-muted">
             <p>{t('app.dataLocal')}</p>
             <Link
               to="/settings"
@@ -133,7 +137,10 @@ export function Layout() {
         <nav className="mt-2 flex-1 overflow-y-auto" aria-label={t('nav.main')}>
           <NavItems />
         </nav>
-        <div className="border-t border-line px-3 pt-3 text-xs text-muted">
+        <div className="border-t border-line px-3 pt-3">
+          <QuickPreferences />
+        </div>
+        <div className="mt-3 border-t border-line px-3 pt-3 text-xs text-muted">
           <p>{t('app.dataLocal')}</p>
           <Link
             to="/settings"

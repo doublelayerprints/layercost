@@ -5,16 +5,22 @@ test('cambia lingua, la persiste e salva preventivi in inglese', async ({ page }
   page.on('pageerror', (error) => errors.push(error.message))
 
   await page.goto('/#/settings')
-  await page.getByRole('radio', { name: /English/ }).check()
+  const quickLanguage = page
+    .locator('aside')
+    .getByRole('group', { name: 'Lingua dell’interfaccia' })
+  await expect(quickLanguage).toBeVisible()
+  await quickLanguage.getByRole('radio', { name: 'English' }).check()
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page.locator('main').getByRole('radio', { name: /English/ })).toBeChecked()
   await expect(page).toHaveTitle('LayerCost — Cost and price for 3D prints')
   await expect(page.getByRole('heading', { name: 'Settings', level: 1 })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Calculator' }).first()).toBeVisible()
 
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  await expect(page.getByRole('radio', { name: /English/ })).toBeChecked()
+  await expect(page.locator('main').getByRole('radio', { name: /English/ })).toBeChecked()
+  await expect(page.locator('aside').getByRole('radio', { name: 'English' })).toBeChecked()
 
   await page.getByRole('link', { name: 'Calculator' }).first().click()
   await expect(page.getByRole('heading', { name: 'New quote' }).first()).toBeVisible()
@@ -49,7 +55,10 @@ test('cambia lingua, la persiste e salva preventivi in inglese', async ({ page }
     buffer: Buffer.from('not json'),
   })
   await expect(page.getByText('The file does not contain valid JSON.')).toBeVisible()
-  await page.getByRole('radio', { name: /Italiano/ }).check()
+  await page
+    .locator('main')
+    .getByRole('radio', { name: /Italiano/ })
+    .check()
   await expect(page.locator('html')).toHaveAttribute('lang', 'it')
   await page.goto(quoteUrl)
   await page.emulateMedia({ media: 'print' })

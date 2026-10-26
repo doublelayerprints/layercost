@@ -8,12 +8,15 @@ test('il tema è esplicito, persistente e segue il sistema', async ({ page }) =>
   const html = page.locator('html')
   await expect(html).toHaveAttribute('data-theme', 'light')
 
-  const themeGroup = page.getByRole('group', { name: 'Tema dell’interfaccia' })
+  const themeGroup = page.locator('main').getByRole('group', { name: 'Tema dell’interfaccia' })
   await expect(themeGroup).toBeVisible()
-  await expect(page.getByRole('radio', { name: /Sistema/ })).toBeChecked()
+  await expect(themeGroup.getByRole('radio', { name: /Sistema/ })).toBeChecked()
 
-  await page.getByRole('radio', { name: /Scuro/ }).check()
+  const quickTheme = page.locator('aside').getByRole('group', { name: 'Tema dell’interfaccia' })
+  await expect(quickTheme).toBeVisible()
+  await quickTheme.getByRole('radio', { name: 'Scuro' }).check()
   await expect(html).toHaveAttribute('data-theme', 'dark')
+  await expect(page.locator('main').getByRole('radio', { name: 'Scuro' })).toBeChecked()
 
   const dark = await page.evaluate(() => ({
     ground: getComputedStyle(document.documentElement).getPropertyValue('--color-ground').trim(),
@@ -34,7 +37,7 @@ test('il tema è esplicito, persistente e segue il sistema', async ({ page }) =>
     ),
   ).toBe('#141413')
 
-  await page.getByRole('radio', { name: /Chiaro/ }).check()
+  await themeGroup.getByRole('radio', { name: /Chiaro/ }).check()
   await expect(html).toHaveAttribute('data-theme', 'light')
   await expect
     .poll(() =>
@@ -44,7 +47,7 @@ test('il tema è esplicito, persistente e segue il sistema', async ({ page }) =>
     )
     .toBe('#f4f3f1')
 
-  await page.getByRole('radio', { name: /Sistema/ }).check()
+  await themeGroup.getByRole('radio', { name: /Sistema/ }).check()
   await page.emulateMedia({ colorScheme: 'dark' })
   await expect(html).toHaveAttribute('data-theme', 'dark')
 
