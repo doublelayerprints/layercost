@@ -1,6 +1,6 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore)
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento)
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
 **Prossima sessione:** **T5.4** (sync, rimandato) oppure **T5.7** (registro manutenzioni)
@@ -446,26 +446,56 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 ---
 
-## 5. Lavoro trasversale
+## 5. Rifiniture richieste dal committente (T5.15–T5.17)
+
+### 5.1 T5.15 — Preferenze rapide nella sidebar
+
+- **Obiettivo:** cambiare tema e lingua senza aprire Impostazioni.
+- **Posizione:** fondo della sidebar desktop; un blocco equivalente nel menu mobile.
+- **Tema:** radio native Sistema / Chiaro / Scuro, sincronizzate con `layercost:theme` e con Impostazioni → Aspetto.
+- **Lingua:** radio native IT / EN, sincronizzate con `layercost:locale`; il nome accessibile è esteso (“Italiano” / “English”).
+- **Comportamento:** la lingua adotta la bozza vuota con la stessa regola di T5.6.4; i preventivi salvati restano nella loro lingua.
+- **Vincoli:** controlli compatti ma con target 44 px su mobile, focus visibile, nessun cambio a dati, formule o schema.
+
+### 5.2 T5.16 — Azioni del preventivo in alto
+
+- **Obiettivo:** rendere immediate le azioni di un preventivo salvato.
+- **Posizione:** la card “Gestione del preventivo” va sotto testata e avvisi, prima del prezzo e delle righe.
+- **Azioni:** Modifica, invio, completamento, duplica, archivia, elimina; il blocco dopo invio/completamento resta visibile.
+- **Gerarchia:** “Stampa / PDF” passa a secondaria nella testata per lasciare una sola azione primaria.
+- **Verifica:** E2E sull’ordine verticale e sul ciclo di vita esistente.
+
+### 5.3 T5.17 — Colore del filamento per riga
+
+- **Obiettivo:** associare un colore alla singola stampa, utile soprattutto per i lavori a un colore.
+- **Dato:** `PrintLine.color?: string` in formato `#rrggbb`. È un metadato di presentazione, opzionale e retrocompatibile: lo schema resta **v3**.
+- **UI:** quadratino stondato nella card della stampa, color picker nativo, stato vuoto tratteggiato e “Rimuovi colore”.
+- **Lettura:** swatch accanto al nome in calcolatore, dettaglio preventivo, dettaglio costi e stampa/PDF; in stampa `print-color-adjust: exact`.
+- **Accessibilità:** il colore non è l’unica informazione; il nome della stampa resta leggibile. Il campo ha un’etichetta accessibile e un’azione di rimozione.
+- **Fuori scope:** nessun calcolo del colore, nessun supplemento AMS/ACE, nessuna dipendenza da materiali o slicer.
+
+---
+
+## 6. Lavoro trasversale
 
 - **ADR:** 0017 (3MF), 0018 (sync), 0019 (inglese) sono la direzione. Ogni cambio di schema o formula richiede un ADR successivo.
-- **Schema:** v3 con `Quote.locale` (inglese) e `Quote.status` (ciclo di vita, ADR-0020). L'import 3MF non cambia lo schema.
+- **Schema:** v3 con `Quote.locale` (inglese), `Quote.status` (ciclo di vita, ADR-0020) e `PrintLine.color` opzionale (T5.17; nessuna migrazione). L'import 3MF non cambia lo schema.
 - **Test:** ogni iniziativa porta unit, property (dove ha senso), E2E, axe e visual. `npm run check` resta il gate.
-- **Documentazione:** aggiornare `cost-model.md` solo se cambia una formula (non previsto); `data-model.md` per `Quote.locale` e `Quote.status`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
+- **Documentazione:** aggiornare `cost-model.md` solo se cambia una formula (non previsto); `data-model.md` per `Quote.locale`, `Quote.status` e `PrintLine.color`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
 - **Deploy:** Vercel free; per il sync valutare env pubbliche (URL + anon key) e un progetto di test separato.
 - **Sicurezza:** nessun upload di `.3mf`; nessun analytics; nessuna chiamata esterna oltre al provider scelto per il sync.
 
 ---
 
-## 6. Handoff per la prossima sessione
+## 7. Handoff per la prossima sessione
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md`, l’ADR-0019 e l’ADR-0020. T5.3, T5.6 e T5.13–T5.14 sono chiusi. Prossimo: T5.4 sync (rimandato) oppure T5.7 manutenzioni. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md`, l’ADR-0019 e l’ADR-0020. T5.3, T5.6, T5.13–T5.17 sono chiusi. Prossimo: T5.4 sync (rimandato) oppure T5.7 manutenzioni. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 
-## 7. Fonti
+## 8. Fonti
 
 - 3MF Consortium, **3MF Core Specification 1.4.0**: https://github.com/3MFConsortium/spec_core — formato ZIP/OPC, metadati, estensioni.
 - Printago, **3MF File Format: How Bambu Studio and Orca Slicer Structure Your Prints** (13 aprile 2026): https://printago.io/blog/3mf-file-format — struttura `slice_info.config`, `prediction`, `used_g`, caveat. Fonte terza, utile ma da verificare con file reali.

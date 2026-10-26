@@ -101,20 +101,23 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 
 ### 2.6 `PrintLine`
 
-| Campo                     | Tipo                                                     | Note            |
-| ------------------------- | -------------------------------------------------------- | --------------- |
-| `id`                      | string                                                   |                 |
-| `name`                    | string                                                   |                 |
-| `printerId`               | string                                                   |                 |
-| `timeSeconds`             | `Seconds`                                                | Tempo slicer    |
-| `materials`               | `{ materialId, grams: Centigrams }[]`                    | Multi-materiale |
-| `quantity`                | number                                                   | ≥ 1             |
-| `finishingSecondsPerUnit` | `Seconds`                                                |                 |
-| `extraIds`                | string[]                                                 | Extra `perUnit` |
-| `overrides`               | `{ powerOverrideW?, energyOverrideWh?, failureRateBp? }` |                 |
-| `notes`                   | string?                                                  |                 |
+| Campo                     | Tipo                                                     | Note                                    |
+| ------------------------- | -------------------------------------------------------- | --------------------------------------- |
+| `id`                      | string                                                   |                                         |
+| `name`                    | string                                                   |                                         |
+| `printerId`               | string                                                   |                                         |
+| `timeSeconds`             | `Seconds`                                                | Tempo slicer                            |
+| `materials`               | `{ materialId, grams: Centigrams }[]`                    | Multi-materiale                         |
+| `quantity`                | number                                                   | ≥ 1                                     |
+| `finishingSecondsPerUnit` | `Seconds`                                                |                                         |
+| `extraIds`                | string[]                                                 | Extra `perUnit`                         |
+| `overrides`               | `{ powerOverrideW?, energyOverrideWh?, failureRateBp? }` |                                         |
+| `color`                   | string?                                                  | Filamento `#rrggbb`, solo presentazione |
+| `notes`                   | string?                                                  |                                         |
 
 > **Import `.3mf` (T5.3.3):** il mapping produce solo `PrintLine` esistenti. Ogni piatto selezionato diventa una riga con `quantity: 1`, `finishingSecondsPerUnit: 0`, `extraIds: []` e `overrides: {}`. `timeSeconds` è il `prediction` dello slicer; i grammi sono la somma dei filamenti mappati sullo stesso materiale, in centigrammi. Nessun campo `source` e nessun supplemento AMS/ACE.
+>
+> **Colore filamento (T5.17):** `color` è un campo opzionale `#rrggbb` aggiunto in modo retrocompatibile; lo schema resta **v3** e i dati esistenti non richiedono migrazione. Non entra in formule, snapshot economico o `engineVersion`: serve solo a riconoscere la stampa in UI e in stampa.
 
 ### 2.7 `Quote`
 
@@ -229,7 +232,7 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 5. Migrazioni
 
-- La versione corrente è `1`.
+- La versione corrente è `3`.
 - `migrateAppData` rifiuta versioni future e versioni non numeriche.
 - In futuro: aggiungere una funzione per ogni versione e un fixture di test.
 - Prima di una migrazione distruttiva, l'app deve conservare un backup raw.

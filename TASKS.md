@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese) e **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore). Prossimo **T5.4 sync** (rimandato) o **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018, ADR-0019 e ADR-0020 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Prossimo **T5.4 sync** (rimandato) o **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.15–T5.17 rifiniture → T5.4 sync** (rimandato). ADR-0017, ADR-0018, ADR-0019 e ADR-0020 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive vanno rigenerate in CI perché sidebar, dettaglio e impostazioni cambiano.
 
 ---
 
@@ -1013,6 +1013,40 @@ Esportare righe e preventivi in CSV per analisi esterne, mantenendo la formattaz
 
 **Nota:** il calcolatore è diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; i comandi Duplica/Rimuovi sono nell’intestazione del pannello. Il riepilogo resta sticky a destra. Baseline visive italiane e inglesi rigenerate.
 
+## T5.15 — Preferenze rapide nella sidebar
+
+**Stato:** `[x]` — chiuso il 26/10/2026
+
+**Nota:** aggiunti due gruppi compatti in fondo alla sidebar desktop e nel menu mobile:
+
+- **Tema**: Sistema / Chiaro / Scuro, con le stesse radio native e la stessa persistenza di Impostazioni → Aspetto (`layercost:theme`).
+- **Lingua**: IT / EN, con nome accessibile esteso (“Italiano” / “English”), la stessa persistenza di Impostazioni → Lingua (`layercost:locale`) e l’adozione della lingua da parte della bozza vuota.
+
+I controlli sono radio nativi coperti dall’etichetta: il click sull’intero pulsantino funziona, il focus è visibile e la selezione resta sincronizzata con Impostazioni. Su mobile i target sono da 44 px. Nessun cambio a dati, formule, `engineVersion` o schema.
+
+**Accettazione:** tema e lingua cambiano subito da sidebar e menu mobile; la scelta persiste al reload; Impostazioni riflette la stessa scelta; la bozza vuota adotta la lingua; tastiera e focus verificati a 375/1440 px. → soddisfatta; baseline visive da rigenerare in CI.
+
+## T5.16 — Azioni del preventivo in alto
+
+**Stato:** `[x]` — chiuso il 26/10/2026
+
+**Nota:** la card “Gestione del preventivo” (Modifica, invio, completamento, duplica, archivia, elimina) è stata spostata subito sotto la testata e gli avvisi, prima del riepilogo del prezzo e delle righe. “Stampa / PDF” resta nella testata come azione secondaria per lasciare una sola azione primaria alla schermata. Il blocco dopo invio/completamento resta visibile nello stesso punto. Nessuna azione o conferma è stata rimossa.
+
+**Accettazione:** le azioni sono visibili prima del preventivo; il flusso di modifica, invio, completamento, duplicazione, archiviazione ed eliminazione funziona invariato; un E2E verifica l’ordine verticale. → soddisfatta.
+
+## T5.17 — Colore del filamento per riga
+
+**Stato:** `[x]` — chiuso il 26/10/2026
+
+**Nota:** `PrintLine.color` è un campo opzionale `#rrggbb`, solo di presentazione: non entra in formule, snapshot economico o `engineVersion`. Lo schema resta **v3** e accetta i dati esistenti senza migrazione.
+
+- Nel calcolatore ogni stampa ha un quadratino stondato con color picker nativo, stato vuoto tratteggiato e azione “Rimuovi colore”.
+- Il colore compare accanto al nome della riga nel dettaglio del preventivo, nella tabella dei costi e nella stampa/PDF; in stampa usa `print-color-adjust: exact`.
+- Le chiavi i18n sono in italiano e inglese; il colore non è mai l’unica informazione, perché il nome della stampa resta leggibile.
+- Validazione condivisa `isHexColor`; test unitari su schema e bozza, E2E su impostazione, persistenza, stampa e rimozione.
+
+**Accettazione:** colore impostabile e rimovibile, persistente al reload e nel preventivo salvato; visibile in dettaglio e stampa; dati vecchi invariati; nessun cambio a formule o `engineVersion`. → soddisfatta; baseline visive da rigenerare in CI.
+
 ---
 
 ## Ordine consigliato
@@ -1022,7 +1056,7 @@ Esportare righe e preventivi in CSV per analisi esterne, mantenendo la formattaz
 3. T2.1 → T2.12
 4. T3.1 → T3.12
 5. T4.1 → T4.7
-6. T5.0 → T5.3 → T5.6 → T5.13 → T5.14 → T5.4 (sync solo su richiesta esplicita)
+6. T5.0 → T5.3 → T5.6 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.4 (sync solo su richiesta esplicita)
 7. Resto del backlog
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.

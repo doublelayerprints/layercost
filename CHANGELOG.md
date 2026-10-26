@@ -12,7 +12,10 @@
 - Verifiche inglesi (T5.6.5): 14 scansioni axe e 18 screenshot in inglese, errori di dominio/storage tradotti, link condivisi pre-v2 compatibili. Deploy di produzione verificato.
 - Preventivi modificabili (T5.13): stati `saved`/`sent`/`completed`, modifica in place con lo stesso id e prezzi congelati nello snapshot, blocco dopo invio/completamento, conferme e badge di stato; schema v3 con migrazione v1 → v2 → v3 e backup raw.
 - Calcolatore a card (T5.14): intestazione, stampe, costi di lavoro e prezzo in card separate; ogni stampa in un pannello distinto con etichetta “Stampa N”.
-- Test: 101 unitari, 32 E2E, 36 screenshot visuali.
+- Preferenze rapide (T5.15): tema Sistema/Chiaro/Scuro e lingua IT/EN in fondo alla sidebar e nel menu mobile, sincronizzati con Impostazioni.
+- Azioni del preventivo in alto (T5.16): gestione sotto la testata, prima del prezzo e delle righe; “Stampa / PDF” secondaria.
+- Colore filamento per riga (T5.17): colore `#rrggbb` opzionale con picker, swatch in dettaglio/stampa e rimozione; schema v3 invariato.
+- Test: 104 unitari, 33 E2E, 36 screenshot visuali.
 
 ## [1.0.0] — 2026-10-24
 

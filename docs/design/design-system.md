@@ -127,6 +127,7 @@ Il tema scuro è un **grafite caldo**, non nero puro: conserva la famiglia croma
 - `src/index.css`: definizione dei token e i colori `#fff`/`#000` della stampa.
 - `public/favicon.svg`: colore statico dell'asset, fuori dai componenti. `<meta name="theme-color">` parte da un valore statico in `index.html` e viene aggiornato leggendo `--color-ground`.
 - `QuotePrint`: dimensioni in `pt` e lockup del wordmark.
+- `LineColorSwatch` / `LineColorField`: il colore del filamento è **dato dell'utente** (`#rrggbb`), non un token di design; usa uno stile inline solo per lo swatch. Non entra nei calcoli e non sostituisce il colore come informazione: il nome della stampa resta leggibile.
 - Nessun'altra eccezione: i componenti e le schermate usano solo token.
 
 ---
@@ -207,6 +208,19 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 ### 3.15 Selettore del tema
 
 In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia") e tre radio native — Sistema, Chiaro, Scuro — dentro etichette-card. La radio è visibile e usa `accent-data`; la card selezionata ha bordo `--color-data` e fondo `--color-raised`. Il focus è quello nativo del controllo, quindi resta visibile anche senza classi aggiuntive. Non usare un toggle a due stati: la terza opzione "Sistema" è necessaria.
+
+### 3.16 Preferenze rapide nella sidebar
+
+In fondo alla sidebar desktop e nel menu mobile, `QuickPreferences` offre due gruppi compatti:
+
+- **Tema**: Sistema / Chiaro / Scuro.
+- **Lingua**: IT / EN, con nome accessibile esteso.
+
+Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'input invisibile occupa l'intera etichetta (opacità 0) così il click funziona su tutto il pulsantino e il focus ring compare sul contenitore tramite `focus-within`. L'opzione selezionata ha fondo `--color-surface` e testo `--color-ink`; le altre restano muted. Su mobile il target è 44 px. Le preferenze sono le stesse di Impostazioni: nessuna duplicazione di stato.
+
+### 3.17 Colore del filamento
+
+`LineColorField` è un quadratino stondato con bordo `--color-control`; vuoto mostra un bordo tratteggiato e un “+”, pieno mostra il colore scelto. Il picker è un `<input type="color">` nativo, accessibile da tastiera; “Rimuovi colore” compare solo quando c'è un colore. `LineColorSwatch` è la versione di sola lettura usata accanto al nome della stampa nel calcolatore, nel dettaglio, nella tabella costi e in stampa. Il colore è un dato, non un token: non è mai l'unica informazione e non entra nei calcoli.
 
 ---
 
@@ -296,16 +310,20 @@ In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia"
 
 - `src/lib/theme.test.ts` — 3 test: valori ammessi, risoluzione di sistema, scelta esplicita che vince sulla preferenza del dispositivo.
 - `src/data/theme.test.ts` — 4 test: default, valore non valido, roundtrip della preferenza, storage bloccato.
-- `src/lib/draft.test.ts` — 6 test: bozza vuota, nome/cliente, tempo/grammi/quantità/extra, costi di lavoro/note, modifica di prezzo, righe aggiuntive e override.
+- `src/lib/draft.test.ts` — 7 test: bozza vuota, nome/cliente, tempo/grammi/quantità/extra/colore, costi di lavoro/note, modifica di prezzo, righe aggiuntive e override.
+- `src/lib/color.test.ts` — 2 test: hex `#rrggbb` valido e rifiuto di nomi, forme brevi e valori non testuali.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
 - `src/lib/cost-details.test.ts` — 4 test: componenti che sommano al costo diretto, costo pieno da diretto + quota fissa, totali di colonna, prezzo allocato.
 - `src/lib/format.test.ts` — 3 test: arrotondamento dei centesimi simmetrico, roundtrip dei centesimi interi (property test), formattazione it-IT.
 - `tests/e2e/design-system.spec.ts` — 2 test:
   1. token e font caricati (`--color-ground`, `--color-data`, `--color-control`, Archivo, Source Serif 4);
-  2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#1d5fbf`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude.
-- `tests/e2e/theme.spec.ts` — 1 test: tema esplicito scuro, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px.
+  2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#1d5fbf`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude e mostra le preferenze rapide.
+- `tests/e2e/theme.spec.ts` — 1 test: tema scuro dalla sidebar, sincronizzazione con Impostazioni, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px.
+- `tests/e2e/locale.spec.ts` — 1 test: cambio lingua dalla sidebar, sincronizzazione con Impostazioni, `<html lang>`, titolo, persistenza al reload, salvataggio in inglese e stampa inglese anche con UI italiana.
+- `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
+- `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **42 unitari/dati, 18 E2E** (3 visual su CI).
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **104 unitari/dati, 33 E2E** (27 eseguiti + 6 visual su CI).
 
 ### 7.2 Manuali
 
@@ -415,6 +433,13 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Responsive e accessibilità.** A 375 px il footer va a capo, il dialogo non crea overflow e i controlli restano a 44 px; a 1440 px il dialogo resta centrato. Esc, focus trap e focus restituito usano il `Modal` esistente. Axe WCAG 2.2 AA passa anche sul modale in tema scuro.
 - **Dati dinamici.** Il colore del filamento è mostrato con uno swatch solo se è un esadecimale valido; è un dato dello slicer, non un token di design, e non entra nel prezzo.
 
+### 8.8 Rifiniture T5.15–T5.17 — esito (26/10/2026)
+
+- **Preferenze rapide (T5.15).** `QuickPreferences` in fondo alla sidebar e nel menu mobile: tre radio per il tema e due per la lingua, sincronizzate con Impostazioni e persistenti fuori da `AppData`. L'input invisibile copre l'etichetta, quindi il click è su tutto il pulsantino; il focus ring è sul contenitore. La lingua adotta la bozza vuota e non tocca i preventivi salvati.
+- **Azioni del preventivo (T5.16).** “Gestione del preventivo” è passata subito sotto testata e avvisi, prima di prezzo e righe; “Stampa / PDF” è secondaria. Il ciclo di vita e le conferme restano invariati.
+- **Colore filamento (T5.17).** `PrintLine.color?: string` (`#rrggbb`) è un dato opzionale di presentazione, senza migrazione e senza impatto su formule, `engineVersion` o snapshot. Swatch nel calcolatore (picker nativo + rimozione), nel dettaglio, nella tabella costi e in stampa A4.
+- **Verifiche.** `npm run check` verde (104 unitari, build, budget 275,4 KB totali su 350 KB); 33 E2E (27 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px vanno rigenerate in CI perché cambiano sidebar, dettaglio e impostazioni.
+
 ---
 
 ## 9. Mappa dei file
@@ -431,7 +456,10 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 | `src/state/theme-store.ts`                        | stato Zustand della preferenza                                                                                                                    |
 | `src/app/theme.ts`                                | applicazione del tema e `meta theme-color`                                                                                                        |
 | `src/app/ThemeController.tsx`                     | sincronizzazione con `prefers-color-scheme`                                                                                                       |
+| `src/app/QuickPreferences.tsx`                    | tema e lingua compatti in sidebar e menu mobile                                                                                                   |
 | `src/features/settings/SettingsPage.tsx`          | sezione Aspetto con le tre radio                                                                                                                  |
+| `src/components/line-color.tsx`                   | swatch di lettura e color picker del filamento                                                                                                    |
+| `src/lib/color.ts`                                | validazione `#rrggbb` condivisa da schema e UI                                                                                                    |
 | `src/components/ui.tsx`                           | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, TableScroll, Table, Tabs |
 | `src/components/field-context.ts`                 | id di label/hint/error condivisi                                                                                                                  |
 | `src/components/cost-stack.tsx`                   | stack dei costi                                                                                                                                   |
