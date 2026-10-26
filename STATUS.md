@@ -21,7 +21,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
-**Fase 5:** T5.3.1–T5.3.3 sono chiusi il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`. Il prossimo task è **T5.3.4** (UI “Importa .3mf”).
+**Fase 5:** T5.3.1–T5.3.4 sono chiusi il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Il prossimo task è **T5.3.5** (test finali, documentazione e deploy).
 
 ---
 
@@ -61,7 +61,8 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - **T5.3.1:** fixture reali generate con Anycubic Slicer Next 2.0.0.3 e ridotte in `tests/fixtures/3mf/`: Kobra 3, Kobra X, Kobra X a due piatti e progetto non slicato.
 - **T5.3.2:** parser locale in `src/data/three-mf/` con `fflate`, limiti ZIP, rifiuto di cifratura/path traversal/DOCTYPE, fallback G-code e Web Worker; riepilogo puro `ThreeMfSummary` in `src/domain/three-mf.ts`.
 - **T5.3.3:** mapping puro in `src/domain/three-mf-mapping.ts`: proposte di stampante/materiali senza creare entità, una riga per piatto, grammi aggregati per materiale, ID iniettati.
-- **Non ancora in UI:** schermata “Importa .3mf” (T5.3.4).
+- **T5.3.4:** pulsante “Importa .3mf” nella testata e nella sezione Stampe, drag & drop, dialogo con piatti selezionabili, mappatura stampante/materiali, conferma “Aggiungi / Sostituisci” se la bozza ha contenuto, alert di esito e focus sulla prima riga importata.
+- **Nota tecnica:** `DOMParser` non è disponibile nei Web Worker; il worker usa `@xmldom/xmldom`, il thread principale il `DOMParser` nativo.
 
 ### Seed
 
@@ -76,18 +77,18 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 ## 3. Verifiche
 
-| Verifica          | Stato                                                     |
-| ----------------- | --------------------------------------------------------- |
-| TypeScript strict | verde                                                     |
-| oxlint            | verde                                                     |
-| Test unitari/dati | 75 superati                                               |
-| Test E2E          | 18 superati in CI (16 Chromium, 2 WebKit; 3 visual su CI) |
-| Accessibilità     | axe WCAG 2.2 AA: 25 scansioni, 0 violazioni               |
-| Build produzione  | verde (~509 KB JS, ~147 KB gzip; ~34 KB CSS; ~58 KB font) |
-| Budget bundle     | 206 KB gzip totali su 350 KB                              |
-| CI GitHub `check` | verde su `main`                                           |
-| CI GitHub `e2e`   | verde su `main`                                           |
-| Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN               |
+| Verifica          | Stato                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| TypeScript strict | verde                                                                              |
+| oxlint            | verde                                                                              |
+| Test unitari/dati | 75 superati                                                                        |
+| Test E2E          | 26 superati in CI (24 Chromium, 2 WebKit; 3 visual su CI)                          |
+| Accessibilità     | axe WCAG 2.2 AA: 26 scansioni, 0 violazioni                                        |
+| Build produzione  | verde (~528 KB JS main + ~109 KB worker; ~185 KB gzip JS; ~35 KB CSS; ~58 KB font) |
+| Budget bundle     | 249 KB gzip totali su 350 KB                                                       |
+| CI GitHub `check` | verde su `main`                                                                    |
+| CI GitHub `e2e`   | verde su `main`                                                                    |
+| Vercel produzione | deployment completato, gate 0 FAIL / 1 WARN                                        |
 
 Comandi:
 
@@ -138,7 +139,7 @@ npx vercel --prod
 - Audit `axe` automatico su tutte le route; resta consigliata una prova con screen reader reale (VoiceOver/NVDA).
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
 - Nessuna sincronizzazione cloud (pianificata e rimandata: ADR-0018).
-- Nessun import diretto da slicer nella UI: fixture, parser e mapping `.3mf` pronti (T5.3.1–T5.3.3); schermata in T5.3.4 (ADR-0017).
+- Import `.3mf` disponibile per file già slicati (T5.3.4); restano da misurare file reali da 50–100 MB e da aggiungere un fixture Bambu committabile (T5.3.5).
 - Nessuna interfaccia inglese: pianificata in T5.6 (ADR-0019).
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v1; rifiuto versioni future).
@@ -148,7 +149,7 @@ npx vercel --prod
 
 ## 7. Prossimi passi
 
-1. **T5.3 — Import diretto da `.3mf`**: T5.3.1–T5.3.3 chiusi (fixture, parser ZIP/XML con worker e mapping puro); prossimo **T5.3.4** UI “Importa .3mf”, poi test E2E/axe e deploy in T5.3.5.
+1. **T5.3 — Import diretto da `.3mf`**: T5.3.1–T5.3.4 chiusi (fixture, parser ZIP/XML con worker, mapping puro e UI); prossimo **T5.3.5** per performance su file reali, fixture Bambu, documentazione finale e deploy.
 2. **T5.6 — Interfaccia inglese**: dizionari tipizzati, `Quote.locale`, migrazione schema v2.
 3. **T5.4 — Sync cloud**: rimandato, solo dopo 3MF e inglese e su richiesta esplicita.
 4. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
@@ -159,10 +160,10 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Fase 5 in corso: **T5.3.1–T5.3.3 chiusi**, fixture in `tests/fixtures/3mf/`, parser in `src/data/three-mf/` e mapping in `src/domain/three-mf-mapping.ts`; prossimo task **T5.3.4** (UI “Importa .3mf”).
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1, §2.3.1 e §2.4.1, `docs/engineering/architecture.md` §9, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Fase 5 in corso: **T5.3.1–T5.3.4 chiusi**, fixture in `tests/fixtures/3mf/`, parser in `src/data/three-mf/`, mapping in `src/domain/three-mf-mapping.ts` e UI in `src/features/calculator/`; prossimo task **T5.3.5** (performance, fixture Bambu, documentazione e deploy).
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.6.1, `docs/engineering/architecture.md` §9, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
-- **Punti aperti:** verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; decidere se l'import UI aggiunge o sostituisce le righe della bozza. Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali vanno rigenerate solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Punti aperti:** verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import su file reali da 50–100 MB. Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali vanno rigenerate per la nuova UI di import. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
 - **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` richiede la migrazione v2 pianificata in ADR-0019.
 

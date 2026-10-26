@@ -4,8 +4,8 @@
 
 ### Added
 
-- Import `.3mf` (T5.3.1–T5.3.3): fixture reali verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; parser ZIP/XML locale con limiti di sicurezza, Web Worker, fallback G-code e normalizzazione `ThreeMfSummary`; mapping puro con proposte di stampante/materiali e righe `PrintLine` senza supplementi AMS/ACE. UI e test E2E in T5.3.4–T5.3.5.
-- Test: 75 unitari.
+- Import `.3mf` (T5.3.1–T5.3.4): fixture reali verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; parser ZIP/XML locale con limiti di sicurezza, Web Worker e fallback G-code; mapping puro con proposte di stampante/materiali e righe `PrintLine` senza supplementi AMS/ACE; UI con drag & drop, anteprima piatti, mappatura, conferma append/replace, focus e alert di esito. Il worker usa `@xmldom/xmldom` perché `DOMParser` non è disponibile nei Web Worker.
+- Test: 75 unitari, 26 E2E.
 
 ## [1.0.0] — 2026-10-24
 

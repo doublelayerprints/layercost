@@ -357,7 +357,7 @@ function parseSlicePlate(
     })
   }
 
-  const predictionSeconds = parseNonNegativeInteger(metadata.get('prediction'))
+  const predictionSeconds = parsePositiveInteger(metadata.get('prediction'))
   if (predictionSeconds === null) {
     warnings.push({
       code: 'PREDICTION_MISSING',
@@ -641,12 +641,6 @@ function parsePositiveInteger(value: string | undefined): number | null {
   if (value === undefined) return null
   const number = Number(value)
   return Number.isSafeInteger(number) && number > 0 ? number : null
-}
-
-function parseNonNegativeInteger(value: string | undefined): number | null {
-  if (value === undefined) return null
-  const number = Number(value)
-  return Number.isSafeInteger(number) && number >= 0 ? number : null
 }
 
 function parseNonNegativeNumber(value: string | undefined): number | null {

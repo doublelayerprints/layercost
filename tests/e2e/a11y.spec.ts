@@ -86,6 +86,16 @@ test.describe('accessibilità WCAG 2.2 AA', () => {
         page.getByRole('dialog', { name: 'Ripristinare i dati iniziali?' }),
       ).toBeVisible()
       await audit(page, 'mobile scuro · modale reset')
+      await page.keyboard.press('Escape')
+
+      await page.goto('/')
+      await page
+        .locator('input[type="file"]')
+        .setInputFiles('tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf')
+      await expect(page.getByRole('dialog', { name: 'Importa .3mf' })).toBeVisible()
+      await audit(page, 'mobile scuro · modale import .3mf')
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('dialog', { name: 'Importa .3mf' })).toHaveCount(0)
     })
   })
 })

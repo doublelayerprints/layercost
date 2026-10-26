@@ -259,7 +259,11 @@ function choiceKey(plateIndex: number, filamentId: number): string {
 }
 
 function fallbackLineName(fileName: string, plateIndex: number): string {
-  const base = fileName.replace(/\.3mf$/i, '').trim() || 'Import .3mf'
+  const base =
+    fileName
+      .replace(/\.gcode\.3mf$/i, '')
+      .replace(/\.3mf$/i, '')
+      .trim() || 'Import .3mf'
   return `${base} — piatto ${plateIndex}`
 }
 

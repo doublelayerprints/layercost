@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3.1–T5.3.3 chiusi** (fixture `.3mf` reali, parser ZIP/XML e mapping puro); prossimo **T5.3.4** (UI “Importa .3mf”). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3.1–T5.3.4 chiusi** (fixture `.3mf` reali, parser ZIP/XML, mapping puro e UI di import); prossimo **T5.3.5** (performance, fixture Bambu, documentazione e deploy). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -773,7 +773,7 @@ Registrare tempo e filamento reali per stampa, confrontarli con le stime, sugger
 ## T5.3 — Import diretto da `.3mf`
 
 **Dipende da:** ADR-0017, fixture reali
-**Stato:** `[~]` — T5.3.1–T5.3.3 chiusi; T5.3.4–T5.3.5 da fare
+**Stato:** `[~]` — T5.3.1–T5.3.4 chiusi; T5.3.5 da fare
 **Piano:** `docs/planning/phase-5.md` §2
 
 **Nota:** il `.3mf` è un archivio ZIP/OPC. Il percorso supportato è il file **già slicato** (`.gcode.3mf`) di Anycubic Slicer Next, OrcaSlicer o Bambu Studio: `Metadata/slice_info.config` contiene `prediction` in secondi e `used_g` per filamento. Un progetto non slicato non ha tempo/grammi affidabili e va rifiutato con un messaggio azionabile. Nessun upload, nessun cambio a formule o `engineVersion`, nessun supplemento AMS/ACE (ADR-0006). Le fixture verificate di T5.3.1 sono in `tests/fixtures/3mf/`.
@@ -783,7 +783,7 @@ Sottotask:
 - **T5.3.1** — chiedere 2–3 file reali (Kobra 3 e Kobra X), verificare formato e campi, salvare fixture ridotte in `tests/fixtures/3mf/`. → **fatto** (vedi nota sotto).
 - **T5.3.2** — parser ZIP/XML nel layer `data`, con limiti di sicurezza e Web Worker; normalizzazione a `ThreeMfSummary`. → **fatto** (vedi nota sotto).
 - **T5.3.3** — mapping puro `ThreeMfSummary → PrintLine[]` nel dominio: tempo, grammi per tipo, stampante, piatti multipli. → **fatto** (vedi nota sotto).
-- **T5.3.4** — UI “Importa .3mf”: drag & drop, anteprima piatti, mappatura stampante/materiale, conferma bozza, errori.
+- **T5.3.4** — UI “Importa .3mf”: drag & drop, anteprima piatti, mappatura stampante/materiale, conferma bozza, errori. → **fatto** (vedi nota sotto).
 - **T5.3.5** — test unit/property/E2E/axe, documentazione e deploy.
 
 **Accettazione:** da un `.gcode.3mf` valido si ottengono righe con tempo e grammi corretti, mappatura esplicita, preventivo salvabile; file non slicato/malformato gestito senza crash; nessuna richiesta di rete; `npm run check` verde.
@@ -802,7 +802,7 @@ Sottotask:
 
 **Stato:** `[x]`
 
-**Nota:** chiuso il 26/10/2026. Implementati `src/data/three-mf/` (indice ZIP, estrazione sicura, XML, fallback G-code, worker) e `src/domain/three-mf.ts` (`ThreeMfSummary`, piatti, filamenti, avvisi). Dipendenze: `fflate` 0.8.3 runtime; `@xmldom/xmldom` solo dev per i test Node, mentre il browser usa `DOMParser`.
+**Nota:** chiuso il 26/10/2026. Implementati `src/data/three-mf/` (indice ZIP, estrazione sicura, XML, fallback G-code, worker) e `src/domain/three-mf.ts` (`ThreeMfSummary`, piatti, filamenti, avvisi). Dipendenze runtime: `fflate` 0.8.3 per ZIP/DEFLATE e `@xmldom/xmldom` nel Web Worker, dove `DOMParser` non è disponibile; nel thread principale resta il `DOMParser` nativo.
 
 **Sicurezza:** 100 MB compressi, 500 MB decompressi totali, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per fallback G-code; rifiutati cifratura, path traversal, ZIP64, duplicati e compressioni non supportate. DOCTYPE/ENTITY rifiutati. Nessun upload o chiamata di rete.
 
@@ -824,6 +824,26 @@ Sottotask:
 **Test:** 15 test in `src/domain/three-mf-mapping.test.ts` (unitari + property test su una riga per piatto, somma esatta e nessun supplemento); 75 unitari totali. La UI userà queste funzioni in T5.3.4.
 
 **Accettazione:** mapping puro, proposte senza entità silenziose, righe valide per il motore, test unitari e property verdi. → soddisfatta.
+
+### T5.3.4 — UI “Importa .3mf”
+
+**Stato:** `[x]`
+
+**Nota:** chiuso il 26/10/2026. Aggiunti:
+
+- pulsante “Importa .3mf” nella testata del calcolatore e nella sezione Stampe;
+- drag & drop sulla sezione Stampe, con overlay “Rilascia il file qui”;
+- dialogo unico (niente modali annidati) con file/slicer, stampante, piatti selezionabili, tempo, grammi, filamenti, select materiali, avvisi e anteprima della mappatura;
+- conferma “Aggiungi alla bozza / Sostituisci le righe / Indietro” quando `draftHasContent` è vero; l’import conserva nome, cliente, costi di lavoro e prezzo;
+- azione store `importLines(lines, mode)` con append o replace;
+- alert di caricamento, errore e successo; focus sulla prima riga importata;
+- stato di import in corso con pulsanti disabilitati.
+
+**Nota tecnica:** durante l’E2E è emerso che `DOMParser` non esiste nei Web Worker. Il worker usa `@xmldom/xmldom` (runtime), mentre il thread principale continua a usare `DOMParser` nativo. Il worker resta separato nel build Vite; budget aggiornato a 249 KB gzip totali su 350 KB.
+
+**Test:** 8 E2E in `tests/e2e/import.spec.ts` (file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload, overflow a 375 px) e una scansione axe aggiuntiva nel modale mobile scuro. Totale: 26 E2E, 26 scansioni axe, 75 unitari. `npm run check` e `npm run test:e2e` verdi; WebKit invariato.
+
+**Accettazione:** import da UI senza richieste di rete, nessun modale annidato, focus e tastiera, 375/1440 px, tema chiaro/scuro, nessun cambio a formule/`engineVersion`/schema. → soddisfatta; resta T5.3.5 per performance e fixture Bambu.
 
 ## T5.4 — Sincronizzazione cloud (rimandata)
 
