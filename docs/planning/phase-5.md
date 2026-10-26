@@ -359,7 +359,7 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - **Schema v3:** la catena v1 → v2 → v3 non cambia i dati esistenti; backup raw prima della migrazione. I link condivisi conservano lo stato, l’import crea una copia `saved`.
 - **UI:** “Modifica preventivo” nel dettaglio, banner e “Annulla modifiche” nel calcolatore, conferme per invio/completamento, badge in lista/dettaglio/stampa.
 - **Calcolatore:** card separate per intestazione, stampe, costi di lavoro e prezzo; ogni stampa è un pannello con etichetta “Stampa N”, bordo e fondo dedicati.
-- **Test:** 101 unitari e 32 E2E; build 274,1 KB gzip su 350 KB. Baseline visive da rigenerare per il nuovo layout.
+- **Test:** 101 unitari e 32 E2E; build 274,1 KB gzip su 350 KB. Baseline visive italiane e inglesi rigenerate per il nuovo layout.
 
 ---
 

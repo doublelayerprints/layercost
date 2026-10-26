@@ -1011,7 +1011,7 @@ Esportare righe e preventivi in CSV per analisi esterne, mantenendo la formattaz
 
 **Stato:** `[x]` — chiuso il 26/10/2026
 
-**Nota:** il calcolatore è diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; i comandi Duplica/Rimuovi sono nell’intestazione del pannello. Il riepilogo resta sticky a destra. Baseline visive italiane e inglesi da rigenerare.
+**Nota:** il calcolatore è diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; i comandi Duplica/Rimuovi sono nell’intestazione del pannello. Il riepilogo resta sticky a destra. Baseline visive italiane e inglesi rigenerate.
 
 ---
 
