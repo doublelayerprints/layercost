@@ -20,6 +20,7 @@ import { TextField } from '@/components/number-fields'
 import { OnboardingCard } from '@/features/onboarding/OnboardingCard'
 import { QuotePrint } from '@/features/quotes/QuotePrint'
 import { cn } from '@/lib/cn'
+import { domainErrorMessage } from '@/lib/domain-error-message'
 import { CostDetails } from './CostDetails'
 import { JobCostsEditor } from './JobCostsEditor'
 import { LineEditor } from './LineEditor'
@@ -99,7 +100,7 @@ export function CalculatorPage() {
     } catch (error) {
       return {
         result: undefined,
-        error: error instanceof Error ? error.message : t('calculator.calculationError'),
+        error: domainErrorMessage(error, t) ?? t('calculator.calculationError'),
       }
     }
   }, [draft, config, t])

@@ -16,6 +16,7 @@ import { useThemeStore } from '@/state/theme-store'
 import { useLocaleStore } from '@/state/locale-store'
 import type { ThemePreference } from '@/lib/theme'
 import type { Locale } from '@/i18n'
+import { storageErrorMessage } from '@/lib/storage-error-message'
 
 const SAMPLE_COST = asMicroEur(5_000_000)
 
@@ -101,7 +102,7 @@ export function SettingsPage() {
       setPendingImport(data)
       setImportOpen(true)
     } catch (error) {
-      setImportError(error instanceof Error ? error.message : t('settings.importFailed'))
+      setImportError(storageErrorMessage(error, t) ?? t('settings.importFailed'))
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = ''
     }

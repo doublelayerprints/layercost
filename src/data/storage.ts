@@ -1,4 +1,5 @@
 import type { CostConfig, Quote } from '@/domain/types'
+import { StorageError } from './errors'
 import { createEmptyDraft, createSeedConfig } from './seed'
 import { parseAppData } from './schemas'
 
@@ -35,14 +36,17 @@ export function migrateAppData(raw: unknown): unknown {
   const version = (raw as { schemaVersion?: unknown }).schemaVersion
   if (version === undefined) return raw
   if (typeof version !== 'number' || !Number.isInteger(version)) {
-    throw new Error('La versione dello schema non è valida.')
+    throw new StorageError('invalidSchemaVersion', 'La versione dello schema non è valida.')
   }
   if (version > SCHEMA_VERSION) {
-    throw new Error('I dati sono stati creati con una versione più recente di LayerCost.')
+    throw new StorageError(
+      'futureSchema',
+      'I dati sono stati creati con una versione più recente di LayerCost.',
+    )
   }
   if (version === SCHEMA_VERSION) return raw
   if (version === 1) return migrateV1ToV2(raw as JsonRecord)
-  throw new Error(`Schema v${version} non supportato.`)
+  throw new StorageError('unsupportedSchema', `Schema v${version} non supportato.`)
 }
 
 export interface AppData {
@@ -141,7 +145,7 @@ export function saveAppData(data: AppData): void {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Impossibile salvare i dati nel browser.'
-    throw new Error(`Salvataggio non riuscito: ${message}`)
+    throw new StorageError('saveFailed', `Salvataggio non riuscito: ${message}`)
   }
 }
 
@@ -179,7 +183,7 @@ export async function parseImportFile(file: File): Promise<AppData> {
   try {
     parsed = JSON.parse(text) as unknown
   } catch {
-    throw new Error('Il file non contiene JSON valido.')
+    throw new StorageError('invalidJson', 'Il file non contiene JSON valido.')
   }
   return parseAppData(migrateAppData(parsed))
 }

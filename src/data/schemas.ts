@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { MATERIAL_FAMILIES } from '@/domain/types'
+import { StorageError } from './errors'
 import type { AppData } from './storage'
 
 const integer = z.number().int()
@@ -177,7 +178,7 @@ export function parseAppData(raw: unknown): AppData {
   const maybeEnvelope = exportEnvelopeSchema.safeParse(raw)
   if (maybeEnvelope.success) {
     if (maybeEnvelope.data.app !== 'LayerCost' && maybeEnvelope.data.app !== '3dCosts') {
-      throw new Error('Il file non è un backup di LayerCost.')
+      throw new StorageError('invalidData', 'Il file non è un backup di LayerCost.')
     }
     return maybeEnvelope.data.data as unknown as AppData
   }
@@ -192,8 +193,11 @@ export function parseAppData(raw: unknown): AppData {
       ? (raw as { schemaVersion?: unknown }).schemaVersion
       : undefined
   if (typeof schemaVersion === 'number' && schemaVersion > 2) {
-    throw new Error('Il backup è stato creato con una versione più recente di LayerCost.')
+    throw new StorageError(
+      'futureBackup',
+      'Il backup è stato creato con una versione più recente di LayerCost.',
+    )
   }
 
-  throw new Error('Il file di backup non è valido o è incompleto.')
+  throw new StorageError('invalidBackup', 'Il file di backup non è valido o è incompleto.')
 }

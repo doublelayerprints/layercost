@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { displayCents, type Formatters } from '@/lib/format'
+import { domainErrorMessage } from '@/lib/domain-error-message'
 import { plural, type InterpolationParams, type MessageKey } from '@/i18n'
 import type { PrintLine, Quote, QuoteResult } from '@/domain/types'
 import { calculateQuote, pricingFromSettings } from '@/domain/cost/quote'
@@ -65,7 +66,7 @@ export function ComparePage() {
       try {
         return { result: calculateQuote(quote, config) }
       } catch (error) {
-        return { error: error instanceof Error ? error.message : t('compare.calculationFailed') }
+        return { error: domainErrorMessage(error, t) ?? t('compare.calculationFailed') }
       }
     }
 
