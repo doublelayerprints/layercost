@@ -78,13 +78,13 @@ Build v1.0.0: circa 509 KB JS (147 KB gzip Vite; 142 KB con lo script di budget)
 
 `scripts/check-budget.mjs` fallisce se supera:
 
-- 200 KB gzip di JavaScript;
+- 220 KB gzip di JavaScript (era 200 KB prima di T5.6.2; i due dizionari i18n aggiungono circa 16 KB gzip);
 - 20 KB gzip di CSS;
 - 120 KB gzip di font;
 - 4 KB gzip di HTML;
 - 350 KB gzip totali.
 
-La build attuale è a 206 KB gzip totali, quindi c'è margine. Se cresce, valutare code splitting per le pagine di configurazione.
+La build con i dizionari italiani e inglesi è a circa 270 KB gzip totali (206 KB JS), quindi il vincolo reale resta il totale di 350 KB. Se cresce ancora, valutare code splitting per le pagine di configurazione o il caricamento differito del dizionario inglese.
 
 ## 8. Comandi
 

@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import type { EnergyTariff, MaterialFamily, Printer, PowerProfile } from '@/domain/types'
 import { asBasisPoints, asMicroEur, asWatts, euroToMicro } from '@/domain/units'
-import { materialFamilyLabels } from '@/lib/labels'
+import { useI18n } from '@/app/i18n-context'
+import { materialFamilyLabel } from '@/lib/labels'
 import { Alert, Button, Toggle } from '@/components/ui'
 import {
   MoneyField,
@@ -34,6 +35,7 @@ export function PrinterForm({
   onSave: (data: Omit<Printer, 'id'>) => void
   onCancel: () => void
 }) {
+  const { t } = useI18n()
   const [name, setName] = useState(printer?.name ?? '')
   const [model, setModel] = useState(printer?.model ?? '')
   const [purchasePrice, setPurchasePrice] = useState(printer?.purchasePrice ?? 0)
@@ -69,19 +71,19 @@ export function PrinterForm({
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     if (!name.trim()) {
-      setError('Il nome della stampante è obbligatorio.')
+      setError(t('printer.errorName'))
       return
     }
     if (expectedLifeHours <= 0) {
-      setError('La vita utile deve essere maggiore di zero.')
+      setError(t('printer.errorLife'))
       return
     }
     if (defaultAvgWatts <= 0) {
-      setError('La potenza media di default deve essere maggiore di zero.')
+      setError(t('printer.errorDefaultPower'))
       return
     }
     if (residualBp < 0 || residualBp > 10_000) {
-      setError('Il valore residuo deve essere tra 0% e 100%.')
+      setError(t('printer.errorResidual'))
       return
     }
 
@@ -120,43 +122,43 @@ export function PrinterForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error ? (
-        <Alert tone="danger" title="Controlla i dati">
+        <Alert tone="danger" title={t('printer.errorTitle')}>
           {error}
         </Alert>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          label="Nome"
+          label={t('printer.name')}
           value={name}
           onChange={setName}
           required
-          placeholder="Es. Kobra 3"
+          placeholder={t('printer.namePlaceholder')}
         />
         <TextField
-          label="Modello"
+          label={t('printer.model')}
           value={model}
           onChange={setModel}
-          placeholder="Es. Anycubic Kobra 3"
+          placeholder={t('printer.modelPlaceholder')}
         />
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold text-muted">Acquisto e usura</h4>
+        <h4 className="text-xs font-semibold text-muted">{t('printer.sectionPurchase')}</h4>
         <div className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MoneyField
-            label="Prezzo di acquisto"
+            label={t('printer.purchasePrice')}
             valueMicro={purchasePrice}
             onChangeMicro={setPurchasePrice}
           />
           <PercentField
-            label="Valore residuo"
+            label={t('printer.residualValue')}
             valueBp={residualBp}
             onChangeBp={setResidualBp}
             decimals={0}
           />
           <NumberField
-            label="Vita utile"
+            label={t('printer.lifeHours')}
             value={expectedLifeHours}
             onChange={setExpectedLifeHours}
             min={1}
@@ -165,20 +167,20 @@ export function PrinterForm({
             suffix="h"
           />
           <MoneyField
-            label="Manutenzione"
+            label={t('printer.maintenance')}
             valueMicro={maintenancePerHour}
             onChangeMicro={setMaintenancePerHour}
             decimals={3}
-            hint="Riserva per ugello, piatto, cinghie e lubrificante."
+            hint={t('printer.maintenanceHint')}
           />
         </div>
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold text-muted">Consumi</h4>
+        <h4 className="text-xs font-semibold text-muted">{t('printer.sectionConsumption')}</h4>
         <div className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <NumberField
-            label="Minuti di avvio"
+            label={t('printer.startupMinutes')}
             value={startupMinutes}
             onChange={setStartupMinutes}
             min={0}
@@ -187,31 +189,31 @@ export function PrinterForm({
             suffix="min"
           />
           <NumberField
-            label="Potenza media default"
+            label={t('printer.defaultPower')}
             value={defaultAvgWatts}
             onChange={setDefaultAvgWatts}
             min={1}
             max={5000}
             decimals={0}
             suffix="W"
-            hint="Usata per i materiali senza profilo specifico."
+            hint={t('printer.defaultPowerHint')}
           />
           <NumberField
-            label="Potenza nominale"
+            label={t('printer.ratedPower')}
             value={ratedPowerW}
             onChange={setRatedPowerW}
             min={0}
             max={5000}
             decimals={0}
             suffix="W"
-            hint="Solo informativa: non entra nel costo."
+            hint={t('printer.ratedPowerHint')}
           />
           <SelectField
-            label="Tariffa energia"
+            label={t('printer.energyTariff')}
             value={energyTariffId}
             onChange={setEnergyTariffId}
             options={[
-              { value: '', label: 'Globale (consigliata)' },
+              { value: '', label: t('printer.energyTariffGlobal') },
               ...tariffs.map((tariff) => ({
                 value: tariff.id,
                 label: `${tariff.label} · ${new Intl.NumberFormat('it-IT', {
@@ -222,26 +224,26 @@ export function PrinterForm({
                 }).format(tariff.pricePerKWh / 1_000_000)}/kWh`,
               })),
             ]}
-            hint="Utile se la stampante è in una casa con un contratto diverso."
+            hint={t('printer.energyTariffHint')}
           />
         </div>
         <div className="mt-3">
           <Toggle
             checked={multicolor}
             onChange={setMulticolor}
-            label="Sistema multicolore"
-            description="ACE/AMS o cambio colore automatico. Non cambia il calcolo: i grammi dello slicer includono già il purge."
+            label={t('printer.multicolor')}
+            description={t('printer.multicolorDescription')}
           />
         </div>
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold text-muted">Volume di stampa</h4>
+        <h4 className="text-xs font-semibold text-muted">{t('printer.buildVolume')}</h4>
         <div className="mt-2 grid gap-4 sm:grid-cols-3">
           {(['X', 'Y', 'Z'] as const).map((axis, index) => (
             <NumberField
               key={axis}
-              label={`Asse ${axis}`}
+              label={t('printer.axis', { axis })}
               value={buildVolume[index] ?? 0}
               onChange={(value) => updateVolume(index, value)}
               min={0}
@@ -255,14 +257,14 @@ export function PrinterForm({
 
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h4 className="text-xs font-semibold text-muted">Potenza media per materiale</h4>
-          <p className="text-xs text-muted">0 = usa il default</p>
+          <h4 className="text-xs font-semibold text-muted">{t('printer.powerByMaterial')}</h4>
+          <p className="text-xs text-muted">{t('printer.powerByMaterialHint')}</p>
         </div>
         <div className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PROFILE_FAMILIES.map((family) => (
             <NumberField
               key={family}
-              label={materialFamilyLabels[family]}
+              label={materialFamilyLabel(family, t)}
               value={profileWatts[family] ?? 0}
               onChange={(value) => setProfileWatts((current) => ({ ...current, [family]: value }))}
               min={0}
@@ -272,24 +274,21 @@ export function PrinterForm({
             />
           ))}
         </div>
-        <p className="mt-2 text-xs text-muted">
-          I valori sono stime finché non li misuri con una presa intelligente. Puoi anche inserire i
-          Wh misurati nella singola riga del calcolatore.
-        </p>
+        <p className="mt-2 text-xs text-muted">{t('printer.powerProfilesHint')}</p>
       </div>
 
       <TextareaField
-        label="Note"
+        label={t('printer.notes')}
         value={notes}
         onChange={setNotes}
-        placeholder="Accessori, ugello, piano, manutenzione…"
+        placeholder={t('printer.notesPlaceholder')}
       />
 
       <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
         <Button variant="secondary" onClick={onCancel} type="button">
-          Annulla
+          {t('common.cancel')}
         </Button>
-        <Button type="submit">Salva stampante</Button>
+        <Button type="submit">{t('printer.save')}</Button>
       </div>
     </form>
   )

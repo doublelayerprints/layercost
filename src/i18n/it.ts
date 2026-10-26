@@ -1,8 +1,14 @@
+import { calculatorIt } from './it/calculator'
+import { catalogsIt } from './it/catalogs'
+import { miscIt } from './it/misc'
+import { quotesIt } from './it/quotes'
+import { settingsIt } from './it/settings'
+
 /**
  * Dizionario sorgente italiano.
  * Le chiavi sono piatte e namespaced: una chiave mancante in `en.ts` è un errore di tipo.
  */
-export const it = {
+export const baseIt = {
   'app.name': 'LayerCost',
   'app.tagline': 'Costo e prezzo delle stampe 3D',
   'app.dataLocal': 'Dati salvati solo su questo browser.',
@@ -92,5 +98,15 @@ export const it = {
   'import.fileTooLarge': 'Il file supera {size} MB. Esporta un solo piatto o riduci il progetto.',
 } as const
 
+export const it = {
+  ...baseIt,
+  ...calculatorIt,
+  ...quotesIt,
+  ...catalogsIt,
+  ...settingsIt,
+  ...miscIt,
+} as const
+
+export type BaseMessageKey = keyof typeof baseIt
 export type MessageKey = keyof typeof it
 export type Messages = Record<MessageKey, string>

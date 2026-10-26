@@ -116,7 +116,11 @@ export interface AppState {
   removeLineMaterial: (lineId: string, index: number) => void
   toggleLineExtra: (lineId: string, extraId: string) => void
 
-  saveDraft: () => { quote?: Quote; error?: string }
+  saveDraft: () => {
+    quote?: Quote
+    error?: string
+    errorCode?: 'missingName' | 'missingLineName' | 'saveFailed'
+  }
   duplicateQuote: (quoteId: string) => void
   refreshQuote: (quoteId: string) => void
   archiveQuote: (quoteId: string) => void
@@ -519,11 +523,17 @@ export const useAppStore = create<AppState>()((set, get) => ({
   saveDraft: () => {
     const state = get()
     if (!state.draft.name.trim()) {
-      return { error: 'Il nome del preventivo è obbligatorio.' }
+      return {
+        error: 'Il nome del preventivo è obbligatorio.',
+        errorCode: 'missingName',
+      }
     }
     const unnamedLine = state.draft.lines.find((line) => !line.name.trim())
     if (unnamedLine) {
-      return { error: 'Ogni riga deve avere un nome.' }
+      return {
+        error: 'Ogni riga deve avere un nome.',
+        errorCode: 'missingLineName',
+      }
     }
     try {
       const result = calculateQuote(state.draft, state.config)
@@ -550,6 +560,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     } catch (error) {
       return {
         error: error instanceof Error ? error.message : 'Impossibile salvare il preventivo.',
+        errorCode: 'saveFailed',
       }
     }
   },

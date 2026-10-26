@@ -1,3 +1,4 @@
+import type { MessageKey } from '@/i18n'
 import type {
   AllocationMode,
   MaterialFamily,
@@ -7,6 +8,12 @@ import type {
   VatMode,
 } from '@/domain/types'
 
+export type Translate = (key: MessageKey) => string
+
+/**
+ * Canonical ordering for material families. The values are also used as fallback
+ * labels by non-UI code; visible labels go through `materialFamilyLabel`.
+ */
 export const materialFamilyLabels: Record<MaterialFamily, string> = {
   PLA: 'PLA',
   PETG: 'PETG',
@@ -22,34 +29,78 @@ export const materialFamilyLabels: Record<MaterialFamily, string> = {
   OTHER: 'Altro',
 }
 
-export const powerSourceLabels: Record<PowerSource, string> = {
-  measured: 'Misurato',
-  estimated: 'Stimato',
-  vendor: 'Dichiarato',
+const MATERIAL_KEYS: Record<MaterialFamily, MessageKey> = {
+  PLA: 'labels.material.PLA',
+  PETG: 'labels.material.PETG',
+  TPU: 'labels.material.TPU',
+  ABS: 'labels.material.ABS',
+  ASA: 'labels.material.ASA',
+  PLA_CF: 'labels.material.PLA_CF',
+  PETG_CF: 'labels.material.PETG_CF',
+  PVA: 'labels.material.PVA',
+  PA: 'labels.material.PA',
+  PC: 'labels.material.PC',
+  HIPS: 'labels.material.HIPS',
+  OTHER: 'labels.material.OTHER',
 }
 
-export const pricingModeLabels: Record<PricingMode, string> = {
-  markup: 'Ricarico sul costo',
-  margin: 'Margine sul prezzo',
+const POWER_SOURCE_KEYS: Record<PowerSource, MessageKey> = {
+  measured: 'labels.powerSource.measured',
+  estimated: 'labels.powerSource.estimated',
+  vendor: 'labels.powerSource.vendor',
 }
 
-export const roundingModeLabels: Record<RoundingMode, string> = {
-  up: 'Per eccesso',
-  nearest: 'Al più vicino',
-  down: 'Per difetto',
+const PRICING_MODE_KEYS: Record<PricingMode, MessageKey> = {
+  markup: 'labels.pricingMode.markup',
+  margin: 'labels.pricingMode.margin',
 }
 
-export const vatModeLabels: Record<VatMode, string> = {
-  none: 'Nessuna IVA',
-  excluded: 'IVA esclusa',
-  included: 'IVA inclusa',
+const ROUNDING_MODE_KEYS: Record<RoundingMode, MessageKey> = {
+  up: 'labels.roundingMode.up',
+  nearest: 'labels.roundingMode.nearest',
+  down: 'labels.roundingMode.down',
 }
 
-export const allocationModeLabels: Record<AllocationMode, string> = {
-  proportional: 'Proporzionale al costo',
-  equalPerUnit: 'Uguale per pezzo',
+const VAT_MODE_KEYS: Record<VatMode, MessageKey> = {
+  none: 'labels.vatMode.none',
+  excluded: 'labels.vatMode.excluded',
+  included: 'labels.vatMode.included',
 }
 
-export function labelExtraUnit(unit: 'perUnit' | 'perJob'): string {
-  return unit === 'perUnit' ? 'Per pezzo' : 'Per lavoro'
+const ALLOCATION_MODE_KEYS: Record<AllocationMode, MessageKey> = {
+  proportional: 'labels.allocationMode.proportional',
+  equalPerUnit: 'labels.allocationMode.equalPerUnit',
+}
+
+const EXTRA_UNIT_KEYS: Record<'perUnit' | 'perJob', MessageKey> = {
+  perUnit: 'labels.extraUnit.perUnit',
+  perJob: 'labels.extraUnit.perJob',
+}
+
+export function materialFamilyLabel(family: MaterialFamily, t: Translate): string {
+  return t(MATERIAL_KEYS[family])
+}
+
+export function powerSourceLabel(source: PowerSource, t: Translate): string {
+  return t(POWER_SOURCE_KEYS[source])
+}
+
+export function pricingModeLabel(mode: PricingMode, t: Translate): string {
+  return t(PRICING_MODE_KEYS[mode])
+}
+
+export function roundingModeLabel(mode: RoundingMode, t: Translate): string {
+  return t(ROUNDING_MODE_KEYS[mode])
+}
+
+export function vatModeLabel(mode: VatMode, t: Translate): string {
+  return t(VAT_MODE_KEYS[mode])
+}
+
+export function allocationModeLabel(mode: AllocationMode, t: Translate): string {
+  return t(ALLOCATION_MODE_KEYS[mode])
+}
+
+export function extraUnitLabel(unit: 'perUnit' | 'perJob', t: Translate): string {
+  return t(EXTRA_UNIT_KEYS[unit])
 }

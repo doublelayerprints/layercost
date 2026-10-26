@@ -1,4 +1,5 @@
 import { useId, useState, type ReactNode } from 'react'
+import { useI18n } from '@/app/i18n-context'
 import type { BasisPoints, Centigrams, MicroEur } from '@/domain/units'
 import {
   euroToMicro,
@@ -110,6 +111,7 @@ export function NumberField({
   className,
   ariaLabel,
 }: NumberFieldProps) {
+  const { t } = useI18n()
   return (
     <Field label={label} hint={hint} error={error} className={className}>
       <BareNumberInput
@@ -121,7 +123,7 @@ export function NumberField({
         suffix={suffix}
         disabled={disabled}
         placeholder={placeholder}
-        ariaLabel={ariaLabel ?? (typeof label === 'string' ? label : 'Valore numerico')}
+        ariaLabel={ariaLabel ?? (typeof label === 'string' ? label : t('units.number'))}
       />
     </Field>
   )
@@ -253,6 +255,7 @@ export function DurationField({
   disabled?: boolean
   className?: string
 }) {
+  const { t } = useI18n()
   const { labelId } = useFieldIds()
   const hours = Math.floor(valueSeconds / 3600)
   const minutes = Math.round((valueSeconds % 3600) / 60)
@@ -269,7 +272,7 @@ export function DurationField({
         className="flex gap-2"
         role="group"
         aria-labelledby={labelId || undefined}
-        aria-label={labelId ? undefined : 'Durata'}
+        aria-label={labelId ? undefined : t('units.duration')}
       >
         <BareNumberInput
           value={hours}
@@ -279,7 +282,7 @@ export function DurationField({
           decimals={0}
           suffix="h"
           disabled={disabled}
-          ariaLabel="Ore"
+          ariaLabel={t('units.hours')}
         />
         <BareNumberInput
           value={minutes}
@@ -289,7 +292,7 @@ export function DurationField({
           decimals={0}
           suffix="min"
           disabled={disabled}
-          ariaLabel="Minuti"
+          ariaLabel={t('units.minutes')}
         />
       </div>
     </Field>

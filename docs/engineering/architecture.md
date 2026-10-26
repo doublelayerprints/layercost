@@ -136,10 +136,10 @@ Il parser non cambia `schemaVersion`, `engineVersion`, snapshot o `AppData`.
 
 ## 10. i18n
 
-- `src/i18n/it.ts` è il dizionario sorgente; `src/i18n/en.ts` implementa la stessa interfaccia `Messages`, quindi una chiave mancante è un errore di typecheck.
+- `src/i18n/it.ts` e `src/i18n/en.ts` combinano i dizionari per area (`calculator`, `quotes`, `catalogs`, `settings`, `misc`); una chiave mancante o un'area con chiavi duplicate fallisce typecheck/test.
 - `src/i18n/index.ts` espone `SUPPORTED_LOCALES`, `DEFAULT_LOCALE`, `INTL_LOCALES`, `translate`, `t`, `plural` con `Intl.PluralRules` e `isLocale`.
 - `src/app/I18nProvider.tsx` monta il contesto e aggiorna `<html lang>`/`dir`; `src/app/i18n-context.ts` espone `useI18n`.
-- La shell usa già `useI18n`; l'estrazione completa delle schermate, degli errori, degli `aria-label` e della stampa è in T5.6.2.
-- `Quote.locale` e la migrazione schema v2 sono in T5.6.3; la preferenza `layercost:locale` e il selettore in T5.6.4.
+- Tutte le schermate, i componenti condivisi, le etichette di dominio, la stampa e la guida usano i dizionari (T5.6.2); gli errori di import/share/save sono mappati per codice, mentre storage/schema e alcuni errori di dominio restano fallback tecnici.
+- `Quote.locale` e la migrazione schema v2 sono in T5.6.3; la preferenza `layercost:locale`, la formattazione locale e il selettore in T5.6.3–T5.6.4.
 - Nessuna libreria i18n runtime: dizionari statici, nessuna chiamata di rete.
 - Inventario e regole in `docs/planning/i18n-inventory.md`.
