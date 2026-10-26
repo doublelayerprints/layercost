@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import type { AppData } from '@/data/storage'
 import { SCHEMA_VERSION } from '@/data/storage'
 import { localRepository } from '@/data/repository'
@@ -13,7 +14,6 @@ import { Alert, Button, Card, Modal, PageHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 import { useThemeStore } from '@/state/theme-store'
 import type { ThemePreference } from '@/lib/theme'
-import { formatCents, formatCurrency, formatPercent } from '@/lib/format'
 
 const SAMPLE_COST = asMicroEur(5_000_000)
 
@@ -33,6 +33,7 @@ function samplePrice(settings: Settings) {
 
 export function SettingsPage() {
   const { t } = useI18n()
+  const format = useFormat()
   const config = useAppStore((state) => state.config)
   const quoteCount = useAppStore((state) => state.quotes.length)
   const updateSettings = useAppStore((state) => state.updateSettings)
@@ -150,9 +151,9 @@ export function SettingsPage() {
             <p className="mt-1 text-sm leading-snug text-muted">{t('settings.laborDescription')}</p>
             <p className="mt-3 text-xs leading-relaxed text-muted">
               {t('settings.currentSummary', {
-                labor: formatCurrency(settings.laborRatePerHour),
-                failure: formatPercent(settings.failureRateBp),
-                overhead: formatPercent(settings.timeOverheadBp),
+                labor: format.currency(settings.laborRatePerHour),
+                failure: format.percent(settings.failureRateBp),
+                overhead: format.percent(settings.timeOverheadBp),
                 allocation:
                   settings.allocationMode === 'proportional'
                     ? t('settings.allocationProportionalShort')
@@ -216,15 +217,15 @@ export function SettingsPage() {
                   {t('settings.pricingExampleTitle')}
                 </p>
                 <p className="mt-1 text-sm leading-snug text-ink">
-                  {t('settings.pricingExamplePrefix', { cost: formatCurrency(SAMPLE_COST) })}{' '}
+                  {t('settings.pricingExamplePrefix', { cost: format.currency(SAMPLE_COST) })}{' '}
                   <span className="font-medium tabular-nums">
-                    {formatCents(preview.netPriceCents)}
+                    {format.cents(preview.netPriceCents)}
                   </span>{' '}
                   {t('settings.pricingExampleNet')}
                   {preview.vatCents > 0
                     ? ` ${t('settings.pricingExampleWithVat', {
-                        gross: formatCents(preview.grossPriceCents),
-                        vat: formatPercent(settings.vatRateBp),
+                        gross: format.cents(preview.grossPriceCents),
+                        vat: format.percent(settings.vatRateBp),
                       })}`
                     : t('settings.pricingExampleWithoutVat')}
                 </p>

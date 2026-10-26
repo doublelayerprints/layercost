@@ -1,5 +1,7 @@
 import { useId, useState, type ReactNode } from 'react'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
+import { parseLocaleNumber, clamp } from '@/lib/format'
 import type { BasisPoints, Centigrams, MicroEur } from '@/domain/units'
 import {
   euroToMicro,
@@ -9,7 +11,6 @@ import {
   cgToGrams,
   bpToPercent,
 } from '@/domain/units'
-import { formatInputNumber, parseLocaleNumber, clamp } from '@/lib/format'
 import { Field, Input, Select, Textarea } from './ui'
 import { useFieldIds } from './field-context'
 import { cn } from '@/lib/cn'
@@ -39,8 +40,9 @@ function BareNumberInput({
   ariaLabel,
   className,
 }: BareNumberInputProps) {
+  const format = useFormat()
   const [draft, setDraft] = useState<string | null>(null)
-  const display = draft ?? formatInputNumber(value, decimals)
+  const display = draft ?? format.inputNumber(value, decimals)
 
   const handleChange = (raw: string) => {
     setDraft(raw)
@@ -62,7 +64,7 @@ function BareNumberInput({
         value={display}
         onChange={(event) => handleChange(event.target.value)}
         onFocus={(event) => {
-          setDraft(formatInputNumber(value, decimals))
+          setDraft(format.inputNumber(value, decimals))
           event.currentTarget.select()
         }}
         onBlur={() => setDraft(null)}

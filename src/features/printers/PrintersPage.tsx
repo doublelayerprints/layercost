@@ -2,13 +2,14 @@ import { useState } from 'react'
 import type { Printer } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
 import { materialFamilyLabel, materialFamilyLabels, powerSourceLabel } from '@/lib/labels'
-import { formatCurrency, formatPercent } from '@/lib/format'
 import { PrinterForm } from './PrinterForm'
 
 export function PrintersPage() {
   const { t } = useI18n()
+  const format = useFormat()
   const config = useAppStore((state) => state.config)
   const addPrinter = useAppStore((state) => state.addPrinter)
   const updatePrinter = useAppStore((state) => state.updatePrinter)
@@ -106,23 +107,23 @@ export function PrintersPage() {
                   <div>
                     <p className="text-xs font-medium text-muted">{t('printer.wear')}</p>
                     <p className="mt-0.5 text-xl font-medium tabular-nums text-ink">
-                      {formatCurrency(hourly)}
+                      {format.currency(hourly)}
                       <span className="ml-0.5 text-sm font-normal text-muted">/h</span>
                     </p>
                     <p className="mt-0.5 text-xs text-muted">{t('printer.wearHint')}</p>
                   </div>
                   <Metric
                     label={t('printer.purchasePrice')}
-                    value={formatCurrency(printer.purchasePrice)}
+                    value={format.currency(printer.purchasePrice)}
                   />
                   <Metric label={t('printer.lifeHours')} value={`${printer.expectedLifeHours} h`} />
                   <Metric
                     label={t('printer.maintenance')}
-                    value={`${formatCurrency(printer.maintenancePerHour)}/h`}
+                    value={`${format.currency(printer.maintenancePerHour)}/h`}
                   />
                   <Metric
                     label={t('printer.residualValue')}
-                    value={formatPercent(printer.residualValueBp)}
+                    value={format.percent(printer.residualValueBp)}
                   />
                   <Metric label={t('printer.startup')} value={`${printer.startupMinutes} min`} />
                   <Metric

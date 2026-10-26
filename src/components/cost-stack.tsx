@@ -1,8 +1,8 @@
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { allocateLargestRemainder } from '@/domain/money'
 import { costBandLabel, displayCostBands, type CostBand } from '@/lib/cost-bands'
 import { cn } from '@/lib/cn'
-import { formatCents } from '@/lib/format'
 
 type StackTone = 'data' | 'ink' | 'muted' | 'control'
 
@@ -17,6 +17,7 @@ const FALLBACK_TONES: StackTone[] = ['ink', 'muted', 'control']
 
 export function CostStack({ bands, className }: { bands: CostBand[]; className?: string }) {
   const { t } = useI18n()
+  const format = useFormat()
   const groups = displayCostBands(bands).map((band) => ({
     ...band,
     label: costBandLabel(band.key, t),
@@ -51,7 +52,7 @@ export function CostStack({ bands, className }: { bands: CostBand[]; className?:
   }
 
   const label = groups
-    .map((band, index) => `${band.label} ${formatCents(legendCents[index] ?? 0)}`)
+    .map((band, index) => `${band.label} ${format.cents(legendCents[index] ?? 0)}`)
     .join(', ')
 
   return (
@@ -90,7 +91,7 @@ export function CostStack({ bands, className }: { bands: CostBand[]; className?:
                 <span className="truncate">{band.label}</span>
               </dt>
               <dd className="shrink-0 tabular-nums text-ink">
-                {formatCents(legendCents[index] ?? 0)}
+                {format.cents(legendCents[index] ?? 0)}
               </dd>
             </div>
           )

@@ -2,13 +2,14 @@ import { useState } from 'react'
 import type { EnergyTariff } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { Badge, Button, Card, EmptyState, Modal, PageHeader, TableScroll } from '@/components/ui'
-import { formatCurrency, formatDateOnly } from '@/lib/format'
 import { todayIsoDate } from '@/lib/date'
 import { TariffForm } from './TariffForm'
 
 export function TariffsPage() {
   const { t } = useI18n()
+  const format = useFormat()
   const config = useAppStore((state) => state.config)
   const addTariff = useAppStore((state) => state.addTariff)
   const updateTariff = useAppStore((state) => state.updateTariff)
@@ -61,11 +62,11 @@ export function TariffsPage() {
               <>
                 <p className="mt-1 text-base font-semibold text-ink">{current.label}</p>
                 <p className="mt-1 text-2xl font-medium tabular-nums text-ink">
-                  {formatCurrency(current.pricePerKWh, 4)}
+                  {format.currency(current.pricePerKWh, 4)}
                   <span className="text-sm font-normal text-muted">/kWh</span>
                 </p>
                 <p className="mt-0.5 text-sm text-muted">
-                  {t('tariff.inForceSince', { date: formatDateOnly(current.effectiveFrom) })}
+                  {t('tariff.inForceSince', { date: format.dateOnly(current.effectiveFrom) })}
                 </p>
               </>
             ) : (
@@ -126,10 +127,10 @@ export function TariffsPage() {
                       ) : null}
                     </th>
                     <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
-                      {formatCurrency(tariff.pricePerKWh, 4)}/kWh
+                      {format.currency(tariff.pricePerKWh, 4)}/kWh
                     </td>
                     <td className="py-3 pr-4 text-right tabular-nums text-muted">
-                      {formatDateOnly(tariff.effectiveFrom)}
+                      {format.dateOnly(tariff.effectiveFrom)}
                     </td>
                     <td className="py-3 pr-4">
                       {current?.id === tariff.id ? (

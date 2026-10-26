@@ -3,8 +3,8 @@ import type { Material } from '@/domain/types'
 import { MATERIAL_FAMILIES } from '@/domain/types'
 import { asBasisPoints, asMicroEur } from '@/domain/units'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { materialFamilyLabel } from '@/lib/labels'
-import { formatCurrency } from '@/lib/format'
 import { Alert, Button } from '@/components/ui'
 import {
   MoneyField,
@@ -25,6 +25,7 @@ export function MaterialForm({
   onCancel: () => void
 }) {
   const { t } = useI18n()
+  const format = useFormat()
   const [name, setName] = useState(material?.name ?? '')
   const [family, setFamily] = useState<Material['family']>(material?.family ?? 'PLA')
   const [pricePerKg, setPricePerKg] = useState(material?.pricePerKg ?? 0)
@@ -97,7 +98,7 @@ export function MaterialForm({
           valueMicro={pricePerKg}
           onChangeMicro={setPricePerKg}
           decimals={2}
-          hint={t('material.priceHint', { price: formatCurrency(pricePerKg / 1000, 4) })}
+          hint={t('material.priceHint', { price: format.currency(pricePerKg / 1000, 4) })}
         />
         <NumberField
           label={t('material.spoolWeight')}

@@ -1,24 +1,17 @@
+import { useState } from 'react'
 import type { Quote, QuoteResult } from '@/domain/types'
-import { useI18n } from '@/app/i18n-context'
+import { useTranslator } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { CostStack } from '@/components/cost-stack'
 import { costBands } from '@/lib/cost-bands'
-import {
-  formatCents,
-  formatCurrency,
-  formatDateOnly,
-  formatDuration,
-  formatGrams,
-  formatPercent,
-  formatPricePerUnit,
-} from '@/lib/format'
 import { todayIsoDate } from '@/lib/date'
 import { plural } from '@/i18n'
 
-/** Document date, resolved once per session: the print footer must not read the clock on every render. */
-const PRINT_DATE = formatDateOnly(todayIsoDate())
-
+/** Document date, resolved once per mount: the print footer must not read the clock on every render. */
 export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResult }) {
-  const { t, locale } = useI18n()
+  const t = useTranslator(quote.locale)
+  const format = useFormat(quote.locale)
+  const [printDate] = useState(() => format.dateOnly(todayIsoDate()))
 
   if (!result) return null
 
@@ -39,7 +32,7 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
           <p className="mt-0.5 text-[9pt]">{t('quote.print.title')}</p>
           <h1 className="mt-1 font-serif text-[18pt] font-semibold leading-tight">{quote.name}</h1>
           <p className="mt-1 text-[9pt]">
-            {formatDateOnly(quote.quoteDate)}
+            {format.dateOnly(quote.quoteDate)}
             {quote.customer ? ` · ${t('quote.print.customer', { name: quote.customer })}` : ''}
           </p>
         </div>
@@ -47,7 +40,7 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
           <p>{quote.status === 'draft' ? t('quote.status.draft') : t('quote.status.saved')}</p>
           <p>{t('app.engineVersion', { version: result.engineVersion })}</p>
           <p>
-            {plural(locale, quote.lines.length, {
+            {plural(quote.locale, quote.lines.length, {
               one: 'quote.lineCount.one',
               other: 'quote.lineCount.other',
             })}
@@ -58,11 +51,11 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
       <dl className="mt-3 grid grid-cols-3 gap-x-8 text-[9pt]">
         <div>
           <dt className="inline text-black/60">{t('quote.label.material')} </dt>
-          <dd className="inline">{formatGrams(totalGrams)}</dd>
+          <dd className="inline">{format.grams(totalGrams)}</dd>
         </div>
         <div>
           <dt className="inline text-black/60">{t('quote.print.effectiveTime')} </dt>
-          <dd className="inline">{formatDuration(totalSeconds)}</dd>
+          <dd className="inline">{format.duration(totalSeconds)}</dd>
         </div>
         <div>
           <dt className="inline text-black/60">{t('quote.label.pieces')} </dt>
@@ -101,32 +94,32 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
           {result.lines.map((line) => {
             const grams = line.materialDetails.reduce((sum, detail) => sum + detail.grams, 0)
             const materials = line.materialDetails
-              .map((detail) => `${detail.name} ${formatGrams(detail.grams)}`)
+              .map((detail) => `${detail.name} ${format.grams(detail.grams)}`)
               .join(', ')
             return (
               <tr key={line.lineId} className="print-break border-b border-black/25 align-top">
                 <td className="py-1.5 pr-2 font-medium">{line.name}</td>
                 <td className="py-1.5 pr-2">{line.printerName}</td>
                 <td className="py-1.5 pr-2">
-                  {materials || formatGrams(grams)}
+                  {materials || format.grams(grams)}
                   <span className="block text-[8pt] text-black/60">
                     {line.quantity > 1
                       ? t('quote.print.lineGrams', {
-                          unit: formatGrams(grams),
-                          total: formatGrams(grams * line.quantity),
+                          unit: format.grams(grams),
+                          total: format.grams(grams * line.quantity),
                         })
-                      : t('quote.print.lineGramsTotal', { total: formatGrams(grams) })}
+                      : t('quote.print.lineGramsTotal', { total: format.grams(grams) })}
                   </span>
                 </td>
-                <td className="py-1.5 pr-2">{formatDuration(line.effectiveSeconds)}</td>
+                <td className="py-1.5 pr-2">{format.duration(line.effectiveSeconds)}</td>
                 <td className="py-1.5 pr-2 text-right">{line.quantity}</td>
                 <td className="py-1.5 pr-2 text-right">
-                  {formatCurrency(line.fullyLoadedLineCost)}
+                  {format.currency(line.fullyLoadedLineCost)}
                 </td>
                 <td className="py-1.5 text-right">
-                  {formatCents(line.priceCents)}
+                  {format.cents(line.priceCents)}
                   <span className="block text-[8pt] text-black/60">
-                    {formatPricePerUnit(line.priceCents, line.quantity)}
+                    {format.pricePerUnit(line.priceCents, line.quantity)}
                     {t('quote.unit.pricePerPiece')}
                   </span>
                 </td>
@@ -146,28 +139,28 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
         <div>
           <p className="text-[9pt] font-semibold">{t('quote.label.price')}</p>
           <p className="mt-1 font-serif text-[18pt] font-semibold leading-tight">
-            {formatCents(result.grossPriceCents)}
+            {format.cents(result.grossPriceCents)}
           </p>
           <p className="text-[9pt] text-black/60">
             {result.vatCents > 0
               ? t('quote.price.netAndVat', {
-                  net: formatCents(result.netPriceCents),
-                  vat: formatCents(result.vatCents),
+                  net: format.cents(result.netPriceCents),
+                  vat: format.cents(result.vatCents),
                 })
               : t('quote.price.noVat')}
           </p>
           <dl className="mt-2 border-t border-black/25 pt-1 text-[9pt]">
             <div className="flex items-center justify-between gap-4 py-0.5">
               <dt>{t('quote.label.fullyLoadedCost')}</dt>
-              <dd className="tabular-nums">{formatCurrency(result.totalCost)}</dd>
+              <dd className="tabular-nums">{format.currency(result.totalCost)}</dd>
             </div>
             <div className="flex items-center justify-between gap-4 py-0.5">
               <dt>{t('quote.effectiveMargin')}</dt>
-              <dd className="tabular-nums">{formatPercent(result.effectiveMarginBp)}</dd>
+              <dd className="tabular-nums">{format.percent(result.effectiveMarginBp)}</dd>
             </div>
             <div className="flex items-center justify-between gap-4 py-0.5">
               <dt>{t('quote.netPrice')}</dt>
-              <dd className="tabular-nums">{formatCents(result.netPriceCents)}</dd>
+              <dd className="tabular-nums">{format.cents(result.netPriceCents)}</dd>
             </div>
           </dl>
         </div>
@@ -181,7 +174,7 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
       ) : null}
 
       <p className="mt-4 border-t border-black/25 pt-2 text-[8pt] text-black/60">
-        {t('quote.print.footer', { date: PRINT_DATE })}
+        {t('quote.print.footer', { date: printDate })}
       </p>
     </div>
   )

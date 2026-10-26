@@ -2,12 +2,13 @@ import { useState } from 'react'
 import type { Extra } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { Badge, Button, Card, EmptyState, Modal, PageHeader, TableScroll } from '@/components/ui'
-import { formatCurrency } from '@/lib/format'
 import { ExtraForm } from './ExtraForm'
 
 export function ExtrasPage() {
   const { t } = useI18n()
+  const format = useFormat()
   const config = useAppStore((state) => state.config)
   const addExtra = useAppStore((state) => state.addExtra)
   const updateExtra = useAppStore((state) => state.updateExtra)
@@ -89,7 +90,7 @@ export function ExtrasPage() {
                       {t(extra.unit === 'perUnit' ? 'extra.unitPerUnit' : 'extra.unitPerJob')}
                     </td>
                     <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
-                      {formatCurrency(extra.amount)}
+                      {format.currency(extra.amount)}
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-1">
@@ -122,7 +123,7 @@ export function ExtrasPage() {
                     </p>
                   </div>
                   <p className="shrink-0 text-base font-medium tabular-nums text-ink">
-                    {formatCurrency(extra.amount)}
+                    {format.currency(extra.amount)}
                   </p>
                 </div>
                 <div className="mt-2 flex gap-1">

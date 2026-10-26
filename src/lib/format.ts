@@ -184,6 +184,7 @@ export interface Formatters {
   durationShort: (seconds: number) => string
   hoursDecimal: (seconds: number) => string
   number: (value: number, maximumFractionDigits?: number) => string
+  inputNumber: (value: number, decimals?: number) => string
   pricePerUnit: (cents: number, quantity: number) => string
   dateOnly: (isoDate: string) => string
   dateTime: (iso: string) => string
@@ -202,6 +203,7 @@ export function createFormatters(locale: Locale = DEFAULT_LOCALE): Formatters {
     durationShort: formatDurationShort,
     hoursDecimal: (seconds) => formatHoursDecimal(seconds, locale),
     number: (value, maximumFractionDigits) => formatNumber(value, maximumFractionDigits, locale),
+    inputNumber: (value, decimals) => formatInputNumber(value, decimals, locale),
     pricePerUnit: (cents, quantity) => formatPricePerUnit(cents, quantity, locale),
     dateOnly: (isoDate) => formatDateOnly(isoDate, locale),
     dateTime: (iso) => formatDateTime(iso, locale),
