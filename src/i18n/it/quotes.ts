@@ -1,5 +1,7 @@
 export const quotesIt = {
   'quote.status.saved': 'Salvato',
+  'quote.status.sent': 'Inviato',
+  'quote.status.completed': 'Completato',
   'quote.status.archived': 'Archiviato',
   'quote.status.draft': 'Bozza',
   'quote.status.notRecalculable': 'Non ricalcolabile',
@@ -49,13 +51,28 @@ export const quotesIt = {
   'quote.backToArchive': 'Torna all’archivio',
   'quote.saved.title': 'Preventivo salvato',
   'quote.saved.body': 'È nello storico e conserva i prezzi usati adesso.',
+  'quote.updated.title': 'Modifiche salvate',
+  'quote.updated.body': 'Il preventivo è aggiornato e conserva i prezzi della prima stesura.',
+  'quote.edit': 'Modifica preventivo',
+  'quote.markSent': 'Segna come inviato',
+  'quote.markCompleted': 'Segna come completato',
+  'quote.locked.sent':
+    'Inviato al cliente: non è più modificabile. Duplicalo per creare una copia.',
+  'quote.locked.completed':
+    'Completato e concluso: non è più modificabile. Duplicalo per creare una copia.',
+  'quote.markSentConfirm.title': 'Segnare come inviato?',
+  'quote.markSentConfirm.body':
+    'Il preventivo verrà bloccato e non sarà più modificabile. Potrai duplicarlo per creare una copia.',
+  'quote.markCompletedConfirm.title': 'Segnare come completato?',
+  'quote.markCompletedConfirm.body':
+    'Il preventivo verrà considerato concluso e non sarà più modificabile. Potrai duplicarlo per creare una copia.',
   'quote.engineMismatch.title': 'Versione del motore diversa',
   'quote.engineMismatch.body':
     'Questo preventivo è stato calcolato con il motore v{savedVersion}; quello attuale è v{currentVersion}. I numeri salvati restano validi come storico. Usa “Aggiorna ai prezzi correnti” per creare una copia ricalcolata.',
   'quote.refresh': 'Aggiorna ai prezzi correnti',
   'quote.manage.title': 'Gestione del preventivo',
   'quote.manage.description':
-    'Archiviare non cancella nulla: il preventivo resta consultabile con “Mostra archiviati”.',
+    'Modificabile finché è salvato: invio e completamento lo bloccano. Archiviare non cancella nulla.',
   'quote.duplicate': 'Duplica nel calcolatore',
   'quote.archive': 'Archivia',
   'quote.restore': 'Ripristina',
@@ -63,6 +80,7 @@ export const quotesIt = {
   'quote.replaceDraft.title': 'Sostituire la bozza corrente?',
   'quote.replaceDraft.confirm': 'Sostituisci la bozza',
   'quote.replaceDraft.body': '“{name}” verrà aperto nel calcolatore come nuova bozza.',
+  'quote.editDraft.body': '“{name}” verrà aperto in modifica. La bozza corrente sarà sostituita.',
   'quote.replaceDraft.hint':
     'La bozza corrente non è ancora nello storico e verrà sostituita. Se vuoi conservarla, annulla e salvala prima di continuare.',
   'quote.deleteConfirm.title': 'Eliminare il preventivo?',

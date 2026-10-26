@@ -7,6 +7,10 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'calculator.lineCount.other': 'lines',
   'calculator.autosaveNote':
     'The draft saves itself in this browser; “Save quote” adds it to the archive.',
+  'calculator.editing.title': 'Editing “{name}”',
+  'calculator.editing.description':
+    'Prices stay frozen at the saved quote. To use current prices, use “Update to current prices” from the detail page.',
+  'calculator.editing.cancel': 'Discard changes',
   'calculator.newDraft': 'New',
   'calculator.quoteSection': 'Quote',
   'calculator.quoteDescription':
@@ -33,6 +37,7 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'line.emptyDescription': 'Add a line with printer, time and grams to get started.',
   'line.addFirst': 'Add the first line',
   'line.legend': 'Line {index}: {name}',
+  'line.cardLabel': 'Print {index}',
   'line.unnamed': 'unnamed print',
   'line.nameLabel': 'Print name',
   'line.perUnitTotal': 'per piece · {total} total',
@@ -132,6 +137,7 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'summary.empty': 'Enter printer, time and grams to see the cost and price.',
   'summary.saveFailed': 'Save failed',
   'summary.save': 'Save quote',
+  'summary.saveChanges': 'Save changes',
   'summary.print': 'Print',
   'summary.share': 'Share',
   'summary.footer':
@@ -244,4 +250,6 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'calculator.saveError.missingName': 'The quote name is required.',
   'calculator.saveError.missingLineName': 'Every line must have a name.',
   'calculator.saveError.saveFailed': 'Could not save the quote. Check the data and try again.',
+  'calculator.saveError.locked':
+    'This quote is sent or completed and cannot be edited. Duplicate it to create a copy.',
 }

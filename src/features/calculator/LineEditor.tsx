@@ -68,7 +68,7 @@ export function LineEditor({
   return (
     <fieldset
       id={`line-${line.id}`}
-      className="mt-5 border-t border-line pt-5 first:mt-1 first:border-t-0 first:pt-0"
+      className="rounded-card border border-line bg-raised/60 p-4 sm:p-5"
     >
       <legend className="sr-only">
         {t('line.legend', {
@@ -77,39 +77,10 @@ export function LineEditor({
         })}
       </legend>
 
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-        <div className="min-w-0 flex-1">
-          <input
-            value={line.name}
-            onChange={(event) => onUpdate({ name: event.target.value })}
-            aria-label={t('line.nameLabel')}
-            className="w-full min-w-0 border-b border-line bg-transparent py-0.5 text-base font-semibold text-ink transition-feedback hover:border-control focus:border-control focus:bg-surface"
-          />
-          <p className="mt-0.5 text-sm text-muted">
-            {format.grams(totalGrams)}
-            {line.quantity > 1
-              ? ` ${t('line.perUnitTotal', {
-                  total: format.grams(totalGrams * line.quantity),
-                })}`
-              : ''}
-            {result
-              ? ` · ${t('line.effectiveDuration', {
-                  duration: format.duration(result.effectiveSeconds),
-                })}`
-              : ''}
-            {line.quantity > 1 ? ` · ${t('line.pieces', { count: line.quantity })}` : ''}
-            {result ? (
-              <>
-                {' · '}
-                {t('line.directCost')}{' '}
-                <span className="font-medium tabular-nums text-ink">
-                  {format.currency(result.directLineCost)}
-                </span>
-              </>
-            ) : null}
-          </p>
-        </div>
-
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted">
+          {t('line.cardLabel', { index: index + 1 })}
+        </span>
         <div className="flex shrink-0 items-center gap-1">
           <Button variant="ghost" size="sm" onClick={onDuplicate}>
             {t('line.duplicate')}
@@ -118,6 +89,38 @@ export function LineEditor({
             {t('line.remove')}
           </Button>
         </div>
+      </div>
+
+      <div className="mt-1.5">
+        <input
+          value={line.name}
+          onChange={(event) => onUpdate({ name: event.target.value })}
+          aria-label={t('line.nameLabel')}
+          className="w-full min-w-0 border-b border-line bg-transparent py-0.5 text-base font-semibold text-ink transition-feedback hover:border-control focus:border-control focus:bg-surface"
+        />
+        <p className="mt-0.5 text-sm text-muted">
+          {format.grams(totalGrams)}
+          {line.quantity > 1
+            ? ` ${t('line.perUnitTotal', {
+                total: format.grams(totalGrams * line.quantity),
+              })}`
+            : ''}
+          {result
+            ? ` · ${t('line.effectiveDuration', {
+                duration: format.duration(result.effectiveSeconds),
+              })}`
+            : ''}
+          {line.quantity > 1 ? ` · ${t('line.pieces', { count: line.quantity })}` : ''}
+          {result ? (
+            <>
+              {' · '}
+              {t('line.directCost')}{' '}
+              <span className="font-medium tabular-nums text-ink">
+                {format.currency(result.directLineCost)}
+              </span>
+            </>
+          ) : null}
+        </p>
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">

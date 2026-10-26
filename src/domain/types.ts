@@ -213,13 +213,16 @@ export interface QuoteSnapshot {
 
 export type QuoteLocale = 'it' | 'en'
 
+/** Saved quotes stay editable until they are sent or completed. */
+export type QuoteStatus = 'draft' | 'saved' | 'sent' | 'completed'
+
 export interface Quote {
   id: string
   name: string
   quoteDate: string
   customer?: string
   locale: QuoteLocale
-  status: 'draft' | 'saved'
+  status: QuoteStatus
   lines: PrintLine[]
   job: JobCosts
   pricing: QuotePricing

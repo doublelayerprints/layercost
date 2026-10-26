@@ -10,7 +10,9 @@
 - Formattazione locale (T5.6.3): `useFormat` con `Intl` (`it-IT`/`en-GB`), parsing numerico con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Stampa, dettaglio e link usano la lingua del preventivo.
 - Selettore lingua (T5.6.4): preferenza `layercost:locale`, Italiano/English in Impostazioni, `<html lang>`, titolo e meta description aggiornati; la bozza vuota adotta la lingua.
 - Verifiche inglesi (T5.6.5): 14 scansioni axe e 18 screenshot in inglese, errori di dominio/storage tradotti, link condivisi pre-v2 compatibili. Deploy di produzione verificato.
-- Test: 97 unitari, 31 E2E, 36 screenshot visuali.
+- Preventivi modificabili (T5.13): stati `saved`/`sent`/`completed`, modifica in place con lo stesso id e prezzi congelati nello snapshot, blocco dopo invio/completamento, conferme e badge di stato; schema v3 con migrazione v1 → v2 → v3 e backup raw.
+- Calcolatore a card (T5.14): intestazione, stampe, costi di lavoro e prezzo in card separate; ogni stampa in un pannello distinto con etichetta “Stampa N”.
+- Test: 101 unitari, 32 E2E, 36 screenshot visuali.
 
 ## [1.0.0] — 2026-10-24
 

@@ -65,13 +65,18 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - **T5.3.5:** performance verificata con un file reale esportato dallo slicer (`1026-1206-prova volpe_plate(01)_PLA_0.12_6h32m3s.gcode.3mf`, 22 MB compressi, 75 MB di G-code decompresso): dialogo in 915 ms in produzione, 70,05 g, 6h 32m, PLA, Kobra 3. Archivio sintetico da 50 MB in 95–107 ms; progetto non slicato `rayquaza+230.3mf` da 15 MB rifiutato in 100–102 ms; 18 screenshot di regressione visiva, inclusi il modale import a 1440/768/390 px. Il fixture Bambu reale resta da autorizzare.
 - **Nota tecnica:** `DOMParser` non è disponibile nei Web Worker; il worker usa `@xmldom/xmldom`, il thread principale il `DOMParser` nativo.
 
-### Interfaccia inglese (T5.6, in corso)
+### Interfaccia inglese (T5.6, chiusa)
 
 - **T5.6.1:** dizionari tipizzati `src/i18n/{it,en}.ts`, `translate`/`t`/`plural`, `I18nProvider` + `useI18n`, `<html lang>`, shell collegata e inventario in `docs/planning/i18n-inventory.md`.
 - **T5.6.2:** estrazione completa delle schermate, dei componenti condivisi, delle etichette di dominio, della stampa e della guida; 743 chiavi in moduli per area. Errori import/share/save mappati per codice; restano fallback tecnici rari di storage/schema/dominio.
 - **T5.6.3:** formattazione `Intl` legata alla locale (`useFormat`), parsing numerico con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Nomi predefiniti e suffissi di copia/import localizzati; stampa, dettaglio e link usano la lingua del preventivo.
 - **T5.6.4:** preferenza `layercost:locale`, selettore Italiano/English in Impostazioni, `<html lang>`, titolo e meta description aggiornati; la bozza vuota adotta la lingua, i preventivi salvati restano nella loro.
 - **T5.6.5:** 14 scansioni axe in inglese (0 violazioni), 18 screenshot inglesi, errori di dominio e di storage mappati per codice, link condivisi pre-v2 compatibili. Deploy di produzione verificato: build `index-CiitaCgo.js`, italiano predefinito, inglese persistente, schema 2 e stampa inglese.
+
+### Preventivi e calcolatore (T5.13–T5.14, ADR-0020)
+
+- **T5.13:** `Quote.status` è `draft | saved | sent | completed`. Un preventivo `saved` si modifica in place con lo stesso `id`; la modifica usa lo snapshot e conserva `capturedAt`, quindi i prezzi restano congelati. `sent` e `completed` sono bloccati e si correggono duplicando. Conferme per invio/completamento, badge in lista/dettaglio/stampa, link condivisi con lo stato originale. Schema **v3** con catena v1 → v2 → v3 e backup raw.
+- **T5.14:** calcolatore diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; Duplica/Rimuovi sono nell’intestazione del pannello.
 
 ### Seed
 
@@ -90,12 +95,12 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | ------------------ | ---------------------------------------------------------------------------------- |
 | TypeScript strict  | verde                                                                              |
 | oxlint             | verde                                                                              |
-| Test unitari/dati  | 97 superati                                                                        |
-| Test E2E           | 31 superati in CI (29 Chromium, 2 WebKit; 6 visual su CI)                          |
+| Test unitari/dati  | 101 superati                                                                       |
+| Test E2E           | 32 superati in CI (30 Chromium, 2 WebKit; 6 visual su CI)                          |
 | Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                        |
 | Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux                    |
-| Build produzione   | verde (~624 KB JS main + ~108 KB worker; ~208 KB gzip JS; ~35 KB CSS; ~58 KB font) |
-| Budget bundle      | 273 KB gzip totali su 350 KB (limite JS 220 KB)                                    |
+| Build produzione   | verde (~626 KB JS main + ~108 KB worker; ~210 KB gzip JS; ~35 KB CSS; ~58 KB font) |
+| Budget bundle      | 274 KB gzip totali su 350 KB (limite JS 220 KB)                                    |
 | CI GitHub `check`  | verde su `main`                                                                    |
 | CI GitHub `e2e`    | verde su `main`                                                                    |
 | Vercel produzione  | deploy `index-CiitaCgo.js` verificato: italiano, inglese, schema 2, stampa         |
@@ -113,7 +118,7 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 
 ## 4. Dati e privacy
 
-- Dati in `localStorage`, chiave `layercost:data`, schema v2 con `Quote.locale`.
+- Dati in `localStorage`, chiave `layercost:data`, schema v3 con `Quote.locale` e `Quote.status`.
 - Preferenza del tema in `layercost:theme` e lingua in `layercost:locale`, separate dai dati e non incluse nei backup.
 - Prima della migrazione v1 → v2 il raw viene salvato in `layercost:backup:schema-1`.
 - Nessun backend, account o analytics.
@@ -151,7 +156,7 @@ npx vercel --prod
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
 - Nessuna sincronizzazione cloud (pianificata e rimandata: ADR-0018).
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
-- Interfaccia inglese in corso: infrastruttura ed estrazione (T5.6.1–T5.6.2), formattazione/`Quote.locale` (T5.6.3) e selettore persistente (T5.6.4) pronti; restano verifiche e deploy in inglese (ADR-0019).
+- Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020).
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v1; rifiuto versioni future).
 - Guida iniziale come checklist, non wizard multi-step.
@@ -161,7 +166,7 @@ npx vercel --prod
 ## 7. Prossimi passi
 
 1. **T5.3 — Import diretto da `.3mf`**: **chiuso** (fixture, parser ZIP/XML con worker, mapping puro, UI, performance e deploy).
-2. **T5.6 — Interfaccia inglese**: **chiuso** (T5.6.1–T5.6.5): infrastruttura, estrazione, formattazione, `Quote.locale`, selettore e verifiche in inglese. Prossimo: T5.4 sync (rimandato) o T5.7.
+2. **T5.6 — Interfaccia inglese**: chiuso (T5.6.1–T5.6.5). **T5.13–T5.14**: preventivi modificabili fino all’invio e card del calcolatore. Prossimo: T5.4 sync (rimandato) o T5.7.
 3. **T5.4 — Sync cloud**: rimandato, solo dopo 3MF e inglese e su richiesta esplicita.
 4. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
 5. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
@@ -171,7 +176,7 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso** e **T5.6 chiuso** (T5.6.1–T5.6.5): i18n in `src/i18n/`, provider in `src/app/`, dizionari divisi per area, formattazione locale, schema v2, selettore lingua e verifiche in inglese. Prossimo task: **T5.4** (sync, rimandato) o **T5.7** (manutenzioni).
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso**, **T5.6 chiuso** (T5.6.1–T5.6.5) e **T5.13–T5.14 chiusi**: i18n, formattazione locale, schema v3 con `Quote.locale`/`Quote.status`, selettore lingua, preventivi modificabili fino all’invio e card del calcolatore. Prossimo task: **T5.4** (sync, rimandato) o **T5.7** (manutenzioni).
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.8 e §3, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
 - **Punti aperti:** verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. Le baseline visuali includono il modale import a 1440/768/390 px. La preview Vercel richiede login SSO; la produzione è pubblica.

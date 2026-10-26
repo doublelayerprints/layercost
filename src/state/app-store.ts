@@ -9,6 +9,7 @@ import type {
   Quote,
   QuoteLocale,
   QuotePricing,
+  QuoteStatus,
   Settings,
 } from '@/domain/types'
 import { calculateQuote } from '@/domain/cost/quote'
@@ -16,6 +17,7 @@ import { ENGINE_VERSION } from '@/domain/version'
 import { nowIso } from '@/lib/date'
 import { newId } from '@/lib/id'
 import { draftHasContent } from '@/lib/draft'
+import { canTransitionQuoteStatus, isQuoteEditable } from '@/lib/quote-status'
 import {
   EMPTY_DRAFT_NAMES,
   EMPTY_LINE_NAMES,
@@ -129,8 +131,11 @@ export interface AppState {
   saveDraft: () => {
     quote?: Quote
     error?: string
-    errorCode?: 'missingName' | 'missingLineName' | 'saveFailed'
+    errorCode?: 'missingName' | 'missingLineName' | 'saveFailed' | 'locked'
   }
+  editQuote: (quoteId: string) => boolean
+  cancelEdit: () => void
+  setQuoteStatus: (quoteId: string, status: QuoteStatus) => boolean
   duplicateQuote: (quoteId: string) => void
   refreshQuote: (quoteId: string) => void
   archiveQuote: (quoteId: string) => void
@@ -395,7 +400,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set((state) => ({
       draft: {
         ...state.draft,
-        lines: [...state.draft.lines, createEmptyLine(state.config, state.draft.locale)],
+        lines: [
+          ...state.draft.lines,
+          createEmptyLine(state.draft.snapshot?.config ?? state.config, state.draft.locale),
+        ],
         updatedAt: nowIso(),
       },
     }))
@@ -464,8 +472,9 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
   addLineMaterial: (lineId) => {
     set((state) => {
+      const config = state.draft.snapshot?.config ?? state.config
       const material =
-        state.config.materials.find((candidate) => !candidate.archived) ?? state.config.materials[0]
+        config.materials.find((candidate) => !candidate.archived) ?? config.materials[0]
       if (!material) return state
       return {
         draft: {
@@ -544,17 +553,27 @@ export const useAppStore = create<AppState>()((set, get) => ({
         errorCode: 'missingLineName',
       }
     }
+    const existing = state.quotes.find((candidate) => candidate.id === state.draft.id)
+    if (existing && !isQuoteEditable(existing.status, existing.archived)) {
+      return {
+        error: 'Questo preventivo non è più modificabile.',
+        errorCode: 'locked',
+      }
+    }
     try {
-      const result = calculateQuote(state.draft, state.config)
+      const calculationConfig = existing?.snapshot?.config ?? state.config
+      const result = calculateQuote(state.draft, calculationConfig)
       const now = nowIso()
       const quote: Quote = {
         ...structuredClone(state.draft),
         status: 'saved',
-        snapshot: {
-          config: structuredClone(state.config),
-          capturedAt: now,
-          engineVersion: result.engineVersion,
-        },
+        snapshot: existing?.snapshot
+          ? { ...structuredClone(existing.snapshot), engineVersion: result.engineVersion }
+          : {
+              config: structuredClone(calculationConfig),
+              capturedAt: now,
+              engineVersion: result.engineVersion,
+            },
         result,
         engineVersion: result.engineVersion,
         updatedAt: now,
@@ -572,6 +591,37 @@ export const useAppStore = create<AppState>()((set, get) => ({
         errorCode: 'saveFailed',
       }
     }
+  },
+
+  editQuote: (quoteId) => {
+    const quote = get().quotes.find((candidate) => candidate.id === quoteId)
+    if (!quote || !isQuoteEditable(quote.status, quote.archived)) return false
+    set({
+      draft: {
+        ...structuredClone(quote),
+        status: 'draft',
+      },
+    })
+    get().persist()
+    return true
+  },
+
+  cancelEdit: () => {
+    const state = get()
+    set({ draft: createEmptyDraft(state.config, state.draft.locale) })
+    get().persist()
+  },
+
+  setQuoteStatus: (quoteId, status) => {
+    const quote = get().quotes.find((candidate) => candidate.id === quoteId)
+    if (!quote || !canTransitionQuoteStatus(quote.status, status)) return false
+    set((state) => ({
+      quotes: state.quotes.map((candidate) =>
+        candidate.id === quoteId ? { ...candidate, status, updatedAt: nowIso() } : candidate,
+      ),
+    }))
+    get().persist()
+    return true
   },
 
   duplicateQuote: (quoteId) => {

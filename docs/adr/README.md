@@ -23,6 +23,7 @@ Le decisioni architetturali di LayerCost. Un ADR accettato non si riscrive: se c
 | 0017 | [Import diretto da slicer: `.3mf`](0017-3mf-import.md)                                   |
 | 0018 | [Sincronizzazione cloud opzionale e gratuita, rimandata](0018-cloud-sync-free.md)        |
 | 0019 | [Interfaccia inglese con italiano predefinito](0019-english-ui.md)                       |
+| 0020 | [Preventivi modificabili fino all'invio](0020-editable-quotes.md)                        |
 
 ---
 

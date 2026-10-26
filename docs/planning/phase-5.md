@@ -1,6 +1,6 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche)
+**Stato:** T5.3 completato; **T5.6 chiuso**; **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore)
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
 **Prossima sessione:** **T5.4** (sync, rimandato) oppure **T5.7** (registro manutenzioni)
@@ -353,6 +353,14 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - Deploy di produzione verificato il 26/10/2026: build `index-CiitaCgo.js`, italiano predefinito, inglese persistente, `<html lang>` corretto, preventivo salvato con schema 2 e `locale: en`, stampa inglese con UI italiana.
 - **T5.6 chiuso.** Prossimo: T5.4 sync (rimandato) o T5.7 manutenzioni.
 
+### 3.16 Esito T5.13–T5.14 (26/10/2026)
+
+- **Ciclo di vita (ADR-0020):** `Quote.status` è `draft | saved | sent | completed`. `saved` è modificabile in place con lo stesso `id`; la modifica usa la configurazione dello snapshot e conserva `capturedAt`, quindi i prezzi restano congelati. `sent` e `completed` sono bloccati e si correggono duplicando. Transizioni solo in avanti; `archived` resta separato.
+- **Schema v3:** la catena v1 → v2 → v3 non cambia i dati esistenti; backup raw prima della migrazione. I link condivisi conservano lo stato, l’import crea una copia `saved`.
+- **UI:** “Modifica preventivo” nel dettaglio, banner e “Annulla modifiche” nel calcolatore, conferme per invio/completamento, badge in lista/dettaglio/stampa.
+- **Calcolatore:** card separate per intestazione, stampe, costi di lavoro e prezzo; ogni stampa è un pannello con etichetta “Stampa N”, bordo e fondo dedicati.
+- **Test:** 101 unitari e 32 E2E; build 274,1 KB gzip su 350 KB. Baseline visive italiane e inglesi rigenerate per il nuovo layout.
+
 ---
 
 ## 4. T5.4 — Sincronizzazione cloud (rimandata)
@@ -453,7 +461,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 e T5.6 sono chiusi. Prossimo: T5.4 sync (rimandato) oppure T5.7 manutenzioni. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md`, l’ADR-0019 e l’ADR-0020. T5.3, T5.6 e T5.13–T5.14 sono chiusi. Prossimo: T5.4 sync (rimandato) oppure T5.7 manutenzioni. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 

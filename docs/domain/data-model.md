@@ -9,7 +9,7 @@
 
 - Le entità persistite hanno ID stabili.
 - Il dominio usa unità intere: µ€, bp, secondi, centigrammi, watt, Wh.
-- I preventivi salvati sono **snapshot immutabili**.
+- I preventivi salvati sono **snapshot economici**: le modifiche usano le tariffe congelate e non cambiano i prezzi. Dopo invio/completamento sono bloccati.
 - Le entità referenziate si archiviano, non si cancellano.
 - Lo schema è versionato; l'import valida prima di sostituire.
 - Il repository è astratto: in v1 è locale, in futuro potrà essere cloud.
@@ -125,7 +125,7 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 | `quoteDate`              | `YYYY-MM-DD`                                        | Usata per le tariffe         |
 | `customer`               | string?                                             |                              |
 | `locale`                 | `'it' \| 'en'`                                      | Lingua del documento         |
-| `status`                 | `'draft' \| 'saved'`                                |                              |
+| `status`                 | `'draft' \| 'saved' \| 'sent' \| 'completed'`       | Modificabile solo `saved`    |
 | `lines`                  | `PrintLine[]`                                       |                              |
 | `job`                    | `{ setupSeconds, designSeconds, extraIds, notes? }` |                              |
 | `pricing`                | `QuotePricing`                                      | Snapshot delle scelte prezzo |
@@ -138,6 +138,8 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 `QuotePricing`: `{ mode, markupBp, marginBp, roundingStep, roundingMode, discountBp, vatMode, vatRateBp }`.
 
 > **Fase 5 — implementato (T5.6.3):** ADR-0019 aggiunge `locale: 'it' | 'en'` a `Quote` e porta lo schema a **v2**. La migrazione v1 → v2 assegna `locale: 'it'` ai preventivi esistenti e alla bozza, anche dentro un envelope di export. La lingua non entra nello snapshot economico: è un metadato del documento.
+>
+> **Modifica (ADR-0020):** `saved` è modificabile in place. La modifica usa la configurazione dello snapshot e non cambia `capturedAt`; il risultato viene ricalcolato con le stesse tariffe. `sent` e `completed` sono bloccati e si correggono solo duplicando. Lo schema passa a **v3** senza cambiare i dati esistenti: `draft` e `saved` restano validi.
 
 ### 2.8 `QuoteSnapshot`
 
@@ -171,7 +173,7 @@ La copia completa rende il preventivo indipendente dalle modifiche future. Il ri
 
 ```ts
 interface AppData {
-  schemaVersion: 2
+  schemaVersion: 3
   config: CostConfig
   quotes: Quote[]
   draft: Quote
@@ -197,10 +199,10 @@ Il backup di migrazione usa una chiave stabile per versione di partenza (`layerc
 ```json
 {
   "app": "LayerCost",
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "exportedAt": "2026-10-23T12:00:00.000Z",
   "data": {
-    "schemaVersion": 2,
+    "schemaVersion": 3,
     "config": {},
     "quotes": [],
     "draft": { "locale": "it" }
@@ -214,9 +216,9 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 4. Invarianti
 
-1. `schemaVersion` è `2` in questa versione; la migrazione da v1 aggiunge `locale: 'it'` e salva un backup raw prima di applicarla.
+1. `schemaVersion` è `3`: la catena v1 → v2 → v3 aggiunge `locale: 'it'` e salva un backup raw prima di applicarla.
 2. Ogni import viene validato con Zod prima di sostituire i dati.
-3. Un preventivo salvato non viene modificato: duplicazione o “aggiorna prezzi” creano una copia.
+3. Un preventivo `saved` è modificabile in place usando lo snapshot; `sent` e `completed` sono bloccati. “Aggiorna prezzi” e la duplicazione creano una copia.
 4. Un'entità con `archived = true` non è selezionabile per nuove righe, ma resta nello snapshot storico.
 5. Le entità referenziate non si cancellano definitivamente.
 6. Le tariffe sono selezionate per data; la data del preventivo è la chiave.

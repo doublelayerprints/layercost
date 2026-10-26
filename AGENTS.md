@@ -86,7 +86,7 @@ Regole di dipendenza:
 2. **Dominio puro.** Nessuna dipendenza da framework, browser o storage.
 3. **Potenza nominale mai nel costo.** Si usano i profili di potenza media per famiglia.
 4. **Grammi = totale slicer.** Nessun supplemento automatico per AMS/ACE: purge, flush e prime tower sono già inclusi.
-5. **Preventivi immutabili.** Ogni preventivo salvato conserva input, tariffe risolte e versione motore. Aggiornare i prezzi crea una copia.
+5. **Preventivi modificabili finché salvati.** Ogni preventivo conserva input, tariffe risolte e versione motore; la modifica usa lo snapshot e non cambia i prezzi. Dopo invio o completamento è bloccato. Aggiornare i prezzi crea una copia.
 6. **Archiviare, non cancellare.** Un materiale o una stampante referenziata non si cancella mai.
 7. **Una formula, un test.** Ogni formula ha un golden case in `cost-model.md` e un test.
 8. **Cambio formula = docs + test + `engineVersion`.** Nello stesso commit.
@@ -215,7 +215,8 @@ Non aggregare task diversi in un unico commit. Non fare refactor non richiesti i
 - Non usare la potenza nominale della stampante nel costo.
 - Non aggiungere una percentuale di purge AMS/ACE ai grammi dello slicer.
 - Non cancellare entità referenziate.
-- Non modificare un preventivo salvato: crea una copia.
+- Non modificare un preventivo inviato o completato: duplicalo per creare una copia.
+- Non cambiare i prezzi di un preventivo durante la modifica: usa lo snapshot o “Aggiorna ai prezzi correnti”.
 - Non cambiare una formula senza documentazione, golden test e `engineVersion`.
 - Non introdurre un backend o un account in v1.
 - Non introdurre una libreria di componenti prima della fase 4.

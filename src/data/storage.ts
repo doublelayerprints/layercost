@@ -4,7 +4,7 @@ import { createEmptyDraft, createSeedConfig } from './seed'
 import { parseAppData } from './schemas'
 
 export const STORAGE_KEY = 'layercost:data'
-export const SCHEMA_VERSION = 2 as const
+export const SCHEMA_VERSION = 3 as const
 export const MIGRATION_BACKUP_PREFIX = 'layercost:backup:schema-'
 
 type JsonRecord = Record<string, unknown>
@@ -21,14 +21,22 @@ function withQuoteLocale(value: unknown): unknown {
 function migrateV1ToV2(raw: JsonRecord): JsonRecord {
   // An export envelope wraps the app data; migrate the inner payload too.
   if (isRecord(raw.data) && 'schemaVersion' in raw.data) {
-    return { ...raw, schemaVersion: SCHEMA_VERSION, data: migrateV1ToV2(raw.data) }
+    return { ...raw, schemaVersion: 2, data: migrateV1ToV2(raw.data) }
   }
   return {
     ...raw,
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 2,
     quotes: Array.isArray(raw.quotes) ? raw.quotes.map(withQuoteLocale) : raw.quotes,
     draft: withQuoteLocale(raw.draft),
   }
+}
+
+function migrateV2ToV3(raw: JsonRecord): JsonRecord {
+  // v3 widens the quote status enum; existing draft and saved quotes stay valid.
+  if (isRecord(raw.data) && 'schemaVersion' in raw.data) {
+    return { ...raw, schemaVersion: 3, data: migrateV2ToV3(raw.data) }
+  }
+  return { ...raw, schemaVersion: 3 }
 }
 
 export function migrateAppData(raw: unknown): unknown {
@@ -45,8 +53,19 @@ export function migrateAppData(raw: unknown): unknown {
     )
   }
   if (version === SCHEMA_VERSION) return raw
-  if (version === 1) return migrateV1ToV2(raw as JsonRecord)
-  throw new StorageError('unsupportedSchema', `Schema v${version} non supportato.`)
+
+  let migrated = raw as JsonRecord
+  let current = version
+  if (current === 1) {
+    migrated = migrateV1ToV2(migrated)
+    current = 2
+  }
+  if (current === 2) {
+    migrated = migrateV2ToV3(migrated)
+    current = 3
+  }
+  if (current === SCHEMA_VERSION) return migrated
+  throw new StorageError('unsupportedSchema', `Schema v${current} non supportato.`)
 }
 
 export interface AppData {

@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf` completo) e **T5.6 chiuso** (interfaccia inglese, formattazione locale, schema v2, selettore e verifiche). Prossimo **T5.4 sync** (rimandato) o **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018 e ADR-0019 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese) e **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore). Prossimo **T5.4 sync** (rimandato) o **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.4 sync** (rimandato). ADR-0017, ADR-0018, ADR-0019 e ADR-0020 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti.
 
 ---
 
@@ -994,6 +994,25 @@ Permettere a un extra (es. spedizione) di essere passato al cliente senza ricari
 
 Esportare righe e preventivi in CSV per analisi esterne, mantenendo la formattazione it-IT e la precisione dichiarata.
 
+## T5.13 — Ciclo di vita del preventivo
+
+**Stato:** `[x]` — chiuso il 26/10/2026
+**ADR:** 0020
+
+**Nota:** `Quote.status` è `draft | saved | sent | completed`. Un preventivo `saved` è modificabile in place con lo stesso `id`; la modifica usa la configurazione dello snapshot e non cambia `capturedAt`, quindi i prezzi restano congelati. `sent` e `completed` sono bloccati: per correggerli si duplica. `archived` resta separato. Transizioni: `saved → sent`, `saved → completed`, `sent → completed`; nessun ritorno indietro.
+
+- Azione “Modifica preventivo” nel dettaglio, banner nel calcolatore e “Annulla modifiche”.
+- Conferme prima di segnare inviato/completato; badge di stato in lista, dettaglio e stampa.
+- I link condivisi conservano lo stato; l’import crea una copia `saved`.
+- Schema **v3**: la catena v1 → v2 → v3 non cambia i dati esistenti; backup raw prima della migrazione.
+- Test: 3 nuovi test su editabilità/transizioni e 1 E2E sul ciclo completo; totale **101 unitari** e **32 E2E**.
+
+## T5.14 — Card del calcolatore
+
+**Stato:** `[x]` — chiuso il 26/10/2026
+
+**Nota:** il calcolatore è diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; i comandi Duplica/Rimuovi sono nell’intestazione del pannello. Il riepilogo resta sticky a destra. Baseline visive italiane e inglesi rigenerate.
+
 ---
 
 ## Ordine consigliato
@@ -1003,7 +1022,7 @@ Esportare righe e preventivi in CSV per analisi esterne, mantenendo la formattaz
 3. T2.1 → T2.12
 4. T3.1 → T3.12
 5. T4.1 → T4.7
-6. T5.0 → T5.3 → T5.6 → T5.4 (sync solo su richiesta esplicita)
+6. T5.0 → T5.3 → T5.6 → T5.13 → T5.14 → T5.4 (sync solo su richiesta esplicita)
 7. Resto del backlog
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.

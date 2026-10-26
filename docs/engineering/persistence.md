@@ -1,6 +1,6 @@
 # Persistenza e backup
 
-**Stato:** v1.0.0 + T5.6.3 — local-first, schema v2
+**Stato:** v1.0.0 + ADR-0020 — local-first, schema v3
 
 ---
 
@@ -35,7 +35,7 @@ Prima di una migrazione, il raw della versione precedente viene conservato in:
 layercost:backup:schema-<versione>
 ```
 
-La chiave è stabile per versione di partenza (`layercost:backup:schema-1`), quindi il backup non cresce a ogni avvio.
+La chiave è stabile per versione di partenza (`layercost:backup:schema-1` o `schema-2`), quindi il backup non cresce a ogni avvio.
 
 ## 2. Codice
 
@@ -54,9 +54,10 @@ Lo storage è l'unico punto che tocca `localStorage`.
 
 ## 3. Schema e migrazioni
 
-- `schemaVersion` corrente: **2**. `Quote.locale` è la lingua del documento (`it`/`en`), non un parametro di costo.
-- `migrateAppData` rifiuta versioni future e versioni non numeriche; la migrazione v1 → v2 aggiunge `locale: 'it'` a preventivi e bozza, anche dentro un envelope di export.
-- Prima di applicare la migrazione allo storage, il raw viene salvato in `layercost:backup:schema-1`.
+- `schemaVersion` corrente: **3**. `Quote.locale` è la lingua del documento (`it`/`en`), `Quote.status` è `draft | saved | sent | completed`.
+- La modifica di un preventivo `saved` usa lo snapshot e non cambia i prezzi; `sent` e `completed` sono bloccati (ADR-0020).
+- `migrateAppData` rifiuta versioni future e versioni non numeriche; la catena v1 → v2 → v3 aggiunge `locale: 'it'` e abilita gli stati senza modificare i dati esistenti, anche dentro un envelope di export.
+- Prima di applicare la migrazione allo storage, il raw viene salvato in `layercost:backup:schema-1` o `schema-2`.
 
 ## 4. Export
 
@@ -65,7 +66,7 @@ Pulsante “Esporta backup” in Impostazioni e nella pagina del preventivo (tra
 ```json
 {
   "app": "LayerCost",
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "exportedAt": "2026-10-23T12:00:00.000Z",
   "data": { "...": "..." }
 }
@@ -122,7 +123,7 @@ interface DataRepository {
 }
 ```
 
-La direzione è in **ADR-0018**: sync opzionale, local-first, solo piani gratuiti, provider ancora da scegliere. Il piano operativo è in `docs/planning/phase-5.md` §4. Un adapter cloud dovrà gestire auth, RLS, conflitti e merge per entità; i preventivi restano immutabili e si sincronizzano in append. Bozza, tema e lingua restano locali. Prima del primo sync va esportato un backup.
+La direzione è in **ADR-0018**: sync opzionale, local-first, solo piani gratuiti, provider ancora da scegliere. Il piano operativo è in `docs/planning/phase-5.md` §4. Un adapter cloud dovrà gestire auth, RLS, conflitti e merge per entità; i preventivi sono modificabili finché `saved`, poi si sincronizzano come documenti immutabili. Bozza, tema e lingua restano locali. Prima del primo sync va esportato un backup.
 
 L'adapter cloud non è previsto nella v1.0.0 e non va implementato senza una richiesta esplicita del committente.
 

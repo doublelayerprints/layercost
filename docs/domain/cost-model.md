@@ -616,7 +616,7 @@ Ogni caso è un test automatico. I fixture sono condivisi tra documentazione e t
 3. Il dominio non usa `Date.now()`, `crypto.randomUUID()` o `localStorage` direttamente: riceve `now` e `id` dall'esterno.
 4. La potenza nominale non entra mai nel costo.
 5. I grammi dello slicer non vengono maggiorati per purge/AMS.
-6. Un preventivo è immutabile.
+6. Un preventivo è modificabile finché è `saved`; usa lo snapshot e non cambia i prezzi. Dopo invio/completamento è bloccato.
 7. Le entità referenziate non si cancellano.
 8. Ogni formula ha un test di riferimento.
 9. Un cambio di formula aggiorna documentazione, test e versione del motore.

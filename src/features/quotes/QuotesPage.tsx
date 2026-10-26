@@ -5,17 +5,8 @@ import { useFormat } from '@/app/use-format'
 import { useAppStore } from '@/state/app-store'
 import { Badge, Button, EmptyState, Input, PageHeader, TableScroll } from '@/components/ui'
 import { NewDraftButton } from '@/features/calculator/NewDraftButton'
-import { plural, type MessageKey } from '@/i18n'
-import type { Quote } from '@/domain/types'
-
-function quoteStatus(quote: Quote): {
-  labelKey: MessageKey
-  tone: 'neutral' | 'success' | 'warning' | 'danger'
-} {
-  if (!quote.result) return { labelKey: 'quote.status.notRecalculable', tone: 'danger' }
-  if (quote.archived) return { labelKey: 'quote.status.archived', tone: 'warning' }
-  return { labelKey: 'quote.status.saved', tone: 'success' }
-}
+import { plural } from '@/i18n'
+import { quoteStatusDisplay } from './quote-status'
 
 export function QuotesPage() {
   const { t, locale } = useI18n()
@@ -138,7 +129,7 @@ export function QuotesPage() {
               </thead>
               <tbody>
                 {filtered.map((quote) => {
-                  const status = quoteStatus(quote)
+                  const status = quoteStatusDisplay(quote)
                   return (
                     <tr key={quote.id} className="border-t border-rule align-middle">
                       <th scope="row" className="py-3 pr-4 text-left font-normal">
@@ -183,7 +174,7 @@ export function QuotesPage() {
 
           <ul className="mt-3 border-t border-line md:hidden">
             {filtered.map((quote) => {
-              const status = quoteStatus(quote)
+              const status = quoteStatusDisplay(quote)
               return (
                 <li key={quote.id} className="border-b border-rule py-3">
                   <div className="flex items-start justify-between gap-3">
