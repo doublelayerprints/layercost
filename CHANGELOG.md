@@ -9,6 +9,7 @@
 - Estrazione stringhe (T5.6.2): tutte le schermate, i componenti condivisi, le etichette di dominio, la stampa e la guida usano dizionari per area (743 chiavi); errori import/share/save mappati per codice.
 - Formattazione locale (T5.6.3): `useFormat` con `Intl` (`it-IT`/`en-GB`), parsing numerico con virgola o punto, `Quote.locale` e schema v2 con migrazione e backup raw. Stampa, dettaglio e link usano la lingua del preventivo.
 - Selettore lingua (T5.6.4): preferenza `layercost:locale`, Italiano/English in Impostazioni, `<html lang>`, titolo e meta description aggiornati; la bozza vuota adotta la lingua.
+- Verifiche inglesi (T5.6.5): 14 scansioni axe e 18 screenshot in inglese, errori di dominio/storage tradotti, link condivisi pre-v2 compatibili. Deploy di produzione verificato.
 - Test: 97 unitari, 31 E2E, 36 screenshot visuali.
 
 ## [1.0.0] — 2026-10-24

@@ -1,6 +1,6 @@
 # ADR-0019 — Interfaccia inglese con italiano predefinito
 
-**Stato:** Accettato (T5.6.1–T5.6.4: infrastruttura, estrazione, formattazione, `Quote.locale` e selettore)
+**Stato:** Accettato (T5.6.1–T5.6.5: interfaccia inglese completa)
 **Data:** 26 ottobre 2026
 
 ## Contesto

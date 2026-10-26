@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.6.5 (in verifica) — 97 test unitari + 31 E2E (6 visual su CI, 36 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.6.5 — 97 test unitari + 31 E2E (6 visual su CI, 36 screenshot)
 
 ---
 
