@@ -1,6 +1,7 @@
 import { useId, useState, type FormEvent } from 'react'
 import type { EnergyTariff } from '@/domain/types'
 import { asMicroEur } from '@/domain/units'
+import { useI18n } from '@/app/i18n-context'
 import { todayIsoDate } from '@/lib/date'
 import { Alert, Button, Field, Input } from '@/components/ui'
 import { MoneyField, TextareaField, TextField } from '@/components/number-fields'
@@ -14,6 +15,7 @@ export function TariffForm({
   onSave: (data: Omit<EnergyTariff, 'id'>) => void
   onCancel: () => void
 }) {
+  const { t } = useI18n()
   const [label, setLabel] = useState(tariff?.label ?? '')
   const [pricePerKWh, setPricePerKWh] = useState(tariff?.pricePerKWh ?? 0)
   const [effectiveFrom, setEffectiveFrom] = useState(tariff?.effectiveFrom ?? todayIsoDate())
@@ -24,15 +26,15 @@ export function TariffForm({
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     if (!label.trim()) {
-      setError('L’etichetta è obbligatoria.')
+      setError(t('tariff.errorLabel'))
       return
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(effectiveFrom)) {
-      setError('Inserisci una data di decorrenza valida.')
+      setError(t('tariff.errorDate'))
       return
     }
     if (pricePerKWh < 0) {
-      setError('Il prezzo non può essere negativo.')
+      setError(t('tariff.errorPrice'))
       return
     }
 
@@ -47,32 +49,32 @@ export function TariffForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error ? (
-        <Alert tone="danger" title="Controlla i dati">
+        <Alert tone="danger" title={t('tariff.errorTitle')}>
           {error}
         </Alert>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          label="Etichetta"
+          label={t('tariff.label')}
           value={label}
           onChange={setLabel}
           required
-          placeholder="Es. Contratto casa 2026"
+          placeholder={t('tariff.labelPlaceholder')}
         />
         <MoneyField
-          label="Prezzo al kWh"
+          label={t('tariff.pricePerKWh')}
           valueMicro={pricePerKWh}
           onChangeMicro={setPricePerKWh}
           decimals={4}
-          hint="Costo marginale, comprensivo di oneri e IVA al kWh."
+          hint={t('tariff.priceHint')}
         />
       </div>
 
       <Field
-        label="Decorrenza"
+        label={t('tariff.effectiveFrom')}
         htmlFor={dateFieldId}
-        hint="La tariffa vale per i preventivi con data uguale o successiva."
+        hint={t('tariff.effectiveFromHint')}
       >
         <Input
           id={dateFieldId}
@@ -82,23 +84,22 @@ export function TariffForm({
         />
       </Field>
 
-      <Alert tone="info" title="Quale prezzo inserire">
-        Usa il costo variabile al kWh della bolletta, non il totale diviso i kWh: i costi fissi non
-        cambiano se stampi un pezzo in più.
+      <Alert tone="info" title={t('tariff.priceNoteTitle')}>
+        {t('tariff.priceNoteBody')}
       </Alert>
 
       <TextareaField
-        label="Note"
+        label={t('tariff.notes')}
         value={notes}
         onChange={setNotes}
-        placeholder="Fornitore, tipo di contratto, fasce…"
+        placeholder={t('tariff.notesPlaceholder')}
       />
 
       <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
         <Button variant="secondary" onClick={onCancel} type="button">
-          Annulla
+          {t('common.cancel')}
         </Button>
-        <Button type="submit">Salva tariffa</Button>
+        <Button type="submit">{t('tariff.save')}</Button>
       </div>
     </form>
   )

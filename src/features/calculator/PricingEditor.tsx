@@ -1,7 +1,7 @@
 import type { QuotePricing, Settings } from '@/domain/types'
+import { useI18n } from '@/app/i18n-context'
 import { Button, InfoDot, SectionHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
-import { pricingModeLabels, roundingModeLabels, vatModeLabels } from '@/lib/labels'
 
 export function PricingEditor({
   pricing,
@@ -14,6 +14,7 @@ export function PricingEditor({
   onChange: (patch: Partial<QuotePricing>) => void
   onReset: () => void
 }) {
+  const { t } = useI18n()
   const isMarkup = pricing.mode === 'markup'
   const valueBp = isMarkup ? pricing.markupBp : pricing.marginBp
 
@@ -21,34 +22,30 @@ export function PricingEditor({
     <>
       <SectionHeader
         id="section-prezzo"
-        title="Prezzo"
-        description="Il prezzo si calcola sul costo pieno; lo sconto si applica prima dell’arrotondamento."
+        title={t('pricing.title')}
+        description={t('pricing.description')}
         actions={
           <Button variant="ghost" size="sm" onClick={onReset}>
-            Ripristina default
+            {t('pricing.reset')}
           </Button>
         }
       />
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <SelectField
-          label="Modalità"
+          label={t('pricing.mode')}
           value={pricing.mode}
           onChange={(value) => onChange({ mode: value as QuotePricing['mode'] })}
           options={[
-            { value: 'markup', label: pricingModeLabels.markup },
-            { value: 'margin', label: pricingModeLabels.margin },
+            { value: 'markup', label: t('pricing.modeMarkup') },
+            { value: 'margin', label: t('pricing.modeMargin') },
           ]}
         />
         <PercentField
           label={
             <span className="inline-flex items-center gap-1">
-              {isMarkup ? 'Ricarico' : 'Margine'}
-              <InfoDot
-                label={
-                  isMarkup ? 'Percentuale aggiunta al costo.' : 'Percentuale sul prezzo finale.'
-                }
-              />
+              {isMarkup ? t('pricing.markup') : t('pricing.margin')}
+              <InfoDot label={isMarkup ? t('pricing.markupHint') : t('pricing.marginHint')} />
             </span>
           }
           valueBp={valueBp}
@@ -57,30 +54,26 @@ export function PricingEditor({
           max={isMarkup ? 1000 : 99}
         />
         <PercentField
-          label="Sconto"
+          label={t('pricing.discount')}
           valueBp={pricing.discountBp}
           onChangeBp={(value) => onChange({ discountBp: value })}
           decimals={1}
           max={90}
         />
         <SelectField
-          label="IVA"
+          label={t('pricing.vat')}
           value={pricing.vatMode}
           onChange={(value) => onChange({ vatMode: value as QuotePricing['vatMode'] })}
           options={[
-            { value: 'none', label: vatModeLabels.none },
-            { value: 'excluded', label: vatModeLabels.excluded },
-            { value: 'included', label: vatModeLabels.included },
+            { value: 'none', label: t('pricing.vatNone') },
+            { value: 'excluded', label: t('pricing.vatExcluded') },
+            { value: 'included', label: t('pricing.vatIncluded') },
           ]}
-          hint={
-            pricing.vatMode === 'none'
-              ? 'Nessuna IVA applicata.'
-              : 'La modalità IVA è solo di presentazione, non è consulenza fiscale.'
-          }
+          hint={pricing.vatMode === 'none' ? t('pricing.vatNoneHint') : t('pricing.vatHint')}
         />
         {pricing.vatMode !== 'none' ? (
           <PercentField
-            label="Aliquota IVA"
+            label={t('pricing.vatRate')}
             valueBp={pricing.vatRateBp}
             onChangeBp={(value) => onChange({ vatRateBp: value })}
             decimals={0}
@@ -88,35 +81,38 @@ export function PricingEditor({
           />
         ) : null}
         <SelectField
-          label="Arrotondamento"
+          label={t('pricing.rounding')}
           value={pricing.roundingMode}
           onChange={(value) => onChange({ roundingMode: value as QuotePricing['roundingMode'] })}
           options={[
-            { value: 'up', label: roundingModeLabels.up },
-            { value: 'nearest', label: roundingModeLabels.nearest },
-            { value: 'down', label: roundingModeLabels.down },
+            { value: 'up', label: t('pricing.roundUp') },
+            { value: 'nearest', label: t('pricing.roundNearest') },
+            { value: 'down', label: t('pricing.roundDown') },
           ]}
         />
         <MoneyField
-          label="Passo"
+          label={t('pricing.step')}
           valueMicro={pricing.roundingStep}
           onChangeMicro={(value) => onChange({ roundingStep: value })}
           decimals={2}
-          hint={`Default: ${new Intl.NumberFormat('it-IT', {
-            style: 'currency',
-            currency: 'EUR',
-          }).format(0.1)}`}
+          hint={t('pricing.stepHint', {
+            amount: new Intl.NumberFormat('it-IT', {
+              style: 'currency',
+              currency: 'EUR',
+            }).format(0.1),
+          })}
         />
       </div>
 
       <p className="mt-4 text-sm leading-snug text-muted">
-        Ripartizione costi fissi:{' '}
+        {t('pricing.allocationLabel')}{' '}
         <span className="text-ink">
           {settings.allocationMode === 'proportional'
-            ? 'proporzionale al costo'
-            : 'uguale per pezzo'}
+            ? t('pricing.allocationProportional')
+            : t('pricing.allocationEqual')}
         </span>
-        . Puoi cambiarla nelle impostazioni.
+        {'. '}
+        {t('pricing.allocationHint')}
       </p>
     </>
   )

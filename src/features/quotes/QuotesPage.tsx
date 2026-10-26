@@ -1,21 +1,24 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { useAppStore } from '@/state/app-store'
 import { Badge, Button, EmptyState, Input, PageHeader, TableScroll } from '@/components/ui'
 import { NewDraftButton } from '@/features/calculator/NewDraftButton'
 import { formatCents, formatCurrency, formatDateOnly } from '@/lib/format'
+import { plural, type MessageKey } from '@/i18n'
 import type { Quote } from '@/domain/types'
 
 function quoteStatus(quote: Quote): {
-  label: string
+  labelKey: MessageKey
   tone: 'neutral' | 'success' | 'warning' | 'danger'
 } {
-  if (!quote.result) return { label: 'Non ricalcolabile', tone: 'danger' }
-  if (quote.archived) return { label: 'Archiviato', tone: 'warning' }
-  return { label: 'Salvato', tone: 'success' }
+  if (!quote.result) return { labelKey: 'quote.status.notRecalculable', tone: 'danger' }
+  if (quote.archived) return { labelKey: 'quote.status.archived', tone: 'warning' }
+  return { labelKey: 'quote.status.saved', tone: 'success' }
 }
 
 export function QuotesPage() {
+  const { t, locale } = useI18n()
   const quotes = useAppStore((state) => state.quotes)
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
@@ -40,23 +43,23 @@ export function QuotesPage() {
 
   const emptyAction =
     quotes.length === 0 ? (
-      <Button onClick={() => navigate('/')}>Vai al calcolatore</Button>
+      <Button onClick={() => navigate('/')}>{t('quotes.goToCalculator')}</Button>
     ) : hasSearch ? (
       <Button variant="secondary" onClick={() => setSearch('')}>
-        Azzera la ricerca
+        {t('quotes.resetSearch')}
       </Button>
     ) : hasHiddenArchived ? (
       <Button variant="secondary" onClick={() => setShowArchived(true)}>
-        Mostra archiviati
+        {t('quotes.showArchived')}
       </Button>
     ) : undefined
 
   return (
     <div>
       <PageHeader
-        title="Preventivi"
-        description="Ogni preventivo conserva i prezzi usati al momento del salvataggio."
-        actions={<NewDraftButton label="Nuovo preventivo" />}
+        title={t('quotes.title')}
+        description={t('quotes.description')}
+        actions={<NewDraftButton label={t('quotes.new')} />}
       />
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -64,8 +67,8 @@ export function QuotesPage() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Cerca per nome o cliente…"
-            aria-label="Cerca preventivi"
+            placeholder={t('quotes.search.placeholder')}
+            aria-label={t('quotes.search.label')}
           />
         </div>
         <label className="flex min-h-9 items-center gap-2 text-sm text-ink">
@@ -75,26 +78,29 @@ export function QuotesPage() {
             onChange={(event) => setShowArchived(event.target.checked)}
             className="h-4 w-4 rounded border-control accent-data"
           />
-          Mostra archiviati
+          {t('quotes.showArchived')}
         </label>
       </div>
 
       <p className="mt-4 text-sm text-muted">
         {filtered.length === visibleCount
-          ? `${visibleCount} ${visibleCount === 1 ? 'preventivo' : 'preventivi'}`
-          : `${filtered.length} di ${visibleCount}`}
+          ? plural(locale, visibleCount, {
+              one: 'quotes.count.one',
+              other: 'quotes.count.other',
+            })
+          : t('quotes.filteredOf', { shown: filtered.length, total: visibleCount })}
       </p>
 
       {filtered.length === 0 ? (
         <div className="mt-3">
           <EmptyState
-            title={quotes.length === 0 ? 'Nessun preventivo salvato' : 'Nessun risultato'}
+            title={quotes.length === 0 ? t('quotes.empty.title') : t('quotes.noResults.title')}
             description={
               quotes.length === 0
-                ? 'Calcola una stampa o un lotto e salvalo per ritrovarlo qui.'
+                ? t('quotes.empty.description')
                 : hasSearch
-                  ? 'Nessun preventivo corrisponde alla ricerca.'
-                  : 'Gli unici preventivi presenti sono archiviati.'
+                  ? t('quotes.noResults.search')
+                  : t('quotes.noResults.archived')
             }
             action={emptyAction}
           />
@@ -102,30 +108,30 @@ export function QuotesPage() {
       ) : (
         <>
           <TableScroll
-            label="Preventivi salvati"
+            label={t('quotes.table.caption')}
             className="mt-3 hidden border-y border-line md:block"
           >
             <table className="w-full border-collapse text-sm">
-              <caption className="sr-only">Preventivi salvati</caption>
+              <caption className="sr-only">{t('quotes.table.caption')}</caption>
               <thead>
                 <tr className="text-xs text-muted">
                   <th scope="col" className="py-2 pr-4 text-left font-medium">
-                    Preventivo
+                    {t('quote.label.quote')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-left font-medium">
-                    Stato
+                    {t('quote.label.status')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    Righe
+                    {t('quote.label.lines')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    Costo
+                    {t('quote.label.cost')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
-                    Prezzo
+                    {t('quote.label.price')}
                   </th>
                   <th scope="col" className="py-2 text-right font-medium">
-                    <span className="sr-only">Azioni</span>
+                    <span className="sr-only">{t('quote.label.actions')}</span>
                   </th>
                 </tr>
               </thead>
@@ -147,7 +153,7 @@ export function QuotesPage() {
                         </p>
                       </th>
                       <td className="py-3 pr-4">
-                        <Badge tone={status.tone}>{status.label}</Badge>
+                        <Badge tone={status.tone}>{t(status.labelKey)}</Badge>
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums text-muted">
                         {quote.lines.length}
@@ -164,7 +170,7 @@ export function QuotesPage() {
                           size="sm"
                           onClick={() => navigate(`/quotes/${quote.id}`)}
                         >
-                          Apri
+                          {t('quotes.open')}
                         </Button>
                       </td>
                     </tr>
@@ -189,11 +195,14 @@ export function QuotesPage() {
                       </Link>
                       <p className="mt-0.5 text-xs text-muted">
                         {formatDateOnly(quote.quoteDate)}
-                        {quote.customer ? ` · ${quote.customer}` : ''} · {quote.lines.length}{' '}
-                        {quote.lines.length === 1 ? 'riga' : 'righe'}
+                        {quote.customer ? ` · ${quote.customer}` : ''} ·{' '}
+                        {plural(locale, quote.lines.length, {
+                          one: 'quote.lineCount.one',
+                          other: 'quote.lineCount.other',
+                        })}
                       </p>
                       <div className="mt-1.5">
-                        <Badge tone={status.tone}>{status.label}</Badge>
+                        <Badge tone={status.tone}>{t(status.labelKey)}</Badge>
                       </div>
                     </div>
                     <div className="shrink-0 text-right">
@@ -207,7 +216,7 @@ export function QuotesPage() {
                         to={`/quotes/${quote.id}`}
                         className="mt-1 inline-block text-sm font-medium text-data underline-offset-2 hover:underline"
                       >
-                        Apri
+                        {t('quotes.open')}
                       </Link>
                     </div>
                   </div>

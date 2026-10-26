@@ -1,4 +1,6 @@
+import type { MessageKey } from '@/i18n'
 import type { QuoteResult } from '@/domain/types'
+import type { Translate } from './labels'
 
 export type CostBandKey = 'material' | 'machine' | 'labor' | 'risk'
 
@@ -9,12 +11,24 @@ export interface CostBand {
 }
 
 export interface DisplayCostBand {
-  key: string
+  key: CostBandKey | 'other'
   label: string
   value: number
 }
 
 export const SMALL_BAND_RATIO = 0.03
+
+const BAND_LABEL_KEYS: Record<CostBandKey | 'other', MessageKey> = {
+  material: 'costBands.material',
+  machine: 'costBands.machine',
+  labor: 'costBands.labor',
+  risk: 'costBands.risk',
+  other: 'costBands.otherLabel',
+}
+
+export function costBandLabel(key: CostBandKey | 'other', t: Translate): string {
+  return t(BAND_LABEL_KEYS[key])
+}
 
 /**
  * Groups the quote result into the four bands shown by the cost stack.
@@ -23,13 +37,9 @@ export const SMALL_BAND_RATIO = 0.03
  * sum must equal `result.totalCost`.
  */
 export function costBands(result: QuoteResult): CostBand[] {
-  const material = result.lines.reduce(
-    (sum, line) => sum + line.material * line.quantity,
-    0,
-  )
+  const material = result.lines.reduce((sum, line) => sum + line.material * line.quantity, 0)
   const machine = result.lines.reduce(
-    (sum, line) =>
-      sum + (line.energy + line.depreciation + line.maintenance) * line.quantity,
+    (sum, line) => sum + (line.energy + line.depreciation + line.maintenance) * line.quantity,
     0,
   )
   const labor =

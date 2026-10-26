@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
+import { plural, type InterpolationParams, type MessageKey } from '@/i18n'
 import type { PrintLine, Quote, QuoteResult } from '@/domain/types'
 import { calculateQuote, pricingFromSettings } from '@/domain/cost/quote'
 import { gramsToCg } from '@/domain/units'
@@ -17,7 +19,10 @@ import {
 import { nowIso, todayIsoDate } from '@/lib/date'
 import { newId } from '@/lib/id'
 
+type Translate = (key: MessageKey, params?: InterpolationParams) => string
+
 export function ComparePage() {
+  const { t, locale } = useI18n()
   const config = useAppStore((state) => state.config)
   const navigate = useNavigate()
   const activePrinters = config.printers.filter((printer) => !printer.archived)
@@ -33,7 +38,7 @@ export function ComparePage() {
   const comparison = useMemo(() => {
     const build = (printerId: string): { result?: QuoteResult; error?: string } => {
       if (!printerId || !materialId) {
-        return { error: 'Scegli due stampanti e un materiale.' }
+        return { error: t('compare.chooseTwoPrinters') }
       }
       const line: PrintLine = {
         id: newId(),
@@ -64,12 +69,12 @@ export function ComparePage() {
       try {
         return { result: calculateQuote(quote, config) }
       } catch (error) {
-        return { error: error instanceof Error ? error.message : 'Calcolo non riuscito.' }
+        return { error: error instanceof Error ? error.message : t('compare.calculationFailed') }
       }
     }
 
     return { a: build(printerA), b: build(printerB) }
-  }, [config, printerA, printerB, materialId, grams, timeSeconds, quantity])
+  }, [config, printerA, printerB, materialId, grams, timeSeconds, quantity, t])
 
   const resultA = comparison.a.result
   const resultB = comparison.b.result
@@ -93,7 +98,7 @@ export function ComparePage() {
     label: `${material.name} — ${formatCurrency(material.pricePerKg)}/kg`,
   }))
   const materialName =
-    activeMaterials.find((material) => material.id === materialId)?.name ?? 'Materiale'
+    activeMaterials.find((material) => material.id === materialId)?.name ?? t('compare.material')
 
   const cheaper =
     deltaCost === undefined
@@ -105,20 +110,19 @@ export function ComparePage() {
           : undefined
 
   const rows =
-    resultA && resultB && lineA && lineB ? comparisonRows(resultA, resultB, lineA, lineB) : []
+    resultA && resultB && lineA && lineB ? comparisonRows(resultA, resultB, lineA, lineB, t) : []
 
   if (activePrinters.length < 2) {
     return (
       <div>
-        <PageHeader
-          title="Confronto stampanti"
-          description="Lo stesso lavoro, la stessa quantità: costo e prezzo su due stampanti."
-        />
+        <PageHeader title={t('compare.title')} description={t('compare.pageDescriptionShort')} />
         <div className="mt-6">
           <EmptyState
-            title="Servono due stampanti attive"
-            description="Il confronto mette a fianco due stampanti. Aggiungine una o ripristina quella archiviata."
-            action={<Button onClick={() => navigate('/printers')}>Vai alle stampanti</Button>}
+            title={t('compare.needTwoPrintersTitle')}
+            description={t('compare.needTwoPrintersDescription')}
+            action={
+              <Button onClick={() => navigate('/printers')}>{t('compare.goToPrinters')}</Button>
+            }
           />
         </div>
       </div>
@@ -128,15 +132,14 @@ export function ComparePage() {
   if (activeMaterials.length === 0) {
     return (
       <div>
-        <PageHeader
-          title="Confronto stampanti"
-          description="Lo stesso lavoro, la stessa quantità: costo e prezzo su due stampanti."
-        />
+        <PageHeader title={t('compare.title')} description={t('compare.pageDescriptionShort')} />
         <div className="mt-6">
           <EmptyState
-            title="Serve un materiale attivo"
-            description="Il confronto usa un materiale per stimare il costo. Aggiungine uno o ripristina quello archiviato."
-            action={<Button onClick={() => navigate('/materials')}>Vai ai materiali</Button>}
+            title={t('compare.needMaterialTitle')}
+            description={t('compare.needMaterialDescription')}
+            action={
+              <Button onClick={() => navigate('/materials')}>{t('compare.goToMaterials')}</Button>
+            }
           />
         </div>
       </div>
@@ -145,41 +148,38 @@ export function ComparePage() {
 
   return (
     <div>
-      <PageHeader
-        title="Confronto stampanti"
-        description="Lo stesso lavoro, la stessa quantità: costo e prezzo su due stampanti. Il confronto non modifica il preventivo."
-      />
+      <PageHeader title={t('compare.title')} description={t('compare.pageDescription')} />
 
       <Card className="mt-6 p-5 sm:p-6">
         <SectionHeader
           id="section-lavoro-confronto"
-          title="Lavoro da confrontare"
-          description="Il confronto usa lo stesso tempo, gli stessi grammi e lo stesso materiale. Non include setup, progettazione o extra di lavoro."
+          title={t('compare.jobTitle')}
+          description={t('compare.jobDescription')}
         />
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <SelectField
-            label="Stampante A"
+            label={t('compare.printerA')}
             value={printerA}
             onChange={setPrinterA}
             options={printerOptions}
-            placeholder="Scegli"
+            placeholder={t('compare.choose')}
           />
           <SelectField
-            label="Stampante B"
+            label={t('compare.printerB')}
             value={printerB}
             onChange={setPrinterB}
             options={printerOptions}
-            placeholder="Scegli"
+            placeholder={t('compare.choose')}
           />
           <SelectField
-            label="Materiale"
+            label={t('compare.material')}
             value={materialId}
             onChange={setMaterialId}
             options={materialOptions}
-            placeholder="Scegli"
+            placeholder={t('compare.choose')}
           />
           <NumberField
-            label="Grammi"
+            label={t('compare.grams')}
             value={grams}
             onChange={setGrams}
             min={0}
@@ -188,12 +188,12 @@ export function ComparePage() {
             suffix="g"
           />
           <DurationField
-            label="Tempo slicer"
+            label={t('compare.time')}
             valueSeconds={timeSeconds}
             onChangeSeconds={setTimeSeconds}
           />
           <NumberField
-            label="Quantità"
+            label={t('compare.quantity')}
             value={quantity}
             onChange={(value) => setQuantity(Math.max(1, Math.round(value)))}
             min={1}
@@ -206,7 +206,7 @@ export function ComparePage() {
 
       {comparison.a.error || comparison.b.error ? (
         <div className="mt-6">
-          <Alert tone="warning" title="Confronto incompleto">
+          <Alert tone="warning" title={t('compare.incompleteTitle')}>
             {comparison.a.error ?? comparison.b.error}
           </Alert>
         </div>
@@ -216,38 +216,43 @@ export function ComparePage() {
         <Card className="mt-6 p-5 sm:p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <div>
-              <p className="text-xs font-medium text-muted">Differenza di costo</p>
+              <p className="text-xs font-medium text-muted">{t('compare.costDifference')}</p>
               <p className="mt-0.5 text-price font-serif font-semibold tracking-price tabular-nums text-ink">
                 {deltaCost === 0 ? '—' : formatCents(Math.abs(deltaCost ?? 0))}
               </p>
             </div>
             <p className="max-w-xl text-sm leading-snug text-muted">
               {deltaCost === 0
-                ? 'Le due stampanti hanno lo stesso costo su questo lavoro.'
-                : `La ${cheaper} costa ${formatCents(Math.abs(deltaCost ?? 0))} in meno su questo lavoro.`}{' '}
+                ? t('compare.sameCost')
+                : t('compare.cheaperBy', {
+                    printer: cheaper ?? '',
+                    amount: formatCents(Math.abs(deltaCost ?? 0)),
+                  })}{' '}
               {formatGrams(gramsToCg(grams))} · {formatDuration(lineA.effectiveSeconds)} ·{' '}
-              {quantity} {quantity === 1 ? 'pezzo' : 'pezzi'} · {materialName}.
+              {plural(locale, quantity, {
+                one: 'compare.pieces.one',
+                other: 'compare.pieces.other',
+              })}{' '}
+              · {materialName}.
             </p>
           </div>
 
           <div className="mt-6 hidden border-t border-line pt-4 sm:block">
             <table className="w-full border-collapse text-sm">
-              <caption className="sr-only">
-                Costo e prezzo dello stesso lavoro sulle due stampanti
-              </caption>
+              <caption className="sr-only">{t('compare.tableCaption')}</caption>
               <thead>
                 <tr>
                   <th
                     scope="col"
                     className="w-[38%] py-2 pr-4 text-left text-xs font-medium text-muted"
                   >
-                    Voce
+                    {t('compare.item')}
                   </th>
                   <th scope="col" className="py-2 pl-6 text-right text-xs font-medium text-muted">
                     <span className="inline-flex flex-wrap items-center justify-end gap-2">
                       {lineA.printerName}
                       {cheaper === lineA.printerName ? (
-                        <Badge tone="success">Meno cara</Badge>
+                        <Badge tone="success">{t('compare.cheaper')}</Badge>
                       ) : null}
                     </span>
                   </th>
@@ -255,7 +260,7 @@ export function ComparePage() {
                     <span className="inline-flex flex-wrap items-center justify-end gap-2">
                       {lineB.printerName}
                       {cheaper === lineB.printerName ? (
-                        <Badge tone="success">Meno cara</Badge>
+                        <Badge tone="success">{t('compare.cheaper')}</Badge>
                       ) : null}
                     </span>
                   </th>
@@ -293,11 +298,13 @@ export function ComparePage() {
 
           <div className="mt-6 grid gap-6 border-t border-line pt-6 sm:hidden">
             <MobileColumn
+              t={t}
               name={lineA.printerName}
               isCheaper={cheaper === lineA.printerName}
               rows={rows.map((row) => ({ label: row.label, value: row.a, strong: row.strong }))}
             />
             <MobileColumn
+              t={t}
               name={lineB.printerName}
               isCheaper={cheaper === lineB.printerName}
               rows={rows.map((row) => ({ label: row.label, value: row.b, strong: row.strong }))}
@@ -306,17 +313,20 @@ export function ComparePage() {
 
           <dl className="mt-6 grid gap-4 border-t border-line pt-4 sm:grid-cols-2">
             <div>
-              <dt className="text-xs font-medium text-muted">Differenza per pezzo</dt>
+              <dt className="text-xs font-medium text-muted">{t('compare.differencePerPiece')}</dt>
               <dd className="mt-0.5 text-sm tabular-nums text-ink">
                 {deltaPerUnit === 0
-                  ? 'Nessuna differenza'
-                  : `${formatCents(Math.abs(deltaPerUnit ?? 0))} ${
-                      (deltaPerUnit ?? 0) > 0 ? 'in più' : 'in meno'
-                    } per ${(deltaPerUnit ?? 0) > 0 ? lineB.printerName : lineA.printerName}`}
+                  ? t('compare.noDifference')
+                  : t((deltaPerUnit ?? 0) > 0 ? 'compare.morePer' : 'compare.lessPer', {
+                      amount: formatCents(Math.abs(deltaPerUnit ?? 0)),
+                      printer: (deltaPerUnit ?? 0) > 0 ? lineB.printerName : lineA.printerName,
+                    })}
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium text-muted">Differenza di prezzo totale</dt>
+              <dt className="text-xs font-medium text-muted">
+                {t('compare.totalPriceDifference')}
+              </dt>
               <dd className="mt-0.5 text-sm tabular-nums text-ink">
                 {(() => {
                   const delta = resultB.grossPriceCents - resultA.grossPriceCents
@@ -332,8 +342,8 @@ export function ComparePage() {
 
       {activePrinters.length < 2 ? (
         <div className="mt-6">
-          <Alert tone="info" title="Serve una seconda stampante">
-            Aggiungi almeno due stampanti attive per confrontare lo stesso lavoro.
+          <Alert tone="info" title={t('compare.needSecondPrinterTitle')}>
+            {t('compare.needSecondPrinterBody')}
             <div className="mt-2">
               <Button
                 variant="secondary"
@@ -342,7 +352,7 @@ export function ComparePage() {
                   navigate('/printers')
                 }}
               >
-                Vai alle stampanti
+                {t('compare.goToPrinters')}
               </Button>
             </div>
           </Alert>
@@ -364,52 +374,53 @@ function comparisonRows(
   resultB: QuoteResult,
   lineA: QuoteResult['lines'][number],
   lineB: QuoteResult['lines'][number],
+  t: Translate,
 ): ComparisonRow[] {
   return [
     {
-      label: 'Costo pieno totale',
+      label: t('compare.rows.totalCost'),
       a: formatCurrency(resultA.totalCost),
       b: formatCurrency(resultB.totalCost),
       strong: true,
     },
     {
-      label: 'Costo per pezzo',
+      label: t('compare.rows.unitCost'),
       a: formatCurrency(lineA.fullyLoadedUnitCost),
       b: formatCurrency(lineB.fullyLoadedUnitCost),
     },
     {
-      label: 'Prezzo totale',
+      label: t('compare.rows.totalPrice'),
       a: formatCents(resultA.grossPriceCents),
       b: formatCents(resultB.grossPriceCents),
       strong: true,
     },
     {
-      label: 'Prezzo per pezzo',
+      label: t('compare.rows.unitPrice'),
       a: formatPricePerUnit(lineA.priceCents, lineA.quantity),
       b: formatPricePerUnit(lineB.priceCents, lineB.quantity),
     },
     {
-      label: 'Materiale',
+      label: t('compare.rows.material'),
       a: formatCurrency(lineA.material),
       b: formatCurrency(lineB.material),
     },
     {
-      label: 'Energia',
+      label: t('compare.rows.energy'),
       a: formatCurrency(lineA.energy),
       b: formatCurrency(lineB.energy),
     },
     {
-      label: 'Usura',
+      label: t('compare.rows.wear'),
       a: formatCurrency(lineA.depreciation + lineA.maintenance),
       b: formatCurrency(lineB.depreciation + lineB.maintenance),
     },
     {
-      label: 'Tempo effettivo',
+      label: t('compare.rows.effectiveTime'),
       a: formatDuration(lineA.effectiveSeconds),
       b: formatDuration(lineB.effectiveSeconds),
     },
     {
-      label: 'Consumo',
+      label: t('compare.rows.consumption'),
       a: `${lineA.energyWh} Wh · ${lineA.avgWatts} W`,
       b: `${lineB.energyWh} Wh · ${lineB.avgWatts} W`,
     },
@@ -420,16 +431,18 @@ function MobileColumn({
   name,
   isCheaper,
   rows,
+  t,
 }: {
   name: string
   isCheaper: boolean
   rows: { label: string; value: string; strong?: boolean }[]
+  t: Translate
 }) {
   return (
-    <section aria-label={`Risultato per ${name}`}>
+    <section aria-label={t('compare.resultFor', { printer: name })}>
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-base font-semibold text-ink">{name}</h2>
-        {isCheaper ? <Badge tone="success">Meno cara</Badge> : null}
+        {isCheaper ? <Badge tone="success">{t('compare.cheaper')}</Badge> : null}
       </div>
       <dl className="mt-2 border-t border-line text-sm">
         {rows.map((row) => (

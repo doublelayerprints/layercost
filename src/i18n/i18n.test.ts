@@ -1,11 +1,43 @@
 import { describe, expect, it } from 'vitest'
 import { en } from './en'
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isLocale, plural, translate } from './index'
-import { it as itDictionary } from './it'
+import { calculatorIt } from './it/calculator'
+import { catalogsIt } from './it/catalogs'
+import { miscIt } from './it/misc'
+import { quotesIt } from './it/quotes'
+import { settingsIt } from './it/settings'
+import { baseIt, it as itDictionary } from './it'
 
 describe('dizionari i18n', () => {
   it('italiano e inglese hanno le stesse chiavi', () => {
     expect(Object.keys(en).sort()).toEqual(Object.keys(itDictionary).sort())
+  })
+
+  it('le aree non duplicano chiavi', () => {
+    const parts = [baseIt, calculatorIt, quotesIt, catalogsIt, settingsIt, miscIt]
+    const keys = parts.flatMap((part) => Object.keys(part))
+    expect(new Set(keys).size).toBe(keys.length)
+    expect(Object.keys(itDictionary).length).toBe(keys.length)
+  })
+
+  it('le chiavi plurali hanno sempre la forma opposta', () => {
+    const keys = Object.keys(itDictionary)
+    for (const key of keys) {
+      if (key.endsWith('.one')) {
+        expect(keys, key).toContain(key.replace(/\.one$/, '.other'))
+      }
+      if (key.endsWith('.other')) {
+        expect(keys, key).toContain(key.replace(/\.other$/, '.one'))
+      }
+    }
+  })
+
+  it('i segnaposto coincidono tra italiano e inglese', () => {
+    const placeholders = (value: string) =>
+      [...value.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
+    for (const key of Object.keys(itDictionary) as Array<keyof typeof itDictionary>) {
+      expect(placeholders(en[key]), key).toEqual(placeholders(itDictionary[key]))
+    }
   })
 
   it('nessuna traduzione è vuota', () => {

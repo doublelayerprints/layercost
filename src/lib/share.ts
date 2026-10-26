@@ -7,6 +7,18 @@ interface SharedPayload {
   quote: Quote
 }
 
+export type ShareErrorCode = 'empty' | 'invalidData' | 'noQuote' | 'invalidQuote'
+
+export class ShareError extends Error {
+  readonly code: ShareErrorCode
+
+  constructor(code: ShareErrorCode, message: string) {
+    super(message)
+    this.name = 'ShareError'
+    this.code = code
+  }
+}
+
 export function encodeSharedQuote(quote: Quote): string {
   const payload: SharedPayload = {
     app: 'LayerCost',
@@ -18,23 +30,23 @@ export function encodeSharedQuote(quote: Quote): string {
 export function decodeSharedQuote(encoded: string): Quote {
   const decompressed = LZString.decompressFromEncodedURIComponent(encoded)
   if (!decompressed) {
-    throw new Error('Il link condiviso è vuoto o danneggiato.')
+    throw new ShareError('empty', 'Il link condiviso è vuoto o danneggiato.')
   }
 
   let parsed: unknown
   try {
     parsed = JSON.parse(decompressed) as unknown
   } catch {
-    throw new Error('Il link condiviso non contiene dati validi.')
+    throw new ShareError('invalidData', 'Il link condiviso non contiene dati validi.')
   }
 
   if (typeof parsed !== 'object' || parsed === null || !('quote' in parsed)) {
-    throw new Error('Il link condiviso non contiene un preventivo.')
+    throw new ShareError('noQuote', 'Il link condiviso non contiene un preventivo.')
   }
 
   const result = quoteSchema.safeParse((parsed as { quote: unknown }).quote)
   if (!result.success) {
-    throw new Error('Il preventivo condiviso non è valido o è incompleto.')
+    throw new ShareError('invalidQuote', 'Il preventivo condiviso non è valido o è incompleto.')
   }
   return result.data as unknown as Quote
 }

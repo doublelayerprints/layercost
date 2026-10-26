@@ -1,5 +1,6 @@
+import { useI18n } from '@/app/i18n-context'
 import { allocateLargestRemainder } from '@/domain/money'
-import { displayCostBands, type CostBand } from '@/lib/cost-bands'
+import { costBandLabel, displayCostBands, type CostBand } from '@/lib/cost-bands'
 import { cn } from '@/lib/cn'
 import { formatCents } from '@/lib/format'
 
@@ -15,7 +16,11 @@ const TONE_CLASSES: Record<StackTone, string> = {
 const FALLBACK_TONES: StackTone[] = ['ink', 'muted', 'control']
 
 export function CostStack({ bands, className }: { bands: CostBand[]; className?: string }) {
-  const groups = displayCostBands(bands)
+  const { t } = useI18n()
+  const groups = displayCostBands(bands).map((band) => ({
+    ...band,
+    label: costBandLabel(band.key, t),
+  }))
   const total = groups.reduce((sum, band) => sum + band.value, 0)
   if (total <= 0) return null
 
@@ -54,7 +59,7 @@ export function CostStack({ bands, className }: { bands: CostBand[]; className?:
       <div
         className="flex h-3 w-full gap-[2px] overflow-hidden bg-surface"
         role="img"
-        aria-label={`Composizione del costo: ${label}`}
+        aria-label={t('costBands.aria', { label })}
       >
         {groups.map((band, index) => {
           const tone = tones.get(band.key) ?? 'control'
@@ -76,7 +81,10 @@ export function CostStack({ bands, className }: { bands: CostBand[]; className?:
               <dt className="flex min-w-0 items-center gap-2 text-muted">
                 <span
                   data-stack-tone={tone}
-                  className={cn('h-2 w-2 shrink-0 rounded-[1px] print:border print:border-ink', TONE_CLASSES[tone])}
+                  className={cn(
+                    'h-2 w-2 shrink-0 rounded-[1px] print:border print:border-ink',
+                    TONE_CLASSES[tone],
+                  )}
                   aria-hidden="true"
                 />
                 <span className="truncate">{band.label}</span>

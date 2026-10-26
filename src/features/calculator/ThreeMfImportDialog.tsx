@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { Alert, Badge, Button, Field, Modal, Select } from '@/components/ui'
 import type { CostConfig, PrintLine } from '@/domain/types'
 import type {
@@ -17,13 +18,13 @@ import {
 import { cn } from '@/lib/cn'
 import { formatDuration, formatGrams } from '@/lib/format'
 import { newId } from '@/lib/id'
-import { materialFamilyLabels } from '@/lib/labels'
+import { materialFamilyLabel, type Translate } from '@/lib/labels'
+import { threeMfMappingErrorMessage, threeMfWarningMessage } from './three-mf-messages'
 
-const SLICER_LABELS: Record<ThreeMfSlicer, string> = {
+const SLICER_LABELS: Record<Exclude<ThreeMfSlicer, 'unknown'>, string> = {
   anycubic: 'Anycubic Slicer Next',
   bambu: 'Bambu Studio',
   orca: 'OrcaSlicer',
-  unknown: 'Slicer sconosciuto',
 }
 
 interface ThreeMfImportDialogProps {
@@ -49,11 +50,14 @@ export function ThreeMfImportDialog({
   onAppend,
   onReplace,
 }: ThreeMfImportDialogProps) {
+  const { t } = useI18n()
   const printerFieldId = useId()
   const proposal = useMemo(() => proposeThreeMfMapping(summary, config), [summary, config])
   const activePrinters = config.printers.filter((printer) => !printer.archived)
   const activeMaterials = config.materials.filter((material) => !material.archived)
   const usablePlates = summary.plates.filter(isPlateUsable)
+  const slicerLabel =
+    summary.slicer === 'unknown' ? t('import.slicerUnknown') : SLICER_LABELS[summary.slicer]
 
   const [printerId, setPrinterId] = useState(proposal.printer.printerId ?? '')
   const [selectedPlates, setSelectedPlates] = useState<Set<number>>(
@@ -125,11 +129,7 @@ export function ThreeMfImportDialog({
       }
       onRequestImport(mapThreeMfToLines(summary, mapping, config, newId))
     } catch (caught) {
-      setMappingError(
-        caught instanceof Error
-          ? caught.message
-          : 'Impossibile importare i piatti selezionati. Controlla la mappatura.',
-      )
+      setMappingError(threeMfMappingErrorMessage(caught, t))
     }
   }
 
@@ -138,35 +138,34 @@ export function ThreeMfImportDialog({
       <Modal
         open
         onClose={onClose}
-        title="Aggiungere o sostituire?"
+        title={t('import.confirmTitle')}
         size="md"
         footer={
           <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
             <Button variant="secondary" onClick={onBack}>
-              Indietro
+              {t('import.back')}
             </Button>
             <Button id="three-mf-append" onClick={onAppend}>
-              Aggiungi alla bozza
+              {t('import.append')}
             </Button>
             <Button variant="danger" onClick={onReplace}>
-              Sostituisci le righe
+              {t('import.replace')}
             </Button>
           </div>
         }
       >
         <div className="space-y-3 text-sm text-muted">
-          <p>La bozza corrente non è ancora nello storico.</p>
+          <p>{t('import.draftNotSaved')}</p>
           <p>
-            Stai importando{' '}
+            {t('import.importingPrefix')}{' '}
             <strong className="font-medium text-ink">
-              {pendingCount} {pendingCount === 1 ? 'riga' : 'righe'}
+              {pendingCount}{' '}
+              {t(pendingCount === 1 ? 'calculator.lineCount.one' : 'calculator.lineCount.other')}
             </strong>{' '}
-            da <strong className="font-medium text-ink">{summary.fileName}</strong>.
+            {t('import.importingFrom')}{' '}
+            <strong className="font-medium text-ink">{summary.fileName}</strong>.
           </p>
-          <p>
-            “Aggiungi alla bozza” mantiene le righe esistenti. “Sostituisci le righe” le scarta, ma
-            conserva nome, cliente, costi di lavoro e prezzo.
-          </p>
+          <p>{t('import.appendHint')}</p>
         </div>
       </Modal>
     )
@@ -174,32 +173,39 @@ export function ThreeMfImportDialog({
 
   const footerHint =
     activePrinters.length === 0
-      ? 'Aggiungi una stampante attiva per importare.'
+      ? t('import.addPrinterHint')
       : activeMaterials.length === 0
-        ? 'Aggiungi un materiale attivo per importare.'
+        ? t('import.addMaterialHint')
         : !printerId
-          ? 'Scegli la stampante.'
+          ? t('import.choosePrinterHint')
           : selectedPlateList.length === 0
-            ? 'Seleziona almeno un piatto.'
+            ? t('import.selectAtLeastOne')
             : missingChoices.length > 0
-              ? 'Completa la mappatura dei materiali.'
-              : `${selectedPlateList.length} ${selectedPlateList.length === 1 ? 'riga pronta' : 'righe pronte'} da importare.`
+              ? t('import.completeMapping')
+              : t(selectedPlateList.length === 1 ? 'import.ready.one' : 'import.ready.other', {
+                  count: selectedPlateList.length,
+                })
 
   return (
     <Modal
       open
       onClose={onClose}
-      title="Importa .3mf"
+      title={t('import.title')}
       size="xl"
       footer={
         <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted sm:max-w-sm">{footerHint}</p>
           <div className="flex flex-wrap justify-end gap-2">
             <Button variant="secondary" onClick={onClose}>
-              Annulla
+              {t('common.cancel')}
             </Button>
             <Button id="three-mf-import-primary" onClick={handleImport} disabled={!canImport}>
-              Importa {selectedPlateList.length} {selectedPlateList.length === 1 ? 'riga' : 'righe'}
+              {t(
+                selectedPlateList.length === 1
+                  ? 'import.importRows.one'
+                  : 'import.importRows.other',
+                { count: selectedPlateList.length },
+              )}
             </Button>
           </div>
         </div>
@@ -210,24 +216,26 @@ export function ThreeMfImportDialog({
           <div className="min-w-0">
             <p className="break-all text-sm font-medium text-ink">{summary.fileName}</p>
             <p className="mt-0.5 text-xs text-muted">
-              {SLICER_LABELS[summary.slicer]}
+              {slicerLabel}
               {summary.slicerVersion ? ` · ${summary.slicerVersion}` : ''}
               {summary.printerModel ? ` · ${summary.printerModel}` : ''}
             </p>
           </div>
           <Badge tone="info">
-            {summary.plates.length} {summary.plates.length === 1 ? 'piatto' : 'piatti'}
+            {t(summary.plates.length === 1 ? 'import.plateCount.one' : 'import.plateCount.other', {
+              count: summary.plates.length,
+            })}
           </Badge>
         </div>
 
         <Field
-          label="Stampante"
+          label={t('import.printer')}
           htmlFor={printerFieldId}
           hint={
             proposal.printer.reason === 'ambiguous'
-              ? 'Più stampanti configurate corrispondono al file: scegli quella giusta.'
+              ? t('import.printerAmbiguous')
               : proposal.printer.reason === 'missing'
-                ? 'La stampante non è dichiarata nel file: scegline una.'
+                ? t('import.printerMissing')
                 : undefined
           }
         >
@@ -237,7 +245,7 @@ export function ThreeMfImportDialog({
             onChange={(event) => setPrinterId(event.target.value)}
             disabled={activePrinters.length === 0}
           >
-            <option value="">Scegli una stampante</option>
+            <option value="">{t('import.choosePrinter')}</option>
             {activePrinters.map((printer) => (
               <option key={printer.id} value={printer.id}>
                 {printer.name} — {printer.model}
@@ -247,34 +255,34 @@ export function ThreeMfImportDialog({
         </Field>
 
         {activePrinters.length === 0 ? (
-          <Alert tone="danger" title="Nessuna stampante attiva">
-            <p>Aggiungi o riattiva una stampante prima di importare un file.</p>
+          <Alert tone="danger" title={t('import.noPrintersTitle')}>
+            <p>{t('import.noPrintersBody')}</p>
             <Link
               to="/printers"
               className="mt-1 inline-block text-sm font-medium text-data underline-offset-2 hover:underline"
             >
-              Apri Stampanti
+              {t('import.openPrinters')}
             </Link>
           </Alert>
         ) : null}
 
         {activeMaterials.length === 0 ? (
-          <Alert tone="danger" title="Nessun materiale attivo">
-            <p>Aggiungi o riattiva un materiale prima di importare un file.</p>
+          <Alert tone="danger" title={t('import.noMaterialsTitle')}>
+            <p>{t('import.noMaterialsBody')}</p>
             <Link
               to="/materials"
               className="mt-1 inline-block text-sm font-medium text-data underline-offset-2 hover:underline"
             >
-              Apri Materiali
+              {t('import.openMaterials')}
             </Link>
           </Alert>
         ) : null}
 
         {globalWarnings.length > 0 ? (
-          <Alert tone="warning" title="Avvisi sul file">
+          <Alert tone="warning" title={t('import.warnings')}>
             <ul className="list-disc space-y-1 pl-4">
               {globalWarnings.map((warning, index) => (
-                <li key={`${warning.code}-${index}`}>{warning.message}</li>
+                <li key={`${warning.code}-${index}`}>{threeMfWarningMessage(warning, t)}</li>
               ))}
             </ul>
           </Alert>
@@ -283,13 +291,16 @@ export function ThreeMfImportDialog({
         <div>
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h3 className="text-sm font-semibold text-ink">Piatti</h3>
+              <h3 className="text-sm font-semibold text-ink">{t('import.plates')}</h3>
               <p className="mt-0.5 max-w-2xl text-sm leading-snug text-muted">
-                Seleziona i piatti da importare. Ogni piatto diventa una riga con quantità 1.
+                {t('import.selectPlates')}
               </p>
             </div>
             <p className="text-xs text-muted">
-              {selectedPlateList.length} di {usablePlates.length} selezionati
+              {t('import.selectedCount', {
+                selected: selectedPlateList.length,
+                total: usablePlates.length,
+              })}
             </p>
           </div>
 
@@ -313,7 +324,7 @@ export function ThreeMfImportDialog({
         </div>
 
         {mappingError ? (
-          <Alert tone="danger" title="Mappatura incompleta">
+          <Alert tone="danger" title={t('import.mappingIncomplete')}>
             {mappingError}
           </Alert>
         ) : null}
@@ -341,7 +352,8 @@ function PlateCard({
   onToggle: () => void
   onMaterialChange: (filamentId: number, materialId: string) => void
 }) {
-  const name = plate.name?.trim() || `Piatto ${plate.index}`
+  const { t } = useI18n()
+  const name = plate.name?.trim() || t('import.plate', { index: plate.index })
   const grams =
     plate.weightCentigrams ??
     plate.filaments.reduce((sum, filament) => sum + filament.usedCentigrams, 0)
@@ -355,20 +367,25 @@ function PlateCard({
           checked={selected}
           disabled={!usable}
           onChange={onToggle}
-          aria-label={`Importa ${name}`}
+          aria-label={t('import.selectPlateAria', { name })}
           className="mt-1 h-4 w-4 shrink-0 rounded border-control accent-data"
         />
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-ink">{name}</span>
-            {!usable ? <Badge tone="warning">Da completare</Badge> : null}
+            {!usable ? <Badge tone="warning">{t('import.toComplete')}</Badge> : null}
           </span>
           <span className="mt-0.5 block text-sm text-muted">
             {plate.predictionSeconds !== null
               ? formatDuration(plate.predictionSeconds)
-              : 'Tempo mancante'}{' '}
-            · {formatGrams(grams)} · {usedFilaments.length}{' '}
-            {usedFilaments.length === 1 ? 'materiale' : 'materiali'}
+              : t('import.timeMissing')}{' '}
+            · {formatGrams(grams)} ·{' '}
+            {t(
+              usedFilaments.length === 1
+                ? 'import.materialCount.one'
+                : 'import.materialCount.other',
+              { count: usedFilaments.length },
+            )}
           </span>
         </span>
       </label>
@@ -376,7 +393,7 @@ function PlateCard({
       {warnings.length > 0 ? (
         <ul className="mt-2 space-y-1 pl-7 text-xs text-warning">
           {warnings.map((warning, index) => (
-            <li key={`${warning.code}-${index}`}>{warning.message}</li>
+            <li key={`${warning.code}-${index}`}>{threeMfWarningMessage(warning, t)}</li>
           ))}
         </ul>
       ) : null}
@@ -394,13 +411,11 @@ function PlateCard({
             />
           ))}
           {plate.filaments.some((filament) => filament.usedCentigrams <= 0) ? (
-            <p className="text-xs text-muted">I filamenti a 0 g non vengono importati.</p>
+            <p className="text-xs text-muted">{t('import.zeroGrams')}</p>
           ) : null}
         </div>
       ) : (
-        <p className="mt-2 pl-7 text-xs text-muted">
-          Completa tempo e grammi nello slicer per importare questo piatto.
-        </p>
+        <p className="mt-2 pl-7 text-xs text-muted">{t('import.completePlate')}</p>
       )}
     </li>
   )
@@ -419,8 +434,11 @@ function FilamentRow({
   materials: CostConfig['materials']
   onChange: (materialId: string) => void
 }) {
+  const { t } = useI18n()
   const color = filament.color?.trim()
   const hasSwatch = Boolean(color && /^#[0-9a-f]{6}$/i.test(color))
+  const filamentType = filament.type || t('import.unknownType')
+  const filamentName = filament.type || t('import.filamentFallback')
 
   return (
     <div className="grid items-center gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
@@ -433,19 +451,23 @@ function FilamentRow({
           />
         ) : null}
         <span className="truncate">
-          {filament.type || 'Tipo sconosciuto'} · {formatGrams(filament.usedCentigrams)}
+          {filamentType} · {formatGrams(filament.usedCentigrams)}
         </span>
       </div>
       <Select
         value={materialId}
         onChange={(event) => onChange(event.target.value)}
-        aria-label={`Materiale per ${filament.type || 'filamento'} ${filament.id} del piatto ${plateIndex}`}
+        aria-label={t('import.filamentAria', {
+          type: filamentName,
+          id: filament.id,
+          plate: plateIndex,
+        })}
         aria-invalid={!materialId || undefined}
       >
-        <option value="">Scegli materiale</option>
+        <option value="">{t('import.chooseMaterial')}</option>
         {materials.map((material) => (
           <option key={material.id} value={material.id}>
-            {materialLabel(material)}
+            {materialLabel(material, t)}
           </option>
         ))}
       </Select>
@@ -453,8 +475,8 @@ function FilamentRow({
   )
 }
 
-function materialLabel(material: CostConfig['materials'][number]): string {
-  const family = materialFamilyLabels[material.family]
+function materialLabel(material: CostConfig['materials'][number], t: Translate): string {
+  const family = materialFamilyLabel(material.family, t)
   return material.name.trim().toLowerCase() === family.toLowerCase()
     ? material.name
     : `${material.name} · ${family}`

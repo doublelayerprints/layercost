@@ -6,11 +6,13 @@ import {
   type DragEvent,
   type RefObject,
 } from 'react'
+import { useI18n } from '@/app/i18n-context'
 import { parseThreeMfInWorker } from '@/data/three-mf/worker-client'
 import type { ThreeMfSummary } from '@/domain/three-mf'
 import type { PrintLine } from '@/domain/types'
 import { draftHasContent } from '@/lib/draft'
 import { useAppStore } from '@/state/app-store'
+import { threeMfErrorMessage } from './three-mf-messages'
 
 export type ThreeMfImportStage = 'preview' | 'confirm'
 
@@ -48,6 +50,7 @@ function isFileDrag(event: DragEvent<HTMLElement>): boolean {
 }
 
 export function useThreeMfImport(onImported: (lineId: string) => void): ThreeMfImportController {
+  const { t } = useI18n()
   const draft = useAppStore((state) => state.draft)
   const importLines = useAppStore((state) => state.importLines)
 
@@ -81,11 +84,7 @@ export function useThreeMfImport(onImported: (lineId: string) => void): ThreeMfI
       setStage('preview')
       setPendingLines(undefined)
     } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : 'Importazione non riuscita. Scegli un file esportato dallo slicer e riprova.',
-      )
+      setError(threeMfErrorMessage(caught, t))
     } finally {
       loadingRef.current = false
       setIsLoading(false)
@@ -143,10 +142,13 @@ export function useThreeMfImport(onImported: (lineId: string) => void): ThreeMfI
 
   const applyImport = (mode: 'append' | 'replace', lines = pendingLines) => {
     if (!lines || lines.length === 0) return
-    const fileName = summary?.fileName ?? 'file .3mf'
+    const fileName = summary?.fileName ?? t('import.defaultFile')
     importLines(lines, mode)
     setSuccess(
-      `${lines.length} ${lines.length === 1 ? 'riga importata' : 'righe importate'} da ${fileName}`,
+      t(lines.length === 1 ? 'import.success.one' : 'import.success.other', {
+        count: lines.length,
+        file: fileName,
+      }),
     )
     const firstId = lines[0]?.id
     setSummary(undefined)

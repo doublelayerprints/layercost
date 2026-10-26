@@ -1,4 +1,5 @@
 import type { CostConfig, LineResult, PrintLine } from '@/domain/types'
+import { useI18n } from '@/app/i18n-context'
 import { asBasisPoints, asCentigrams, asWatts, asWh } from '@/domain/units'
 import { Badge, Button, InfoDot, Select } from '@/components/ui'
 import {
@@ -39,11 +40,12 @@ export function LineEditor({
   onRemoveMaterial,
   onToggleExtra,
 }: LineEditorProps) {
+  const { t } = useI18n()
   const printerOptions = config.printers
     .filter((printer) => !printer.archived || printer.id === line.printerId)
     .map((printer) => ({
       value: printer.id,
-      label: `${printer.name}${printer.archived ? ' (archiviata)' : ''}`,
+      label: `${printer.name}${printer.archived ? ` (${t('line.archived')})` : ''}`,
     }))
 
   const materialOptions = config.materials
@@ -68,7 +70,10 @@ export function LineEditor({
       className="mt-5 border-t border-line pt-5 first:mt-1 first:border-t-0 first:pt-0"
     >
       <legend className="sr-only">
-        Riga {index + 1}: {line.name.trim() || 'stampa senza nome'}
+        {t('line.legend', {
+          index: index + 1,
+          name: line.name.trim() || t('line.unnamed'),
+        })}
       </legend>
 
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
@@ -76,19 +81,26 @@ export function LineEditor({
           <input
             value={line.name}
             onChange={(event) => onUpdate({ name: event.target.value })}
-            aria-label="Nome della stampa"
+            aria-label={t('line.nameLabel')}
             className="w-full min-w-0 border-b border-line bg-transparent py-0.5 text-base font-semibold text-ink transition-feedback hover:border-control focus:border-control focus:bg-surface"
           />
           <p className="mt-0.5 text-sm text-muted">
             {formatGrams(totalGrams)}
             {line.quantity > 1
-              ? ` per pezzo · ${formatGrams(totalGrams * line.quantity)} totali`
+              ? ` ${t('line.perUnitTotal', {
+                  total: formatGrams(totalGrams * line.quantity),
+                })}`
               : ''}
-            {result ? ` · ${formatDuration(result.effectiveSeconds)} effettivi` : ''}
-            {line.quantity > 1 ? ` · ${line.quantity} pezzi` : ''}
+            {result
+              ? ` · ${t('line.effectiveDuration', {
+                  duration: formatDuration(result.effectiveSeconds),
+                })}`
+              : ''}
+            {line.quantity > 1 ? ` · ${t('line.pieces', { count: line.quantity })}` : ''}
             {result ? (
               <>
-                {' · costo diretto '}
+                {' · '}
+                {t('line.directCost')}{' '}
                 <span className="font-medium tabular-nums text-ink">
                   {formatCurrency(result.directLineCost)}
                 </span>
@@ -99,43 +111,43 @@ export function LineEditor({
 
         <div className="flex shrink-0 items-center gap-1">
           <Button variant="ghost" size="sm" onClick={onDuplicate}>
-            Duplica
+            {t('line.duplicate')}
           </Button>
           <Button variant="ghost" size="sm" onClick={onRemove} disabled={!canRemove}>
-            Rimuovi
+            {t('line.remove')}
           </Button>
         </div>
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <SelectField
-          label="Stampante"
+          label={t('line.printer')}
           value={line.printerId}
           onChange={(value) => onUpdate({ printerId: value })}
           options={printerOptions}
-          placeholder="Scegli una stampante"
+          placeholder={t('line.choosePrinter')}
         />
         <NumberField
-          label="Quantità"
+          label={t('line.quantity')}
           value={line.quantity}
           onChange={(value) => onUpdate({ quantity: Math.max(1, Math.round(value)) })}
           min={1}
           max={10000}
           decimals={0}
-          suffix="pz"
+          suffix={t('line.unitPieces')}
         />
         <DurationField
           label={
             <span className="inline-flex items-center gap-1">
-              Tempo slicer
-              <InfoDot label="Inserisci il tempo stimato dallo slicer. LayerCost aggiunge i minuti di avvio della stampante." />
+              {t('line.slicerTime')}
+              <InfoDot label={t('line.slicerTimeHint')} />
             </span>
           }
           valueSeconds={line.timeSeconds}
           onChangeSeconds={(value) => onUpdate({ timeSeconds: value as PrintLine['timeSeconds'] })}
         />
         <DurationField
-          label="Finitura per pezzo"
+          label={t('line.finishing')}
           valueSeconds={line.finishingSecondsPerUnit}
           onChangeSeconds={(value) =>
             onUpdate({ finishingSecondsPerUnit: value as PrintLine['finishingSecondsPerUnit'] })
@@ -146,20 +158,20 @@ export function LineEditor({
       <div className="mt-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold text-ink">Materiali</h3>
+            <h3 className="text-sm font-semibold text-ink">{t('line.materials')}</h3>
             <p className="mt-0.5 max-w-lg text-sm leading-snug text-muted">
-              Usa il totale riportato dallo slicer: comprende supporti, brim, purge e prime tower.
+              {t('line.materialsHint')}
             </p>
           </div>
           <Button variant="secondary" size="sm" onClick={onAddMaterial}>
-            Aggiungi materiale
+            {t('line.addMaterial')}
           </Button>
         </div>
 
         <div className="mt-3 space-y-2">
           {line.materials.length === 0 ? (
             <p className="rounded-control border border-dashed border-control px-3 py-4 text-center text-sm text-muted">
-              Nessun materiale. Aggiungine almeno uno.
+              {t('line.noMaterials')}
             </p>
           ) : null}
           {line.materials.map((usage, materialIndex) => (
@@ -172,9 +184,9 @@ export function LineEditor({
                 onChange={(event) =>
                   onUpdateMaterial(materialIndex, { materialId: event.target.value })
                 }
-                aria-label={`Materiale ${materialIndex + 1}`}
+                aria-label={t('line.materialAria', { index: materialIndex + 1 })}
               >
-                <option value="">Scegli un materiale</option>
+                <option value="">{t('line.chooseMaterial')}</option>
                 {materialOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -187,15 +199,15 @@ export function LineEditor({
                 onChangeCg={(value) =>
                   onUpdateMaterial(materialIndex, { grams: asCentigrams(Math.round(value)) })
                 }
-                ariaLabel={`Grammi materiale ${materialIndex + 1}`}
+                ariaLabel={t('line.gramsAria', { index: materialIndex + 1 })}
               />
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onRemoveMaterial(materialIndex)}
                 disabled={line.materials.length <= 1}
-                aria-label={`Rimuovi materiale ${materialIndex + 1}`}
-                title="Rimuovi materiale"
+                aria-label={t('line.removeMaterialAria', { index: materialIndex + 1 })}
+                title={t('line.removeMaterial')}
               >
                 ×
               </Button>
@@ -206,7 +218,7 @@ export function LineEditor({
 
       {perUnitExtras.length > 0 ? (
         <div className="mt-5">
-          <h3 className="text-sm font-semibold text-ink">Extra per pezzo</h3>
+          <h3 className="text-sm font-semibold text-ink">{t('line.perUnitExtras')}</h3>
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2.5">
             {perUnitExtras.map((extra) => (
               <label key={extra.id} className="flex min-h-6 items-center gap-2 text-sm text-ink">
@@ -234,14 +246,12 @@ export function LineEditor({
           >
             ▸
           </span>
-          Override avanzati
-          <span className="text-xs font-normal text-muted">
-            potenza media, energia misurata, tasso guasti
-          </span>
+          {t('line.advancedOverrides')}
+          <span className="text-xs font-normal text-muted">{t('line.advancedOverridesHint')}</span>
         </summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <OverrideNumber
-            label="Potenza media"
+            label={t('line.avgPower')}
             value={line.overrides.powerOverrideW}
             defaultValue={
               result?.avgWatts ??
@@ -261,7 +271,7 @@ export function LineEditor({
             min={1}
           />
           <OverrideNumber
-            label="Energia misurata"
+            label={t('line.measuredEnergy')}
             value={line.overrides.energyOverrideWh}
             defaultValue={result?.energyWh ?? 0}
             onChange={(value) =>
@@ -288,10 +298,7 @@ export function LineEditor({
             }
           />
         </div>
-        <p className="mt-2 text-xs text-muted">
-          Lascia disattivato per usare i valori di stampante, materiale e impostazioni. L’energia
-          misurata bypassa il modello di potenza.
-        </p>
+        <p className="mt-2 text-xs text-muted">{t('line.overridesHint')}</p>
       </details>
     </fieldset>
   )
@@ -314,6 +321,7 @@ function OverrideNumber({
   decimals: number
   min?: number
 }) {
+  const { t } = useI18n()
   const enabled = value !== undefined
   return (
     <div className="rounded-control border border-line p-3">
@@ -325,7 +333,9 @@ function OverrideNumber({
           className="h-4 w-4 rounded border-control accent-data"
         />
         {label}
-        <Badge tone={enabled ? 'info' : 'neutral'}>{enabled ? 'Override' : 'Auto'}</Badge>
+        <Badge tone={enabled ? 'info' : 'neutral'}>
+          {enabled ? t('line.override') : t('line.auto')}
+        </Badge>
       </label>
       {enabled ? (
         <div className="mt-2">
@@ -353,6 +363,7 @@ function OverrideFailure({
   defaultValue: number
   onChange: (value: number | undefined) => void
 }) {
+  const { t } = useI18n()
   const defaultValueBp = Math.round(defaultValue * 100)
   const enabled = value !== undefined
   return (
@@ -364,8 +375,10 @@ function OverrideFailure({
           onChange={(event) => onChange(event.target.checked ? defaultValueBp : undefined)}
           className="h-4 w-4 rounded border-control accent-data"
         />
-        Tasso guasti
-        <Badge tone={enabled ? 'info' : 'neutral'}>{enabled ? 'Override' : 'Auto'}</Badge>
+        {t('line.failureRate')}
+        <Badge tone={enabled ? 'info' : 'neutral'}>
+          {enabled ? t('line.override') : t('line.auto')}
+        </Badge>
       </label>
       {enabled ? (
         <div className="mt-2">

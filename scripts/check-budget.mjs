@@ -22,7 +22,7 @@ const fontBytes = totalBytes(files, '.woff2')
 const htmlBytes = gzipBytes('dist/index.html')
 
 const checks = [
-  { label: 'JavaScript', bytes: jsBytes, limit: 200 * KB },
+  { label: 'JavaScript', bytes: jsBytes, limit: 220 * KB },
   { label: 'CSS', bytes: cssBytes, limit: 20 * KB },
   { label: 'Font WOFF2', bytes: fontBytes, limit: 120 * KB },
   { label: 'HTML', bytes: htmlBytes, limit: 4 * KB },

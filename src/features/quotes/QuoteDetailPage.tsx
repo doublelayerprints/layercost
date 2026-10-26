@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useI18n } from '@/app/i18n-context'
 import { useAppStore } from '@/state/app-store'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
 import { ENGINE_VERSION } from '@/domain/version'
@@ -8,8 +9,10 @@ import { QuoteOverview } from './QuoteOverview'
 import { QuotePrint } from './QuotePrint'
 import { ShareQuoteButton } from './ShareQuoteButton'
 import { formatDateOnly } from '@/lib/format'
+import { plural } from '@/i18n'
 
 export function QuoteDetailPage() {
+  const { t, locale } = useI18n()
   const { id } = useParams<{ id: string }>()
   const quotes = useAppStore((state) => state.quotes)
   const draft = useAppStore((state) => state.draft)
@@ -34,12 +37,12 @@ export function QuoteDetailPage() {
   if (!quote) {
     return (
       <div>
-        <PageHeader title="Preventivo non trovato" />
+        <PageHeader title={t('quote.notFound.title')} />
         <div className="mt-6">
           <EmptyState
-            title="Questo preventivo non esiste più"
-            description="Potrebbe essere stato eliminato o il link non è corretto."
-            action={<Button onClick={() => navigate('/quotes')}>Torna all’archivio</Button>}
+            title={t('quote.notFound.heading')}
+            description={t('quote.notFound.description')}
+            action={<Button onClick={() => navigate('/quotes')}>{t('quote.backToArchive')}</Button>}
           />
         </div>
       </div>
@@ -77,7 +80,7 @@ export function QuoteDetailPage() {
           to="/quotes"
           className="inline-flex min-h-8 items-center gap-1 text-sm font-medium text-muted transition-feedback hover:text-ink"
         >
-          <span aria-hidden="true">‹</span> Preventivi
+          <span aria-hidden="true">‹</span> {t('quotes.title')}
         </Link>
 
         <div className="mt-2">
@@ -85,16 +88,21 @@ export function QuoteDetailPage() {
             title={quote.name}
             description={`${formatDateOnly(quote.quoteDate)}${
               quote.customer ? ` · ${quote.customer}` : ''
-            } · ${quote.lines.length} ${quote.lines.length === 1 ? 'riga' : 'righe'}`}
+            } · ${plural(locale, quote.lines.length, {
+              one: 'quote.lineCount.one',
+              other: 'quote.lineCount.other',
+            })}`}
             meta={
               <>
                 {quote.archived ? (
-                  <Badge tone="warning">Archiviato</Badge>
+                  <Badge tone="warning">{t('quote.status.archived')}</Badge>
                 ) : (
-                  <Badge tone="success">Salvato</Badge>
+                  <Badge tone="success">{t('quote.status.saved')}</Badge>
                 )}
                 {quote.engineVersion ? (
-                  <span className="text-xs text-muted">Motore v{quote.engineVersion}</span>
+                  <span className="text-xs text-muted">
+                    {t('app.engineVersion', { version: quote.engineVersion })}
+                  </span>
                 ) : null}
               </>
             }
@@ -104,7 +112,7 @@ export function QuoteDetailPage() {
                   <ShareQuoteButton quote={quote} result={quote.result} variant="secondary" />
                 ) : null}
                 <Button onClick={() => window.print()} disabled={!quote.result}>
-                  Stampa / PDF
+                  {t('print.action')}
                 </Button>
               </>
             }
@@ -113,18 +121,23 @@ export function QuoteDetailPage() {
 
         {savedFor === quote.id ? (
           <div className="mt-5">
-            <Alert tone="success" title="Preventivo salvato" onClose={() => setSavedFor(undefined)}>
-              È nello storico e conserva i prezzi usati adesso.
+            <Alert
+              tone="success"
+              title={t('quote.saved.title')}
+              onClose={() => setSavedFor(undefined)}
+            >
+              {t('quote.saved.body')}
             </Alert>
           </div>
         ) : null}
 
         {quote.engineVersion && quote.engineVersion !== ENGINE_VERSION ? (
           <div className="mt-5">
-            <Alert tone="info" title="Versione del motore diversa">
-              Questo preventivo è stato calcolato con il motore v{quote.engineVersion}; quello
-              attuale è v{ENGINE_VERSION}. I numeri salvati restano validi come storico. Usa
-              “Aggiorna ai prezzi correnti” per creare una copia ricalcolata.
+            <Alert tone="info" title={t('quote.engineMismatch.title')}>
+              {t('quote.engineMismatch.body', {
+                savedVersion: quote.engineVersion,
+                currentVersion: ENGINE_VERSION,
+              })}
             </Alert>
           </div>
         ) : null}
@@ -136,7 +149,7 @@ export function QuoteDetailPage() {
             snapshotAction={
               quote.snapshot ? (
                 <Button variant="ghost" size="sm" onClick={() => requestDraftAction('refresh')}>
-                  Aggiorna ai prezzi correnti
+                  {t('quote.refresh')}
                 </Button>
               ) : undefined
             }
@@ -144,23 +157,21 @@ export function QuoteDetailPage() {
         </div>
 
         <Card className="mt-6 p-5 sm:p-6">
-          <h2 className="text-base font-semibold text-ink">Gestione del preventivo</h2>
-          <p className="mt-0.5 text-sm text-muted">
-            Archiviare non cancella nulla: il preventivo resta consultabile con “Mostra archiviati”.
-          </p>
+          <h2 className="text-base font-semibold text-ink">{t('quote.manage.title')}</h2>
+          <p className="mt-0.5 text-sm text-muted">{t('quote.manage.description')}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => requestDraftAction('duplicate')}>
-              Duplica nel calcolatore
+              {t('quote.duplicate')}
             </Button>
             <Button variant="secondary" onClick={() => archiveQuote(quote.id)}>
-              {quote.archived ? 'Ripristina' : 'Archivia'}
+              {quote.archived ? t('quote.restore') : t('quote.archive')}
             </Button>
             <Button
               variant="ghost"
               onClick={() => setDeleteOpen(true)}
               className="text-negative hover:bg-raised"
             >
-              Elimina definitivamente
+              {t('quote.delete')}
             </Button>
           </div>
         </Card>
@@ -168,11 +179,11 @@ export function QuoteDetailPage() {
         <Modal
           open={pendingDraftAction !== undefined}
           onClose={() => setPendingDraftAction(undefined)}
-          title="Sostituire la bozza corrente?"
+          title={t('quote.replaceDraft.title')}
           footer={
             <>
               <Button variant="secondary" onClick={() => setPendingDraftAction(undefined)}>
-                Annulla
+                {t('common.cancel')}
               </Button>
               <Button
                 variant="danger"
@@ -180,38 +191,35 @@ export function QuoteDetailPage() {
                   if (pendingDraftAction) runDraftAction(pendingDraftAction)
                 }}
               >
-                Sostituisci la bozza
+                {t('quote.replaceDraft.confirm')}
               </Button>
             </>
           }
         >
           <div className="space-y-3 text-sm text-muted">
-            <p>“{quote.name}” verrà aperto nel calcolatore come nuova bozza.</p>
-            <p>
-              La bozza corrente non è ancora nello storico e verrà sostituita. Se vuoi conservarla,
-              annulla e salvala prima di continuare.
-            </p>
+            <p>{t('quote.replaceDraft.body', { name: quote.name })}</p>
+            <p>{t('quote.replaceDraft.hint')}</p>
           </div>
         </Modal>
 
         <Modal
           open={deleteOpen}
           onClose={() => setDeleteOpen(false)}
-          title="Eliminare il preventivo?"
+          title={t('quote.deleteConfirm.title')}
           footer={
             <>
               <Button variant="secondary" onClick={() => setDeleteOpen(false)}>
-                Annulla
+                {t('common.cancel')}
               </Button>
               <Button variant="danger" onClick={confirmDelete}>
-                Elimina definitivamente
+                {t('quote.delete')}
               </Button>
             </>
           }
         >
           <div className="space-y-3 text-sm text-muted">
-            <p>“{quote.name}” verrà rimosso dallo storico. L’operazione non è reversibile.</p>
-            <p>Se vuoi solo toglierlo dalla lista, usa “Archivia”: resta consultabile.</p>
+            <p>{t('quote.deleteConfirm.body', { name: quote.name })}</p>
+            <p>{t('quote.deleteConfirm.hint')}</p>
           </div>
         </Modal>
       </div>

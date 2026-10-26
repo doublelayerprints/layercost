@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useI18n } from '@/app/i18n-context'
 import type { AppData } from '@/data/storage'
 import { SCHEMA_VERSION } from '@/data/storage'
 import { localRepository } from '@/data/repository'
@@ -12,25 +13,9 @@ import { Alert, Button, Card, Modal, PageHeader } from '@/components/ui'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 import { useThemeStore } from '@/state/theme-store'
 import type { ThemePreference } from '@/lib/theme'
-import {
-  allocationModeLabels,
-  pricingModeLabels,
-  roundingModeLabels,
-  vatModeLabels,
-} from '@/lib/labels'
 import { formatCents, formatCurrency, formatPercent } from '@/lib/format'
 
 const SAMPLE_COST = asMicroEur(5_000_000)
-
-const themeOptions: Array<{ value: ThemePreference; label: string; description: string }> = [
-  {
-    value: 'system',
-    label: 'Sistema',
-    description: 'Segue l’impostazione di macOS, Windows o del telefono.',
-  },
-  { value: 'light', label: 'Chiaro', description: 'Fondo chiaro, sempre.' },
-  { value: 'dark', label: 'Scuro', description: 'Fondo scuro con testo chiaro.' },
-]
 
 function samplePrice(settings: Settings) {
   const pricing = pricingFromSettings(settings)
@@ -47,6 +32,7 @@ function samplePrice(settings: Settings) {
 }
 
 export function SettingsPage() {
+  const { t } = useI18n()
   const config = useAppStore((state) => state.config)
   const quoteCount = useAppStore((state) => state.quotes.length)
   const updateSettings = useAppStore((state) => state.updateSettings)
@@ -64,6 +50,24 @@ export function SettingsPage() {
   const [resetOpen, setResetOpen] = useState(false)
   const [message, setMessage] = useState<string>()
 
+  const themeOptions: Array<{ value: ThemePreference; label: string; description: string }> = [
+    {
+      value: 'system',
+      label: t('settings.themeSystem'),
+      description: t('settings.themeSystemDescription'),
+    },
+    {
+      value: 'light',
+      label: t('settings.themeLight'),
+      description: t('settings.themeLightDescription'),
+    },
+    {
+      value: 'dark',
+      label: t('settings.themeDark'),
+      description: t('settings.themeDarkDescription'),
+    },
+  ]
+
   const handleFile = async (file: File | undefined) => {
     if (!file) return
     setImportError(undefined)
@@ -73,7 +77,7 @@ export function SettingsPage() {
       setPendingImport(data)
       setImportOpen(true)
     } catch (error) {
-      setImportError(error instanceof Error ? error.message : 'Importazione non riuscita.')
+      setImportError(error instanceof Error ? error.message : t('settings.importFailed'))
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
@@ -85,13 +89,13 @@ export function SettingsPage() {
     importData(pendingImport)
     setPendingImport(undefined)
     setImportOpen(false)
-    setMessage('Backup importato. È stata scaricata anche una copia dei dati precedenti.')
+    setMessage(t('settings.importSuccess'))
   }
 
   const confirmReset = () => {
     reset()
     setResetOpen(false)
-    setMessage('Dati ripristinati alla configurazione iniziale.')
+    setMessage(t('settings.resetSuccess'))
   }
 
   const isMarkup = settings.pricingMode === 'markup'
@@ -99,10 +103,7 @@ export function SettingsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Impostazioni"
-        description="Valori predefiniti per i nuovi preventivi e preferenze di questo browser. Ogni preventivo può poi sovrascrivere il prezzo."
-      />
+      <PageHeader title={t('nav.settings')} description={t('settings.pageDescription')} />
 
       <input
         ref={fileInputRef}
@@ -114,7 +115,11 @@ export function SettingsPage() {
 
       {message ? (
         <div className="mt-6">
-          <Alert tone="success" title="Fatto" onClose={() => setMessage(undefined)}>
+          <Alert
+            tone="success"
+            title={t('settings.doneTitle')}
+            onClose={() => setMessage(undefined)}
+          >
             {message}
           </Alert>
         </div>
@@ -123,7 +128,7 @@ export function SettingsPage() {
         <div className="mt-6">
           <Alert
             tone="danger"
-            title="Importazione non riuscita"
+            title={t('settings.importFailedTitle')}
             onClose={() => setImportError(undefined)}
           >
             {importError}
@@ -131,10 +136,7 @@ export function SettingsPage() {
         </div>
       ) : null}
 
-      <p className="mt-4 text-sm text-muted">
-        Le modifiche si salvano subito in questo browser. Esporta un backup prima di cambiare
-        dispositivo o svuotare i dati.
-      </p>
+      <p className="mt-4 text-sm text-muted">{t('settings.autosaveHint')}</p>
 
       <Card className="mt-6 divide-y divide-line">
         <section
@@ -143,54 +145,56 @@ export function SettingsPage() {
         >
           <div>
             <h2 id="settings-lavoro" className="text-base font-semibold text-ink">
-              Manodopera e rischio
+              {t('settings.laborTitle')}
             </h2>
-            <p className="mt-1 text-sm leading-snug text-muted">
-              La manodopera è 0 per impostazione predefinita: attivala se vuoi conteggiare il tuo
-              tempo. Il tasso guasti è una riserva, non un costo certo.
-            </p>
+            <p className="mt-1 text-sm leading-snug text-muted">{t('settings.laborDescription')}</p>
             <p className="mt-3 text-xs leading-relaxed text-muted">
-              Oggi: manodopera {formatCurrency(settings.laborRatePerHour)}/h · guasti{' '}
-              {formatPercent(settings.failureRateBp)} · maggiorazione tempo{' '}
-              {formatPercent(settings.timeOverheadBp)} ·{' '}
-              {settings.allocationMode === 'proportional' ? 'proporzionale' : 'uguale per pezzo'}.
+              {t('settings.currentSummary', {
+                labor: formatCurrency(settings.laborRatePerHour),
+                failure: formatPercent(settings.failureRateBp),
+                overhead: formatPercent(settings.timeOverheadBp),
+                allocation:
+                  settings.allocationMode === 'proportional'
+                    ? t('settings.allocationProportionalShort')
+                    : t('settings.allocationEqualPerUnitShort'),
+              })}
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <MoneyField
-              label="Manodopera"
+              label={t('settings.laborRate')}
               valueMicro={settings.laborRatePerHour}
               onChangeMicro={(value) => updateSettings({ laborRatePerHour: value })}
               decimals={2}
               hint="€/h"
             />
             <PercentField
-              label="Tasso guasti"
+              label={t('settings.failureRate')}
               valueBp={settings.failureRateBp}
               onChangeBp={(value) => updateSettings({ failureRateBp: value })}
               decimals={1}
               max={50}
-              hint="I materiali possono sovrascriverlo."
+              hint={t('settings.failureRateHint')}
             />
             <PercentField
-              label="Maggiorazione tempo"
+              label={t('settings.timeOverhead')}
               valueBp={settings.timeOverheadBp}
               onChangeBp={(value) => updateSettings({ timeOverheadBp: value })}
               decimals={1}
               max={100}
-              hint="Aggiunta al tempo dello slicer, prima dell’avvio."
+              hint={t('settings.timeOverheadHint')}
             />
             <SelectField
-              label="Ripartizione costi fissi"
+              label={t('settings.allocationLabel')}
               value={settings.allocationMode}
               onChange={(value) =>
                 updateSettings({ allocationMode: value as typeof settings.allocationMode })
               }
               options={[
-                { value: 'proportional', label: allocationModeLabels.proportional },
-                { value: 'equalPerUnit', label: allocationModeLabels.equalPerUnit },
+                { value: 'proportional', label: t('settings.allocationProportional') },
+                { value: 'equalPerUnit', label: t('settings.allocationEqualPerUnit') },
               ]}
-              hint="Come distribuire setup, design e spedizione sulle righe."
+              hint={t('settings.allocationHint')}
             />
           </div>
         </section>
@@ -201,41 +205,46 @@ export function SettingsPage() {
         >
           <div>
             <h2 id="settings-prezzo" className="text-base font-semibold text-ink">
-              Prezzo predefinito
+              {t('settings.pricingTitle')}
             </h2>
             <p className="mt-1 text-sm leading-snug text-muted">
-              Questi valori vengono copiati nel nuovo preventivo; puoi modificarli caso per caso.
+              {t('settings.pricingDescription')}
             </p>
             {preview ? (
               <div className="mt-4 border-l-2 border-data pl-3">
-                <p className="text-xs font-medium text-muted">Esempio con le regole attuali</p>
+                <p className="text-xs font-medium text-muted">
+                  {t('settings.pricingExampleTitle')}
+                </p>
                 <p className="mt-1 text-sm leading-snug text-ink">
-                  Un lavoro da {formatCurrency(SAMPLE_COST)} di costo diventa{' '}
+                  {t('settings.pricingExamplePrefix', { cost: formatCurrency(SAMPLE_COST) })}{' '}
                   <span className="font-medium tabular-nums">
                     {formatCents(preview.netPriceCents)}
                   </span>{' '}
-                  netti
+                  {t('settings.pricingExampleNet')}
                   {preview.vatCents > 0
-                    ? ` e ${formatCents(preview.grossPriceCents)} con IVA ${formatPercent(settings.vatRateBp)}.`
-                    : ', senza IVA.'}
+                    ? ` ${t('settings.pricingExampleWithVat', {
+                        gross: formatCents(preview.grossPriceCents),
+                        vat: formatPercent(settings.vatRateBp),
+                      })}`
+                    : t('settings.pricingExampleWithoutVat')}
                 </p>
               </div>
             ) : null}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <SelectField
-              label="Modalità"
+              label={t('settings.pricingModeLabel')}
               value={settings.pricingMode}
               onChange={(value) =>
                 updateSettings({ pricingMode: value as typeof settings.pricingMode })
               }
               options={[
-                { value: 'markup', label: pricingModeLabels.markup },
-                { value: 'margin', label: pricingModeLabels.margin },
+                { value: 'markup', label: t('settings.pricingModeMarkup') },
+                { value: 'margin', label: t('settings.pricingModeMargin') },
               ]}
             />
             <PercentField
-              label={isMarkup ? 'Ricarico' : 'Margine'}
+              label={isMarkup ? t('settings.markup') : t('settings.margin')}
               valueBp={isMarkup ? settings.markupBp : settings.marginBp}
               onChangeBp={(value) =>
                 updateSettings(isMarkup ? { markupBp: value } : { marginBp: value })
@@ -244,36 +253,36 @@ export function SettingsPage() {
               max={isMarkup ? 1000 : 99}
             />
             <SelectField
-              label="Arrotondamento"
+              label={t('settings.roundingMode')}
               value={settings.roundingMode}
               onChange={(value) =>
                 updateSettings({ roundingMode: value as typeof settings.roundingMode })
               }
               options={[
-                { value: 'up', label: roundingModeLabels.up },
-                { value: 'nearest', label: roundingModeLabels.nearest },
-                { value: 'down', label: roundingModeLabels.down },
+                { value: 'up', label: t('settings.roundingUp') },
+                { value: 'nearest', label: t('settings.roundingNearest') },
+                { value: 'down', label: t('settings.roundingDown') },
               ]}
             />
             <MoneyField
-              label="Passo"
+              label={t('settings.roundingStep')}
               valueMicro={settings.roundingStep}
               onChangeMicro={(value) => updateSettings({ roundingStep: value })}
               decimals={2}
             />
             <SelectField
-              label="IVA"
+              label={t('settings.vatMode')}
               value={settings.vatMode}
               onChange={(value) => updateSettings({ vatMode: value as typeof settings.vatMode })}
               options={[
-                { value: 'none', label: vatModeLabels.none },
-                { value: 'excluded', label: vatModeLabels.excluded },
-                { value: 'included', label: vatModeLabels.included },
+                { value: 'none', label: t('settings.vatNone') },
+                { value: 'excluded', label: t('settings.vatExcluded') },
+                { value: 'included', label: t('settings.vatIncluded') },
               ]}
             />
             {settings.vatMode !== 'none' ? (
               <PercentField
-                label="Aliquota IVA"
+                label={t('settings.vatRate')}
                 valueBp={settings.vatRateBp}
                 onChangeBp={(value) => updateSettings({ vatRateBp: value })}
                 decimals={0}
@@ -289,15 +298,14 @@ export function SettingsPage() {
         >
           <div>
             <h2 id="settings-aspetto" className="text-base font-semibold text-ink">
-              Aspetto
+              {t('settings.appearanceTitle')}
             </h2>
             <p className="mt-1 text-sm leading-snug text-muted">
-              Il tema si applica subito e resta su questo browser. La stampa usa sempre fondo bianco
-              e testo nero.
+              {t('settings.appearanceDescription')}
             </p>
           </div>
           <fieldset>
-            <legend className="sr-only">Tema dell’interfaccia</legend>
+            <legend className="sr-only">{t('settings.themeLegend')}</legend>
             <div className="grid gap-2 sm:grid-cols-3">
               {themeOptions.map((option) => (
                 <label
@@ -321,9 +329,7 @@ export function SettingsPage() {
                 </label>
               ))}
             </div>
-            <p className="mt-2 text-xs text-muted">
-              “Sistema” segue l’impostazione del dispositivo e si aggiorna quando cambia.
-            </p>
+            <p className="mt-2 text-xs text-muted">{t('settings.themeSystemHint')}</p>
           </fieldset>
         </section>
 
@@ -333,60 +339,59 @@ export function SettingsPage() {
         >
           <div>
             <h2 id="settings-dati" className="text-base font-semibold text-ink">
-              Dati e backup
+              {t('settings.dataTitle')}
             </h2>
-            <p className="mt-1 text-sm leading-snug text-muted">
-              I dati vivono solo in questo browser. Un backup JSON è l’unica copia esterna:
-              importarlo sostituisce configurazione, preventivi e bozza.
-            </p>
+            <p className="mt-1 text-sm leading-snug text-muted">{t('settings.dataDescription')}</p>
             <p className="mt-2 text-xs text-muted">
-              Schema v{SCHEMA_VERSION} · Motore v{ENGINE_VERSION}
+              {t('settings.schemaEngineVersion', {
+                schema: SCHEMA_VERSION,
+                engine: ENGINE_VERSION,
+              })}
             </p>
           </div>
           <div>
             <dl className="grid grid-cols-3 gap-4 border-b border-line pb-4">
               <div>
-                <dt className="text-xs font-medium text-muted">Stampanti</dt>
+                <dt className="text-xs font-medium text-muted">{t('nav.printers')}</dt>
                 <dd className="mt-0.5 text-xl font-medium tabular-nums text-ink">
                   {config.printers.length}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-muted">Materiali</dt>
+                <dt className="text-xs font-medium text-muted">{t('nav.materials')}</dt>
                 <dd className="mt-0.5 text-xl font-medium tabular-nums text-ink">
                   {config.materials.length}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-muted">Preventivi</dt>
+                <dt className="text-xs font-medium text-muted">{t('nav.quotes')}</dt>
                 <dd className="mt-0.5 text-xl font-medium tabular-nums text-ink">{quoteCount}</dd>
               </div>
             </dl>
 
             <div className="mt-4 flex flex-wrap gap-2">
               <Button variant="secondary" onClick={exportData}>
-                Esporta JSON
+                {t('settings.exportJson')}
               </Button>
               <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-                Importa JSON
+                {t('settings.importJson')}
               </Button>
               <Button variant="ghost" onClick={() => updateSettings({ onboardingComplete: false })}>
-                Rivedi la guida iniziale
+                {t('settings.reviewOnboarding')}
               </Button>
             </div>
 
             <div className="mt-6 border-t border-line pt-4">
-              <h3 className="text-sm font-semibold text-ink">Ripristina i dati iniziali</h3>
+              <h3 className="text-sm font-semibold text-ink">{t('settings.resetHeading')}</h3>
               <p className="mt-0.5 max-w-xl text-sm leading-snug text-muted">
-                Elimina tutti i preventivi e le personalizzazioni e ricarica il seed. L’operazione
-                chiede conferma e non è reversibile.
+                {t('settings.resetDescription')}
               </p>
               <Button
                 variant="ghost"
                 className="mt-2 text-negative hover:bg-raised"
                 onClick={() => setResetOpen(true)}
               >
-                Ripristina dati iniziali
+                {t('settings.resetAction')}
               </Button>
             </div>
           </div>
@@ -396,37 +401,34 @@ export function SettingsPage() {
       <Modal
         open={importOpen}
         onClose={() => setImportOpen(false)}
-        title="Importare il backup?"
+        title={t('settings.importModalTitle')}
         footer={
           <>
             <Button variant="secondary" onClick={() => setImportOpen(false)}>
-              Annulla
+              {t('common.cancel')}
             </Button>
-            <Button onClick={confirmImport}>Importa e sostituisci</Button>
+            <Button onClick={confirmImport}>{t('settings.importConfirm')}</Button>
           </>
         }
       >
         <div className="space-y-3 text-sm text-muted">
-          <p>
-            L’importazione sostituisce la configurazione, i preventivi e la bozza corrente. Prima di
-            procedere verrà scaricato un backup dei dati attuali.
-          </p>
+          <p>{t('settings.importModalDescription')}</p>
           {pendingImport ? (
             <dl className="grid grid-cols-3 gap-3 border-y border-line py-3">
               <div>
-                <dt className="text-xs font-medium text-muted">Stampanti</dt>
+                <dt className="text-xs font-medium text-muted">{t('nav.printers')}</dt>
                 <dd className="mt-0.5 text-base tabular-nums text-ink">
                   {pendingImport.config.printers.length}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-muted">Materiali</dt>
+                <dt className="text-xs font-medium text-muted">{t('nav.materials')}</dt>
                 <dd className="mt-0.5 text-base tabular-nums text-ink">
                   {pendingImport.config.materials.length}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-muted">Preventivi</dt>
+                <dt className="text-xs font-medium text-muted">{t('nav.quotes')}</dt>
                 <dd className="mt-0.5 text-base tabular-nums text-ink">
                   {pendingImport.quotes.length}
                 </dd>
@@ -439,22 +441,19 @@ export function SettingsPage() {
       <Modal
         open={resetOpen}
         onClose={() => setResetOpen(false)}
-        title="Ripristinare i dati iniziali?"
+        title={t('settings.resetModalTitle')}
         footer={
           <>
             <Button variant="secondary" onClick={() => setResetOpen(false)}>
-              Annulla
+              {t('common.cancel')}
             </Button>
             <Button variant="danger" onClick={confirmReset}>
-              Ripristina
+              {t('settings.resetConfirm')}
             </Button>
           </>
         }
       >
-        <p className="text-sm text-muted">
-          Verranno eliminati tutti i preventivi e le personalizzazioni. Esporta un backup prima di
-          continuare.
-        </p>
+        <p className="text-sm text-muted">{t('settings.resetModalDescription')}</p>
       </Modal>
     </div>
   )

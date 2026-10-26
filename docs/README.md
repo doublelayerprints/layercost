@@ -1,6 +1,6 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 + T5.3/T5.6.1 — fase 5 in corso
+**Stato:** v1.0.0 + T5.3/T5.6.2 — fase 5 in corso
 **Data:** 26 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
@@ -8,10 +8,10 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); infrastruttura inglese pronta (T5.6.1, ADR-0019); sync gratuito rimandato (ADR-0018).
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); infrastruttura ed estrazione inglese (T5.6.1–T5.6.2, ADR-0019); sync gratuito rimandato (ADR-0018).
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 80 unitari + 26 E2E (3 visual su CI, 18 screenshot); axe 0 violazioni su 26 scansioni.
+- Test: 83 unitari + 26 E2E (3 visual su CI, 18 screenshot); axe 0 violazioni su 26 scansioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) verificata; le preview sono protette da SSO.

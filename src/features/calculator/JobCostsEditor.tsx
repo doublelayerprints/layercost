@@ -1,4 +1,5 @@
 import type { CostConfig, JobCosts, QuoteResult } from '@/domain/types'
+import { useI18n } from '@/app/i18n-context'
 import { SectionHeader } from '@/components/ui'
 import { DurationField, TextareaField } from '@/components/number-fields'
 import { formatCurrency } from '@/lib/format'
@@ -16,6 +17,7 @@ export function JobCostsEditor({
   onChange: (patch: Partial<JobCosts>) => void
   onToggleExtra: (extraId: string) => void
 }) {
+  const { t } = useI18n()
   const jobExtras = config.extras.filter(
     (extra) => extra.unit === 'perJob' && (!extra.archived || job.extraIds.includes(extra.id)),
   )
@@ -24,14 +26,16 @@ export function JobCostsEditor({
     <>
       <SectionHeader
         id="section-lavoro"
-        title="Costi di lavoro"
-        description="Setup, progettazione ed extra applicati una volta per preventivo."
+        title={t('job.title')}
+        description={t('job.description')}
         actions={
           result ? (
             <p className="text-sm text-muted">
-              Manodopera <span className="tabular-nums text-ink">{formatCurrency(result.jobLabor)}</span>
+              {t('job.labor')}{' '}
+              <span className="tabular-nums text-ink">{formatCurrency(result.jobLabor)}</span>
               {' · '}
-              Extra <span className="tabular-nums text-ink">{formatCurrency(result.jobExtras)}</span>
+              {t('job.extras')}{' '}
+              <span className="tabular-nums text-ink">{formatCurrency(result.jobExtras)}</span>
             </p>
           ) : null
         }
@@ -39,12 +43,12 @@ export function JobCostsEditor({
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <DurationField
-          label="Setup"
+          label={t('job.setup')}
           valueSeconds={job.setupSeconds}
           onChangeSeconds={(value) => onChange({ setupSeconds: value as JobCosts['setupSeconds'] })}
         />
         <DurationField
-          label="Progettazione"
+          label={t('job.design')}
           valueSeconds={job.designSeconds}
           onChangeSeconds={(value) =>
             onChange({ designSeconds: value as JobCosts['designSeconds'] })
@@ -54,7 +58,7 @@ export function JobCostsEditor({
 
       {jobExtras.length > 0 ? (
         <div className="mt-5">
-          <h3 className="text-sm font-semibold text-ink">Extra per lavoro</h3>
+          <h3 className="text-sm font-semibold text-ink">{t('job.extrasHeading')}</h3>
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2.5">
             {jobExtras.map((extra) => (
               <label key={extra.id} className="flex min-h-6 items-center gap-2 text-sm text-ink">
@@ -76,10 +80,10 @@ export function JobCostsEditor({
 
       <div className="mt-5">
         <TextareaField
-          label="Note del preventivo"
+          label={t('job.notes')}
           value={job.notes ?? ''}
           onChange={(value) => onChange({ notes: value || undefined })}
-          placeholder="Materiale, colore, consegna, condizioni…"
+          placeholder={t('job.notesPlaceholder')}
         />
       </div>
     </>

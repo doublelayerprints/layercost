@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 import type { Quote, QuoteResult } from '@/domain/types'
 import type { CostConfig } from '@/domain/types'
+import { useI18n } from '@/app/i18n-context'
 import { useAppStore } from '@/state/app-store'
 import { Button, Field, Input, Modal, Alert } from '@/components/ui'
 import { buildShareUrl, copyText } from '@/lib/share'
@@ -9,7 +10,7 @@ import { nowIso } from '@/lib/date'
 export function ShareQuoteButton({
   quote,
   result,
-  label = 'Condividi',
+  label,
   size = 'md',
   variant = 'secondary',
 }: {
@@ -19,6 +20,7 @@ export function ShareQuoteButton({
   size?: 'sm' | 'md' | 'lg'
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'subtle'
 }) {
+  const { t } = useI18n()
   const config = useAppStore((state) => state.config)
   const [open, setOpen] = useState(false)
   const [url, setUrl] = useState('')
@@ -28,7 +30,7 @@ export function ShareQuoteButton({
 
   const handleOpen = () => {
     if (!result) {
-      setError('Completa il calcolo prima di condividere il preventivo.')
+      setError(t('share.error.incomplete'))
       setOpen(true)
       return
     }
@@ -50,8 +52,8 @@ export function ShareQuoteButton({
       setError(undefined)
       setCopied(false)
       setOpen(true)
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Impossibile creare il link.')
+    } catch {
+      setError(t('share.error.create'))
       setOpen(true)
     }
   }
@@ -61,43 +63,40 @@ export function ShareQuoteButton({
       await copyText(url)
       setCopied(true)
     } catch {
-      setError('Copia non riuscita. Seleziona il link e copialo manualmente.')
+      setError(t('share.error.copy'))
     }
   }
 
   return (
     <>
       <Button variant={variant} size={size} onClick={handleOpen}>
-        {label}
+        {label ?? t('share.button')}
       </Button>
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title="Condividi preventivo"
+        title={t('share.title')}
         footer={
           <>
             <Button variant="secondary" onClick={() => setOpen(false)}>
-              Chiudi
+              {t('common.close')}
             </Button>
             <Button onClick={handleCopy} disabled={!url}>
-              {copied ? 'Copiato' : 'Copia link'}
+              {copied ? t('share.copied') : t('share.copy')}
             </Button>
           </>
         }
       >
         <div className="space-y-4">
           {error ? (
-            <Alert tone="danger" title="Attenzione">
+            <Alert tone="danger" title={t('common.warning')}>
               {error}
             </Alert>
           ) : null}
           {url ? (
             <>
-              <p className="text-sm text-muted">
-                Il link contiene una copia del preventivo, non i tuoi dati di configurazione. Chi lo
-                riceve può leggerlo e importarlo nel proprio archivio.
-              </p>
-              <Field label="Link" htmlFor={linkId}>
+              <p className="text-sm text-muted">{t('share.link.description')}</p>
+              <Field label={t('share.link.label')} htmlFor={linkId}>
                 <Input
                   id={linkId}
                   readOnly
@@ -105,9 +104,8 @@ export function ShareQuoteButton({
                   onFocus={(event) => event.currentTarget.select()}
                 />
               </Field>
-              <Alert tone="info" title="Privacy">
-                Chiunque abbia il link può leggere i dati del preventivo. Non inserire dati
-                sensibili.
+              <Alert tone="info" title={t('share.privacy.title')}>
+                {t('share.privacy.body')}
               </Alert>
             </>
           ) : null}
