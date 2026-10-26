@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- Import `.3mf` (T5.3.1–T5.3.2): fixture reali verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; parser ZIP/XML locale con limiti di sicurezza, Web Worker, fallback G-code e normalizzazione `ThreeMfSummary`. Mapping, UI e test E2E in T5.3.3–T5.3.5.
+- Test: 60 unitari.
+
 ## [1.0.0] — 2026-10-24
 
 ### Added

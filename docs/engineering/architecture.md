@@ -88,8 +88,8 @@ Il risultato è memorizzato in `Quote.result`. Il ricalcolo usa lo snapshot; “
 src/
   app/            Layout, routing, theme
   components/     ui.tsx, number-fields.tsx
-  data/           repository, storage, schemas, seed, theme
-  domain/         units, money, types, version, cost/
+  data/           repository, storage, schemas, seed, theme, three-mf
+  domain/         units, money, types, version, cost/, three-mf
   features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding
   lib/            format, date, id, share, labels, cn, theme, draft
   state/          app-store, theme-store
@@ -113,3 +113,19 @@ src/
 - Formattazione per la UI.
 - Routing.
 - Toast, modali, stati di caricamento.
+
+---
+
+## 9. Import `.3mf`
+
+Il parser sta in `src/data/three-mf/` e non è ancora collegato alla UI (T5.3.4). Il tipo normalizzato `ThreeMfSummary` vive in `src/domain/three-mf.ts`, così il mapping `ThreeMfSummary → PrintLine[]` di T5.3.3 resta puro.
+
+- `zip.ts` — legge l'indice centrale ZIP; rifiuta cifratura, path traversal, ZIP64, compressioni non supportate, duplicati e superamenti dei limiti; estrae solo i metadati necessari.
+- `xml.ts` — usa `DOMParser` nel browser e rifiuta `<!DOCTYPE`/`<!ENTITY`. Nei test Node `@xmldom/xmldom` è una devDependency; non entra nel bundle.
+- `parse.ts` — normalizza `slice_info.config`, `project_settings.config`, `model_settings.config` e `3D/3dmodel.model`; se manca `slice_info.config` prova il fallback dal G-code.
+- `three-mf.worker.ts` + `worker-client.ts` — parsing fuori dal thread principale; il buffer viene trasferito al worker.
+- **`fflate` 0.8.3** — dipendenza runtime per ZIP/DEFLATE, scelta per peso e API sincrona, senza dipendenze native. Nota tecnica richiesta da ADR-0017.
+
+Limiti predefiniti: 100 MB compressi, 500 MB decompressi totali, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per il fallback G-code. Il file non viene mai caricato e nessun dato esce dal browser.
+
+Il parser non cambia `schemaVersion`, `engineVersion`, snapshot o `AppData`.
