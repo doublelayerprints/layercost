@@ -150,7 +150,7 @@ npx vercel --prod
 - **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. Prossimo lavoro: backlog fase 5.
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/engineering/release.md`, `docs/design/design-system.md` §8.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
-- **Punti aperti:** prova su stampante fisica e screen reader; baseline visuali da rigenerare solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Punti aperti:** prova su stampante fisica e screen reader; checklist in `docs/engineering/manual-checks.md`. Le baseline visuali vanno rigenerate solo per modifiche intenzionali dell'interfaccia. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
 - **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. La preferenza del tema resta fuori da `AppData`.
 

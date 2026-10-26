@@ -253,6 +253,7 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/adr/` — decisioni.
 - `docs/engineering/deployment.md` — Vercel e alternative.
 - `docs/engineering/release.md` — checklist e verifiche della release.
+- `docs/engineering/manual-checks.md` — verifiche manuali Safari e VoiceOver.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

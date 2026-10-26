@@ -67,6 +67,7 @@
 │   │   ├── testing.md
 │   │   ├── deployment.md
 │   │   ├── release.md
+│   │   ├── manual-checks.md
 │   │   └── conventions.md
 │   ├── design/
 │   │   ├── ui-brief.md
@@ -440,7 +441,7 @@ Sezioni:
 
 ---
 
-### 5.16 `docs/design/ui-brief.md`
+### 5.17 `docs/design/ui-brief.md`
 
 **Scopo:** preparare la fase di design senza imporre uno stile.
 
@@ -463,7 +464,7 @@ Le direzioni visive sono in `docs/design/directions.md`: proposte con palette, t
 
 ---
 
-### 5.17 `docs/adr/README.md`
+### 5.18 `docs/adr/README.md`
 
 **Scopo:** indice degli ADR e template.
 
@@ -478,7 +479,7 @@ Contenuto:
 
 ---
 
-### 5.18 `CHANGELOG.md`
+### 5.19 `CHANGELOG.md`
 
 **Scopo:** storia delle release.
 
@@ -487,6 +488,21 @@ Formato: Keep a Changelog + SemVer.
 Sezioni: Added, Changed, Fixed, Removed, Security.
 
 **Aggiornare quando:** si tagga una release.
+
+---
+
+### 5.20 `docs/engineering/manual-checks.md`
+
+**Scopo:** verifiche che richiedono un dispositivo o un lettore di schermo reale.
+
+Sezioni:
+
+- Safari reale: calcolo, salvataggio, tema, stampa/PDF, link condiviso;
+- VoiceOver: titoli, landmark, form, tab order, modali;
+- prova su carta;
+- tabella d'esito e cosa riportare in caso di problema.
+
+**Aggiornare quando:** cambia un flusso critico o la procedura di verifica.
 
 ---
 

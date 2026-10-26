@@ -115,6 +115,8 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - Header di sicurezza e `robots.txt` verificati.
 - Deploy manuale disponibile con `npx vercel login && npx vercel link && npx vercel --prod`.
 
+Le due verifiche che restano manuali — Safari/stampa reale e VoiceOver — hanno una checklist in `manual-checks.md`.
+
 ## 12. Baseline visive
 
 Il workflow `.github/workflows/visual-baselines.yml` genera le baseline su Linux:

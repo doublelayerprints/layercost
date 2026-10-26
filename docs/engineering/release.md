@@ -40,7 +40,7 @@ Non include, per scelta di scope: backend, account, sincronizzazione, analytics,
 - [x] Versione `package.json` portata a 1.0.0.
 - [x] Tag `v1.0.0` creato e pushato.
 - [x] Deploy Vercel di produzione verificato.
-- [ ] Prova manuale su una stampante fisica (consigliata, non bloccante).
+- [ ] Prova manuale su una stampante fisica (consigliata, non bloccante; checklist in `manual-checks.md`).
 
 ---
 
@@ -126,7 +126,7 @@ Nessuna richiesta di rete oltre agli asset statici same-origin: il test `l'app n
 - Nessun magazzino bobine né confronto actual/estimated.
 - Migrazioni schema minime: le versioni future vengono rifiutate.
 - Baseline visuali generate su Linux: i test visuali girano in CI, non su macOS.
-- Prova manuale su stampante fisica e screen reader reale consigliata.
+- Prova manuale su stampante fisica e screen reader reale consigliata. Checklist operativa in `manual-checks.md`.
 
 ---
 
