@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3.1 completato (fixture reali verificate); nessun codice di import
+**Stato:** T5.3.1 e T5.3.2 completati (fixture e parser); nessuna UI di import
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.3.2** (parser ZIP/XML)
+**Prossima sessione:** partire da **T5.3.3** (mapping puro `ThreeMfSummary → PrintLine[]`)
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -36,13 +36,13 @@ Dare all'utente un pulsante **“Importa .3mf”** che, da un file già slicato,
 
 ### 2.2 File supportati
 
-| Slicer / file                                   | Metadati utili                                                                                                                      | Supporto                                                       |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Anycubic Slicer Next (base Orca) — `.gcode.3mf` | `Metadata/slice_info.config`: `prediction` (s), `used_g` per filamento; `project_settings.config`: `printer_model`, `filament_type` | **Primario** — da verificare con un file reale del committente |
-| OrcaSlicer — `.gcode.3mf`                       | Come sopra                                                                                                                          | **Primario**                                                   |
-| Bambu Studio — `.gcode.3mf`                     | Come sopra; header `X-BBL-Client-Version`                                                                                           | **Primario**                                                   |
-| PrusaSlicer — progetto `.3mf`                   | `Metadata/Slic3r_PE.config` (impostazioni), nessun tempo/grammi affidabile                                                          | **Non supportato** nella prima iterazione                      |
-| Qualsiasi `.3mf` non slicato                    | Solo geometria e impostazioni                                                                                                       | **Rifiutato** con messaggio azionabile                         |
+| Slicer / file                                   | Metadati utili                                                                                                                      | Supporto                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Anycubic Slicer Next (base Orca) — `.gcode.3mf` | `Metadata/slice_info.config`: `prediction` (s), `used_g` per filamento; `project_settings.config`: `printer_model`, `filament_type` | **Primario** — verificato in T5.3.1                                      |
+| OrcaSlicer — `.gcode.3mf`                       | Come sopra                                                                                                                          | **Primario** — stessa struttura; test sintetico                          |
+| Bambu Studio — `.gcode.3mf`                     | Come sopra; header `X-BBL-Client-Version`                                                                                           | **Primario** — verificato localmente; fixture committabile da aggiungere |
+| PrusaSlicer — progetto `.3mf`                   | `Metadata/Slic3r_PE.config` (impostazioni), nessun tempo/grammi affidabile                                                          | **Non supportato** nella prima iterazione                                |
+| Qualsiasi `.3mf` non slicato                    | Solo geometria e impostazioni                                                                                                       | **Rifiutato** con messaggio azionabile                                   |
 
 Il `.3mf` è un archivio ZIP/OPC. I file Orca/Bambu/Anycubic già slicati contengono:
 
@@ -82,12 +82,24 @@ Fixture ridotte in `tests/fixtures/3mf/`, con README e valori attesi:
 1. **Selezione file** — input `accept=".3mf,application/zip"` e drag & drop; massimo 100 MB compressi.
 2. **Validazione ZIP** — leggere l'indice senza estrarre tutto; rifiutare archive cifrati, troppi entry (limite 10.000) e dimensioni decompresse eccessive (limite 500 MB).
 3. **Riconoscimento slicer** — cercare `Metadata/slice_info.config`; in alternativa leggere l'header del G-code. Leggere `Application` da `3D/3dmodel.model` per il messaggio di errore.
-4. **Estrazione piatti** — per ogni `<plate>`: `index`, `prediction`, `weight`, `<filament>`. Se manca `slice_info.config`, provare l'header G-code (`; estimated printing time`, `; filament used [g]`).
+4. **Estrazione piatti** — per ogni `<plate>`: `index`, `prediction`, `weight`, `<filament>`. Se manca `slice_info.config`, provare il footer del G-code (`; estimated printing time`, `; filament used [g]`).
 5. **Normalizzazione** — creare un `ThreeMfSummary` puro: nome file, slicer, piatti con secondi, grammi per tipo, stampante dichiarata, avvisi.
 6. **Mappatura** — proporre stampante e materiali configurati; l'utente conferma o corregge in un modale.
 7. **Anteprima** — tabella dei piatti selezionati con tempo, grammi, materiali e stampante; avvisi su campi mancanti o mismatch.
 8. **Import** — creare `PrintLine[]` nel draft; se la bozza ha contenuto, usare la conferma già esistente (`draftHasContent` + `Modal`) per aggiungere o sostituire.
 9. **Salvataggio** — il draft viene persistito come sempre; il preventivo entra nello storico solo con “Salva preventivo”.
+
+### 2.3.1 Esito T5.3.2 (26/10/2026)
+
+Parser implementato in `src/data/three-mf/`; il tipo normalizzato è in `src/domain/three-mf.ts`.
+
+- **ZIP:** `fflate` 0.8.3 (runtime), indice centrale letto prima di estrarre; limiti 100 MB compressi, 500 MB decompressi, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per fallback G-code. Rifiutati cifratura, path traversal, ZIP64, duplicati e compressioni non supportate.
+- **XML:** `DOMParser` nel browser; `<!DOCTYPE`/`<!ENTITY` rifiutati. Nei test Node `@xmldom/xmldom` è una devDependency.
+- **Worker:** `three-mf.worker.ts` + `worker-client.ts`; il buffer viene trasferito, la UI non viene bloccata. Il chunk worker è separato nel build Vite.
+- **Fallback G-code:** se manca `slice_info.config` si leggono tempo e grammi dal footer del G-code, entro 64 MB. I materiali restano sconosciuti e vanno mappati; il fallback non sostituisce `slice_info` come percorso principale.
+- **Bambu:** il percorso è coperto da un test sintetico con header `X-BBL-Client-Version`, `printer_model` e `printer_model_id = C12`. Il fixture reale non è committato per la licenza del modello.
+- **Test:** 18 nuovi test in `src/data/three-mf/parse.test.ts` (60 unitari totali). Nessun cambio a formule, `engineVersion`, schema, snapshot o persistenza.
+- **i18n:** messaggi di errore e avvisi del parser sono ancora in italiano; T5.6 li sposterà nei dizionari.
 
 ### 2.4 Dati e regole di mapping
 
@@ -143,8 +155,10 @@ Fixture ridotte in `tests/fixtures/3mf/`, con README e valori attesi:
 - **Unit** sul parser normalizzato: file Orca, Bambu, Anycubic; multi-piatto; multi-materiale; `slice_info.config` assente; XML malformato; ZIP non valido; pesi incoerenti; file troppo grande.
 - **Property** sul mapping: grammi e secondi non negativi; somma dei materiali = totale; nessun supplemento AMS; ogni piatto produce una riga.
 - **E2E**: upload di un fixture, mapping, import, prezzo, salvataggio, reload; errore per file non slicato; focus e axe sul modale.
-- **Fixture**: file reali ridotti, con permesso d'uso; niente dati personali. Salvarli in `tests/fixtures/3mf/` con README che indica slicer e versione.
+- **Fixture**: file reali ridotti, con permesso d'uso; niente dati personali. Salvarli in `tests/fixtures/3mf/` con README che indica slicer e versione. Il fixture Bambu reale è ancora da autorizzare.
 - **Performance**: un file da 50 MB viene letto senza bloccare la UI; target < 3 s su MacBook recente.
+
+**Stato T5.3.2:** 17 test in `src/data/three-mf/parse.test.ts`. Coperti Anycubic reale, Bambu sintetico, multi-piatto, XML/DOCTYPE, `project_settings`, pesi, materiali, fallback G-code e limiti ZIP. Orca reale, file da 50–100 MB e worker in browser restano da verificare in T5.3.5.
 
 ### 2.9 Criteri di accettazione
 
@@ -160,9 +174,9 @@ Fixture ridotte in `tests/fixtures/3mf/`, con README e valori attesi:
 2. **`prediction` e avvio:** **aperto.** I valori sono in secondi, ma non è verificato se includano il riscaldamento iniziale; serve il confronto con una stampa reale.
 3. **Multi-piatto:** **confermato** dal fixture a 2 piatti: ogni `<plate>` è una riga separata; l'avvio del motore resta per riga.
 4. **Materiali multipli dello stesso tipo:** **aperto.** Proposta invariata: sommare per tipo, mostrare il dettaglio nell'anteprima.
-5. **Dipendenza ZIP:** **aperto.** `fflate` resta il candidato; decisione in T5.3.2 con nota tecnica o ADR.
-6. **XML:** **aperto.** Proposta invariata: normalizzare in `data`, testare il mapping puro.
-7. **Limite dimensione:** **aperto.** I fixture sono piccoli; il limite di 100 MB va misurato con file reali.
+5. **Dipendenza ZIP:** **risolto in T5.3.2:** `fflate` 0.8.3 come dipendenza runtime; nota tecnica in `docs/engineering/architecture.md` §9.
+6. **XML:** **risolto in T5.3.2:** `DOMParser` nel browser, `@xmldom/xmldom` solo nei test Node; DOCTYPE/ENTITY rifiutati.
+7. **Limite dimensione:** **aperto.** Limiti di sicurezza impostati; vanno misurati con file reali da 50–100 MB in T5.3.5.
 8. **Tracciabilità:** **rimandato.** `PrintLine.source` non serve al costo; valutare dopo il prototipo.
 
 ### 2.11 Stima
@@ -355,7 +369,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` e `tests/fixtures/3mf/README.md`. T5.3.1 è chiuso: le fixture reali sono pronte. Parti da T5.3.2: parser ZIP/XML nel layer `data`, normalizzazione a `ThreeMfSummary`, test sul fixture Kobra 3, Kobra X, multi-piatto e progetto non slicato. Non cambiare formule, `engineVersion`, snapshot o schema. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.3.1, `docs/engineering/architecture.md` §9 e `tests/fixtures/3mf/README.md`. T5.3.1 e T5.3.2 sono chiusi. Parti da T5.3.3: mapping puro `ThreeMfSummary → PrintLine[]` nel dominio, con test unitari e property test su piatti, materiali, tempo e grammi. Non cambiare formule, `engineVersion`, snapshot o schema. Un task = un commit; `npm run check` verde.
 
 Prima di implementare la UI di T5.3.4, il committente deve confermare:
 
