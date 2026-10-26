@@ -15,6 +15,7 @@ import { calculateQuote } from '@/domain/cost/quote'
 import { ENGINE_VERSION } from '@/domain/version'
 import { nowIso } from '@/lib/date'
 import { newId } from '@/lib/id'
+import { QUOTE_COPY_SUFFIX, QUOTE_IMPORT_SUFFIX, QUOTE_REFRESH_SUFFIX } from '@/lib/quote-defaults'
 import { createEmptyDraft, createEmptyLine, createSeedConfig } from '@/data/seed'
 import { SCHEMA_VERSION, type AppData } from '@/data/storage'
 import { localRepository } from '@/data/repository'
@@ -386,7 +387,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set((state) => ({
       draft: {
         ...state.draft,
-        lines: [...state.draft.lines, createEmptyLine(state.config)],
+        lines: [...state.draft.lines, createEmptyLine(state.config, state.draft.locale)],
         updatedAt: nowIso(),
       },
     }))
@@ -412,7 +413,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       const line = state.draft.lines[index]
       if (!line) return state
       const copy = cloneLineWithNewIds(line)
-      copy.name = `${line.name} (copia)`
+      copy.name = `${line.name}${QUOTE_COPY_SUFFIX[state.draft.locale]}`
       const lines = [...state.draft.lines]
       lines.splice(index + 1, 0, copy)
       return {
@@ -569,7 +570,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const state = get()
     const quote = state.quotes.find((candidate) => candidate.id === quoteId)
     if (!quote) return
-    set({ draft: cloneQuoteForDraft(quote, ' (copia)') })
+    set({ draft: cloneQuoteForDraft(quote, QUOTE_COPY_SUFFIX[quote.locale]) })
     get().persist()
   },
 
@@ -577,7 +578,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const state = get()
     const quote = state.quotes.find((candidate) => candidate.id === quoteId)
     if (!quote) return
-    set({ draft: cloneQuoteForDraft(quote, ' (prezzi aggiornati)') })
+    set({ draft: cloneQuoteForDraft(quote, QUOTE_REFRESH_SUFFIX[quote.locale]) })
     get().persist()
   },
 
@@ -602,7 +603,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const imported: Quote = {
       ...structuredClone(quote),
       id: newId(),
-      name: `${quote.name} (importato)`,
+      name: `${quote.name}${QUOTE_IMPORT_SUFFIX[quote.locale]}`,
       status: 'saved',
       archived: false,
       createdAt: now,

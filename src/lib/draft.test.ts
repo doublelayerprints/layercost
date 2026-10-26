@@ -14,6 +14,20 @@ describe('contenuto della bozza', () => {
     expect(draftHasContent(emptyDraft())).toBe(false)
   })
 
+  it('riconosce i nomi predefiniti inglesi', () => {
+    const english = createEmptyDraft(config, 'en')
+    expect(english.name).toBe('New quote')
+    expect(english.lines[0]?.name).toBe('Print')
+    expect(draftHasContent(english)).toBe(false)
+    expect(draftHasContent({ ...english, name: 'Pen holder' })).toBe(true)
+    expect(
+      draftHasContent({
+        ...english,
+        lines: [{ ...english.lines[0]!, name: 'Print' }],
+      }),
+    ).toBe(false)
+  })
+
   it('riconosce un preventivo rinominato o con cliente', () => {
     expect(draftHasContent({ ...emptyDraft(), name: 'Portapenne' })).toBe(true)
     expect(draftHasContent({ ...emptyDraft(), customer: 'Anna' })).toBe(true)
