@@ -101,7 +101,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 94 unitari, 27 E2E (Chromium + WebKit), 18 screenshot di regressione, axe 0 violazioni, stampa/PDF e budget.
+- **Verifiche:** 94 unitari, 27 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
 - **Fuori v1:** sync cloud, magazzino bobine, PWA.
 - **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese con formattazione e selettore (T5.6.1–T5.6.4), restano le verifiche in inglese; sync gratuito rimandato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).

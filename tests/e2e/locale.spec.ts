@@ -43,6 +43,12 @@ test('cambia lingua, la persiste e salva preventivi in inglese', async ({ page }
   await page.emulateMedia({ media: 'screen' })
 
   await page.goto('/#/settings')
+  await page.setInputFiles('input[type="file"]', {
+    name: 'bad.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('not json'),
+  })
+  await expect(page.getByText('The file does not contain valid JSON.')).toBeVisible()
   await page.getByRole('radio', { name: /Italiano/ }).check()
   await expect(page.locator('html')).toHaveAttribute('lang', 'it')
   await page.goto(quoteUrl)

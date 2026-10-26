@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; T5.6.1–T5.6.4 completati (i18n, formattazione, `Quote.locale` e selettore); prossimo T5.6.5
+**Stato:** T5.3 completato; T5.6.1–T5.6.4 completati (i18n, formattazione, `Quote.locale` e selettore); T5.6.5 in verifica
 **Data:** 26 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** partire da **T5.6.5** (E2E/axe/visual in inglese, documentazione e deploy)
+**Prossima sessione:** completare **T5.6.5** (baseline visive inglesi, deploy) e aggiornare lo stato a chiuso
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -343,6 +343,14 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - **Test:** 4 nuovi test di persistenza e 94 unitari totali; nuovo E2E su cambio lingua, reload, titolo, salvataggio e stampa inglese con UI italiana. 27 E2E totali.
 - **Prossimo:** T5.6.5 — axe e screenshot in inglese, scansione stringhe residue, documentazione e deploy.
 
+### 3.15 Esito T5.6.5 (26/10/2026, in verifica)
+
+- Axe in inglese su 11 route e 3 modali (bozza, reset, import) con 0 violazioni; **40 scansioni** totali.
+- **36 screenshot** di regressione: 18 italiani e 18 inglesi a 1440/768/390 px, baseline Linux.
+- Errori di dominio mappati per codice in calcolatore e confronto; `StorageError` per backup/schema/salvataggio e warning di storage tradotti nella shell.
+- Scansione statica dei componenti: nessuna stringa italiana hardcoded oltre al nome del prodotto. Restano fallback tecnici interni non mostrati direttamente.
+- **Prossimo:** merge, deploy di produzione e chiusura di T5.6.
+
 ---
 
 ## 4. T5.4 — Sincronizzazione cloud (rimandata)
@@ -443,7 +451,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 è chiuso; T5.6.1–T5.6.4 sono chiusi. Parti da T5.6.5: scansione delle stringhe residue, axe e screenshot in inglese, documentazione e deploy. Formattazione, `Quote.locale` e selettore sono già implementati; non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3, `docs/planning/i18n-inventory.md` e l’ADR-0019. T5.3 è chiuso; T5.6.1–T5.6.4 sono chiusi e T5.6.5 è in verifica. Completa T5.6.5: baseline visive inglesi, deploy di produzione e chiusura. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 
