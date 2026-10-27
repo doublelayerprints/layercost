@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.17 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019 e ADR-0020 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive vanno rigenerate in CI perché sidebar, dettaglio, impostazioni e preventivi cambiano.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.17 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019 e ADR-0020 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive vanno rigenerate in CI perché sidebar, calcolatore, dettaglio, impostazioni e preventivi cambiano.
 
 ---
 
@@ -1020,7 +1020,7 @@ Permettere a un extra (es. spedizione) di essere passato al cliente senza ricari
 - Pulsante “Esporta .xlsx” in **Preventivi** e in **Impostazioni → Dati**. È disabilitato senza preventivi, ha una descrizione accessibile e scarica `layercost-quotes-YYYY-MM-DD.xlsx`.
 - Il file Excel è per analisi e **non sostituisce il backup JSON**, che resta l’unica copia esterna completa.
 
-**Test:** 5 test sul writer (pacchetto OPC, XML, formati, date, nomi dei fogli) e 3 sul mapping (tre fogli, italiano/inglese, preventivo senza risultato); 2 E2E (download reale con preventivo archiviato e contenuto del workbook, pulsante disabilitato senza preventivi). Totale **112 unitari** e **35 E2E** (29 eseguiti + 6 visual) con `npm run check` verde. Workbook verificato anche con `openpyxl` e LibreOffice; budget **220,1 KB JS / 225 KB** e **284,6 KB totali / 350 KB**.
+**Test:** 5 test sul writer (pacchetto OPC, XML, formati, date, nomi dei fogli) e 3 sul mapping (tre fogli, italiano/inglese, preventivo senza risultato); 2 E2E (download reale con preventivo archiviato e contenuto del workbook, pulsante disabilitato senza preventivi). Totale **112 unitari** e **36 E2E** (30 eseguiti + 6 visual) con `npm run check` verde. Workbook verificato anche con `openpyxl` e LibreOffice; budget **220,2 KB JS / 225 KB** e **284,8 KB totali / 350 KB**.
 
 **Accettazione:** righe e preventivi esportabili in `.xlsx` con valori numerici e formati coerenti; archiviati inclusi; italiano e inglese; nessuna richiesta di rete; nessun cambio a formule, `engineVersion`, schema o snapshot. → soddisfatta.
 
@@ -1041,7 +1041,7 @@ Permettere a un extra (es. spedizione) di essere passato al cliente senza ricari
 
 **Stato:** `[x]` — chiuso il 26/10/2026
 
-**Nota:** il calcolatore è diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; i comandi Duplica/Rimuovi sono nell’intestazione del pannello. Il riepilogo resta sticky a destra. Baseline visive italiane e inglesi rigenerate.
+**Nota:** il calcolatore è diviso in card separate per intestazione, stampe, costi di lavoro e prezzo. Ogni stampa è un pannello distinto con etichetta “Stampa N”, bordo e fondo dedicato; i comandi Duplica/Rimuovi sono nell’intestazione del pannello. Il riepilogo resta sticky a destra. L’aggiunta di una riga è una barra trasparente a tutta larghezza sotto l’ultima card, con `+` centrale e stato accent su hover/focus/click; l’azione non è più nella testata della sezione. Baseline visive italiane e inglesi da rigenerare.
 
 ## T5.15 — Preferenze rapide nella sidebar
 

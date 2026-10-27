@@ -317,19 +317,14 @@ export function CalculatorPage() {
                   title={t('calculator.printsSection')}
                   description={t('calculator.printsDescription')}
                   actions={
-                    <>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={openFilePicker}
-                        disabled={isLoading}
-                      >
-                        {isLoading ? t('import.analyzing') : t('import.button')}
-                      </Button>
-                      <Button variant="secondary" size="sm" onClick={addLine}>
-                        {t('line.add')}
-                      </Button>
-                    </>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={openFilePicker}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? t('import.analyzing') : t('import.button')}
+                    </Button>
                   }
                 />
 
@@ -342,27 +337,42 @@ export function CalculatorPage() {
                     />
                   </div>
                 ) : (
-                  <div className="mt-4 space-y-4">
-                    {draft.lines.map((line, index) => (
-                      <LineEditor
-                        key={line.id}
-                        index={index}
-                        line={line}
-                        config={calculationConfig}
-                        result={calculation.result?.lines.find((item) => item.lineId === line.id)}
-                        canRemove={draft.lines.length > 1}
-                        onUpdate={(patch) => updateLine(line.id, patch)}
-                        onDuplicate={() => duplicateLine(line.id)}
-                        onRemove={() => removeLine(line.id)}
-                        onUpdateMaterial={(index, patch) =>
-                          updateLineMaterial(line.id, index, patch)
-                        }
-                        onAddMaterial={() => addLineMaterial(line.id)}
-                        onRemoveMaterial={(index) => removeLineMaterial(line.id, index)}
-                        onToggleExtra={(extraId) => toggleLineExtra(line.id, extraId)}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    <div className="mt-4 space-y-4">
+                      {draft.lines.map((line, index) => (
+                        <LineEditor
+                          key={line.id}
+                          index={index}
+                          line={line}
+                          config={calculationConfig}
+                          result={calculation.result?.lines.find(
+                            (item) => item.lineId === line.id,
+                          )}
+                          canRemove={draft.lines.length > 1}
+                          onUpdate={(patch) => updateLine(line.id, patch)}
+                          onDuplicate={() => duplicateLine(line.id)}
+                          onRemove={() => removeLine(line.id)}
+                          onUpdateMaterial={(index, patch) =>
+                            updateLineMaterial(line.id, index, patch)
+                          }
+                          onAddMaterial={() => addLineMaterial(line.id)}
+                          onRemoveMaterial={(index) => removeLineMaterial(line.id, index)}
+                          onToggleExtra={(extraId) => toggleLineExtra(line.id, extraId)}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addLine}
+                      aria-label={t('line.add')}
+                      title={t('line.add')}
+                      className="mt-4 flex h-12 w-full items-center justify-center rounded-card border border-line bg-raised/40 text-muted transition-feedback hover:border-data hover:bg-data/10 hover:text-data focus-visible:border-data focus-visible:text-data active:border-data active:bg-data/20 active:text-data"
+                    >
+                      <span aria-hidden="true" className="text-2xl leading-none">
+                        +
+                      </span>
+                    </button>
+                  </>
                 )}
               </section>
             </Card>

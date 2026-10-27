@@ -15,8 +15,9 @@
 - Preferenze rapide (T5.15): tema Sistema/Chiaro/Scuro e lingua IT/EN in fondo alla sidebar e nel menu mobile, sincronizzati con Impostazioni.
 - Azioni del preventivo in alto (T5.16): gestione sotto la testata, prima del prezzo e delle righe; “Stampa / PDF” secondaria.
 - Colore filamento per riga (T5.17): colore `#rrggbb` opzionale con picker, swatch in dettaglio/stampa e rimozione; schema v3 invariato.
+- Calcolatore: aggiunta riga tramite una barra trasparente a tutta larghezza sotto l’ultima card, con `+` centrale e stato accent su hover, focus e click; l’azione è stata tolta dalla testata della sezione Stampe.
 - Export `.xlsx` (T5.12): writer locale senza nuove dipendenze, tre fogli (Preventivi, Righe, Materiali), valori numerici con formati Excel, intestazioni in italiano/inglese, archiviati inclusi e pulsanti in Preventivi e Impostazioni → Dati.
-- Test: 112 unitari, 35 E2E, 36 screenshot visuali.
+- Test: 112 unitari, 36 E2E, 36 screenshot visuali.
 
 ## [1.0.0] — 2026-10-24
 

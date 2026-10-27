@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.17 — 112 test unitari + 35 E2E (6 visual su CI, 36 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.17 — 112 test unitari + 36 E2E (6 visual su CI, 36 screenshot)
 
 ---
 
@@ -57,6 +57,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
 - `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza, sostituzione della bozza dal dettaglio.
+- `tests/e2e/add-line.spec.ts` — 1 test: il pulsante largo sotto l’ultima card ha la stessa larghezza, aggiunge una riga e passa al colore accent su hover.
 - `tests/e2e/xlsx.spec.ts` — 2 test: download reale del workbook con preventivo archiviato e verifica di fogli e contenuto; pulsante disabilitato senza preventivi.
 - `tests/e2e/a11y.spec.ts` — 3 test: 40 scansioni axe (26 italiane, 14 inglesi) su tutte le route, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni.
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.

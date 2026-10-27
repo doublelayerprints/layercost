@@ -140,7 +140,7 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 
 ### 2.6 UX
 
-- Pulsante **“Importa .3mf”** accanto a “Aggiungi riga” e nella testata del calcolatore.
+- Pulsante **“Importa .3mf”** nella testata del calcolatore e nella sezione Stampe; l’aggiunta di una riga è una barra `+` a tutta larghezza sotto l’ultima card.
 - Drag & drop sulla card “Stampe”, con stato “Rilascia il file qui”.
 - Modale di anteprima con:
   - nome file e slicer riconosciuto;
@@ -358,7 +358,7 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 - **Ciclo di vita (ADR-0020):** `Quote.status` è `draft | saved | sent | completed`. `saved` è modificabile in place con lo stesso `id`; la modifica usa la configurazione dello snapshot e conserva `capturedAt`, quindi i prezzi restano congelati. `sent` e `completed` sono bloccati e si correggono duplicando. Transizioni solo in avanti; `archived` resta separato.
 - **Schema v3:** la catena v1 → v2 → v3 non cambia i dati esistenti; backup raw prima della migrazione. I link condivisi conservano lo stato, l’import crea una copia `saved`.
 - **UI:** “Modifica preventivo” nel dettaglio, banner e “Annulla modifiche” nel calcolatore, conferme per invio/completamento, badge in lista/dettaglio/stampa.
-- **Calcolatore:** card separate per intestazione, stampe, costi di lavoro e prezzo; ogni stampa è un pannello con etichetta “Stampa N”, bordo e fondo dedicati.
+- **Calcolatore:** card separate per intestazione, stampe, costi di lavoro e prezzo; ogni stampa è un pannello con etichetta “Stampa N”, bordo e fondo dedicati. La nuova riga si aggiunge con una barra trasparente a tutta larghezza sotto l’ultima card, con `+` centrale e stato accent.
 - **Test:** 101 unitari e 32 E2E; build 274,1 KB gzip su 350 KB. Baseline visive italiane e inglesi rigenerate per il nuovo layout.
 
 ---
@@ -482,7 +482,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 - **Contenuto:** fogli **Preventivi**, **Righe**, **Materiali**; archiviati inclusi; colonne economiche vuote per i preventivi non ricalcolabili; intestazioni in italiano e inglese.
 - **Formati:** importi, grammi, ore, percentuali, kWh, watt e date sono celle numeriche con formati Excel; niente stringhe formattate.
 - **Sicurezza:** tutto locale, nessun upload e nessuna richiesta di rete. Il backup JSON resta l’unica copia esterna completa.
-- **Esito:** chiuso il 26/10/2026. 5 test sul writer, 3 sul mapping, 2 E2E; workbook verificato con `openpyxl` e LibreOffice; `npm run check` verde con budget 220,1 KB JS / 225 KB e 284,6 KB totali / 350 KB.
+- **Esito:** chiuso il 26/10/2026. 5 test sul writer, 3 sul mapping, 2 E2E; workbook verificato con `openpyxl` e LibreOffice; `npm run check` verde con budget 220,2 KB JS / 225 KB e 284,8 KB totali / 350 KB (dopo la barra “Aggiungi riga”).
 
 ---
 

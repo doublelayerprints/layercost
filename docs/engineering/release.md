@@ -107,13 +107,13 @@ Budget automatico in `scripts/check-budget.mjs`, eseguito da `npm run check`:
 
 | Voce       | Misura        | Limite |
 | ---------- | ------------- | ------ |
-| JavaScript | 220,1 KB gzip | 225 KB |
-| CSS        | 7,7 KB gzip   | 20 KB  |
+| JavaScript | 220,2 KB gzip | 225 KB |
+| CSS        | 7,8 KB gzip   | 20 KB  |
 | Font WOFF2 | 56,8 KB gzip  | 120 KB |
 | HTML       | 0,5 KB gzip   | 4 KB   |
-| Totale     | 284,6 KB gzip | 350 KB |
+| Totale     | 284,8 KB gzip | 350 KB |
 
-La build Vite riporta ~188 KB gzip per il JS e ~7,9 KB per il CSS: la differenza è dovuta al metodo di compressione dello script di budget. Entrambe le misure restano sotto i limiti.
+La build Vite riporta ~188 KB gzip per il JS e ~8,1 KB per il CSS: la differenza è dovuta al metodo di compressione dello script di budget. Entrambe le misure restano sotto i limiti.
 
 Nessuna richiesta di rete oltre agli asset statici same-origin: il test `l'app non chiama servizi esterni` fallisce se compare un host diverso da `127.0.0.1`.
 
