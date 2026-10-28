@@ -88,7 +88,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - **T5.17:** `PrintLine.color` opzionale (`#rrggbb`) con picker, swatch e rimozione; schema v3 invariato, nessun impatto su formule o `engineVersion`.
 - **T5.18:** utile in euro (`netPrice − totalCost`) in calcolatore e dettaglio, con margine effettivo come nota; `QuoteOverview` e `QuotePrint` separano `audience: 'internal' | 'customer'`. Il link condiviso e la stampa standard mostrano solo prezzi, IVA e note; “Stampa interna” dal dettaglio include i costi ed è marcata “Uso interno”. Valore derivato di UI, nessun cambio a formule, schema, snapshot o `engineVersion`.
 - **T5.19:** `PriceComposition` mostra il prezzo netto diviso in costo pieno e guadagno sopra la composizione del costo, in calcolatore/dettaglio/stampa interna. Nella lista preventivi l'intera riga è cliccabile e si evidenzia all'hover, senza “Apri”; su mobile l'intera card è un link. La stampa applica i token chiari solo a `.quote-print`, così l'interfaccia resta scura durante l'anteprima e il PDF resta bianco.
-- Deploy: build `index-CKBs4VCV.js` verificata in produzione prima di questo batch. Il batch T5.15–T5.19 ha build locale `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; preview Vercel e baseline visive sono da verificare al deploy.
+- Deploy: build `index-CZsBAkWj.js` / `index-TxJUUDVw.css` deployata e verificata in produzione su https://layercost.vercel.app; CI `check` + `e2e` verdi e baseline visive rigenerate su Linux.
 
 ### Accento viola (T4.8, ADR-0021, 28/10/2026)
 
@@ -123,7 +123,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | Budget bundle      | 285,8 KB gzip totali su 350 KB (limite JS 221,2 KB su 225 KB)                                  |
 | CI GitHub `check`  | verde su `main`                                                                                |
 | CI GitHub `e2e`    | verde su `main`                                                                                |
-| Vercel produzione  | deploy 28/10/2026, build `index-C7Ct7znW.js` / `index-DH8EgtHU.css`; accent e barra verificati |
+| Vercel produzione  | deploy 28/10/2026, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde                  |
 
 Comandi:
 
@@ -179,7 +179,7 @@ npx vercel --prod
 - Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link) ma non ancora implementata. Vedi ADR-0018.
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
 - Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020); preferenze rapide, azioni in alto, colore filamento e vista cliente separata (T5.15–T5.19).
-- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.19, T5.12, la barra “Aggiungi riga” e l'accento viola. La preview Vercel del batch è verificata al deploy su `main`.
+- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.19, T5.12, la barra “Aggiungi riga” e l'accento viola. Il batch è deployato su `main`: CI verde e produzione verificata con la build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`.
 - Export `.xlsx` per analisi esterna; il backup JSON resta l’unica copia esterna completa.
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v3; rifiuto versioni future).
@@ -192,7 +192,7 @@ npx vercel --prod
 1. **T5.3 — Import diretto da `.3mf`**: **chiuso** (fixture, parser ZIP/XML con worker, mapping puro, UI, performance e deploy).
 2. **T5.6 — Interfaccia inglese** e **T5.12 — Export `.xlsx`**: chiusi. **T5.13–T5.19**: preventivi modificabili, card del calcolatore, preferenze rapide, azioni in alto, colore filamento, utile in euro e vista cliente separata. Prossimo: **T5.4 sync** (richiesto); il resto del backlog è chiuso/non in scope.
 3. **T5.4 — Sync cloud**: richiesto il 26/10/2026; Supabase Free, workspace condiviso, magic link. Prima serve il refactor async di `DataRepository`/store, poi schema/RLS, conflitti e test.
-4. **Rigenerare le baseline visive** di T5.15–T5.19, T5.12 e della barra “Aggiungi riga” in CI e verificare la preview Vercel.
+4. **Baseline visive** di T5.15–T5.19, T5.12 e della barra “Aggiungi riga” rigenerate in CI; preview e produzione Vercel verificate con la build `index-CZsBAkWj.js`.
 5. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
 6. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
 7. Eventuale magazzino bobine, actual vs estimated, PWA.
@@ -204,7 +204,7 @@ npx vercel --prod
 - **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso**, **T5.6 chiuso** (T5.6.1–T5.6.5), **T5.12 chiuso** (export `.xlsx`) e **T5.13–T5.19 chiusi**: i18n, formattazione locale, schema v3 con `Quote.locale`/`Quote.status`, selettori rapidi di tema e lingua, preventivi modificabili fino all’invio, card del calcolatore, azioni in alto, colore filamento, export Excel e vista cliente separata con utile in euro. Prossimo task: **T5.4** (sync, richiesto); il resto del backlog è chiuso/non in scope.
 - **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.8, §3 e §5, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019/0020/0022.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
-- **Punti aperti:** rigenerare le 36 baseline visive in CI per T5.15–T5.19, T5.12 e la barra “Aggiungi riga” e verificare la preview Vercel; definire schema/RLS e refactor async per il sync Supabase; verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Punti aperti:** definire schema/RLS e refactor async per il sync Supabase; verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
 - **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` richiede la migrazione v2 pianificata in ADR-0019. Il sync Supabase introduce backend/auth: aggiornare ADR-0018 prima del codice.
 
