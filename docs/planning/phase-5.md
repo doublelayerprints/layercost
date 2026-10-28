@@ -492,7 +492,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 - **Motore:** `QuoteResult` espone `lineDiscountTotal`, `quoteDiscount` e `discount` totale; `LineResult.discount` è lo sconto di riga. `engineVersion` passa a **1.0.0**.
 - **Schema:** v4 con migrazione `discountBp` → regola percentuale, backup raw `layercost:backup:schema-3` e compatibilità dei link condivisi pre-v4.
 - **UI:** controllo “Nessuno / Percentuale / Importo fisso” in ogni card stampa e nella card Prezzo; sconti visibili in riepilogo, dettaglio, stampa/PDF, link condiviso ed export `.xlsx`.
-- **Esito:** chiuso il 28/10/2026. 124 test unitari, 38 E2E (2 nuovi sugli sconti), axe 40 scansioni con 0 violazioni; baseline visive da rigenerare in CI per le nuove card.
+- **Esito:** chiuso il 28/10/2026. 124 test unitari, 38 E2E (2 nuovi sugli sconti), axe 40 scansioni con 0 violazioni; baseline visive rigenerate in CI per le nuove card.
 
 ---
 

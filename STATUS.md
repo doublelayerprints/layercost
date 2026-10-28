@@ -119,7 +119,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | Test unitari/dati  | 124 superati                                                                                   |
 | Test E2E           | 38 superati in CI (32 eseguiti + 6 visual; 2 WebKit)                                           |
 | Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                                    |
-| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux; da rigenerare dopo T5.20      |
+| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux rigenerate dopo T5.20              |
 | Build produzione   | verde (~677 KB JS main + ~108 KB worker; ~192 KB gzip JS; ~38 KB CSS; ~57 KB font)             |
 | Budget bundle      | 288,4 KB gzip totali su 350 KB (limite JS 223,7 KB su 225 KB)                                  |
 | CI GitHub `check`  | verde su `main`                                                                                |
@@ -156,7 +156,7 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 - Progetto Vercel collegato alla repo GitHub.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`. Deploy di produzione verificato su https://layercost.vercel.app: build `index-C_5bQZYu.js` / `index-BGmXv2w6.css`, `inspect.mjs --app` a 1440/768/390 con **0 FAIL, 1 WARN** (`ragged-row`, rail sticky), prezzo 3,70 €, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Deploy **28/10/2026** (accento viola, T4.8/ADR-0021): build `index-C7Ct7znW.js` / `index-DH8EgtHU.css`, verificata su https://layercost.vercel.app. `--color-data` vale `#5b21b6` in chiaro e `#9d7bf5` in scuro; la barra “Completa i dati” del riepilogo è viola. Il batch T5.12–T5.17 e la barra “Aggiungi riga” sono inclusi. CI `check` + `e2e` verdi (36 E2E).
-- **T5.20 non è ancora in produzione.** La build locale verificata è `index-DbmNNSiw.js` / `index-DsZxzrV2.css`; prima del deploy vanno rigenerate le baseline visive e verificata la preview Vercel.
+- **T5.20 è in produzione.** La build verificata è `index-DbmNNSiw.js` / `index-DsZxzrV2.css`; le baseline visive sono state rigenerate in CI.
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
@@ -181,7 +181,7 @@ npx vercel --prod
 - Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link) ma non ancora implementata. Vedi ADR-0018.
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
 - Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020); preferenze rapide, azioni in alto, colore filamento e vista cliente separata (T5.15–T5.19).
-- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.19, T5.12, la barra “Aggiungi riga” e l'accento viola. Dopo **T5.20** vanno rigenerate per le card degli sconti; il batch T5.20 non è ancora deployato in produzione.
+- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.20, T5.12, la barra “Aggiungi riga”, l'accento viola e le card degli sconti. Il batch T5.20 è deployato in produzione con la build `index-DbmNNSiw.js` / `index-DsZxzrV2.css`.
 - Export `.xlsx` per analisi esterna; il backup JSON resta l’unica copia esterna completa.
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v4; rifiuto versioni future).
@@ -194,7 +194,7 @@ npx vercel --prod
 1. **T5.3 — Import diretto da `.3mf`**: **chiuso** (fixture, parser ZIP/XML con worker, mapping puro, UI, performance e deploy).
 2. **T5.6 — Interfaccia inglese**, **T5.12 — Export `.xlsx`** e **T5.20 — Sconti**: chiusi. **T5.13–T5.19**: preventivi modificabili, card del calcolatore, preferenze rapide, azioni in alto, colore filamento, utile in euro e vista cliente separata. Prossimo: **T5.4 sync** (richiesto); il resto del backlog è chiuso/non in scope.
 3. **T5.4 — Sync cloud**: richiesto il 26/10/2026; Supabase Free, workspace condiviso, magic link. Prima serve il refactor async di `DataRepository`/store, poi schema/RLS, conflitti e test.
-4. **Baseline visive** di T5.20, T5.15–T5.19, T5.12 e della barra “Aggiungi riga” rigenerate in CI; preview e produzione Vercel da verificare con la build che include T5.20.
+4. **Baseline visive** di T5.20, T5.15–T5.19, T5.12 e della barra “Aggiungi riga” rigenerate in CI; produzione Vercel aggiornata con la build che include T5.20.
 5. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
 6. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
 7. Eventuale magazzino bobine, actual vs estimated, PWA.
