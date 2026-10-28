@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.17 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020 e ADR-0021 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive vanno rigenerate in CI perché sidebar, calcolatore, dettaglio, impostazioni e preventivi cambiano.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.17 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020 e ADR-0021 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni e preventivi.
 
 ---
 
@@ -760,9 +760,9 @@ Un task è chiuso solo se:
 - Token aggiornati in `src/index.css`; favicon in `public/favicon.svg`.
 - Avviso del riepilogo allineato all'accent in `SummaryPanel`.
 - Test E2E dei token e dell'hover della barra “Aggiungi riga” aggiornati.
-- Baseline visive Linux da rigenerare in CI perché l'accent compare in tutte le schermate.
+- Baseline visive Linux rigenerate in CI perché l'accent compare in tutte le schermate.
 
-**Accettazione:** tema chiaro e scuro coerenti, focus e link leggibili, warning semantico invariato, `npm run check` verde, e2e aggiornati. → soddisfatta; baseline visive in rigenerazione.
+**Accettazione:** tema chiaro e scuro coerenti, focus e link leggibili, warning semantico invariato, `npm run check` verde, e2e aggiornati. → soddisfatta; baseline visive rigenerate.
 
 ---
 

@@ -41,6 +41,6 @@ Il focus ring usa l'accent con offset 2 px; il contrasto resta sopra 5:1 su entr
 - `src/index.css` aggiorna i token chiari e scuri; `public/favicon.svg` usa il viola chiaro.
 - `src/features/calculator/SummaryPanel.tsx` usa `tone="info"` per la barra “Completa i dati”; la pillola di stato resta `warning`.
 - I test E2E `design-system.spec.ts` e `add-line.spec.ts` verificano il nuovo accent; `npm run check` resta verde.
-- Le baseline visive Linux vanno rigenerate per tutti gli screenshot, perché l'accent compare in ogni schermata.
+- Le baseline visive Linux sono state rigenerate per tutti gli screenshot, perché l'accent compare in ogni schermata.
 - `docs/design/design-system.md` e `docs/design/directions.md` sono aggiornati; ADR-0015 e ADR-0016 restano validi per il resto e sono superati solo nella parte blu.
 - Nessun impatto su dominio, formule, `engineVersion`, schema, snapshot, export/import o privacy.
