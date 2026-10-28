@@ -156,6 +156,7 @@ export function buildLineResult(
   computation: LineComputation,
   allocatedFixed: MicroEur,
   priceCents: number,
+  discount: MicroEur,
 ): LineResult {
   const fullyLoadedLineCost = asMicroEur(computation.directLineCost + allocatedFixed)
   const fullyLoadedUnitCost = asMicroEur(
@@ -185,6 +186,7 @@ export function buildLineResult(
     allocatedFixed,
     fullyLoadedLineCost,
     fullyLoadedUnitCost,
+    discount,
     priceCents,
     pricePerUnitCents: priceCents / computation.line.quantity,
     materialDetails: computation.materialDetails,

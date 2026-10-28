@@ -28,7 +28,7 @@ describe('dati persistiti', () => {
       console.error(result.error.issues)
     }
     expect(result.success).toBe(true)
-    expect(data.schemaVersion).toBe(3)
+    expect(data.schemaVersion).toBe(4)
     expect(data.draft.locale).toBe('it')
   })
 
@@ -57,19 +57,54 @@ describe('dati persistiti', () => {
       draft: { locale?: string }
       quotes: Array<{ locale?: string }>
     }
-    expect(migrated.schemaVersion).toBe(3)
+    expect(migrated.schemaVersion).toBe(4)
     expect(migrated.draft.locale).toBe('it')
     expect(migrated.quotes[0]?.locale).toBe('it')
     expect(parseAppData(migrated).draft.locale).toBe('it')
   })
 
-  it('migra lo schema v2 portando solo la versione a 3', () => {
+  it('migra lo schema v2 fino alla versione corrente', () => {
     const current = createInitialData()
     const migrated = migrateAppData({ ...current, schemaVersion: 2 }) as {
       schemaVersion: number
     }
-    expect(migrated.schemaVersion).toBe(3)
-    expect(parseAppData(migrated).schemaVersion).toBe(3)
+    expect(migrated.schemaVersion).toBe(4)
+    expect(parseAppData(migrated).schemaVersion).toBe(4)
+  })
+
+  it('migra lo schema v3 convertendo discountBp in regola percentuale', () => {
+    const current = createInitialData()
+    const draft = structuredClone(current.draft) as unknown as {
+      pricing: Record<string, unknown>
+    }
+    delete draft.pricing.discount
+    draft.pricing.discountBp = 1_250
+    const zeroDraft = structuredClone(draft)
+    zeroDraft.pricing.discountBp = 0
+
+    const migrated = migrateAppData({
+      ...current,
+      schemaVersion: 3,
+      draft,
+      quotes: [
+        { ...draft, id: 'quote-v3', status: 'saved' },
+        { ...zeroDraft, id: 'quote-v3-zero', status: 'saved' },
+      ],
+    }) as {
+      schemaVersion: number
+      draft: { pricing: { discount?: unknown } }
+      quotes: Array<{ pricing: { discount?: unknown } }>
+    }
+
+    expect(migrated.schemaVersion).toBe(4)
+    expect(migrated.draft.pricing.discount).toEqual({ mode: 'percent', valueBp: 1_250 })
+    expect(migrated.quotes[0]?.pricing.discount).toEqual({ mode: 'percent', valueBp: 1_250 })
+    expect(migrated.quotes[1]?.pricing.discount).toBeUndefined()
+
+    const parsed = parseAppData(migrated)
+    expect(parsed.schemaVersion).toBe(4)
+    expect(parsed.draft.pricing.discount).toEqual({ mode: 'percent', valueBp: 1_250 })
+    expect(parsed.quotes[1]?.pricing.discount).toBeUndefined()
   })
 
   it('migra anche un envelope di export v1', () => {
@@ -83,8 +118,8 @@ describe('dati persistiti', () => {
       schemaVersion: number
       data: { schemaVersion: number; draft: { locale?: string } }
     }
-    expect(migrated.schemaVersion).toBe(3)
-    expect(migrated.data.schemaVersion).toBe(3)
+    expect(migrated.schemaVersion).toBe(4)
+    expect(migrated.data.schemaVersion).toBe(4)
     expect(migrated.data.draft.locale).toBe('it')
     expect(parseAppData(migrated).draft.locale).toBe('it')
   })
@@ -109,7 +144,7 @@ describe('dati persistiti', () => {
       const raw = JSON.stringify(legacyData())
       values.set(STORAGE_KEY, raw)
       const { data } = loadAppData()
-      expect(data.schemaVersion).toBe(3)
+      expect(data.schemaVersion).toBe(4)
       expect(data.draft.locale).toBe('it')
       expect(values.get(`${MIGRATION_BACKUP_PREFIX}1`)).toBe(raw)
     } finally {

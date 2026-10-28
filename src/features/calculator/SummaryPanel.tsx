@@ -182,6 +182,23 @@ export function SummaryPanel({
         </Badge>
       </div>
 
+      {result && result.discount > 0 ? (
+        <div className="mt-2 border-t border-line pt-2">
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="text-muted">{t('summary.discounts')}</span>
+            <span className="tabular-nums text-ink">−{format.currency(result.discount)}</span>
+          </div>
+          {result.lineDiscountTotal > 0 && result.quoteDiscount > 0 ? (
+            <p className="mt-0.5 text-xs text-muted">
+              {t('summary.discountBreakdown', {
+                lines: format.currency(result.lineDiscountTotal),
+                quote: format.currency(result.quoteDiscount),
+              })}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
       {error ? (
         <div className="mt-4">
           {/* The incomplete-data bar uses the data accent; the title carries the warning. */}

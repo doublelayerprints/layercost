@@ -41,6 +41,11 @@ const baseEn: Record<BaseMessageKey, string> = {
   'common.error': 'Error',
   'common.warning': 'Warning',
 
+  'discount.none': 'None',
+  'discount.percent': 'Percentage',
+  'discount.amount': 'Fixed amount',
+  'discount.value': 'Discount value',
+
   'language.title': 'Language',
   'language.description':
     'Interface language. Saved quotes keep the language they were created in.',

@@ -112,8 +112,19 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 | `finishingSecondsPerUnit` | `Seconds`                                                |                                         |
 | `extraIds`                | string[]                                                 | Extra `perUnit`                         |
 | `overrides`               | `{ powerOverrideW?, energyOverrideWh?, failureRateBp? }` |                                         |
+| `discount`                | `DiscountRule?`                                         | Sconto sulla riga, dopo il ricarico     |
 | `color`                   | string?                                                  | Filamento `#rrggbb`, solo presentazione |
 | `notes`                   | string?                                                  |                                         |
+
+`DiscountRule` è un'unione discriminata:
+
+```ts
+type DiscountRule =
+  | { mode: 'percent'; valueBp: BasisPoints } // 0–90%
+  | { mode: 'amount'; amount: MicroEur }     // importo fisso, limitato al prezzo
+```
+
+Un importo fisso di riga si applica al totale della riga, non a ogni pezzo. Lo sconto è commerciale: non entra nel costo, nello snapshot economico o nella riserva guasti.
 
 > **Import `.3mf` (T5.3.3):** il mapping produce solo `PrintLine` esistenti. Ogni piatto selezionato diventa una riga con `quantity: 1`, `finishingSecondsPerUnit: 0`, `extraIds: []` e `overrides: {}`. `timeSeconds` è il `prediction` dello slicer; i grammi sono la somma dei filamenti mappati sullo stesso materiale, in centigrammi. Nessun campo `source` e nessun supplemento AMS/ACE.
 >
@@ -138,7 +149,9 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 | `createdAt`, `updatedAt` | ISO string                                          |                              |
 | `archived`               | boolean?                                            |                              |
 
-`QuotePricing`: `{ mode, markupBp, marginBp, roundingStep, roundingMode, discountBp, vatMode, vatRateBp }`.
+`QuotePricing`: `{ mode, markupBp, marginBp, roundingStep, roundingMode, discount?: DiscountRule, vatMode, vatRateBp }`.
+
+> **Sconti (ADR-0023):** `PrintLine.discount` e `QuotePricing.discount` sono opzionali; l'assenza equivale a nessuno sconto. Lo sconto del preventivo si applica dopo quelli di riga. Lo schema passa a **v4**: la migrazione v3 → v4 converte `discountBp` positivi in `{ mode: 'percent', valueBp }`, tratta `0` come nessuno sconto e conserva il raw in `layercost:backup:schema-3`. I link condivisi pre-v4 vengono normalizzati in lettura.
 
 > **Fase 5 — implementato (T5.6.3):** ADR-0019 aggiunge `locale: 'it' | 'en'` a `Quote` e porta lo schema a **v2**. La migrazione v1 → v2 assegna `locale: 'it'` ai preventivi esistenti e alla bozza, anche dentro un envelope di export. La lingua non entra nello snapshot economico: è un metadato del documento.
 >
@@ -162,13 +175,13 @@ La copia completa rende il preventivo indipendente dalle modifiche future. Il ri
 
 - `lines: LineResult[]`;
 - `directTotal`, `jobLabor`, `jobExtras`, `jobFixedTotal`, `totalCost`;
-- `rawPrice`, `discount`;
+- `rawPrice`, `lineDiscountTotal`, `quoteDiscount`, `discount` (somma dei due);
 - `netPriceCents`, `vatCents`, `grossPriceCents`;
 - `effectiveMarginBp`;
 - dettagli di setup/design ed extra;
 - `engineVersion`, `quoteDate`.
 
-`LineResult` contiene i componenti (`material`, `energy`, `depreciation`, `maintenance`, `labor`, `extras`, `failure`), i costi diretti, la quota fissa, il costo pieno, il prezzo allocato e i dettagli materiali/extra.
+`LineResult` contiene i componenti (`material`, `energy`, `depreciation`, `maintenance`, `labor`, `extras`, `failure`), i costi diretti, la quota fissa, il costo pieno, lo sconto di riga applicato (`discount`), il prezzo allocato e i dettagli materiali/extra.
 
 ---
 
@@ -176,7 +189,7 @@ La copia completa rende il preventivo indipendente dalle modifiche future. Il ri
 
 ```ts
 interface AppData {
-  schemaVersion: 3
+  schemaVersion: 4
   config: CostConfig
   quotes: Quote[]
   draft: Quote
@@ -202,10 +215,10 @@ Il backup di migrazione usa una chiave stabile per versione di partenza (`layerc
 ```json
 {
   "app": "LayerCost",
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "exportedAt": "2026-10-23T12:00:00.000Z",
   "data": {
-    "schemaVersion": 3,
+    "schemaVersion": 4,
     "config": {},
     "quotes": [],
     "draft": { "locale": "it" }
@@ -219,7 +232,7 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 4. Invarianti
 
-1. `schemaVersion` è `3`: la catena v1 → v2 → v3 aggiunge `locale: 'it'` e salva un backup raw prima di applicarla.
+1. `schemaVersion` è `4`: la catena v1 → v2 → v3 → v4 aggiunge `locale: 'it'`, gli stati del preventivo e converte `discountBp` in regola percentuale; salva un backup raw prima di applicarla.
 2. Ogni import viene validato con Zod prima di sostituire i dati.
 3. Un preventivo `saved` è modificabile in place usando lo snapshot; `sent` e `completed` sono bloccati. “Aggiorna prezzi” e la duplicazione creano una copia.
 4. Un'entità con `archived = true` non è selezionabile per nuove righe, ma resta nello snapshot storico.
@@ -232,8 +245,11 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 5. Migrazioni
 
-- La versione corrente è `3`.
+- La versione corrente è `4`.
 - `migrateAppData` rifiuta versioni future e versioni non numeriche.
+- v1 → v2: `locale: 'it'` a preventivi e bozza.
+- v2 → v3: abilita gli stati `draft | saved | sent | completed`.
+- v3 → v4: `QuotePricing.discountBp` positivo diventa `discount: { mode: 'percent', valueBp }`; `0` diventa nessuno sconto e `PrintLine.discount` resta assente. Backup raw in `layercost:backup:schema-3`.
 - In futuro: aggiungere una funzione per ogni versione e un fixture di test.
 - Prima di una migrazione distruttiva, l'app deve conservare un backup raw.
 

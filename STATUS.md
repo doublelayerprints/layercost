@@ -21,7 +21,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
-**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, workspace condiviso e magic link; l’implementazione non è ancora iniziata.
+**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. **T5.20 è chiuso** il 28/10/2026: sconti percentuali o a importo fisso su singola stampa e totale preventivo, con schema v4 e motore 1.0.0. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, workspace condiviso e magic link; l’implementazione non è ancora iniziata.
 
 ---
 
@@ -33,7 +33,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - Energia da W medi per famiglia, non da potenza nominale.
 - Ammortamento + manutenzione.
 - Manodopera, extra e riserva guasti `p/(1−p)`.
-- Ricarico o margine, sconto, arrotondamento, IVA opzionale.
+- Ricarico o margine, sconti di riga e di preventivo (percentuali o a importo fisso), arrotondamento, IVA opzionale.
 - Ripartizione costi fissi e prezzi di riga con resti più grandi.
 - Unità intere: µ€, bp, secondi, cg, W, Wh.
 - Snapshot completo della configurazione per ogni preventivo.
@@ -58,6 +58,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - Utile in euro in calcolatore e dettaglio (T5.18), con margine effettivo come nota; link condiviso e stampa standard per il cliente mostrano solo prezzi, IVA e note, mentre “Stampa interna” include costi e composizione ed è marcata “Uso interno”.
 - Composizione del prezzo (T5.19): barra del prezzo netto divisa in costo pieno e guadagno sopra la composizione del costo; nella lista preventivi l'intera riga è cliccabile e si evidenzia all'hover, senza il pulsante “Apri”.
 - Export `.xlsx` di preventivi, righe e materiali (T5.12): writer locale senza nuove dipendenze, tre fogli, valori numerici con formati Excel, intestazioni in italiano/inglese, archiviati inclusi e pulsanti in Preventivi e Impostazioni → Dati.
+- Sconti (T5.20): ogni riga e il preventivo hanno uno sconto opzionale percentuale o a importo fisso; l'importo di riga si applica al totale della riga, gli sconti si cumulano e un importo superiore al prezzo viene limitato a zero con avviso. Il dettaglio è visibile in riepilogo, dettaglio, stampa, link condiviso ed export `.xlsx` (schema v4, motore 1.0.0).
 - Stati e rifiniture (T4.5): conferma accessibile prima di scartare o sostituire la bozza; eliminazioni con `Modal`; alert “Preventivo salvato”; vuoti con azione; microcopy su bozza, storico e preventivo non ricalcolabile.
 - Stampa: intestazione, meta, righe, totali e note; la versione cliente non mostra costi, utile o margine, mentre la stampa interna aggiunge composizione in grigi e totali economici. PDF A4 verificato su Chromium e stampa verificata sull'engine WebKit.
 - Verifiche 1.0: audit `axe` WCAG 2.2 AA su tutte le route (chiaro/scuro, desktop/mobile, menu e modali), test WebKit, regressione visiva a 1440/768/390 px, budget del bundle e nessuna richiesta esterna.
@@ -115,15 +116,15 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | ------------------ | ---------------------------------------------------------------------------------------------- |
 | TypeScript strict  | verde                                                                                          |
 | oxlint             | verde                                                                                          |
-| Test unitari/dati  | 116 superati                                                                                   |
-| Test E2E           | 36 superati in CI (30 eseguiti + 6 visual; 2 WebKit)                                           |
+| Test unitari/dati  | 124 superati                                                                                   |
+| Test E2E           | 38 superati in CI (32 eseguiti + 6 visual; 2 WebKit)                                           |
 | Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                                    |
-| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux                                |
-| Build produzione   | verde (~666 KB JS main + ~108 KB worker; ~189 KB gzip JS; ~38 KB CSS; ~57 KB font)             |
-| Budget bundle      | 285,8 KB gzip totali su 350 KB (limite JS 221,2 KB su 225 KB)                                  |
+| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux; da rigenerare dopo T5.20      |
+| Build produzione   | verde (~677 KB JS main + ~108 KB worker; ~192 KB gzip JS; ~38 KB CSS; ~57 KB font)             |
+| Budget bundle      | 288,4 KB gzip totali su 350 KB (limite JS 223,7 KB su 225 KB)                                  |
 | CI GitHub `check`  | verde su `main`                                                                                |
 | CI GitHub `e2e`    | verde su `main`                                                                                |
-| Vercel produzione  | deploy 28/10/2026, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde                  |
+| Vercel produzione  | deploy 28/10/2026 pre-T5.20, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde                  |
 
 Comandi:
 
@@ -138,9 +139,9 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 
 ## 4. Dati e privacy
 
-- Dati in `localStorage`, chiave `layercost:data`, schema v3 con `Quote.locale`, `Quote.status` e `PrintLine.color` opzionale.
+- Dati in `localStorage`, chiave `layercost:data`, schema v4 con `Quote.locale`, `Quote.status`, `PrintLine.color` opzionale e sconti di riga/preventivo (`DiscountRule`).
 - Preferenza del tema in `layercost:theme` e lingua in `layercost:locale`, separate dai dati e non incluse nei backup; i selettori rapidi in sidebar scrivono le stesse chiavi.
-- Prima della migrazione v1 → v2 il raw viene salvato in `layercost:backup:schema-1`.
+- Prima della migrazione v1 → v2 il raw viene salvato in `layercost:backup:schema-1`; la migrazione v3 → v4 conserva il raw in `layercost:backup:schema-3`.
 - Nessun backend, account o analytics.
 - Export/import JSON; backup automatico prima dell'import.
 - Export `.xlsx` locale di preventivi, righe e materiali: nessun upload e nessuna richiesta di rete.
@@ -155,6 +156,7 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 - Progetto Vercel collegato alla repo GitHub.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`. Deploy di produzione verificato su https://layercost.vercel.app: build `index-C_5bQZYu.js` / `index-BGmXv2w6.css`, `inspect.mjs --app` a 1440/768/390 con **0 FAIL, 1 WARN** (`ragged-row`, rail sticky), prezzo 3,70 €, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Deploy **28/10/2026** (accento viola, T4.8/ADR-0021): build `index-C7Ct7znW.js` / `index-DH8EgtHU.css`, verificata su https://layercost.vercel.app. `--color-data` vale `#5b21b6` in chiaro e `#9d7bf5` in scuro; la barra “Completa i dati” del riepilogo è viola. Il batch T5.12–T5.17 e la barra “Aggiungi riga” sono inclusi. CI `check` + `e2e` verdi (36 E2E).
+- **T5.20 non è ancora in produzione.** La build locale verificata è `index-DbmNNSiw.js` / `index-DsZxzrV2.css`; prima del deploy vanno rigenerate le baseline visive e verificata la preview Vercel.
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
@@ -179,10 +181,10 @@ npx vercel --prod
 - Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link) ma non ancora implementata. Vedi ADR-0018.
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
 - Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020); preferenze rapide, azioni in alto, colore filamento e vista cliente separata (T5.15–T5.19).
-- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.19, T5.12, la barra “Aggiungi riga” e l'accento viola. Il batch è deployato su `main`: CI verde e produzione verificata con la build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`.
+- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.19, T5.12, la barra “Aggiungi riga” e l'accento viola. Dopo **T5.20** vanno rigenerate per le card degli sconti; il batch T5.20 non è ancora deployato in produzione.
 - Export `.xlsx` per analisi esterna; il backup JSON resta l’unica copia esterna completa.
 - Nessun magazzino bobine.
-- Migrazioni schema minime (v3; rifiuto versioni future).
+- Migrazioni schema minime (v4; rifiuto versioni future).
 - Guida iniziale come checklist, non wizard multi-step.
 
 ---
@@ -190,9 +192,9 @@ npx vercel --prod
 ## 7. Prossimi passi
 
 1. **T5.3 — Import diretto da `.3mf`**: **chiuso** (fixture, parser ZIP/XML con worker, mapping puro, UI, performance e deploy).
-2. **T5.6 — Interfaccia inglese** e **T5.12 — Export `.xlsx`**: chiusi. **T5.13–T5.19**: preventivi modificabili, card del calcolatore, preferenze rapide, azioni in alto, colore filamento, utile in euro e vista cliente separata. Prossimo: **T5.4 sync** (richiesto); il resto del backlog è chiuso/non in scope.
+2. **T5.6 — Interfaccia inglese**, **T5.12 — Export `.xlsx`** e **T5.20 — Sconti**: chiusi. **T5.13–T5.19**: preventivi modificabili, card del calcolatore, preferenze rapide, azioni in alto, colore filamento, utile in euro e vista cliente separata. Prossimo: **T5.4 sync** (richiesto); il resto del backlog è chiuso/non in scope.
 3. **T5.4 — Sync cloud**: richiesto il 26/10/2026; Supabase Free, workspace condiviso, magic link. Prima serve il refactor async di `DataRepository`/store, poi schema/RLS, conflitti e test.
-4. **Baseline visive** di T5.15–T5.19, T5.12 e della barra “Aggiungi riga” rigenerate in CI; preview e produzione Vercel verificate con la build `index-CZsBAkWj.js`.
+4. **Baseline visive** di T5.20, T5.15–T5.19, T5.12 e della barra “Aggiungi riga” rigenerate in CI; preview e produzione Vercel da verificare con la build che include T5.20.
 5. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
 6. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
 7. Eventuale magazzino bobine, actual vs estimated, PWA.
@@ -201,12 +203,12 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso**, **T5.6 chiuso** (T5.6.1–T5.6.5), **T5.12 chiuso** (export `.xlsx`) e **T5.13–T5.19 chiusi**: i18n, formattazione locale, schema v3 con `Quote.locale`/`Quote.status`, selettori rapidi di tema e lingua, preventivi modificabili fino all’invio, card del calcolatore, azioni in alto, colore filamento, export Excel e vista cliente separata con utile in euro. Prossimo task: **T5.4** (sync, richiesto); il resto del backlog è chiuso/non in scope.
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.8, §3 e §5, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019/0020/0022.
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso**, **T5.6 chiuso** (T5.6.1–T5.6.5), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.19 chiusi** e **T5.20 chiuso** (sconti di riga e preventivo): i18n, formattazione locale, schema v4 con `Quote.locale`/`Quote.status`/`DiscountRule`, selettori rapidi di tema e lingua, preventivi modificabili fino all’invio, card del calcolatore, azioni in alto, colore filamento, export Excel, vista cliente separata con utile in euro e sconti. Prossimo task: **T5.4** (sync, richiesto); il resto del backlog è chiuso/non in scope.
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.8, §3, §5 e §6, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019/0020/0022/0023.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
 - **Punti aperti:** definire schema/RLS e refactor async per il sync Supabase; verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
-- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` richiede la migrazione v2 pianificata in ADR-0019. Il sync Supabase introduce backend/auth: aggiornare ADR-0018 prima del codice.
+- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` e gli sconti hanno le migrazioni v2 e v4 descritte in ADR-0019 e ADR-0023. Il sync Supabase introduce backend/auth: aggiornare ADR-0018 prima del codice.
 
 ---
 
@@ -224,6 +226,8 @@ npx vercel --prod
 - `docs/adr/0017-3mf-import.md` — formato di import diretto.
 - `docs/adr/0018-cloud-sync-free.md` — sync opzionale e gratuito, richiesto e pianificato.
 - `docs/adr/0019-english-ui.md` — interfaccia inglese e `Quote.locale`.
+- `docs/adr/0022-internal-customer-quote-views.md` — vista interna e vista cliente.
+- `docs/adr/0023-line-and-quote-discounts.md` — sconti di riga e di preventivo.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

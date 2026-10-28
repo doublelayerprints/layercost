@@ -1,6 +1,6 @@
 # Glossario
 
-**Stato:** v1.0.0 + T5.18
+**Stato:** v1.0.0 + T5.20
 
 | Termine               | Significato                                                                                                |
 | --------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -22,6 +22,8 @@
 | **Prime tower**       | Torre di spurgo delle stampe multicolore, inclusa nei grammi dello slicer.                                 |
 | **Ricarico (markup)** | Percentuale sul costo: `prezzo = costo × (1 + ricarico)`.                                                  |
 | **Riserva guasti**    | Costo atteso dei rifacimenti: `base × p / (1 − p)`, con p = probabilità di guasto.                         |
+| **Sconto di riga**    | Sconto commerciale sulla singola stampa, percentuale o a importo fisso sul totale della riga.               |
+| **Sconto del preventivo** | Sconto commerciale sul totale, applicato dopo gli sconti di riga.                                       |
 | **Snapshot**          | Copia della configurazione usata al momento del salvataggio di un preventivo.                              |
 | **Slicer**            | Software che genera il G-code e stima tempo e filamento.                                                   |
 | **Tasso guasti**      | Probabilità che una stampa fallisca e debba essere rifatta.                                                |

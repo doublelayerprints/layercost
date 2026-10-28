@@ -48,9 +48,10 @@ Se i casi d'uso cresceranno, le azioni dello store potranno essere estratte in `
 1. La UI modifica `draft` tramite le azioni dello store.
 2. `CalculatorPage` chiama `calculateQuote(draft, config)` in `useMemo`.
 3. Il dominio risolve stampante, materiali, extra, tariffa e impostazioni.
-4. Il risultato viene mostrato nel riepilogo e nel dettaglio.
-5. Al salvataggio, lo store crea uno snapshot completo di `config` e conserva il risultato.
-6. Al reload, il preventivo usa lo snapshot, non la configurazione corrente.
+4. Il prezzo applica ricarico/margine, gli sconti di riga, lo sconto del preventivo, l'arrotondamento e l'IVA; gli sconti di riga usano la quota di prezzo allocata alla riga (`DiscountRule`, ADR-0023).
+5. Il risultato viene mostrato nel riepilogo e nel dettaglio.
+6. Al salvataggio, lo store crea uno snapshot completo di `config` e conserva il risultato.
+7. Al reload, il preventivo usa lo snapshot, non la configurazione corrente.
 
 ---
 

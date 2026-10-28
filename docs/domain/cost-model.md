@@ -57,7 +57,8 @@ I limiti servono anche a garantire che i prodotti intermedi restino entro `Numbe
 | Maggiorazione tempo  |     0 |        100% |                         |
 | Ricarico             |     0 |      1.000% |                         |
 | Margine              |     0 |         99% |                         |
-| Sconto               |     0 |         90% |                         |
+| Sconto percentuale   |     0 |         90% | per riga e preventivo   |
+| Sconto fisso         |     0 | prezzo disponibile | limitato, non errore |
 | IVA                  |     0 |         30% |                         |
 | Passo arrotondamento | €0,01 |      €10,00 | multiplo di 1 centesimo |
 
@@ -124,7 +125,7 @@ cost     = energyWh × priceµ€PerKWh / 1000 // massimo 5e6 × 1e7 / 1e3 = 5e1
 - `EnergyTariff`: prezzo µ€/kWh, data di decorrenza.
 - `Settings`: manodopera, tasso guasti, maggiorazione tempo, prezzo, arrotondamento, IVA.
 - `PrintLine`: stampante, tempo slicer, materiali e grammi, quantità, finitura, extra, override.
-- `Quote`: righe, costi di lavoro, extra di lavoro, data, sconto, override di prezzo.
+- `Quote`: righe, costi di lavoro, extra di lavoro, data, sconti, override di prezzo.
 
 ### 4.2 Risoluzione delle tariffe
 
@@ -323,15 +324,46 @@ margin: rawPrice = totalCost × 10.000 / (10.000 − marginBp)
 
 `marginBp` deve essere < 10.000 (100%). Un margine del 100% è invalido.
 
-### 7.2 Sconto
+### 7.2 Sconti
 
-Lo sconto è commerciale: riduce il prezzo, non il costo.
+Lo sconto è commerciale: riduce il prezzo, non il costo. Esistono due livelli indipendenti e cumulabili:
+
+- **sconto di riga** (`PrintLine.discount`), applicato alla singola stampa;
+- **sconto del preventivo** (`QuotePricing.discount`), applicato al totale.
+
+Ciascuno può essere:
+
+- **percentuale** (`mode: 'percent'`), con `valueBp` tra 0 e 9.000 (0–90%);
+- **a importo fisso** (`mode: 'amount'`), in µ€.
+
+Un importo fisso di riga si applica al **totale della riga**, non a ogni pezzo: con quantità 3 e 5 € di sconto, il totale della riga scende di 5 €. Un importo fisso superiore al prezzo disponibile viene **limitato al prezzo stesso**, quindi il prezzo non diventa mai negativo; la UI segnala che il valore è stato ridotto. Anche lo sconto del preventivo è limitato al totale disponibile dopo gli sconti di riga.
 
 ```text
-discountedRawPrice = rawPrice × (10.000 − discountBp) / 10.000
+Senza sconti di riga:
+  quoteDiscount    = sconto(rawPrice, pricing.discount)
+  discountedRaw    = rawPrice − quoteDiscount
+  finalPrice       = roundToStep(discountedRaw, step, mode)
+
+Con almeno uno sconto di riga:
+  rawPrice         = markup/margin(totalCost)
+  rawShare_i       = allocateLargestRemainder(rawPrice, fullyLoadedLineCost_i)
+  lineDiscount_i   = sconto(rawShare_i, line_i.discount)
+  lineDiscountTot  = Σ lineDiscount_i
+  afterLines       = rawPrice − lineDiscountTot
+  quoteDiscount    = sconto(afterLines, pricing.discount)
+  discountedRaw    = afterLines − quoteDiscount
+  finalPrice       = roundToStep(discountedRaw, step, mode)
+  price_i          = allocateLargestRemainder(netPriceCents, rawShare_i − lineDiscount_i)
 ```
 
-Lo sconto si applica **prima** dell'arrotondamento finale.
+La funzione `sconto(base, regola)` è:
+
+```text
+percent:  roundHalfUp(base × valueBp / 10.000)
+amount:   min(amount, base)
+```
+
+Gli sconti si applicano **prima** dell'arrotondamento finale. La somma `lineDiscountTot + quoteDiscount` è esposta in `QuoteResult.discount`; `QuoteResult.lineDiscountTotal` e `QuoteResult.quoteDiscount` separano i due livelli. `LineResult.discount` contiene lo sconto applicato alla riga.
 
 ### 7.3 Arrotondamento finale
 
@@ -369,7 +401,7 @@ Default: `none`, aliquota pronta al 22%.
 effectiveMarginBp = roundHalfUp((netPrice − totalCost) × 10.000 / netPrice)
 ```
 
-Se `netPrice = 0`, il margine non è definito e la UI mostra `—`. Se lo sconto è alto, il margine effettivo può essere negativo: la UI lo mostra con il segno, non lo nasconde.
+Se `netPrice = 0`, il margine non è definito e la UI mostra `—`. Se gli sconti sono alti, il margine effettivo può essere negativo: la UI lo mostra con il segno, non lo nasconde.
 
 L'utile in euro è il complemento assoluto del margine:
 
@@ -390,6 +422,8 @@ Il prezzo canonico è quello **totale** del preventivo. Per mostrare un prezzo p
 
 L'IVA è mostrata a parte sul totale: i prezzi di riga non la includono.
 
+Con sconti di riga, l'allocazione finale usa come pesi le quote di prezzo già scontate (`rawShare_i − lineDiscount_i`); la somma dei prezzi di riga resta esattamente `netPriceCents`.
+
 Questa è un'allocazione, non un prezzo calcolato indipendentemente. Evita che la somma delle righe differisca dal totale di qualche centesimo. Il margine effettivo si calcola sempre sul totale del preventivo, non sulle singole righe allocate.
 
 ### 7.7 Ordine completo
@@ -397,10 +431,12 @@ Questa è un'allocazione, non un prezzo calcolato indipendentemente. Evita che l
 ```text
 costo totale
 → ricarico o margine
-→ sconto
+→ allocazione del prezzo base alle righe (solo con sconti di riga)
+→ sconto di riga
+→ sconto del preventivo
 → arrotondamento al passo
 → IVA
-→ allocazione del prezzo alle righe (solo display)
+→ allocazione del prezzo netto alle righe (display)
 ```
 
 ---
@@ -415,7 +451,7 @@ costo totale
   - nome e ID stampante/materiali;
   - grammi, tempo slicer, quantità, finitura, extra;
 - costi di lavoro;
-- impostazioni di prezzo: modalità, ricarico/margine, passo, modo, sconto, IVA;
+- impostazioni di prezzo: modalità, ricarico/margine, passo, modo, sconto di riga e del preventivo, IVA;
 - **snapshot completo della configurazione risolta**: `{ config, capturedAt, engineVersion }`, dove `config` contiene stampanti, materiali, extra e impostazioni con le tariffe del momento;
 - risultato calcolato: componenti, totali, prezzo, margine effettivo;
 - timestamp di creazione e aggiornamento.
@@ -551,6 +587,26 @@ margine effettivo = (12,00 − 10,00) / 12,00 = 16,67%
 
 Lo sconto riduce il margine effettivo, non il costo. La UI mostra entrambi.
 
+### 9.4 Esempio 4 — sconto di riga e di preventivo
+
+**Input:** costo €80,00; ricarico 25%; una riga con sconto 10%; sconto del preventivo €5,00; IVA 22% esclusa; arrotondamento al €0,10 più vicino.
+
+```text
+rawPrice         = 80,00 × 1,25 = 100,00 €
+rawShare         = 100,00 € (una sola riga)
+lineDiscount     = 100,00 × 10% = 10,00 €
+afterLines       = 100,00 − 10,00 = 90,00 €
+quoteDiscount    = 5,00 €
+discountedRaw    = 90,00 − 5,00 = 85,00 €
+finalNet         = 85,00 € (già multiplo di 0,10)
+IVA              = 85,00 × 22% = 18,70 €
+gross            = 103,70 €
+discount total   = 10,00 + 5,00 = 15,00 €
+margine effettivo = (85,00 − 80,00) / 85,00 = 5,88%
+```
+
+Con più righe, `rawPrice` viene ripartito in µ€ con i resti più grandi e ogni riga riceve il proprio sconto prima dello sconto del preventivo.
+
 ---
 
 ## 10. Casi limite e validazione
@@ -574,7 +630,10 @@ Lo sconto riduce il margine effettivo, non il costo. La UI mostra entrambi.
 | Import con schema più nuovo                       | Rifiutato con messaggio                                 |
 | Import corrotto                                   | Rifiutato, dati correnti intatti                        |
 | Migrazione fallita                                | Backup conservato, errore, nessun overwrite             |
-| Prezzo finale 0                                   | Consentito solo con sconto estremo; avviso              |
+| Sconto percentuale fuori 0–90%                    | Errore                                                  |
+| Sconto fisso negativo                             | Errore                                                  |
+| Sconto fisso superiore al prezzo                  | Limitato al prezzo disponibile; avviso in UI            |
+| Prezzo finale 0                                   | Consentito con sconto pari o superiore al prezzo; avviso |
 | Valori fuori range                                | Errore con campo evidenziato                            |
 
 ---
@@ -595,7 +654,7 @@ Ogni caso è un test automatico. I fixture sono condivisi tra documentazione e t
 | G-08 | Quantità 3                | Costi variabili ×3; costi fissi una volta                                                 |
 | G-09 | Ripartizione equalPerUnit | Pesi = quantità; somma esatta                                                             |
 | G-10 | Margine 50%               | Prezzo = costo × 2                                                                        |
-| G-11 | Sconto 10%                | Prezzo scontato prima dell'arrotondamento                                                 |
+| G-11 | Sconto preventivo 10%     | Prezzo scontato prima dell'arrotondamento                                                 |
 | G-12 | IVA inclusa               | Netto estratto dal lordo; somma netto + IVA = lordo                                       |
 | G-13 | Arrotondamento nearest    | 5,04 → 5,00; 5,05 → 5,10                                                                  |
 | G-14 | Arrotondamento down       | 5,09 → 5,00                                                                               |
@@ -603,6 +662,9 @@ Ogni caso è un test automatico. I fixture sono condivisi tra documentazione e t
 | G-16 | Entità archiviata         | Snapshot calcola ancora; nuova riga non la vede                                           |
 | G-17 | Valori massimi            | Nessun overflow, risultato coerente                                                       |
 | G-18 | Preventivo senza righe    | Errore, non 0 € silenzioso                                                                |
+| G-19 | Sconto riga 10%           | Sconto sulla quota prezzo della riga; prezzo scontato prima dell'arrotondamento            |
+| G-20 | Sconti cumulati           | Sconto riga 10% + sconto preventivo 10%; somma dei due in `discount`                       |
+| G-21 | Sconto fisso oltre prezzo | Importo limitato al prezzo disponibile; prezzo 0, nessun valore negativo                    |
 
 ### 11.1 Proprietà
 
@@ -612,6 +674,8 @@ Ogni caso è un test automatico. I fixture sono condivisi tra documentazione e t
 - Con margine in [0, 100), prezzo ≥ costo.
 - La somma delle quote fisse è esattamente il totale.
 - La somma dei prezzi di riga è esattamente il prezzo totale.
+- Aumentare uno sconto non aumenta mai il prezzo.
+- Uno sconto fisso superiore al prezzo disponibile non produce valori negativi.
 - Un preventivo salvato non cambia dopo la modifica delle tariffe.
 - Nessun risultato è `NaN`, `Infinity` o negativo.
 

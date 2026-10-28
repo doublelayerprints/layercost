@@ -21,6 +21,7 @@ export function draftHasContent(draft: Quote): boolean {
     if (line.quantity !== 1) return true
     if (line.materials.some((usage) => usage.grams > 0)) return true
     if (line.color) return true
+    if (line.discount) return true
     if (line.extraIds.length > 0) return true
     if (line.notes?.trim()) return true
     if (Object.values(line.overrides).some((value) => value !== undefined)) return true

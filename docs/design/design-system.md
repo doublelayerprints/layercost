@@ -134,7 +134,7 @@ Il tema scuro è un **grafite caldo**, non nero puro: conserva la famiglia croma
 
 ## 3. Componenti
 
-Tutti in `src/components/ui.tsx`, tranne `src/components/logo.tsx`, `src/components/cost-stack.tsx` e il contesto dei campi in `src/components/field-context.ts`.
+Tutti in `src/components/ui.tsx`, tranne `src/components/logo.tsx`, `src/components/cost-stack.tsx`, `src/components/discount-field.tsx` e il contesto dei campi in `src/components/field-context.ts`.
 
 ### 3.1 Button
 
@@ -227,6 +227,10 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 - Barra del **prezzo netto** divisa in due segmenti: costo pieno (`control`, grigio) e guadagno (`data`, viola). Larghezze in millesimi con resto più grande; gli importi della legenda sono allocati in centesimi e sommano al prezzo netto.
 - Sta sopra `CostStack` per leggere prima “quanto è costo e quanto è margine”, poi “di cosa è fatto il costo”. Appare solo nella vista interna (calcolatore, dettaglio, stampa interna) e solo con utile non negativo.
 - `role="img"` con `aria-label` che riporta prezzo netto, costo e guadagno; legenda `<dl>` con swatch e importi. Il colore non è l'unica informazione.
+
+### 3.19 DiscountField
+
+Controllo riutilizzabile per gli sconti di riga e di preventivo: una select “Nessuno / Percentuale / Importo fisso” e, quando serve, un campo “Valore sconto” con `%` o `€`. Usa `SelectField`, `PercentField` e `MoneyField`, quindi eredita label, hint, focus e bordo dei campi. Lo sconto percentuale è limitato al 90%; l'importo fisso è mostrato in euro ma resta in µ€ nel dominio. Quando il valore viene limitato al prezzo disponibile, una nota `text-warning` spiega l'importo effettivamente applicato. La select e il campo valore sono sempre associati da label esplicite.
 
 ---
 
@@ -331,7 +335,7 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 - `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
 - `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **116 unitari/dati, 36 E2E** (30 eseguiti + 6 visual su CI).
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **124 unitari/dati, 38 E2E** (32 eseguiti + 6 visual su CI).
 
 ### 7.2 Manuali
 
@@ -446,7 +450,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Preferenze rapide (T5.15).** `QuickPreferences` in fondo alla sidebar e nel menu mobile: tre radio per il tema e due per la lingua, sincronizzate con Impostazioni e persistenti fuori da `AppData`. L'input invisibile copre l'etichetta, quindi il click è su tutto il pulsantino; il focus ring è sul contenitore. La lingua adotta la bozza vuota e non tocca i preventivi salvati.
 - **Azioni del preventivo (T5.16).** “Gestione del preventivo” è passata subito sotto testata e avvisi, prima di prezzo e righe; “Stampa / PDF” è secondaria. Il ciclo di vita e le conferme restano invariati.
 - **Colore filamento (T5.17).** `PrintLine.color?: string` (`#rrggbb`) è un dato opzionale di presentazione, senza migrazione e senza impatto su formule, `engineVersion` o snapshot. Swatch nel calcolatore (picker nativo + rimozione), nel dettaglio, nella tabella costi e in stampa A4.
-- **Verifiche.** `npm run check` verde (116 unitari, build, budget 285,8 KB totali su 350 KB); 36 E2E (30 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px sono state rigenerate in CI il 28/10/2026 con l'accento viola e il batch T5.12–T5.19.
+- **Verifiche.** `npm run check` verde (124 unitari, build, budget 288,4 KB totali su 350 KB); 38 E2E (32 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px sono state rigenerate in CI il 28/10/2026 con l'accento viola e il batch T5.12–T5.19; con T5.20 vanno rigenerate per le card degli sconti.
 
 ### 8.9 Utile e vista cliente — esito (T5.18, 28/10/2026)
 
@@ -462,6 +466,13 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Stampa e tema.** I token chiari sono limitati a `.quote-print`: l'interfaccia intorno resta nel tema scuro durante l'anteprima, il foglio è bianco e il PDF mantiene i margini bianchi grazie a `color-scheme: light`. Il tema viene riapplicato anche su `afterprint`.
 - **i18n.** 4 chiavi `priceComposition.*`; rimosse `quotes.open` e `quote.label.actions`. Parità it/en a 872 chiavi. Nessun cambio a formule, schema, snapshot o `engineVersion`.
 
+### 8.11 Sconti di riga e di preventivo — esito (T5.20, 28/10/2026)
+
+- **Controllo.** `DiscountField` è una select “Nessuno / Percentuale / Importo fisso” più un campo “Valore sconto” con `%` o `€`; compare in ogni card stampa e nella card Prezzo. Quando non c'è sconto la select occupa tutta la larghezza.
+- **Feedback.** Sotto il controllo compaiono “Sconto applicato” e, se l'importo richiesto supera il prezzo disponibile, un avviso `text-warning` con l'importo effettivo.
+- **Lettura.** Riepilogo, dettaglio, stampa/PDF, link condiviso e export `.xlsx` mostrano lo sconto totale; la vista interna distingue sconti di riga e sconto preventivo. La vista cliente mostra gli sconti ma non i costi.
+- **Dati.** Schema v4, motore 1.0.0, migrazione `discountBp` → regola percentuale. Parità i18n a 895 chiavi. Baseline visive da rigenerare in CI.
+
 ---
 
 ## 9. Mappa dei file
@@ -472,6 +483,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 | `src/lib/theme.ts`                                | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                                          |
 | `src/lib/draft.ts`                                | rileva se la bozza contiene lavoro da non perdere                                                                                                 |
 | `src/features/calculator/NewDraftButton.tsx`      | conferma accessibile prima di scartare la bozza                                                                                                   |
+| `src/components/discount-field.tsx`               | select Nessuno/Percentuale/Importo e campo valore per gli sconti di riga e preventivo                                                             |
 | `src/features/calculator/use-three-mf-import.ts`  | file input, drag & drop, parsing in worker e stati dell’import                                                                                    |
 | `src/features/calculator/ThreeMfImportDialog.tsx` | anteprima piatti, mappatura stampante/materiali e conferma append/replace                                                                         |
 | `src/data/theme.ts`                               | chiave `layercost:theme`, load/save fuori da `AppData`                                                                                            |

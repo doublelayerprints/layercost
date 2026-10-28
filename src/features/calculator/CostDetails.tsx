@@ -135,6 +135,13 @@ export function CostDetails({
                       {format.pricePerUnit(row.priceCents, line.quantity)}
                       {t('details.perPiece')}
                     </span>
+                    {line.discount > 0 ? (
+                      <span className="block text-xs text-muted">
+                        {t('quote.lineDiscountAmount', {
+                          amount: format.currency(line.discount),
+                        })}
+                      </span>
+                    ) : null}
                   </td>
                 </tr>
               )
@@ -180,6 +187,18 @@ export function CostDetails({
               : undefined
           }
         />
+        {result.lineDiscountTotal > 0 ? (
+          <DetailTerm
+            label={t('details.lineDiscounts')}
+            value={`−${format.currency(result.lineDiscountTotal)}`}
+          />
+        ) : null}
+        {result.quoteDiscount > 0 ? (
+          <DetailTerm
+            label={t('details.quoteDiscount')}
+            value={`−${format.currency(result.quoteDiscount)}`}
+          />
+        ) : null}
         <DetailTerm
           label={t('details.netPrice')}
           value={format.cents(result.netPriceCents)}

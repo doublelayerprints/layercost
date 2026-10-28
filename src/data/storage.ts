@@ -4,7 +4,7 @@ import { createEmptyDraft, createSeedConfig } from './seed'
 import { parseAppData } from './schemas'
 
 export const STORAGE_KEY = 'layercost:data'
-export const SCHEMA_VERSION = 3 as const
+export const SCHEMA_VERSION = 4 as const
 export const MIGRATION_BACKUP_PREFIX = 'layercost:backup:schema-'
 
 type JsonRecord = Record<string, unknown>
@@ -39,6 +39,35 @@ function migrateV2ToV3(raw: JsonRecord): JsonRecord {
   return { ...raw, schemaVersion: 3 }
 }
 
+function withDiscountRule(value: unknown): unknown {
+  if (!isRecord(value) || !isRecord(value.pricing)) return value
+  const pricing = value.pricing
+  if ('discount' in pricing || !('discountBp' in pricing)) return value
+  const { discountBp, ...rest } = pricing
+  if (discountBp === 0) return { ...value, pricing: rest }
+  return {
+    ...value,
+    pricing: {
+      ...rest,
+      discount: { mode: 'percent', valueBp: discountBp },
+    },
+  }
+}
+
+function migrateV3ToV4(raw: JsonRecord): JsonRecord {
+  // v4 replaces `pricing.discountBp` with a percent/fixed discount rule on the quote
+  // and adds an optional line discount. Existing quotes keep their percent discount.
+  if (isRecord(raw.data) && 'schemaVersion' in raw.data) {
+    return { ...raw, schemaVersion: 4, data: migrateV3ToV4(raw.data) }
+  }
+  return {
+    ...raw,
+    schemaVersion: 4,
+    quotes: Array.isArray(raw.quotes) ? raw.quotes.map(withDiscountRule) : raw.quotes,
+    draft: withDiscountRule(raw.draft),
+  }
+}
+
 export function migrateAppData(raw: unknown): unknown {
   if (typeof raw !== 'object' || raw === null) return raw
   const version = (raw as { schemaVersion?: unknown }).schemaVersion
@@ -63,6 +92,10 @@ export function migrateAppData(raw: unknown): unknown {
   if (current === 2) {
     migrated = migrateV2ToV3(migrated)
     current = 3
+  }
+  if (current === 3) {
+    migrated = migrateV3ToV4(migrated)
+    current = 4
   }
   if (current === SCHEMA_VERSION) return migrated
   throw new StorageError('unsupportedSchema', `Schema v${current} non supportato.`)

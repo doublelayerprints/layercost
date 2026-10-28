@@ -43,6 +43,11 @@ export const baseIt = {
   'common.error': 'Errore',
   'common.warning': 'Attenzione',
 
+  'discount.none': 'Nessuno',
+  'discount.percent': 'Percentuale',
+  'discount.amount': 'Importo fisso',
+  'discount.value': 'Valore sconto',
+
   'language.title': 'Lingua',
   'language.description':
     'La lingua dell’interfaccia. I preventivi salvati mantengono la lingua con cui sono stati creati.',

@@ -77,6 +77,22 @@ export function QuoteOverview({
                     : t('quote.price.noVat')
                 }
               />
+              {result.discount > 0 ? (
+                <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-sm">
+                  <span className="text-muted">{t('quote.discountTotal')}</span>
+                  <span className="tabular-nums text-ink">
+                    −{format.currency(result.discount)}
+                  </span>
+                  {internal && result.lineDiscountTotal > 0 && result.quoteDiscount > 0 ? (
+                    <span className="text-xs text-muted">
+                      {t('quote.discountBreakdown', {
+                        lines: format.currency(result.lineDiscountTotal),
+                        quote: format.currency(result.quoteDiscount),
+                      })}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
 
               {internal ? (
                 <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 sm:grid-cols-4">
@@ -230,6 +246,13 @@ export function QuoteOverview({
                             {format.pricePerUnit(lineResult.priceCents, lineResult.quantity)}
                             {t('quote.unit.pricePerPiece')}
                           </span>
+                          {lineResult.discount > 0 ? (
+                            <span className="block text-xs text-muted">
+                              {t('quote.lineDiscountAmount', {
+                                amount: format.currency(lineResult.discount),
+                              })}
+                            </span>
+                          ) : null}
                         </>
                       ) : (
                         '—'
@@ -267,6 +290,13 @@ export function QuoteOverview({
                     <p className="text-sm font-medium tabular-nums text-ink">
                       {lineResult ? format.cents(lineResult.priceCents) : '—'}
                     </p>
+                    {lineResult && lineResult.discount > 0 ? (
+                      <p className="text-xs text-muted">
+                        {t('quote.lineDiscountAmount', {
+                          amount: format.currency(lineResult.discount),
+                        })}
+                      </p>
+                    ) : null}
                     {internal ? (
                       <p className="text-xs text-muted">
                         {lineResult ? format.currency(lineResult.fullyLoadedLineCost) : ''}

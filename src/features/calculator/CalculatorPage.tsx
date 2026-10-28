@@ -394,6 +394,7 @@ export function CalculatorPage() {
                 <PricingEditor
                   pricing={draft.pricing}
                   settings={calculationConfig.settings}
+                  result={calculation.result}
                   onChange={updatePricing}
                   onReset={handleResetPricing}
                 />

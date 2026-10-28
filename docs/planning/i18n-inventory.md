@@ -61,6 +61,8 @@
 
 **Stato T5.19:** aggiunte 4 chiavi `priceComposition.*` per titolo, costo, utile e aria-label; rimosse `quotes.open` e `quote.label.actions`, non più usate dopo la riga cliccabile. Parità it/en a **872** chiavi.
 
+**Stato T5.20:** aggiunte 23 chiavi per gli sconti: `discount.*` (4), `line.discount*` (4), `pricing.discount*` (3), `summary.discount*` (4), `details.*Discount*` (2), `quote.discount*` (3) e `xlsx.column.*Discount*` (3). Parità it/en a **895** chiavi.
+
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 
 1. Shell e componenti comuni (chiude subito le stringhe condivise).

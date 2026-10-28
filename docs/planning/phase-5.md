@@ -1,7 +1,7 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento)
-**Data:** 26 ottobre 2026
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo)
+**Data:** 28 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
 **Prossima sessione:** **T5.4** (sync, richiesto). Il resto del backlog è chiuso/non in scope.
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
@@ -446,7 +446,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 ---
 
-## 5. Rifiniture ed export richiesti dal committente (T5.12, T5.15–T5.17)
+## 5. Rifiniture ed export richiesti dal committente (T5.12, T5.15–T5.17, T5.20)
 
 ### 5.1 T5.15 — Preferenze rapide nella sidebar
 
@@ -484,14 +484,24 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 - **Sicurezza:** tutto locale, nessun upload e nessuna richiesta di rete. Il backup JSON resta l’unica copia esterna completa.
 - **Esito:** chiuso il 26/10/2026. 5 test sul writer, 3 sul mapping, 2 E2E; workbook verificato con `openpyxl` e LibreOffice; `npm run check` verde con budget 220,2 KB JS / 225 KB e 284,8 KB totali / 350 KB (dopo la barra “Aggiungi riga”).
 
+### 5.5 T5.20 — Sconti di riga e di preventivo (ADR-0023)
+
+- **Obiettivo:** permettere uno sconto percentuale o a importo fisso sia sulla singola stampa sia sul totale del preventivo.
+- **Modello:** `DiscountRule = { mode: 'percent', valueBp } | { mode: 'amount', amount }`; `PrintLine.discount?` e `QuotePricing.discount?`.
+- **Regole:** l'importo fisso di riga si applica al totale della riga; gli sconti si cumulano (prima righe, poi preventivo); un importo superiore al prezzo viene limitato a zero con avviso.
+- **Motore:** `QuoteResult` espone `lineDiscountTotal`, `quoteDiscount` e `discount` totale; `LineResult.discount` è lo sconto di riga. `engineVersion` passa a **1.0.0**.
+- **Schema:** v4 con migrazione `discountBp` → regola percentuale, backup raw `layercost:backup:schema-3` e compatibilità dei link condivisi pre-v4.
+- **UI:** controllo “Nessuno / Percentuale / Importo fisso” in ogni card stampa e nella card Prezzo; sconti visibili in riepilogo, dettaglio, stampa/PDF, link condiviso ed export `.xlsx`.
+- **Esito:** chiuso il 28/10/2026. 124 test unitari, 38 E2E (2 nuovi sugli sconti), axe 40 scansioni con 0 violazioni; baseline visive da rigenerare in CI per le nuove card.
+
 ---
 
 ## 6. Lavoro trasversale
 
-- **ADR:** 0017 (3MF), 0018 (sync), 0019 (inglese) sono la direzione. Ogni cambio di schema o formula richiede un ADR successivo.
-- **Schema:** v3 con `Quote.locale` (inglese), `Quote.status` (ciclo di vita, ADR-0020) e `PrintLine.color` opzionale (T5.17; nessuna migrazione). L'import 3MF non cambia lo schema.
-- **Test:** ogni iniziativa porta unit, property (dove ha senso), E2E, axe e visual. `npm run check` resta il gate. L’export `.xlsx` aggiunge test sul writer e sul mapping, più un E2E sul download reale.
-- **Documentazione:** aggiornare `cost-model.md` solo se cambia una formula (non previsto); `data-model.md` per `Quote.locale`, `Quote.status` e `PrintLine.color`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
+- **ADR:** 0017 (3MF), 0018 (sync), 0019 (inglese) e 0023 (sconti) sono la direzione. Ogni cambio di schema o formula richiede un ADR successivo.
+- **Schema:** v4 con `Quote.locale` (inglese), `Quote.status` (ciclo di vita, ADR-0020), `PrintLine.color` opzionale (T5.17; nessuna migrazione) e sconti di riga/preventivo (T5.20, migrazione v3 → v4).
+- **Test:** ogni iniziativa porta unit, property (dove ha senso), E2E, axe e visual. `npm run check` resta il gate. Gli sconti aggiungono 5 test del motore (di cui 1 property), 1 test di migrazione, 2 test sui link e 2 E2E; l’export `.xlsx` aggiunge test sul writer e sul mapping.
+- **Documentazione:** `cost-model.md` aggiornato per gli sconti (T5.20); `data-model.md` per `Quote.locale`, `Quote.status`, `PrintLine.color` e `DiscountRule`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
 - **Deploy:** Vercel free; per il sync valutare env pubbliche (URL + anon key) e un progetto di test separato.
 - **Sicurezza:** nessun upload di `.3mf`; nessun analytics; nessuna chiamata esterna oltre al provider scelto per il sync.
 
@@ -501,7 +511,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019, l’ADR-0020 e l’ADR-0022. T5.3, T5.6, T5.12 e T5.13–T5.19 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019, l’ADR-0020, l’ADR-0022 e l’ADR-0023. T5.3, T5.6, T5.12, T5.13–T5.19 e T5.20 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check` verde.
 
 ---
 

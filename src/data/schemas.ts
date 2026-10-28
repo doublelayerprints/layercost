@@ -9,6 +9,21 @@ const nonNegativeInteger = integer.nonnegative()
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 const timestampString = z.string().min(1)
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+export const discountRuleSchema = z.discriminatedUnion('mode', [
+  z.object({
+    mode: z.literal('percent'),
+    valueBp: nonNegativeInteger,
+  }),
+  z.object({
+    mode: z.literal('amount'),
+    amount: nonNegativeInteger,
+  }),
+])
+
 const powerProfileSchema = z.object({
   avgWatts: nonNegativeInteger,
   source: z.enum(['measured', 'estimated', 'vendor']),
@@ -114,6 +129,7 @@ export const printLineSchema = z.object({
   finishingSecondsPerUnit: nonNegativeInteger,
   extraIds: z.array(z.string()),
   overrides: lineOverridesSchema,
+  discount: discountRuleSchema.optional(),
   color: z.string().regex(HEX_COLOR_PATTERN).optional(),
   notes: z.string().optional(),
 })
@@ -125,16 +141,28 @@ export const jobCostsSchema = z.object({
   notes: z.string().optional(),
 })
 
-export const quotePricingSchema = z.object({
+const pricingBodySchema = z.object({
   mode: z.enum(['markup', 'margin']),
   markupBp: nonNegativeInteger,
   marginBp: nonNegativeInteger,
   roundingStep: nonNegativeInteger,
   roundingMode: z.enum(['up', 'nearest', 'down']),
-  discountBp: nonNegativeInteger,
+  discount: discountRuleSchema.optional(),
   vatMode: z.enum(['none', 'excluded', 'included']),
   vatRateBp: nonNegativeInteger,
 })
+
+/** Accepts the pre-v4 `discountBp` field and normalizes it to a percent rule. */
+export const quotePricingSchema = z.preprocess((value) => {
+  if (!isRecord(value) || 'discount' in value || !('discountBp' in value)) return value
+  const { discountBp, ...rest } = value
+  if (typeof discountBp !== 'number') return value
+  if (discountBp === 0) return rest
+  return {
+    ...rest,
+    discount: { mode: 'percent', valueBp: discountBp },
+  }
+}, pricingBodySchema)
 
 export const snapshotSchema = z.object({
   config: configSchema,
@@ -161,7 +189,7 @@ export const quoteSchema = z.object({
 })
 
 export const appDataSchema = z.object({
-  schemaVersion: z.literal(3),
+  schemaVersion: z.literal(4),
   config: configSchema,
   quotes: z.array(quoteSchema),
   draft: quoteSchema,
@@ -194,7 +222,7 @@ export function parseAppData(raw: unknown): AppData {
     typeof raw === 'object' && raw !== null && 'schemaVersion' in raw
       ? (raw as { schemaVersion?: unknown }).schemaVersion
       : undefined
-  if (typeof schemaVersion === 'number' && schemaVersion > 3) {
+  if (typeof schemaVersion === 'number' && schemaVersion > 4) {
     throw new StorageError(
       'futureBackup',
       'Il backup è stato creato con una versione più recente di LayerCost.',

@@ -221,6 +221,18 @@ export function buildQuotesXlsx(
     col('xlsx.column.createdAt', 'text', (row) => row.quote.createdAt, 24),
     col('xlsx.column.updatedAt', 'text', (row) => row.quote.updatedAt, 24),
     col('xlsx.column.engineVersion', 'text', (row) => row.quote.engineVersion ?? '', 12),
+    col(
+      'xlsx.column.lineDiscountTotal',
+      'money',
+      (row) => (row.quote.result ? microToEuro(row.quote.result.lineDiscountTotal ?? 0) : null),
+      16,
+    ),
+    col(
+      'xlsx.column.quoteDiscount',
+      'money',
+      (row) => (row.quote.result ? microToEuro(row.quote.result.quoteDiscount ?? 0) : null),
+      18,
+    ),
   ]
 
   const lineColumns: Array<ExportColumn<LineExportRow>> = [
@@ -331,6 +343,12 @@ export function buildQuotesXlsx(
       'watts',
       (row) => (row.result ? row.result.avgWatts : null),
       18,
+    ),
+    col(
+      'xlsx.column.lineDiscount',
+      'money',
+      (row) => (row.result ? microToEuro(row.result.discount ?? 0) : null),
+      16,
     ),
   ]
 

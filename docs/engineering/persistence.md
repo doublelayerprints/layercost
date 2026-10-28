@@ -1,6 +1,6 @@
 # Persistenza e backup
 
-**Stato:** v1.0.0 + ADR-0020 — local-first, schema v3
+**Stato:** v1.0.0 + ADR-0020 + ADR-0023 — local-first, schema v4
 
 ---
 
@@ -35,7 +35,7 @@ Prima di una migrazione, il raw della versione precedente viene conservato in:
 layercost:backup:schema-<versione>
 ```
 
-La chiave è stabile per versione di partenza (`layercost:backup:schema-1` o `schema-2`), quindi il backup non cresce a ogni avvio.
+La chiave è stabile per versione di partenza (`layercost:backup:schema-1`, `schema-2` o `schema-3`), quindi il backup non cresce a ogni avvio.
 
 ## 2. Codice
 
@@ -54,10 +54,10 @@ Lo storage è l'unico punto che tocca `localStorage`.
 
 ## 3. Schema e migrazioni
 
-- `schemaVersion` corrente: **3**. `Quote.locale` è la lingua del documento (`it`/`en`), `Quote.status` è `draft | saved | sent | completed`.
+- `schemaVersion` corrente: **4**. `Quote.locale` è la lingua del documento (`it`/`en`), `Quote.status` è `draft | saved | sent | completed`, `PrintLine.discount` e `QuotePricing.discount` sono sconti opzionali percentuali o a importo fisso.
 - La modifica di un preventivo `saved` usa lo snapshot e non cambia i prezzi; `sent` e `completed` sono bloccati (ADR-0020).
-- `migrateAppData` rifiuta versioni future e versioni non numeriche; la catena v1 → v2 → v3 aggiunge `locale: 'it'` e abilita gli stati senza modificare i dati esistenti, anche dentro un envelope di export.
-- Prima di applicare la migrazione allo storage, il raw viene salvato in `layercost:backup:schema-1` o `schema-2`.
+- `migrateAppData` rifiuta versioni future e versioni non numeriche; la catena v1 → v2 → v3 → v4 aggiunge `locale: 'it'`, abilita gli stati e converte `discountBp` in una regola percentuale, anche dentro un envelope di export.
+- Prima di applicare la migrazione allo storage, il raw viene salvato in `layercost:backup:schema-1`, `schema-2` o `schema-3`.
 
 ## 4. Export
 
@@ -66,7 +66,7 @@ Pulsante “Esporta backup” in Impostazioni e nella pagina del preventivo (tra
 ```json
 {
   "app": "LayerCost",
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "exportedAt": "2026-10-23T12:00:00.000Z",
   "data": { "...": "..." }
 }

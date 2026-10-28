@@ -1,17 +1,17 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 + T5.3/T5.6.5/T5.12 — fase 5 in corso
-**Data:** 26 ottobre 2026
+**Stato:** v1.0.0 + T5.3/T5.6.5/T5.12/T5.20 — fase 5 in corso
+**Data:** 28 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19); sync cloud richiesto (ADR-0018: Supabase Free, workspace condiviso, magic link), non ancora implementato.
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud richiesto (ADR-0018: Supabase Free, workspace condiviso, magic link), non ancora implementato.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 116 unitari + 36 E2E (6 visual su CI, 36 screenshot); axe 0 violazioni su 40 scansioni.
+- Test: 124 unitari + 38 E2E (6 visual su CI, 36 screenshot); axe 0 violazioni su 40 scansioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) verificata; le preview sono protette da SSO.
@@ -222,7 +222,7 @@ Sezioni minime:
 5. Componenti: materiale, energia, usura, manodopera, extra, guasti.
 6. Costo di riga.
 7. Costo del preventivo e ripartizione.
-8. Prezzo, sconto, IVA, margine effettivo.
+8. Prezzo, sconti, IVA, margine effettivo.
 9. Snapshot e versione motore.
 10. Esempi svolti.
 11. Casi limite.
@@ -267,7 +267,7 @@ Voci minime:
 - Purge, flush, prime tower, brim, supporti.
 - AMS, ACE, ACE 2 Pro, multicolore.
 - Tariffa energia, costo marginale, kWh.
-- Ricarico, margine, margine effettivo, sconto, IVA.
+- Ricarico, margine, margine effettivo, sconti, IVA.
 - Snapshot, engine version, migrazione, schema version.
 - Preventivo, lotto, riga, quantità.
 - Archivio, cancellazione, riferimento.

@@ -110,6 +110,11 @@ export interface LineOverrides {
   failureRateBp?: BasisPoints
 }
 
+/** Commercial discount. `amount` is a fixed amount off the discounted base. */
+export type DiscountRule =
+  | { mode: 'percent'; valueBp: BasisPoints }
+  | { mode: 'amount'; amount: MicroEur }
+
 export interface PrintLine {
   id: string
   name: string
@@ -120,6 +125,8 @@ export interface PrintLine {
   finishingSecondsPerUnit: Seconds
   extraIds: string[]
   overrides: LineOverrides
+  /** Discount on the whole line, applied after markup and before the quote discount. */
+  discount?: DiscountRule
   /** Filament colour as #rrggbb. Presentation only: it never enters the cost. */
   color?: string
   notes?: string
@@ -138,7 +145,8 @@ export interface QuotePricing {
   marginBp: BasisPoints
   roundingStep: MicroEur
   roundingMode: 'up' | 'nearest' | 'down'
-  discountBp: BasisPoints
+  /** Discount on the quote total, applied after line discounts. */
+  discount?: DiscountRule
   vatMode: 'none' | 'excluded' | 'included'
   vatRateBp: BasisPoints
 }
@@ -179,6 +187,8 @@ export interface LineResult {
   allocatedFixed: MicroEur
   fullyLoadedLineCost: MicroEur
   fullyLoadedUnitCost: MicroEur
+  /** Line-level discount applied before the quote discount. */
+  discount: MicroEur
   priceCents: number
   pricePerUnitCents: number
   materialDetails: MaterialCostDetail[]
@@ -195,7 +205,10 @@ export interface QuoteResult {
   jobFixedTotal: MicroEur
   totalCost: MicroEur
   rawPrice: MicroEur
+  /** Line discounts plus the quote-level discount, before rounding. */
   discount: MicroEur
+  lineDiscountTotal: MicroEur
+  quoteDiscount: MicroEur
   netPriceCents: number
   vatCents: number
   grossPriceCents: number

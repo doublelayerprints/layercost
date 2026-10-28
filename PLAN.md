@@ -38,7 +38,7 @@ Il progetto deve essere:
 | ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------- |
 | **Tancredi**                  | Kobra 3, stampa per hobby e piccoli lotti, senza multicolore | Sapere quanto costa davvero un pezzo e un lotto, includendo energia e usura |
 | **La sua amorosa**            | Kobra X con ACE 2 Pro, stampe multicolore                    | Includere cambi colore, sprechi e usura senza contare due volte il purge    |
-| **Futuro utente commerciale** | Vende stampe occasionalmente                                 | Ottenere un prezzo con margine, sconto e IVA opzionale                      |
+| **Futuro utente commerciale** | Vende stampe occasionalmente                                 | Ottenere un prezzo con margine, sconti e IVA opzionale                      |
 
 ### 2.2 Lavori da svolgere
 
@@ -72,7 +72,7 @@ Il progetto deve essere:
 1. **Ogni numero è configurabile.** Se un valore entra in un calcolo, deve essere modificabile e persistito.
 2. **Nessun numero magico.** Le formule sono in `docs/domain/cost-model.md`; il codice le implementa, non le inventa.
 3. **La trasparenza vince sulla semplificazione.** Meglio mostrare sei righe di costo che un prezzo unico inspiegabile.
-4. **Il costo non è il prezzo.** Il motore calcola il costo; il livello prezzi applica margine, sconto e IVA.
+4. **Il costo non è il prezzo.** Il motore calcola il costo; il livello prezzi applica margine, sconti e IVA.
 5. **Il passato non cambia.** Un preventivo salvato conserva le tariffe usate.
 6. **Locale prima, cloud dopo.** Nessun backend in v1, ma interfaccia dati pronta per un adapter futuro.
 7. **La UI può cambiare, il dominio no.** La fase di design non deve toccare le formule.
@@ -132,7 +132,7 @@ La fase 5 riprende alcune di queste voci: import `.3mf` e interfaccia inglese (c
 | FR-08 | Override per riga: kWh misurati, potenza media, tasso guasti                                                                                                |
 | FR-09 | Breakdown: materiale, energia, ammortamento, manutenzione, manodopera, extra, riserva guasti                                                                |
 | FR-10 | Costo diretto unitario, costo diretto riga, costo pieno unitario, costo totale                                                                              |
-| FR-11 | Prezzo con ricarico o margine, sconto, arrotondamento, IVA inclusa/esclusa                                                                                  |
+| FR-11 | Prezzo con ricarico o margine, sconti di riga e preventivo (percentuali o importo fisso), arrotondamento, IVA inclusa/esclusa                                  |
 | FR-12 | Lotto: più righe, quantità, costi fissi di lavoro, ripartizione                                                                                             |
 | FR-13 | Confronto tra stampanti: duplica una riga su un'altra stampante e mostra il delta                                                                           |
 | FR-14 | Salvataggio preventivo con snapshot delle tariffe e versione del motore                                                                                     |
@@ -349,7 +349,7 @@ Ogni preventivo salvato contiene:
 - `engineVersion`;
 - data del preventivo;
 - per ogni riga: nomi e ID, grammi, tempo, quantità, minuti di finitura, extra, tariffe risolte (prezzo materiale, potenza media, avvio, ammortamento €/h, manutenzione €/h, prezzo energia, tasso guasti, manodopera);
-- impostazioni di prezzo (modalità, ricarico/margine, arrotondamento, sconto, IVA);
+- impostazioni di prezzo (modalità, ricarico/margine, arrotondamento, sconti, IVA);
 - costi di lavoro;
 - risultato calcolato.
 

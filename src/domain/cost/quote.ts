@@ -12,7 +12,7 @@ import { allocateLargestRemainder, roundHalfUp, sumNumbers } from '../money'
 import { ENGINE_VERSION } from '../version'
 import { calculateJobLabor } from './labor'
 import { buildLineResult, computeLine, type LineComputation } from './line'
-import { calculatePricing } from './pricing'
+import { calculateDiscount, calculatePricing, calculateRawPrice, finalizePrice } from './pricing'
 
 function resolveJobExtras(
   extraIds: string[],
@@ -48,6 +48,70 @@ function computeEffectiveMargin(totalCost: MicroEur, netPriceCents: number): Bas
   return asBasisPoints(roundHalfUp(((netPriceMicro - totalCost) * 10_000) / netPriceMicro))
 }
 
+function hasLineDiscounts(quote: Quote): boolean {
+  return quote.lines.some((line) => {
+    const rule = line.discount
+    if (!rule) return false
+    return rule.mode === 'percent' ? rule.valueBp > 0 : rule.amount > 0
+  })
+}
+
+interface QuoteTotals {
+  rawPrice: MicroEur
+  lineDiscountTotal: MicroEur
+  quoteDiscount: MicroEur
+  discount: MicroEur
+  netPriceCents: number
+  vatCents: number
+  grossPriceCents: number
+  lineDiscounts: MicroEur[]
+  priceWeights: number[]
+}
+
+function calculateTotals(
+  computations: LineComputation[],
+  quote: Quote,
+  totalCost: MicroEur,
+  priceWeights: number[],
+): QuoteTotals {
+  if (!hasLineDiscounts(quote)) {
+    const priced = calculatePricing(totalCost, quote.pricing)
+    return {
+      rawPrice: priced.rawPrice,
+      lineDiscountTotal: asMicroEur(0),
+      quoteDiscount: priced.discount,
+      discount: priced.discount,
+      netPriceCents: priced.netPriceCents,
+      vatCents: priced.vatCents,
+      grossPriceCents: priced.grossPriceCents,
+      lineDiscounts: computations.map(() => asMicroEur(0)),
+      priceWeights,
+    }
+  }
+
+  const rawPrice = calculateRawPrice(totalCost, quote.pricing)
+  const rawShares = allocateLargestRemainder(rawPrice, priceWeights)
+  const lineDiscounts = computations.map((_, index) =>
+    calculateDiscount(asMicroEur(rawShares[index] ?? 0), quote.lines[index]?.discount),
+  )
+  const lineDiscountTotal = asMicroEur(sumNumbers(lineDiscounts))
+  const afterLineDiscounts = asMicroEur(rawPrice - lineDiscountTotal)
+  const quoteDiscount = calculateDiscount(afterLineDiscounts, quote.pricing.discount)
+  const totals = finalizePrice(asMicroEur(afterLineDiscounts - quoteDiscount), quote.pricing)
+
+  return {
+    rawPrice,
+    lineDiscountTotal,
+    quoteDiscount,
+    discount: asMicroEur(lineDiscountTotal + quoteDiscount),
+    netPriceCents: totals.netPriceCents,
+    vatCents: totals.vatCents,
+    grossPriceCents: totals.grossPriceCents,
+    lineDiscounts,
+    priceWeights: rawShares.map((share, index) => Math.max(0, share - (lineDiscounts[index] ?? 0))),
+  }
+}
+
 export function calculateQuote(quote: Quote, config: CostConfig): QuoteResult {
   if (quote.lines.length === 0) {
     throw new DomainError('NO_LINES', 'Aggiungi almeno una riga al preventivo.')
@@ -74,19 +138,20 @@ export function calculateQuote(quote: Quote, config: CostConfig): QuoteResult {
 
   const allocatedFixed = allocateLargestRemainder(jobFixedTotal, weights)
   const totalCost = asMicroEur(directTotal + jobFixedTotal)
-  const pricing = calculatePricing(totalCost, quote.pricing)
-
   const priceWeights = computations.map((computation, index) => {
     const fixed = allocatedFixed[index] ?? 0
     return computation.directLineCost + fixed
   })
-  const priceAllocations = allocateLargestRemainder(pricing.netPriceCents, priceWeights)
+
+  const totals = calculateTotals(computations, quote, totalCost, priceWeights)
+  const priceAllocations = allocateLargestRemainder(totals.netPriceCents, totals.priceWeights)
 
   const lines: LineResult[] = computations.map((computation, index) =>
     buildLineResult(
       computation,
       asMicroEur(allocatedFixed[index] ?? 0),
       priceAllocations[index] ?? 0,
+      totals.lineDiscounts[index] ?? asMicroEur(0),
     ),
   )
 
@@ -99,12 +164,14 @@ export function calculateQuote(quote: Quote, config: CostConfig): QuoteResult {
     jobExtras: jobExtras.total,
     jobFixedTotal,
     totalCost,
-    rawPrice: pricing.rawPrice,
-    discount: pricing.discount,
-    netPriceCents: pricing.netPriceCents,
-    vatCents: pricing.vatCents,
-    grossPriceCents: pricing.grossPriceCents,
-    effectiveMarginBp: computeEffectiveMargin(totalCost, pricing.netPriceCents),
+    rawPrice: totals.rawPrice,
+    discount: totals.discount,
+    lineDiscountTotal: totals.lineDiscountTotal,
+    quoteDiscount: totals.quoteDiscount,
+    netPriceCents: totals.netPriceCents,
+    vatCents: totals.vatCents,
+    grossPriceCents: totals.grossPriceCents,
+    effectiveMarginBp: computeEffectiveMargin(totalCost, totals.netPriceCents),
     jobLaborDetails: {
       setup: jobLabor.setup,
       design: jobLabor.design,
@@ -120,7 +187,6 @@ export function pricingFromSettings(settings: Settings): Quote['pricing'] {
     marginBp: settings.marginBp,
     roundingStep: settings.roundingStep,
     roundingMode: settings.roundingMode,
-    discountBp: asBasisPoints(0),
     vatMode: settings.vatMode,
     vatRateBp: settings.vatRateBp,
   }

@@ -162,6 +162,11 @@ export function QuotePrint({
                     {format.pricePerUnit(line.priceCents, line.quantity)}
                     {t('quote.unit.pricePerPiece')}
                   </span>
+                  {line.discount > 0 ? (
+                    <span className="block text-[8pt] text-black/60">
+                      {t('quote.lineDiscountAmount', { amount: format.currency(line.discount) })}
+                    </span>
+                  ) : null}
                 </td>
               </tr>
             )
@@ -192,8 +197,25 @@ export function QuotePrint({
                 })
               : t('quote.price.noVat')}
           </p>
+          {result.discount > 0 ? (
+            <p className="text-[9pt] text-black/60">
+              {t('quote.discountTotal')} −{format.currency(result.discount)}
+            </p>
+          ) : null}
           {internal ? (
             <dl className="mt-2 border-t border-black/25 pt-1 text-[9pt]">
+              {result.lineDiscountTotal > 0 ? (
+                <div className="flex items-center justify-between gap-4 py-0.5">
+                  <dt>{t('summary.lineDiscounts')}</dt>
+                  <dd className="tabular-nums">−{format.currency(result.lineDiscountTotal)}</dd>
+                </div>
+              ) : null}
+              {result.quoteDiscount > 0 ? (
+                <div className="flex items-center justify-between gap-4 py-0.5">
+                  <dt>{t('summary.quoteDiscount')}</dt>
+                  <dd className="tabular-nums">−{format.currency(result.quoteDiscount)}</dd>
+                </div>
+              ) : null}
               <div className="flex items-center justify-between gap-4 py-0.5">
                 <dt>{t('quote.label.fullyLoadedCost')}</dt>
                 <dd className="tabular-nums">{format.currency(result.totalCost)}</dd>

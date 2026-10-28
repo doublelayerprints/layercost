@@ -66,6 +66,11 @@ export const calculatorIt = {
   'line.removeMaterialAria': 'Rimuovi materiale {index}',
   'line.removeMaterial': 'Rimuovi materiale',
   'line.perUnitExtras': 'Extra per pezzo',
+  'line.discount': 'Sconto sulla stampa',
+  'line.discountHint':
+    'Si applica al totale della riga, dopo il ricarico e prima dello sconto del preventivo.',
+  'line.discountApplied': 'Sconto applicato: {amount}',
+  'line.discountCapped': 'L’importo supera il prezzo della riga: applicato {amount}.',
   'line.advancedOverrides': 'Override avanzati',
   'line.advancedOverridesHint': 'potenza media, energia misurata, tasso guasti',
   'line.avgPower': 'Potenza media',
@@ -88,7 +93,7 @@ export const calculatorIt = {
 
   'pricing.title': 'Prezzo',
   'pricing.description':
-    'Il prezzo si calcola sul costo pieno; lo sconto si applica prima dell’arrotondamento.',
+    'Il prezzo si calcola sul costo pieno; gli sconti di riga si applicano prima di quello del preventivo e dell’arrotondamento.',
   'pricing.reset': 'Ripristina default',
   'pricing.mode': 'Modalità',
   'pricing.modeMarkup': 'Ricarico sul costo',
@@ -97,7 +102,11 @@ export const calculatorIt = {
   'pricing.margin': 'Margine',
   'pricing.markupHint': 'Percentuale aggiunta al costo.',
   'pricing.marginHint': 'Percentuale sul prezzo finale.',
-  'pricing.discount': 'Sconto',
+  'pricing.discount': 'Sconto sul preventivo',
+  'pricing.discountHint':
+    'Si applica dopo gli sconti delle righe e prima dell’arrotondamento finale.',
+  'pricing.discountApplied': 'Sconto applicato: {amount}',
+  'pricing.discountCapped': 'L’importo supera il totale: applicato {amount}.',
   'pricing.vat': 'IVA',
   'pricing.vatNone': 'Nessuna IVA',
   'pricing.vatExcluded': 'IVA esclusa',
@@ -134,6 +143,10 @@ export const calculatorIt = {
   'summary.completeData': 'Completa i dati',
   'summary.fullCost': 'Costo pieno',
   'summary.profit': 'Guadagno',
+  'summary.discounts': 'Sconti',
+  'summary.lineDiscounts': 'Sconti righe',
+  'summary.quoteDiscount': 'Sconto preventivo',
+  'summary.discountBreakdown': 'Righe {lines} · preventivo {quote}',
   'summary.effectiveMargin': 'Margine effettivo',
   'summary.detailsLink': 'Dettaglio costi',
   'summary.empty': 'Inserisci stampante, tempo e grammi per vedere il costo e il prezzo.',
@@ -168,6 +181,8 @@ export const calculatorIt = {
   'details.total': 'Totale',
   'details.jobExtras': 'Extra di lavoro',
   'details.netPrice': 'Prezzo netto',
+  'details.lineDiscounts': 'Sconti righe',
+  'details.quoteDiscount': 'Sconto preventivo',
   'details.vatAndGross': 'IVA {vat} · lordo {gross}',
   'details.notes': 'Note',
 

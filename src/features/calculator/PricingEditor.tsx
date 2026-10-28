@@ -1,22 +1,33 @@
-import type { QuotePricing, Settings } from '@/domain/types'
+import type { QuotePricing, QuoteResult, Settings } from '@/domain/types'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { Button, InfoDot, SectionHeader } from '@/components/ui'
+import { DiscountField } from '@/components/discount-field'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 
 export function PricingEditor({
   pricing,
   settings,
+  result,
   onChange,
   onReset,
 }: {
   pricing: QuotePricing
   settings: Settings
+  result?: QuoteResult
   onChange: (patch: Partial<QuotePricing>) => void
   onReset: () => void
 }) {
   const { t } = useI18n()
+  const format = useFormat()
   const isMarkup = pricing.mode === 'markup'
   const valueBp = isMarkup ? pricing.markupBp : pricing.marginBp
+  const requestedDiscount =
+    pricing.discount?.mode === 'amount' ? pricing.discount.amount : undefined
+  const discountCapped =
+    requestedDiscount !== undefined &&
+    result !== undefined &&
+    requestedDiscount > result.quoteDiscount
 
   return (
     <>
@@ -52,13 +63,6 @@ export function PricingEditor({
           onChangeBp={(value) => onChange(isMarkup ? { markupBp: value } : { marginBp: value })}
           decimals={1}
           max={isMarkup ? 1000 : 99}
-        />
-        <PercentField
-          label={t('pricing.discount')}
-          valueBp={pricing.discountBp}
-          onChangeBp={(value) => onChange({ discountBp: value })}
-          decimals={1}
-          max={90}
         />
         <SelectField
           label={t('pricing.vat')}
@@ -102,6 +106,25 @@ export function PricingEditor({
             }).format(0.1),
           })}
         />
+      </div>
+
+      <div className="mt-4 border-t border-line pt-4">
+        <DiscountField
+          value={pricing.discount}
+          onChange={(discount) => onChange({ discount })}
+          label={t('pricing.discount')}
+          hint={t('pricing.discountHint')}
+        />
+        {result && result.quoteDiscount > 0 ? (
+          <p className="mt-2 text-sm text-muted">
+            {t('pricing.discountApplied', { amount: format.currency(result.quoteDiscount) })}
+          </p>
+        ) : null}
+        {discountCapped && result ? (
+          <p className="mt-1 text-sm text-warning" role="status">
+            {t('pricing.discountCapped', { amount: format.currency(result.quoteDiscount) })}
+          </p>
+        ) : null}
       </div>
 
       <p className="mt-4 text-sm leading-snug text-muted">

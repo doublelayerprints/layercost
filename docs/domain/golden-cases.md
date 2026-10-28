@@ -51,9 +51,9 @@ La somma dei prezzi di riga è esattamente €19,50. Il prezzo unitario di A è 
 
 ---
 
-## G-03 — Margine, sconto e IVA
+## G-03 — Margine, sconto preventivo e IVA
 
-**Input:** costo €10,00; margine 25%; sconto 10%; IVA 22% esclusa; arrotondamento al €0,10 più vicino.
+**Input:** costo €10,00; margine 25%; sconto del preventivo 10%; IVA 22% esclusa; arrotondamento al €0,10 più vicino.
 
 | Voce              |        Valore |
 | ----------------- | ------------: |
@@ -75,7 +75,7 @@ La somma dei prezzi di riga è esattamente €19,50. Il prezzo unitario di A è 
 - G-08: quantità 3 → costi variabili ×3, costi fissi una volta.
 - G-09: ripartizione uguale per pezzo.
 - G-10: margine 50% → prezzo = costo × 2.
-- G-11: sconto prima dell'arrotondamento.
+- G-11: sconto del preventivo prima dell'arrotondamento.
 - G-12: IVA inclusa → netto estratto dal lordo.
 - G-13: arrotondamento nearest.
 - G-14: arrotondamento down.
@@ -83,5 +83,8 @@ La somma dei prezzi di riga è esattamente €19,50. Il prezzo unitario di A è 
 - G-16: entità archiviata nello snapshot.
 - G-17: valori massimi / guard.
 - G-18: preventivo senza righe → errore.
+- G-19: sconto di riga 10% sulla quota prezzo della riga.
+- G-20: sconto di riga 10% + sconto preventivo 10% → `discount` è la somma.
+- G-21: sconto fisso superiore al prezzo → limitato a zero, nessun valore negativo.
 
 I test eseguibili sono in `src/domain/cost.test.ts`. Se un valore cambia, cambiano nello stesso commit documento, test e `engineVersion`.

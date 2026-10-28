@@ -3,6 +3,7 @@ import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { asBasisPoints, asCentigrams, asWatts, asWh } from '@/domain/units'
 import { Badge, Button, InfoDot, Select } from '@/components/ui'
+import { DiscountField } from '@/components/discount-field'
 import { LineColorField } from '@/components/line-color'
 import {
   DurationField,
@@ -65,6 +66,11 @@ export function LineEditor({
   )
 
   const totalGrams = line.materials.reduce((sum, usage) => sum + usage.grams, 0)
+  const requestedDiscount = line.discount?.mode === 'amount' ? line.discount.amount : undefined
+  const discountCapped =
+    requestedDiscount !== undefined &&
+    result !== undefined &&
+    requestedDiscount > result.discount
 
   return (
     <fieldset
@@ -250,6 +256,25 @@ export function LineEditor({
           </div>
         </div>
       ) : null}
+
+      <div className="mt-5 border-t border-line pt-4">
+        <DiscountField
+          value={line.discount}
+          onChange={(discount) => onUpdate({ discount })}
+          label={t('line.discount')}
+          hint={t('line.discountHint')}
+        />
+        {result && result.discount > 0 ? (
+          <p className="mt-2 text-sm text-muted">
+            {t('line.discountApplied', { amount: format.currency(result.discount) })}
+          </p>
+        ) : null}
+        {discountCapped && result ? (
+          <p className="mt-1 text-sm text-warning" role="status">
+            {t('line.discountCapped', { amount: format.currency(result.discount) })}
+          </p>
+        ) : null}
+      </div>
 
       <details className="group mt-5 border-t border-line pt-3">
         <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-ink marker:hidden">

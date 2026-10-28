@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyDraft, createSeedConfig } from '@/data/seed'
-import { asSeconds, asCentigrams, asWatts } from '@/domain/units'
+import { asBasisPoints, asSeconds, asCentigrams, asWatts } from '@/domain/units'
 import { draftHasContent } from './draft'
 
 const config = createSeedConfig()
@@ -53,6 +53,12 @@ describe('contenuto della bozza', () => {
     expect(draftHasContent({ ...base, lines: [{ ...line, quantity: 2 }] })).toBe(true)
     expect(draftHasContent({ ...base, lines: [{ ...line, extraIds: ['extra-1'] }] })).toBe(true)
     expect(draftHasContent({ ...base, lines: [{ ...line, color: '#ff0000' }] })).toBe(true)
+    expect(
+      draftHasContent({
+        ...base,
+        lines: [{ ...line, discount: { mode: 'percent', valueBp: asBasisPoints(1_000) } }],
+      }),
+    ).toBe(true)
   })
 
   it('riconosce costi di lavoro e note', () => {

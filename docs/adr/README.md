@@ -26,6 +26,7 @@ Le decisioni architetturali di LayerCost. Un ADR accettato non si riscrive: se c
 | 0020 | [Preventivi modificabili fino all'invio](0020-editable-quotes.md)                        |
 | 0021 | [Accento viola](0021-accent-violet.md)                                                   |
 | 0022 | [Vista interna e vista cliente del preventivo](0022-internal-customer-quote-views.md)    |
+| 0023 | [Sconti di riga e di preventivo, percentuali o a importo fisso](0023-line-and-quote-discounts.md) |
 
 ---
 

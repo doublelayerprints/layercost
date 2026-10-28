@@ -17,13 +17,15 @@
 - Colore filamento per riga (T5.17): colore `#rrggbb` opzionale con picker, swatch in dettaglio/stampa e rimozione; schema v3 invariato.
 - Utile e vista cliente (T5.18): “Guadagno” in euro nel calcolatore e nel dettaglio, con margine effettivo come nota; link condiviso e stampa standard per il cliente mostrano solo prezzi, IVA e note; “Stampa interna” dal dettaglio include costi e composizione ed è marcata “Uso interno”. Valore derivato di UI, nessun cambio a formule, schema, snapshot o `engineVersion`.
 - Composizione del prezzo, righe cliccabili e stampa in tema scuro (T5.19): barra del prezzo netto divisa in costo pieno e guadagno sopra la composizione del costo; lista preventivi senza “Apri” e con riga cliccabile evidenziata all'hover; i token chiari di stampa sono limitati al foglio `.quote-print`, così l'interfaccia resta scura durante l'anteprima e il PDF mantiene i margini bianchi.
+- Sconti di riga e di preventivo (T5.20, ADR-0023): sconto opzionale percentuale o a importo fisso sulla singola stampa e sul totale; l'importo fisso di riga si applica al totale della riga, gli sconti si cumulano e un importo superiore al prezzo viene limitato a zero con avviso. `QuoteResult` espone `lineDiscountTotal`, `quoteDiscount` e `discount`; `LineResult.discount` è lo sconto di riga. UI in calcolatore, riepilogo, dettaglio, stampa/PDF, link condiviso ed export `.xlsx`. Schema v4 con migrazione `discountBp` → regola percentuale, backup raw `layercost:backup:schema-3` e link condivisi pre-v4 compatibili. `engineVersion` 1.0.0.
 - Calcolatore: aggiunta riga tramite una barra trasparente a tutta larghezza sotto l’ultima card, con `+` centrale e stato accent su hover, focus e click; l’azione è stata tolta dalla testata della sezione Stampe.
 - Export `.xlsx` (T5.12): writer locale senza nuove dipendenze, tre fogli (Preventivi, Righe, Materiali), valori numerici con formati Excel, intestazioni in italiano/inglese, archiviati inclusi e pulsanti in Preventivi e Impostazioni → Dati.
-- Test: 116 unitari, 36 E2E, 36 screenshot visuali.
+- Test: 124 unitari, 38 E2E, 36 screenshot visuali.
 
 ### Changed
 
 - Accento viola (T4.8, ADR-0021): `--color-data` passa a `#5b21b6` nel tema chiaro e `#9d7bf5` nel tema scuro, con selezione, pill informativa e favicon allineate; la barra “Completa i dati” del riepilogo usa l'accent, mentre la pillola “Da completare” resta warning. Test E2E aggiornati e baseline visive Linux rigenerate. Nessun cambio a formule, `engineVersion`, schema, snapshot o persistenza.
+- `QuoteResult.discount` ora è la somma dello sconto di riga e dello sconto del preventivo; i due valori sono disponibili separatamente in `lineDiscountTotal` e `quoteDiscount`. `QuotePricing.discountBp` è sostituito da `QuotePricing.discount: DiscountRule`. `engineVersion` passa da `0.1.0` a `1.0.0`; lo schema passa da v3 a v4 con migrazione automatica.
 
 ## [1.0.0] — 2026-10-24
 

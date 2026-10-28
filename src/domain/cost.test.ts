@@ -150,7 +150,6 @@ function makeQuote(
       marginBp: settings.marginBp,
       roundingStep: settings.roundingStep,
       roundingMode: settings.roundingMode,
-      discountBp: asBasisPoints(0),
       vatMode: settings.vatMode,
       vatRateBp: settings.vatRateBp,
     },
@@ -290,7 +289,7 @@ describe('motore di costo', () => {
       marginBp: pct(25),
       roundingStep: eur(0.1),
       roundingMode: 'nearest',
-      discountBp: pct(10),
+      discount: { mode: 'percent', valueBp: pct(10) },
       vatMode: 'excluded',
       vatRateBp: pct(22),
     }
@@ -298,6 +297,73 @@ describe('motore di costo', () => {
     expect(result.netPriceCents).toBe(1200)
     expect(result.vatCents).toBe(264)
     expect(result.grossPriceCents).toBe(1464)
+  })
+
+  it('applica lo sconto percentuale alla riga prima dell’arrotondamento', () => {
+    const result = calculateQuote(
+      makeQuote([makeLine({ discount: { mode: 'percent', valueBp: pct(10) } })]),
+      makeConfig(),
+    )
+
+    expect(result.rawPrice).toBe(5_186_030)
+    expect(result.lineDiscountTotal).toBe(518_603)
+    expect(result.quoteDiscount).toBe(0)
+    expect(result.discount).toBe(518_603)
+    expect(result.lines[0]!.discount).toBe(518_603)
+    expect(result.netPriceCents).toBe(470)
+  })
+
+  it('cumula sconto di riga e sconto del preventivo', () => {
+    const quote = makeQuote([
+      makeLine({ discount: { mode: 'percent', valueBp: pct(10) } }),
+    ])
+    quote.pricing.discount = { mode: 'percent', valueBp: pct(10) }
+    const result = calculateQuote(quote, makeConfig())
+
+    expect(result.lineDiscountTotal).toBe(518_603)
+    expect(result.quoteDiscount).toBe(466_743)
+    expect(result.discount).toBe(985_346)
+    expect(result.netPriceCents).toBe(430)
+  })
+
+  it('limita a zero uno sconto di importo superiore al prezzo', () => {
+    const line = calculateQuote(
+      makeQuote([makeLine({ discount: { mode: 'amount', amount: eur(10) } })]),
+      makeConfig(),
+    )
+    expect(line.lineDiscountTotal).toBe(5_186_030)
+    expect(line.lines[0]!.discount).toBe(5_186_030)
+    expect(line.netPriceCents).toBe(0)
+    expect(line.effectiveMarginBp).toBe(0)
+
+    const quote = makeQuote([makeLine()])
+    quote.pricing.discount = { mode: 'amount', amount: eur(10) }
+    const total = calculateQuote(quote, makeConfig())
+    expect(total.quoteDiscount).toBe(5_186_030)
+    expect(total.netPriceCents).toBe(0)
+  })
+
+  it('ripartisce il prezzo scontato tra le righe senza perdere centesimi', () => {
+    const quote = makeQuote([
+      makeLine({
+        id: 'line-a',
+        name: 'A',
+        timeSeconds: hours(1),
+        discount: { mode: 'percent', valueBp: pct(15) },
+      }),
+      makeLine({
+        id: 'line-b',
+        name: 'B',
+        timeSeconds: hours(3),
+        materials: [{ materialId: 'material-pla', grams: grams(150) }],
+      }),
+    ])
+    quote.pricing.discount = { mode: 'amount', amount: eur(1) }
+    const result = calculateQuote(quote, makeConfig())
+
+    expect(result.lines.reduce((sum, line) => sum + line.priceCents, 0)).toBe(result.netPriceCents)
+    expect(result.discount).toBe(result.lineDiscountTotal + result.quoteDiscount)
+    expect(result.lines.every((line) => line.priceCents >= 0)).toBe(true)
   })
 
   it('applica la riserva guasti come valore atteso', () => {
@@ -391,6 +457,31 @@ describe('proprietà', () => {
         ).total
         expect(doubled).toBe(base * 2)
       }),
+    )
+  })
+
+  it('gli sconti non aumentano il prezzo e le righe sommano al netto', () => {
+    const base = calculateQuote(makeQuote([makeLine()]), makeConfig())
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 0, max: 9_000 }),
+        fc.integer({ min: 0, max: 10_000_000 }),
+        (lineBp, quoteAmount) => {
+          const quote = makeQuote([
+            makeLine({ discount: { mode: 'percent', valueBp: asBasisPoints(lineBp) } }),
+          ])
+          quote.pricing.discount = {
+            mode: 'amount',
+            amount: asMicroEur(quoteAmount),
+          }
+          const result = calculateQuote(quote, makeConfig())
+          expect(result.netPriceCents).toBeLessThanOrEqual(base.netPriceCents)
+          expect(result.lines.reduce((sum, line) => sum + line.priceCents, 0)).toBe(
+            result.netPriceCents,
+          )
+          expect(result.lines.every((line) => line.priceCents >= 0)).toBe(true)
+        },
+      ),
     )
   })
 })

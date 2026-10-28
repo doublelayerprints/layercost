@@ -2,12 +2,12 @@
 
 **Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 in corso; CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
-**Data:** 26 ottobre 2026
+**Data:** 28 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.19 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021 e ADR-0022 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni e preventivi.
+**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.20 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022 e ADR-0023 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni e preventivi; dopo T5.20 vanno rigenerate per le card degli sconti.
 
 ---
 
@@ -768,7 +768,7 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12 e T5.13–T5.17 chiusi; prossimo T5.4 sync (richiesto). Piano completo, decisioni e domande aperte in `docs/planning/phase-5.md`. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.17 → T5.4**.
+**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.20 chiusi; prossimo T5.4 sync (richiesto). Piano completo, decisioni e domande aperte in `docs/planning/phase-5.md`. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.20 → T5.4**.
 
 **Nota di scope (26/10/2026):** il committente ha indicato che T5.1, T5.2, T5.5 e T5.7–T5.11 sono fatte, non volute o svolte direttamente. Non sono più nel perimetro; restano **T5.4 sync** (richiesto) e **T5.12 export `.xlsx`** (chiuso).
 
@@ -1123,6 +1123,25 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 
 **Accettazione:** due barre visibili in calcolatore e dettaglio; riga preventivo cliccabile senza “Apri”; stampa/PDF bianca con UI scura; `npm run check` e `npm run test:e2e` verdi. → soddisfatta.
 
+## T5.20 — Sconti di riga e di preventivo
+
+**Stato:** `[x]` — chiuso il 28/10/2026
+**ADR:** 0023
+
+**Nota:** il preventivo supporta ora due sconti indipendenti e cumulabili, ciascuno percentuale o a importo fisso:
+
+- **sconto di riga** (`PrintLine.discount?`) sul totale della singola stampa, non per pezzo;
+- **sconto del preventivo** (`QuotePricing.discount?`) sul totale già scontato dalle righe.
+
+`DiscountRule` è `{ mode: 'percent', valueBp }` oppure `{ mode: 'amount', amount }` in µ€. Il percentuale è limitato al 90%; l'importo fisso viene limitato al prezzo disponibile e la UI mostra un avviso quando il valore richiesto viene ridotto. L'ordine è costo pieno → ricarico/margine → sconto riga → sconto preventivo → arrotondamento → IVA → allocazione prezzi di riga. Senza sconti di riga il risultato resta identico a prima.
+
+- `QuoteResult` espone `lineDiscountTotal`, `quoteDiscount` e `discount` (somma); `LineResult.discount` contiene lo sconto applicato alla riga. `engineVersion` passa a **1.0.0**.
+- Schema **v4**: `discountBp` viene migrato a regola percentuale, con backup raw `layercost:backup:schema-3`; i link condivisi pre-v4 restano compatibili.
+- UI: controllo “Nessuno / Percentuale / Importo fisso” in ogni card stampa e nella card Prezzo; sconti visibili in riepilogo, dettaglio, stampa/PDF, link condiviso ed export `.xlsx` (nuove colonne).
+- Test: 5 nuovi test del motore (percentuale di riga, cumulo, limite a zero, ripartizione, proprietà), 1 test di migrazione v3 → v4, 2 test sui link condivisi e 2 E2E. Totale **124 unitari**, **38 E2E** (32 eseguiti + 6 visual), 40 scansioni axe con 0 violazioni. `npm run check` verde; budget **223,7 KB JS / 225 KB** e **288,4 KB totali / 350 KB**.
+
+**Accettazione:** sconto percentuale e a importo fisso su riga e preventivo; cumulo corretto; limite a zero senza valori negativi; prezzi di riga che sommano al netto; UI accessibile e persistenza dopo reload; documentazione, migrazione e test aggiornati. → soddisfatta; baseline visive da rigenerare in CI.
+
 ---
 
 ## Ordine consigliato
@@ -1132,7 +1151,7 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 3. T2.1 → T2.12
 4. T3.1 → T3.12
 5. T4.1 → T4.7
-6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.18 → T5.19 → T5.4 (sync richiesto il 26/10/2026)
+6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.18 → T5.19 → T5.20 → T5.4 (sync richiesto il 26/10/2026)
 7. Nessun altro task di fase 5: T5.1, T5.2, T5.5 e T5.7–T5.11 sono chiusi/non in scope su indicazione del committente.
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.
