@@ -1,7 +1,7 @@
 import type { QuotePricing, QuoteResult, Settings } from '@/domain/types'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
-import { Button, InfoDot, SectionHeader } from '@/components/ui'
+import { InfoDot } from '@/components/ui'
 import { DiscountField } from '@/components/discount-field'
 import { MoneyField, PercentField, SelectField } from '@/components/number-fields'
 
@@ -10,13 +10,11 @@ export function PricingEditor({
   settings,
   result,
   onChange,
-  onReset,
 }: {
   pricing: QuotePricing
   settings: Settings
   result?: QuoteResult
   onChange: (patch: Partial<QuotePricing>) => void
-  onReset: () => void
 }) {
   const { t } = useI18n()
   const format = useFormat()
@@ -31,17 +29,6 @@ export function PricingEditor({
 
   return (
     <>
-      <SectionHeader
-        id="section-prezzo"
-        title={t('pricing.title')}
-        description={t('pricing.description')}
-        actions={
-          <Button variant="ghost" size="sm" onClick={onReset}>
-            {t('pricing.reset')}
-          </Button>
-        }
-      />
-
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <SelectField
           label={t('pricing.mode')}

@@ -2,6 +2,7 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type InputHTMLAttributes,
@@ -513,6 +514,126 @@ export function SectionHeader({
       </div>
       {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
+  )
+}
+
+/**
+ * Card with a compact header that can collapse its body into a single row.
+ * The header title stays a real heading; a transparent button covers the row so
+ * the whole header toggles, while actions remain clickable above it.
+ */
+export function CollapsibleCard({
+  title,
+  description,
+  summary,
+  meta,
+  actions,
+  defaultOpen = true,
+  headingId,
+  className,
+  contentClassName,
+  children,
+  ...cardProps
+}: {
+  title: string
+  description?: ReactNode
+  summary?: ReactNode
+  meta?: ReactNode
+  actions?: ReactNode
+  defaultOpen?: boolean
+  headingId?: string
+  className?: string
+  contentClassName?: string
+  children: ReactNode
+} & Omit<HTMLAttributes<HTMLDivElement>, 'title'>) {
+  const { t } = useI18n()
+  const [open, setOpen] = useState(defaultOpen)
+  const generatedHeadingId = useId()
+  const titleId = headingId ?? generatedHeadingId
+  const panelId = useId()
+
+  return (
+    <Card className={className} {...cardProps}>
+      <div className="group relative flex items-start gap-3 px-5 py-4 sm:px-6 sm:py-5">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+            <h2 id={titleId} className="text-base font-semibold text-ink">
+              {title}
+            </h2>
+            {open ? null : summary ? (
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm leading-snug text-muted">
+                {summary}
+              </div>
+            ) : null}
+            {open || !meta ? null : (
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm leading-snug text-muted">
+                {meta}
+              </div>
+            )}
+          </div>
+          {open && description ? (
+            <p className="mt-0.5 max-w-2xl text-sm leading-snug text-muted">{description}</p>
+          ) : null}
+          {open && meta ? (
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm leading-snug text-muted">
+              {meta}
+            </div>
+          ) : null}
+        </div>
+        {actions ? (
+          <div className="relative z-10 flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+        ) : null}
+        <CollapseChevron open={open} />
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-controls={panelId}
+          aria-label={
+            open ? t('common.collapse', { name: title }) : t('common.expand', { name: title })
+          }
+          className="absolute inset-0 cursor-pointer rounded-card"
+        />
+      </div>
+      <div
+        id={panelId}
+        hidden={!open}
+        className={cn('px-5 pb-5 sm:px-6 sm:pb-6', contentClassName)}
+      >
+        {children}
+      </div>
+    </Card>
+  )
+}
+
+/**
+ * Visible affordance for a collapsible header. It looks like a control but is
+ * decorative: the transparent overlay button owns the interaction and the label.
+ */
+export function CollapseChevron({ open, className }: { open: boolean; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'pointer-events-none inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-muted transition-feedback group-hover:bg-raised group-hover:text-ink',
+        className,
+      )}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={cn(
+          'h-5 w-5 transition-transform motion-reduce:transition-none',
+          open && 'rotate-180',
+        )}
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </span>
   )
 }
 

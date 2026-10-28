@@ -1,19 +1,16 @@
-import type { CostConfig, JobCosts, QuoteResult } from '@/domain/types'
+import type { CostConfig, JobCosts } from '@/domain/types'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
-import { SectionHeader } from '@/components/ui'
 import { DurationField, TextareaField } from '@/components/number-fields'
 
 export function JobCostsEditor({
   job,
   config,
-  result,
   onChange,
   onToggleExtra,
 }: {
   job: JobCosts
   config: CostConfig
-  result?: QuoteResult
   onChange: (patch: Partial<JobCosts>) => void
   onToggleExtra: (extraId: string) => void
 }) {
@@ -25,23 +22,6 @@ export function JobCostsEditor({
 
   return (
     <>
-      <SectionHeader
-        id="section-lavoro"
-        title={t('job.title')}
-        description={t('job.description')}
-        actions={
-          result ? (
-            <p className="text-sm text-muted">
-              {t('job.labor')}{' '}
-              <span className="tabular-nums text-ink">{format.currency(result.jobLabor)}</span>
-              {' · '}
-              {t('job.extras')}{' '}
-              <span className="tabular-nums text-ink">{format.currency(result.jobExtras)}</span>
-            </p>
-          ) : null
-        }
-      />
-
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <DurationField
           label={t('job.setup')}

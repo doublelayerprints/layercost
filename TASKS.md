@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.20 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022 e ADR-0023 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni, preventivi e card degli sconti (T5.20).
+**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. **T5.21 chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.21 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022 e ADR-0023 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni, preventivi e card degli sconti (T5.20); le baseline del calcolatore vanno rigenerate dopo T5.21.
 
 ---
 
@@ -768,7 +768,7 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.20 chiusi; prossimo T5.4 sync (richiesto). Piano completo, decisioni e domande aperte in `docs/planning/phase-5.md`. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.20 → T5.4**.
+**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; prossimo T5.4 sync (richiesto). Piano completo, decisioni e domande aperte in `docs/planning/phase-5.md`. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
 
 **Nota di scope (26/10/2026):** il committente ha indicato che T5.1, T5.2, T5.5 e T5.7–T5.11 sono fatte, non volute o svolte direttamente. Non sono più nel perimetro; restano **T5.4 sync** (richiesto) e **T5.12 export `.xlsx`** (chiuso).
 
@@ -1142,6 +1142,20 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 
 **Accettazione:** sconto percentuale e a importo fisso su riga e preventivo; cumulo corretto; limite a zero senza valori negativi; prezzi di riga che sommano al netto; UI accessibile e persistenza dopo reload; documentazione, migrazione e test aggiornati. → soddisfatta; baseline visive rigenerate in CI.
 
+## T5.21 — Card comprimibili nel calcolatore
+
+**Stato:** `[x]` — chiuso il 28/10/2026
+
+**Nota:** le card configurabili del calcolatore e ogni riga di stampa hanno un header comprimibile con freccia, `aria-expanded` e `aria-controls`.
+
+- `CollapsibleCard` in `src/components/ui.tsx`: titolo come heading reale, riepilogo compatto da compressa, descrizione da espansa, azioni sempre cliccabili sopra l'overlay di toggle.
+- Preventivo, Stampe, Costi di lavoro e Prezzo partono espansi e si comprimono in una riga con sintesi: data/cliente, righe/grammi/costo diretto, manodopera/extra, ricarico/IVA. Ogni riga di stampa mostra da compressa nome, colore, stampante, grammi, tempo effettivo, pezzi e costo diretto; Duplica e Rimuovi restano disponibili.
+- `Importa .3mf` e `Ripristina default` restano cliccabili anche a card compressa. Lo stato di apertura è locale alla schermata e non viene persistito.
+- Nuove chiavi i18n `common.expand`, `common.collapse`, `line.expand`, `line.collapse` (parità it/en a 899).
+- Test E2E dedicato su comprimi/espandi, sintesi visibile, azione dentro una card compressa e focus da tastiera. Nessun cambio a formule, schema, snapshot o `engineVersion`. `npm run check` verde: 124 unitari, 39 E2E (33 eseguiti + 6 visual), budget 224,6 KB JS / 225 KB e 289,4 KB totali / 350 KB.
+
+**Accettazione:** tutte le card configurabili del calcolatore e le singole stampe si comprimono e si espandono da tastiera e mouse; da compresse mostrano una sintesi utile; le azioni restano raggiungibili; layout verificato a 375 e 1440 px; `npm run check` verde. → soddisfatta; baseline visive del calcolatore da rigenerare in CI.
+
 ---
 
 ## Ordine consigliato
@@ -1151,7 +1165,7 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 3. T2.1 → T2.12
 4. T3.1 → T3.12
 5. T4.1 → T4.7
-6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.18 → T5.19 → T5.20 → T5.4 (sync richiesto il 26/10/2026)
+6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.18 → T5.19 → T5.20 → T5.21 → T5.4 (sync richiesto il 26/10/2026)
 7. Nessun altro task di fase 5: T5.1, T5.2, T5.5 e T5.7–T5.11 sono chiusi/non in scope su indicazione del committente.
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.

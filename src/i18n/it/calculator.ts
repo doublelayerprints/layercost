@@ -36,6 +36,8 @@ export const calculatorIt = {
   'line.addFirst': 'Aggiungi la prima riga',
   'line.legend': 'Riga {index}: {name}',
   'line.cardLabel': 'Stampa {index}',
+  'line.expand': 'Espandi stampa {index}',
+  'line.collapse': 'Comprimi stampa {index}',
   'line.unnamed': 'stampa senza nome',
   'line.nameLabel': 'Nome della stampa',
   'line.colorLabel': 'Colore filamento',

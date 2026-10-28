@@ -23,6 +23,7 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Esporta/importa JSON, esporta preventivi, righe e materiali in `.xlsx`, condivide un preventivo via link, stampa il PDF dal browser.
 - Mostra l'utile in euro nel calcolatore e nel dettaglio; link condiviso e stampa/PDF per il cliente mostrano solo prezzi, IVA e note. La stampa interna con costi e margine è un'azione separata.
 - Divide il prezzo netto in costo pieno e guadagno con due barre, e apre un preventivo cliccando tutta la riga nella lista.
+- Comprime le card del calcolatore e le singole stampe in righe compatte con drop down, con una sintesi sempre leggibile.
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
 - Funziona interamente nel browser: nessun backend, nessun account, nessun analytics.
 
@@ -95,7 +96,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 | `docs/domain/golden-cases.md`  | Esempi numerici e test                           |
 | `docs/domain/sources.md`       | Fonti su stampanti e potenze                     |
 | `docs/engineering/`            | Architettura, persistenza, test, release, deploy |
-| `docs/planning/phase-5.md`     | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync      |
+| `docs/planning/phase-5.md`     | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync     |
 | `docs/design/ui-brief.md`      | Requisiti per la fase design                     |
 | `docs/design/directions.md`    | Direzioni e scelta visiva                        |
 | `docs/design/design-system.md` | Token, componenti, accessibilità                 |
@@ -105,9 +106,9 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 124 unitari, 38 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
+- **Verifiche:** 124 unitari, 39 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
 - **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
-- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto e colore filamento (T5.15–T5.17); sync gratuito richiesto (Supabase Free, workspace condiviso, magic link), non ancora implementato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
+- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, workspace condiviso, magic link), non ancora implementato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

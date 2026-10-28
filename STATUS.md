@@ -21,7 +21,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
-**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. **T5.20 è chiuso** il 28/10/2026: sconti percentuali o a importo fisso su singola stampa e totale preventivo, con schema v4 e motore 1.0.0. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, workspace condiviso e magic link; l’implementazione non è ancora iniziata.
+**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. **T5.20 è chiuso** il 28/10/2026: sconti percentuali o a importo fisso su singola stampa e totale preventivo, con schema v4 e motore 1.0.0. **T5.21 è chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, workspace condiviso e magic link; l’implementazione non è ancora iniziata.
 
 ---
 
@@ -51,6 +51,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - Layout responsive, label, focus e unità.
 - Design system **Strato**: token, font Archivo + Source Serif 4 self-hosted, componenti, stack dei costi, focus e stampa.
 - Redesign delle schermate: shell open plane, calcolatore 7/12 + 5/12 con risultato sticky, confronto rapido tra le due stampanti, preventivi e dettaglio con prezzo + stack, anagrafiche a righe o tabelle, impostazioni con anteprima del prezzo, condivisione read-only, stampa A4.
+- Card comprimibili nel calcolatore (T5.21): Preventivo, Stampe, Costi di lavoro, Prezzo e ogni riga di stampa hanno un header con freccia e drop down; da compressi mostrano una sintesi (data/cliente, righe/grammi/costo diretto, manodopera/extra, ricarico/IVA, nome/stampante/tempo/costo di riga) e mantengono cliccabili Importa, Ripristina default, Duplica e Rimuovi. Lo stato è locale alla schermata, nessun cambio a dati o formule.
 - Tema chiaro, scuro o di sistema (ADR-0016), con preferenza salvata sul dispositivo e stampa sempre chiara.
 - Selettori rapidi di tema (Sistema/Chiaro/Scuro) e lingua (IT/EN) in fondo alla sidebar e nel menu mobile, sincronizzati con Impostazioni (T5.15).
 - Azioni del preventivo (modifica, invio, completamento, duplica, archivia, elimina) in una card subito sotto la testata, prima del prezzo e delle righe (T5.16).
@@ -112,19 +113,19 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 ## 3. Verifiche
 
-| Verifica           | Stato                                                                                          |
-| ------------------ | ---------------------------------------------------------------------------------------------- |
-| TypeScript strict  | verde                                                                                          |
-| oxlint             | verde                                                                                          |
-| Test unitari/dati  | 124 superati                                                                                   |
-| Test E2E           | 38 superati in CI (32 eseguiti + 6 visual; 2 WebKit)                                           |
-| Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                                    |
-| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux rigenerate dopo T5.20              |
-| Build produzione   | verde (~677 KB JS main + ~108 KB worker; ~192 KB gzip JS; ~38 KB CSS; ~57 KB font)             |
-| Budget bundle      | 288,4 KB gzip totali su 350 KB (limite JS 223,7 KB su 225 KB)                                  |
-| CI GitHub `check`  | verde su `main`                                                                                |
-| CI GitHub `e2e`    | verde su `main`                                                                                |
-| Vercel produzione  | deploy 28/10/2026 pre-T5.20, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde                  |
+| Verifica           | Stato                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| TypeScript strict  | verde                                                                                    |
+| oxlint             | verde                                                                                    |
+| Test unitari/dati  | 124 superati                                                                             |
+| Test E2E           | 39 totali (33 eseguiti + 6 visual; 2 WebKit)                                             |
+| Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                              |
+| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux da rigenerare dopo T5.21 |
+| Build produzione   | verde (~682 KB JS main + ~108 KB worker; ~193 KB gzip JS; ~39 KB CSS; ~57 KB font)       |
+| Budget bundle      | 289,4 KB gzip totali su 350 KB (limite JS 224,6 KB su 225 KB)                            |
+| CI GitHub `check`  | verde su `main`                                                                          |
+| CI GitHub `e2e`    | verde su `main`                                                                          |
+| Vercel produzione  | deploy 28/10/2026 pre-T5.20, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde  |
 
 Comandi:
 

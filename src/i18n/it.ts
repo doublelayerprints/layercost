@@ -42,6 +42,8 @@ export const baseIt = {
   'common.loading': 'Caricamento…',
   'common.error': 'Errore',
   'common.warning': 'Attenzione',
+  'common.expand': 'Espandi {name}',
+  'common.collapse': 'Comprimi {name}',
 
   'discount.none': 'Nessuno',
   'discount.percent': 'Percentuale',

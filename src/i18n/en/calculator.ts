@@ -38,6 +38,8 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'line.addFirst': 'Add the first line',
   'line.legend': 'Line {index}: {name}',
   'line.cardLabel': 'Print {index}',
+  'line.expand': 'Expand print {index}',
+  'line.collapse': 'Collapse print {index}',
   'line.unnamed': 'unnamed print',
   'line.nameLabel': 'Print name',
   'line.colorLabel': 'Filament colour',
@@ -69,8 +71,7 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'line.removeMaterial': 'Remove material',
   'line.perUnitExtras': 'Per-piece extras',
   'line.discount': 'Discount on this print',
-  'line.discountHint':
-    'Applies to the whole line, after markup and before the quote discount.',
+  'line.discountHint': 'Applies to the whole line, after markup and before the quote discount.',
   'line.discountApplied': 'Discount applied: {amount}',
   'line.discountCapped': 'The amount exceeds the line price: {amount} applied.',
   'line.advancedOverrides': 'Advanced overrides',

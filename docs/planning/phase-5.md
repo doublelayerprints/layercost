@@ -1,6 +1,6 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo)
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore)
 **Data:** 28 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
 **Prossima sessione:** **T5.4** (sync, richiesto). Il resto del backlog è chiuso/non in scope.
@@ -494,6 +494,14 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 - **UI:** controllo “Nessuno / Percentuale / Importo fisso” in ogni card stampa e nella card Prezzo; sconti visibili in riepilogo, dettaglio, stampa/PDF, link condiviso ed export `.xlsx`.
 - **Esito:** chiuso il 28/10/2026. 124 test unitari, 38 E2E (2 nuovi sugli sconti), axe 40 scansioni con 0 violazioni; baseline visive rigenerate in CI per le nuove card.
 
+### 5.6 T5.21 — Card comprimibili nel calcolatore
+
+- **Obiettivo:** ridurre l'altezza delle card configurabili per leggere prima il riepilogo e il dettaglio, senza perdere l'accesso ai campi.
+- **UI:** Preventivo, Stampe, Costi di lavoro e Prezzo hanno un header con freccia, `aria-expanded` e `aria-controls`; da compressi mostrano una sintesi (data/cliente, righe/grammi/costo diretto, manodopera/extra, ricarico/IVA). Anche ogni riga di stampa si comprime in una riga con nome, colore, stampante, grammi, tempo, pezzi e costo diretto.
+- **Azioni:** Importa `.3mf`, Ripristina default, Duplica e Rimuovi restano cliccabili a card compressa.
+- **Stato:** locale alla schermata, default espanso, nessuna persistenza. Nessun cambio a formule, schema, snapshot o `engineVersion`.
+- **Esito:** chiuso il 28/10/2026. 4 chiavi i18n (899 totali), 1 E2E dedicato; `npm run check` verde e budget 224,5 KB JS / 225 KB. Baseline visive del calcolatore da rigenerare in CI.
+
 ---
 
 ## 6. Lavoro trasversale
@@ -511,7 +519,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019, l’ADR-0020, l’ADR-0022 e l’ADR-0023. T5.3, T5.6, T5.12, T5.13–T5.19 e T5.20 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019, l’ADR-0020, l’ADR-0022 e l’ADR-0023. T5.3, T5.6, T5.12, T5.13–T5.21 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check` verde.
 
 ---
 

@@ -9,18 +9,18 @@ import { useAppStore } from '@/state/app-store'
 import {
   Alert,
   Button,
-  Card,
+  CollapsibleCard,
   EmptyState,
   Field,
   Input,
   PageHeader,
-  SectionHeader,
 } from '@/components/ui'
 import { TextField } from '@/components/number-fields'
 import { OnboardingCard } from '@/features/onboarding/OnboardingCard'
 import { QuotePrint } from '@/features/quotes/QuotePrint'
 import { cn } from '@/lib/cn'
 import { domainErrorMessage } from '@/lib/domain-error-message'
+import { pricingModeLabel, vatModeLabel } from '@/lib/labels'
 import { CostDetails } from './CostDetails'
 import { JobCostsEditor } from './JobCostsEditor'
 import { LineEditor } from './LineEditor'
@@ -195,6 +195,82 @@ export function CalculatorPage() {
   }
 
   const paragraphCount = draft.lines.length
+  const lineCountLabel = t(
+    paragraphCount === 1 ? 'calculator.lineCount.one' : 'calculator.lineCount.other',
+  )
+  const quoteSummary = (
+    <>
+      <span>{format.dateOnly(draft.quoteDate)}</span>
+      {draft.customer ? (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>{draft.customer}</span>
+        </>
+      ) : null}
+    </>
+  )
+  const printsSummary = (
+    <>
+      <span>
+        {paragraphCount} {lineCountLabel}
+      </span>
+      <span aria-hidden="true">·</span>
+      <span>{format.grams(totalGrams)}</span>
+      {calculation.result ? (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>
+            {t('line.directCost')}{' '}
+            <span className="tabular-nums text-ink">
+              {format.currency(calculation.result.directTotal)}
+            </span>
+          </span>
+        </>
+      ) : null}
+    </>
+  )
+  const pricingValueBp =
+    draft.pricing.mode === 'markup' ? draft.pricing.markupBp : draft.pricing.marginBp
+  const pricingSummary = (
+    <>
+      <span>
+        {pricingModeLabel(draft.pricing.mode, t)}{' '}
+        <span className="tabular-nums text-ink">{format.percent(pricingValueBp)}</span>
+      </span>
+      <span aria-hidden="true">·</span>
+      <span>
+        {vatModeLabel(draft.pricing.vatMode, t)}
+        {draft.pricing.vatMode !== 'none' ? ` ${format.percent(draft.pricing.vatRateBp)}` : null}
+      </span>
+    </>
+  )
+  const jobSummary = calculation.result ? (
+    <>
+      <span>
+        {t('job.labor')}{' '}
+        <span className="tabular-nums text-ink">
+          {format.currency(calculation.result.jobLabor)}
+        </span>
+      </span>
+      <span aria-hidden="true">·</span>
+      <span>
+        {t('job.extras')}{' '}
+        <span className="tabular-nums text-ink">
+          {format.currency(calculation.result.jobExtras)}
+        </span>
+      </span>
+    </>
+  ) : (
+    <>
+      <span>
+        {t('job.setup')} {format.duration(draft.job.setupSeconds)}
+      </span>
+      <span aria-hidden="true">·</span>
+      <span>
+        {t('job.design')} {format.duration(draft.job.designSeconds)}
+      </span>
+    </>
+  )
 
   return (
     <>
@@ -204,9 +280,7 @@ export function CalculatorPage() {
           description={t('calculator.meta', {
             date: format.dateOnly(draft.quoteDate),
             count: paragraphCount,
-            lines: t(
-              paragraphCount === 1 ? 'calculator.lineCount.one' : 'calculator.lineCount.other',
-            ),
+            lines: lineCountLabel,
             grams: format.grams(totalGrams),
           })}
           meta={<span className="text-xs text-muted">{t('calculator.autosaveNote')}</span>}
@@ -261,145 +335,142 @@ export function CalculatorPage() {
               </Alert>
             ) : null}
 
-            <Card className="p-5 sm:p-6">
-              <section aria-labelledby="section-intestazione">
-                <SectionHeader
-                  id="section-intestazione"
-                  title={t('calculator.quoteSection')}
-                  description={t('calculator.quoteDescription')}
+            <CollapsibleCard
+              title={t('calculator.quoteSection')}
+              description={t('calculator.quoteDescription')}
+              summary={quoteSummary}
+              headingId="section-intestazione"
+            >
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <TextField
+                  label={t('calculator.nameLabel')}
+                  value={draft.name}
+                  onChange={(value) => updateDraftMeta({ name: value })}
+                  placeholder={t('calculator.namePlaceholder')}
+                  required
+                  className="sm:col-span-2"
                 />
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <TextField
-                    label={t('calculator.nameLabel')}
-                    value={draft.name}
-                    onChange={(value) => updateDraftMeta({ name: value })}
-                    placeholder={t('calculator.namePlaceholder')}
-                    required
-                    className="sm:col-span-2"
+                <Field label={t('calculator.date')} htmlFor={dateFieldId}>
+                  <Input
+                    id={dateFieldId}
+                    type="date"
+                    value={draft.quoteDate}
+                    onChange={(event) => updateDraftMeta({ quoteDate: event.target.value })}
                   />
-                  <Field label={t('calculator.date')} htmlFor={dateFieldId}>
-                    <Input
-                      id={dateFieldId}
-                      type="date"
-                      value={draft.quoteDate}
-                      onChange={(event) => updateDraftMeta({ quoteDate: event.target.value })}
-                    />
-                  </Field>
-                  <TextField
-                    label={`${t('calculator.customer')} (${t('common.optional')})`}
-                    value={draft.customer ?? ''}
-                    onChange={(value) => updateDraftMeta({ customer: value || undefined })}
-                    placeholder={t('calculator.customerPlaceholder')}
-                  />
-                </div>
-              </section>
-            </Card>
+                </Field>
+                <TextField
+                  label={`${t('calculator.customer')} (${t('common.optional')})`}
+                  value={draft.customer ?? ''}
+                  onChange={(value) => updateDraftMeta({ customer: value || undefined })}
+                  placeholder={t('calculator.customerPlaceholder')}
+                />
+              </div>
+            </CollapsibleCard>
 
-            <Card
+            <CollapsibleCard
               {...dragHandlers}
+              title={t('calculator.printsSection')}
+              description={t('calculator.printsDescription')}
+              summary={printsSummary}
+              headingId="section-stampe"
+              actions={
+                <Button variant="secondary" size="sm" onClick={openFilePicker} disabled={isLoading}>
+                  {isLoading ? t('import.analyzing') : t('import.button')}
+                </Button>
+              }
               className={cn(
-                'relative p-5 transition-feedback sm:p-6',
+                'relative transition-feedback',
                 isDragging && 'outline-2 outline-dashed outline-offset-4 outline-data',
               )}
               data-dropzone="3mf"
             >
-              <section aria-labelledby="section-stampe">
-                {isDragging ? (
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-control border-2 border-dashed border-data bg-surface/95"
+              {isDragging ? (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-control border-2 border-dashed border-data bg-surface/95"
+                >
+                  <p className="text-sm font-medium text-ink">{t('import.dropHint')}</p>
+                </div>
+              ) : null}
+
+              {draft.lines.length === 0 ? (
+                <div className="mt-4">
+                  <EmptyState
+                    title={t('line.emptyTitle')}
+                    description={t('line.emptyDescription')}
+                    action={<Button onClick={addLine}>{t('line.addFirst')}</Button>}
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="mt-4 space-y-4">
+                    {draft.lines.map((line, index) => (
+                      <LineEditor
+                        key={line.id}
+                        index={index}
+                        line={line}
+                        config={calculationConfig}
+                        result={calculation.result?.lines.find((item) => item.lineId === line.id)}
+                        canRemove={draft.lines.length > 1}
+                        onUpdate={(patch) => updateLine(line.id, patch)}
+                        onDuplicate={() => duplicateLine(line.id)}
+                        onRemove={() => removeLine(line.id)}
+                        onUpdateMaterial={(index, patch) =>
+                          updateLineMaterial(line.id, index, patch)
+                        }
+                        onAddMaterial={() => addLineMaterial(line.id)}
+                        onRemoveMaterial={(index) => removeLineMaterial(line.id, index)}
+                        onToggleExtra={(extraId) => toggleLineExtra(line.id, extraId)}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addLine}
+                    aria-label={t('line.add')}
+                    title={t('line.add')}
+                    className="mt-4 flex h-12 w-full items-center justify-center rounded-card border border-line bg-raised/40 text-muted transition-feedback hover:border-data hover:bg-data/10 hover:text-data focus-visible:border-data focus-visible:text-data active:border-data active:bg-data/20 active:text-data"
                   >
-                    <p className="text-sm font-medium text-ink">{t('import.dropHint')}</p>
-                  </div>
-                ) : null}
-                <SectionHeader
-                  id="section-stampe"
-                  title={t('calculator.printsSection')}
-                  description={t('calculator.printsDescription')}
-                  actions={
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={openFilePicker}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? t('import.analyzing') : t('import.button')}
-                    </Button>
-                  }
-                />
+                    <span aria-hidden="true" className="text-2xl leading-none">
+                      +
+                    </span>
+                  </button>
+                </>
+              )}
+            </CollapsibleCard>
 
-                {draft.lines.length === 0 ? (
-                  <div className="mt-4">
-                    <EmptyState
-                      title={t('line.emptyTitle')}
-                      description={t('line.emptyDescription')}
-                      action={<Button onClick={addLine}>{t('line.addFirst')}</Button>}
-                    />
-                  </div>
-                ) : (
-                  <>
-                    <div className="mt-4 space-y-4">
-                      {draft.lines.map((line, index) => (
-                        <LineEditor
-                          key={line.id}
-                          index={index}
-                          line={line}
-                          config={calculationConfig}
-                          result={calculation.result?.lines.find(
-                            (item) => item.lineId === line.id,
-                          )}
-                          canRemove={draft.lines.length > 1}
-                          onUpdate={(patch) => updateLine(line.id, patch)}
-                          onDuplicate={() => duplicateLine(line.id)}
-                          onRemove={() => removeLine(line.id)}
-                          onUpdateMaterial={(index, patch) =>
-                            updateLineMaterial(line.id, index, patch)
-                          }
-                          onAddMaterial={() => addLineMaterial(line.id)}
-                          onRemoveMaterial={(index) => removeLineMaterial(line.id, index)}
-                          onToggleExtra={(extraId) => toggleLineExtra(line.id, extraId)}
-                        />
-                      ))}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={addLine}
-                      aria-label={t('line.add')}
-                      title={t('line.add')}
-                      className="mt-4 flex h-12 w-full items-center justify-center rounded-card border border-line bg-raised/40 text-muted transition-feedback hover:border-data hover:bg-data/10 hover:text-data focus-visible:border-data focus-visible:text-data active:border-data active:bg-data/20 active:text-data"
-                    >
-                      <span aria-hidden="true" className="text-2xl leading-none">
-                        +
-                      </span>
-                    </button>
-                  </>
-                )}
-              </section>
-            </Card>
+            <CollapsibleCard
+              title={t('job.title')}
+              description={t('job.description')}
+              meta={jobSummary}
+              headingId="section-lavoro"
+            >
+              <JobCostsEditor
+                job={draft.job}
+                config={calculationConfig}
+                onChange={updateJob}
+                onToggleExtra={toggleJobExtra}
+              />
+            </CollapsibleCard>
 
-            <Card className="p-5 sm:p-6">
-              <section aria-labelledby="section-lavoro">
-                <JobCostsEditor
-                  job={draft.job}
-                  config={calculationConfig}
-                  result={calculation.result}
-                  onChange={updateJob}
-                  onToggleExtra={toggleJobExtra}
-                />
-              </section>
-            </Card>
-
-            <Card className="p-5 sm:p-6">
-              <section aria-labelledby="section-prezzo">
-                <PricingEditor
-                  pricing={draft.pricing}
-                  settings={calculationConfig.settings}
-                  result={calculation.result}
-                  onChange={updatePricing}
-                  onReset={handleResetPricing}
-                />
-              </section>
-            </Card>
+            <CollapsibleCard
+              title={t('pricing.title')}
+              description={t('pricing.description')}
+              summary={pricingSummary}
+              headingId="section-prezzo"
+              actions={
+                <Button variant="ghost" size="sm" onClick={handleResetPricing}>
+                  {t('pricing.reset')}
+                </Button>
+              }
+            >
+              <PricingEditor
+                pricing={draft.pricing}
+                settings={calculationConfig.settings}
+                result={calculation.result}
+                onChange={updatePricing}
+              />
+            </CollapsibleCard>
           </div>
 
           <aside

@@ -232,6 +232,10 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 
 Controllo riutilizzabile per gli sconti di riga e di preventivo: una select “Nessuno / Percentuale / Importo fisso” e, quando serve, un campo “Valore sconto” con `%` o `€`. Usa `SelectField`, `PercentField` e `MoneyField`, quindi eredita label, hint, focus e bordo dei campi. Lo sconto percentuale è limitato al 90%; l'importo fisso è mostrato in euro ma resta in µ€ nel dominio. Quando il valore viene limitato al prezzo disponibile, una nota `text-warning` spiega l'importo effettivamente applicato. La select e il campo valore sono sempre associati da label esplicite.
 
+### 3.20 CollapsibleCard
+
+Card con header comprimibile per le sezioni del calcolatore. Il titolo resta un heading reale; a destra un chevron SVG piatto da 20 px dentro un'area ghost da 32 px, senza bordo né cerchio, con hover `--color-raised` come i pulsanti ghost del sito. Il chevron ruota di 180° quando la card è aperta. Un pulsante trasparente copre tutto l'header e gestisce `aria-expanded` e `aria-controls`; le azioni dell'header (Importa, Ripristina default) stanno sopra di esso con `z-10`, così restano cliccabili anche a card compressa. Il chevron è decorativo e `pointer-events-none`: il click sull'icona attraversa il livello e arriva al pulsante trasparente, anche quando l'icona ruotata crea un proprio contesto di stacking. Da compressa l'header mostra `summary` (data/cliente, righe/grammi/costo, ricarico/IVA) e, se presente, `meta`; da aperta mostra `description`. Lo stato è locale e parte sempre espanso: non viene persistito. Le singole righe di stampa usano lo stesso meccanismo con una sintesi dedicata.
+
 ---
 
 ## 4. Accessibilità
@@ -335,7 +339,8 @@ Controllo riutilizzabile per gli sconti di riga e di preventivo: una select “N
 - `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
 - `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **124 unitari/dati, 38 E2E** (32 eseguiti + 6 visual su CI).
+- `tests/e2e/collapsible-cards.spec.ts` — 1 test: comprimi/espandi le card e le righe, sintesi da compressa, azione “Ripristina default” cliccabile senza aprire la card.
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **124 unitari/dati, 39 E2E** (33 eseguiti + 6 visual su CI).
 
 ### 7.2 Manuali
 
@@ -473,45 +478,52 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Lettura.** Riepilogo, dettaglio, stampa/PDF, link condiviso e export `.xlsx` mostrano lo sconto totale; la vista interna distingue sconti di riga e sconto preventivo. La vista cliente mostra gli sconti ma non i costi.
 - **Dati.** Schema v4, motore 1.0.0, migrazione `discountBp` → regola percentuale. Parità i18n a 895 chiavi. Baseline visive rigenerate in CI.
 
+### 8.12 Card comprimibili — esito (T5.21, 28/10/2026)
+
+- **Header unico.** `CollapsibleCard` usa un heading reale, un chevron SVG piatto in stile ghost che ruota di 180° e un pulsante trasparente che copre l'header per il toggle; le azioni dell'header stanno sopra con `z-10`.
+- **Sintesi.** Da compressa la card mostra data/cliente, righe/grammi/costo diretto, manodopera/extra o ricarico/IVA; le righe di stampa mostrano nome, colore, stampante, grammi, tempo, pezzi e costo diretto.
+- **Stato.** Locale, default espanso, nessuna persistenza; nessun cambio a dati, formule, schema o `engineVersion`.
+- **Verifiche.** `npm run check` verde (124 unitari, 39 E2E, budget 224,6 KB JS / 225 KB); axe invariato; baseline visive del calcolatore da rigenerare in CI.
+
 ---
 
 ## 9. Mappa dei file
 
-| File                                              | Contenuto                                                                                                                                         |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/index.css`                                   | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                                 |
-| `src/lib/theme.ts`                                | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                                          |
-| `src/lib/draft.ts`                                | rileva se la bozza contiene lavoro da non perdere                                                                                                 |
-| `src/features/calculator/NewDraftButton.tsx`      | conferma accessibile prima di scartare la bozza                                                                                                   |
-| `src/components/discount-field.tsx`               | select Nessuno/Percentuale/Importo e campo valore per gli sconti di riga e preventivo                                                             |
-| `src/features/calculator/use-three-mf-import.ts`  | file input, drag & drop, parsing in worker e stati dell’import                                                                                    |
-| `src/features/calculator/ThreeMfImportDialog.tsx` | anteprima piatti, mappatura stampante/materiali e conferma append/replace                                                                         |
-| `src/data/theme.ts`                               | chiave `layercost:theme`, load/save fuori da `AppData`                                                                                            |
-| `src/state/theme-store.ts`                        | stato Zustand della preferenza                                                                                                                    |
-| `src/app/theme.ts`                                | applicazione del tema e `meta theme-color`                                                                                                        |
-| `src/app/ThemeController.tsx`                     | sincronizzazione con `prefers-color-scheme`                                                                                                       |
-| `src/app/QuickPreferences.tsx`                    | tema e lingua compatti in sidebar e menu mobile                                                                                                   |
-| `src/features/settings/SettingsPage.tsx`          | sezione Aspetto con le tre radio                                                                                                                  |
-| `src/components/line-color.tsx`                   | swatch di lettura e color picker del filamento                                                                                                    |
-| `src/lib/color.ts`                                | validazione `#rrggbb` condivisa da schema e UI                                                                                                    |
-| `src/components/ui.tsx`                           | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, TableScroll, Table, Tabs |
-| `src/components/field-context.ts`                 | id di label/hint/error condivisi                                                                                                                  |
-| `src/components/cost-stack.tsx`                   | stack dei costi                                                                                                                                   |
-| `src/components/price-composition.tsx`             | barra prezzo netto divisa in costo pieno e guadagno                                                                                                |
-| `src/lib/cost-bands.ts`                           | raggruppamento delle bande e test                                                                                                                 |
-| `src/lib/cost-details.ts`                         | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                             |
-| `src/lib/format.ts`                               | formattazione it-IT e arrotondamento dei centesimi                                                                                                |
-| `src/lib/format.test.ts`                          | test dei centesimi e della formattazione                                                                                                          |
-| `src/components/logo.tsx`                         | marchio a tre strati                                                                                                                              |
-| `src/assets/fonts/`                               | WOFF2 self-hosted                                                                                                                                 |
-| `public/fonts/`                                   | licenze OFL                                                                                                                                       |
-| `tests/e2e/design-system.spec.ts`                 | token, focus, responsive, menu                                                                                                                    |
-| `tests/e2e/theme.spec.ts`                         | preferenza, persistenza, sistema, screenshot scuro                                                                                                |
-| `tests/e2e/states.spec.ts`                        | conferma della bozza, sostituzione dal dettaglio                                                                                                  |
-| `tests/e2e/import.spec.ts`                        | import `.3mf`, drag & drop, mappatura, conferma e overflow                                                                                        |
-| `tests/e2e/a11y.spec.ts`                          | axe WCAG 2.2 AA su tutte le route, chiaro/scuro, menu, modali e import                                                                            |
-| `tests/e2e/webkit.spec.ts`                        | flusso critico e link condiviso su WebKit                                                                                                         |
-| `tests/e2e/release.spec.ts`                       | PDF A4 chiaro da tema scuro, nessuna richiesta esterna                                                                                            |
-| `tests/e2e/visual.spec.ts`                        | 15 screenshot di regressione a 1440/768/390 px                                                                                                    |
-| `scripts/check-budget.mjs`                        | budget gzip di JS, CSS, font, HTML e totale                                                                                                       |
-| `docs/engineering/release.md`                     | checklist e verifiche della v1.0.0                                                                                                                |
+| File                                              | Contenuto                                                                                                                                                          |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/index.css`                                   | `@font-face`, `@theme`, palette scura, base, focus, `transition-feedback`, stampa                                                                                  |
+| `src/lib/theme.ts`                                | tipi della preferenza e risoluzione sistema/chiaro/scuro                                                                                                           |
+| `src/lib/draft.ts`                                | rileva se la bozza contiene lavoro da non perdere                                                                                                                  |
+| `src/features/calculator/NewDraftButton.tsx`      | conferma accessibile prima di scartare la bozza                                                                                                                    |
+| `src/components/discount-field.tsx`               | select Nessuno/Percentuale/Importo e campo valore per gli sconti di riga e preventivo                                                                              |
+| `src/features/calculator/use-three-mf-import.ts`  | file input, drag & drop, parsing in worker e stati dell’import                                                                                                     |
+| `src/features/calculator/ThreeMfImportDialog.tsx` | anteprima piatti, mappatura stampante/materiali e conferma append/replace                                                                                          |
+| `src/data/theme.ts`                               | chiave `layercost:theme`, load/save fuori da `AppData`                                                                                                             |
+| `src/state/theme-store.ts`                        | stato Zustand della preferenza                                                                                                                                     |
+| `src/app/theme.ts`                                | applicazione del tema e `meta theme-color`                                                                                                                         |
+| `src/app/ThemeController.tsx`                     | sincronizzazione con `prefers-color-scheme`                                                                                                                        |
+| `src/app/QuickPreferences.tsx`                    | tema e lingua compatti in sidebar e menu mobile                                                                                                                    |
+| `src/features/settings/SettingsPage.tsx`          | sezione Aspetto con le tre radio                                                                                                                                   |
+| `src/components/line-color.tsx`                   | swatch di lettura e color picker del filamento                                                                                                                     |
+| `src/lib/color.ts`                                | validazione `#rrggbb` condivisa da schema e UI                                                                                                                     |
+| `src/components/ui.tsx`                           | Button, Card, CollapsibleCard, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, TableScroll, Table, Tabs |
+| `src/components/field-context.ts`                 | id di label/hint/error condivisi                                                                                                                                   |
+| `src/components/cost-stack.tsx`                   | stack dei costi                                                                                                                                                    |
+| `src/components/price-composition.tsx`            | barra prezzo netto divisa in costo pieno e guadagno                                                                                                                |
+| `src/lib/cost-bands.ts`                           | raggruppamento delle bande e test                                                                                                                                  |
+| `src/lib/cost-details.ts`                         | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                                              |
+| `src/lib/format.ts`                               | formattazione it-IT e arrotondamento dei centesimi                                                                                                                 |
+| `src/lib/format.test.ts`                          | test dei centesimi e della formattazione                                                                                                                           |
+| `src/components/logo.tsx`                         | marchio a tre strati                                                                                                                                               |
+| `src/assets/fonts/`                               | WOFF2 self-hosted                                                                                                                                                  |
+| `public/fonts/`                                   | licenze OFL                                                                                                                                                        |
+| `tests/e2e/design-system.spec.ts`                 | token, focus, responsive, menu                                                                                                                                     |
+| `tests/e2e/theme.spec.ts`                         | preferenza, persistenza, sistema, screenshot scuro                                                                                                                 |
+| `tests/e2e/states.spec.ts`                        | conferma della bozza, sostituzione dal dettaglio                                                                                                                   |
+| `tests/e2e/import.spec.ts`                        | import `.3mf`, drag & drop, mappatura, conferma e overflow                                                                                                         |
+| `tests/e2e/a11y.spec.ts`                          | axe WCAG 2.2 AA su tutte le route, chiaro/scuro, menu, modali e import                                                                                             |
+| `tests/e2e/webkit.spec.ts`                        | flusso critico e link condiviso su WebKit                                                                                                                          |
+| `tests/e2e/release.spec.ts`                       | PDF A4 chiaro da tema scuro, nessuna richiesta esterna                                                                                                             |
+| `tests/e2e/visual.spec.ts`                        | 15 screenshot di regressione a 1440/768/390 px                                                                                                                     |
+| `scripts/check-budget.mjs`                        | budget gzip di JS, CSS, font, HTML e totale                                                                                                                        |
+| `docs/engineering/release.md`                     | checklist e verifiche della v1.0.0                                                                                                                                 |

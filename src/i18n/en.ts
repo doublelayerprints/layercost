@@ -40,6 +40,8 @@ const baseEn: Record<BaseMessageKey, string> = {
   'common.loading': 'Loading…',
   'common.error': 'Error',
   'common.warning': 'Warning',
+  'common.expand': 'Expand {name}',
+  'common.collapse': 'Collapse {name}',
 
   'discount.none': 'None',
   'discount.percent': 'Percentage',
