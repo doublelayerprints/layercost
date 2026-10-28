@@ -762,7 +762,7 @@ Un task è chiuso solo se:
 - Test E2E dei token e dell'hover della barra “Aggiungi riga” aggiornati.
 - Baseline visive Linux rigenerate in CI perché l'accent compare in tutte le schermate.
 
-**Accettazione:** tema chiaro e scuro coerenti, focus e link leggibili, warning semantico invariato, `npm run check` verde, e2e aggiornati. → soddisfatta; baseline visive rigenerate.
+**Accettazione:** tema chiaro e scuro coerenti, focus e link leggibili, warning semantico invariato, `npm run check` verde, e2e aggiornati. → soddisfatta; baseline visive rigenerate, CI verde e deploy di produzione `index-C7Ct7znW.js` verificato.
 
 ---
 

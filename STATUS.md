@@ -107,19 +107,19 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 ## 3. Verifiche
 
-| Verifica           | Stato                                                                              |
-| ------------------ | ---------------------------------------------------------------------------------- |
-| TypeScript strict  | verde                                                                              |
-| oxlint             | verde                                                                              |
-| Test unitari/dati  | 112 superati                                                                       |
-| Test E2E           | 36 superati in CI (30 eseguiti + 6 visual; 2 WebKit)                               |
-| Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                        |
-| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux                    |
-| Build produzione   | verde (~661 KB JS main + ~108 KB worker; ~188 KB gzip JS; ~37 KB CSS; ~58 KB font) |
-| Budget bundle      | 284,8 KB gzip totali su 350 KB (limite JS 225 KB)                                  |
-| CI GitHub `check`  | verde su `main`                                                                    |
-| CI GitHub `e2e`    | verde su `main`                                                                    |
-| Vercel produzione  | deploy `index-CKBs4VCV.js` verificato prima di T5.15–T5.17; T5.12 non verificato   |
+| Verifica           | Stato                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| TypeScript strict  | verde                                                                                          |
+| oxlint             | verde                                                                                          |
+| Test unitari/dati  | 112 superati                                                                                   |
+| Test E2E           | 36 superati in CI (30 eseguiti + 6 visual; 2 WebKit)                                           |
+| Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                                    |
+| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux                                |
+| Build produzione   | verde (~661 KB JS main + ~108 KB worker; ~188 KB gzip JS; ~37 KB CSS; ~58 KB font)             |
+| Budget bundle      | 284,8 KB gzip totali su 350 KB (limite JS 225 KB)                                              |
+| CI GitHub `check`  | verde su `main`                                                                                |
+| CI GitHub `e2e`    | verde su `main`                                                                                |
+| Vercel produzione  | deploy 28/10/2026, build `index-C7Ct7znW.js` / `index-DH8EgtHU.css`; accent e barra verificati |
 
 Comandi:
 
@@ -150,7 +150,7 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 - **Live:** https://layercost.vercel.app
 - Progetto Vercel collegato alla repo GitHub.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`. Deploy di produzione verificato su https://layercost.vercel.app: build `index-C_5bQZYu.js` / `index-BGmXv2w6.css`, `inspect.mjs --app` a 1440/768/390 con **0 FAIL, 1 WARN** (`ragged-row`, rail sticky), prezzo 3,70 €, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
-- Il batch T5.15–T5.17 + T5.12 + barra “Aggiungi riga” ha build locale `index-D14yTlT0.js`; preview Vercel e verifica in produzione sono ancora da fare.
+- Deploy **28/10/2026** (accento viola, T4.8/ADR-0021): build `index-C7Ct7znW.js` / `index-DH8EgtHU.css`, verificata su https://layercost.vercel.app. `--color-data` vale `#5b21b6` in chiaro e `#9d7bf5` in scuro; la barra “Completa i dati” del riepilogo è viola. Il batch T5.12–T5.17 e la barra “Aggiungi riga” sono inclusi. CI `check` + `e2e` verdi (36 E2E).
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
