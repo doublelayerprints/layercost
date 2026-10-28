@@ -42,7 +42,7 @@ npm run db:test    # pgTAP/RLS
 npm run db:types   # rigenera src/data/cloud/database.types.ts
 ```
 
-La configurazione è in `supabase/config.toml`: signup disabilitato a livello progetto, provider email attivo per il login degli utenti pre-creati, password minima 12, `auto_expose_new_tables = false`, realtime/storage disabilitati. Il progetto cloud di produzione sarà creato in T5.4.6.
+La configurazione è in `supabase/config.toml`: signup disabilitato a livello progetto, provider email attivo per il login degli utenti pre-creati, password minima 12, `auto_expose_new_tables = false`, realtime/storage disabilitati. Attenzione: `[auth].enable_signup = false` disabilita solo la registrazione; `[auth.email].enable_signup` deve restare `true`, altrimenti il login email risponde `email_provider_disabled`. Il progetto cloud di produzione sarà creato in T5.4.6.
 
 Per provare login e sync in locale:
 

@@ -524,7 +524,7 @@ Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 gi
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/t5.4-cloud-sync.md`, `docs/planning/phase-5.md` §4, `docs/planning/i18n-inventory.md`, l’ADR-0019, l’ADR-0020, l’ADR-0022, l’ADR-0023 e l’ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.21 sono chiusi. Prossimo: T5.4 sync (Supabase Free, email/password, workspace condiviso; piano e ADR pronti). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5), `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.21 e T5.4.0–T5.4.3 sono chiusi. Prossimo: **T5.4.4** (repository cloud, pull/push, outbox, conflitti). La produzione è invariata: `main` locale è avanti di 4 commit non pushati; non fare push su `main` senza un branch/PR e senza il deploy pianificato in T5.4.6. Supabase è solo locale (Docker); env pubbliche opzionali in `.env.local`. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test` e `npm run test:e2e:auth` verdi.
 
 ---
 
