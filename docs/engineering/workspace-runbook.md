@@ -247,6 +247,8 @@ Con due browser o due profili distinti:
 7. Creare un terzo utente senza membership e verificare il messaggio “Questo account non è associato a un workspace”.
 8. Creare un workspace separato per un quarto utente, con dati e ID propri (non il seed), e verificare che non veda il preventivo del workspace condiviso.
 
+Automatico: `npm run smoke:production` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e `PROD_URL` crea un utente/workspace temporanei, verifica login, sync e salvataggio di un preventivo, poi pulisce. Dettagli in `docs/engineering/deployment.md` §13.
+
 ---
 
 ## 9. Risultati attesi della RLS

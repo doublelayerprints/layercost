@@ -34,6 +34,7 @@ npm run db:reset     # migrazioni + seed locali
 npm run db:test      # pgTAP/RLS
 npm run test:e2e:auth # build con Supabase locale + E2E auth
 npm run test:e2e:sync # build + due contesti, offline, conflitto e isolamento; azzera il DB locale
+npm run smoke:production # manuale, richiede Supabase di produzione e PROD_URL
 ```
 
 Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in CI usa Chromium bundled. WebKit usa il browser Playwright installato con `npx playwright install webkit`.

@@ -161,3 +161,18 @@ gh workflow run visual-baselines.yml --ref main
 ```
 
 Scaricare l'artifact `visual-baselines`, scompattarlo in `tests/e2e/visual.spec.ts-snapshots/` e committare gli screenshot insieme alla modifica dell'interfaccia. Le baseline non vanno rigenerate per modifiche di solo contenuto o documentazione.
+
+## 13. Smoke test cloud
+
+Dopo il deploy con Supabase attivo:
+
+```bash
+export SUPABASE_URL='https://<project-ref>.supabase.co'
+export SUPABASE_SERVICE_ROLE_KEY='<service-role>'
+export PROD_URL='https://layercost.vercel.app'
+npm run smoke:production
+```
+
+Lo script crea un utente e un workspace temporanei, accede alla produzione, verifica lo stato “Sincronizzato”, crea un preventivo, controlla che sia nell'archivio e pulisce workspace e utente. La service role key resta nella shell locale: non va in Vercel, nel repository o nel bundle.
+
+Il comando è stato verificato il 28/10/2026 contro una preview locale con Supabase locale; contro la produzione va eseguito una volta dopo il deploy e prima di considerare T5.4.6 chiuso. Se il cleanup fallisce, eliminare workspace e utente con la procedura del `docs/engineering/workspace-runbook.md`.
