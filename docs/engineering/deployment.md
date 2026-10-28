@@ -16,7 +16,7 @@ Repo GitHub: **https://github.com/doublelayerprints/layercost** (privata).
 4. Build command: `npm run build`.
 5. Output directory: `dist`.
 6. Node: 22.x.
-7. Nessuna variabile d'ambiente obbligatoria.
+7. Nessuna variabile d'ambiente obbligatoria. Dalla fase 5 (pianificata) il cloud opzionale usa `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`; se mancano, l'app resta local-only. Dettagli in `docs/planning/t5.4-cloud-sync.md`.
 8. Deploy.
 
 In alternativa, dal repository:

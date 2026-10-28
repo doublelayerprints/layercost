@@ -108,7 +108,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
 - **Verifiche:** 124 unitari, 39 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
 - **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
-- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, workspace condiviso, magic link), non ancora implementato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
+- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto e implementazione non ancora iniziata. Piano in `docs/planning/t5.4-cloud-sync.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

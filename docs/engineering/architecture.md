@@ -67,7 +67,7 @@ DataRepository ──► Zustand store ──► UI
    └────────────────────┘
 ```
 
-L'interfaccia `DataRepository` è in `src/data/repository.ts`. L'adapter attuale è `localRepository`; un futuro adapter cloud potrà implementare la stessa interfaccia. Il sync è pianificato in ADR-0018 e richiede un refactor async dello store; non è parte della v1.0.0.
+L'interfaccia `DataRepository` è in `src/data/repository.ts`. L'adapter attuale è `localRepository`; il sync cloud opzionale è pianificato in `docs/planning/t5.4-cloud-sync.md` (ADR-0024) e richiede un refactor async dello store. La v1.0.0 resta local-only; il cloud non è obbligatorio.
 
 ---
 
@@ -96,6 +96,8 @@ src/
   lib/            format, date, id, share, labels, cn, theme, draft, xlsx
   state/          app-store, theme-store
 ```
+
+Fase 5 (pianificata, `docs/planning/t5.4-cloud-sync.md`): `data/cloud/` (client Supabase, mapping, gateway, outbox), `features/auth/`, `features/sync/`, `state/auth-store.ts`. Il dominio non cambia.
 
 ---
 

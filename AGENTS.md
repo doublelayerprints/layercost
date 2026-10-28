@@ -24,7 +24,7 @@ Prima di toccare il codice:
 3. `AGENTS.md` (questo file)
 4. `PLAN.md`
 5. `TASKS.md`
-6. `docs/planning/phase-5.md` per i task di fase 5 e `docs/planning/i18n-inventory.md` per i task i18n
+6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4 e `docs/planning/i18n-inventory.md` per i task i18n
 7. `docs/domain/cost-model.md`
 8. `docs/domain/data-model.md`
 9. gli ADR rilevanti in `docs/adr/`
@@ -90,7 +90,7 @@ Regole di dipendenza:
 6. **Archiviare, non cancellare.** Un materiale o una stampante referenziata non si cancella mai.
 7. **Una formula, un test.** Ogni formula ha un golden case in `cost-model.md` e un test.
 8. **Cambio formula = docs + test + `engineVersion`.** Nello stesso commit.
-9. **Nessun backend, account o sync in v1.** Solo architettura predisposta.
+9. **Nessun backend, account o sync in v1.** Solo architettura predisposta. La fase 5 aggiunge il sync opzionale con Supabase (ADR-0024): la v1 resta local-only, il cloud non è obbligatorio.
 10. **Nessuna libreria di componenti prima della fase 4.** HTML semantico + Tailwind + primitivi interni.
 11. **Nessun analytics, cookie o chiamata di rete** oltre agli asset statici.
 12. **Nessun `eval`, `dangerouslySetInnerHTML`, `any`.**
@@ -257,7 +257,9 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/engineering/release.md` — checklist e verifiche della release.
 - `docs/engineering/manual-checks.md` — verifiche manuali Safari e VoiceOver.
 - `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese e sync.
+- `docs/planning/t5.4-cloud-sync.md` — piano dettagliato del sync Supabase: schema, RLS, auth, task e operazioni free.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
+- `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

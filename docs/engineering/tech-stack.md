@@ -51,6 +51,8 @@
 ## 4. Dipendenze vietate in v1
 
 - Backend, ORM, auth, database.
+
+> Fase 5 (pianificata): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` è caricato lazy solo per login/sync (ADR-0024). In modalità ospite l'app resta statica e non chiama la rete.
 - Librerie di componenti (shadcn/Radix/MUI/Ant).
 - Librerie di grafici.
 - Librerie di money/decimal (le unità intere bastano).

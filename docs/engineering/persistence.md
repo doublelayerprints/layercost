@@ -1,6 +1,6 @@
 # Persistenza e backup
 
-**Stato:** v1.0.0 + ADR-0020 + ADR-0023 — local-first, schema v4
+**Stato:** v1.0.0 + ADR-0020 + ADR-0023 — local-first, schema v4; sync T5.4 pianificato (ADR-0024)
 
 ---
 
@@ -100,32 +100,47 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 - `localStorage` è tipicamente 5–10 MB per origine.
 - Svuotare i dati del browser cancella tutto.
 - I link condivisi contengono una copia del preventivo: non sono un backup completo.
-- Non c'è sincronizzazione tra dispositivi in v1.
+- Non c'è sincronizzazione tra dispositivi in v1. La fase 5 aggiunge un sync cloud opzionale: la cache cloud usa una chiave separata e non sovrascrive `layercost:data`.
 
 ## 8. Privacy
 
-- Nessuna chiamata di rete oltre agli asset statici.
-- Nessun analytics, cookie o account.
-- I dati restano sul dispositivo.
+- In modalità ospite nessuna chiamata di rete oltre agli asset statici.
+- Con account, configurazione e preventivi sono su Supabase in regione EU; bozza, tema e lingua restano locali. L'account è opzionale (fase 5).
+- Nessun analytics, nessun cookie di profilazione.
+- Senza account i dati restano sul dispositivo; con account esiste una copia sul server.
 - I link condivisi sono leggibili da chiunque abbia l'URL.
 
-## 9. Sync futura
+## 9. Sync cloud (fase 5, pianificata)
 
-L'interfaccia `DataRepository` è astratta. In v1 è sincrona perché usa `localStorage`; un adapter cloud dovrà esporre le stesse operazioni in forma asincrona, con un refactor dello store:
+L'interfaccia `DataRepository` è astratta. In v1 è sincrona perché usa `localStorage`; il refactor async è **T5.4.1**. La sincronizzazione cloud è un caso d'uso separato (`CloudGateway`) e non va accumulata dentro `DataRepository`:
 
 ```ts
 interface DataRepository {
-  load(): { data: AppData; warning?: string }
-  save(data: AppData): void
-  export(data: AppData): void
+  load(): Promise<{ data: AppData; warning?: string }>
+  save(data: AppData): Promise<void>
+  export(data: AppData): Promise<void>
   import(file: File): Promise<AppData>
-  reset(): AppData
+  reset(): Promise<AppData>
+}
+
+interface CloudGateway {
+  pull(): Promise<CloudSnapshot>
+  push(changes: ChangeSet): Promise<PushResult>
+  health(): Promise<void>
 }
 ```
 
-La direzione è in **ADR-0018**: sync opzionale, local-first, solo piani gratuiti, provider ancora da scegliere. Il piano operativo è in `docs/planning/phase-5.md` §4. Un adapter cloud dovrà gestire auth, RLS, conflitti e merge per entità; i preventivi sono modificabili finché `saved`, poi si sincronizzano come documenti immutabili. Bozza, tema e lingua restano locali. Prima del primo sync va esportato un backup.
+La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`.
 
-L'adapter cloud non è previsto nella v1.0.0 e non va implementato senza una richiesta esplicita del committente.
+Regole:
+
+- Configurazione e preventivi `saved`/`sent`/`completed` si sincronizzano; bozza, tema, lingua e onboarding restano locali.
+- Le scritture usano `updated_at` lato server per il controllo ottimistico; offline vanno in un outbox e vengono riprodotte al ritorno.
+- I conflitti sono visibili; nessun overwrite silenzioso. I preventivi `sent`/`completed` sono bloccati anche da un trigger.
+- La cache cloud usa una chiave separata (`layercost:cloud-cache`) e non sovrascrive `layercost:data`.
+- Prima del primo sync va esportato un backup JSON; sul database esiste un `pg_dump` settimanale.
+
+La v1.0.0 resta local-only. L'adapter cloud non è previsto nella v1 e va implementato solo nell'ambito di T5.4.
 
 ## 10. Backup consigliato
 

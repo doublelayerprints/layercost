@@ -3,6 +3,8 @@
 **Stato:** implementazione v1.0.0
 **Codice:** `src/domain/types.ts`, `src/data/schemas.ts`, `src/data/storage.ts`
 
+> Fase 5 (pianificata): il modello cloud aggiunge `workspaces`, `workspace_members` e le tabelle di sincronizzazione. Il dominio locale resta invariato. Schema e mapping in `docs/planning/t5.4-cloud-sync.md` §5; questo documento va aggiornato in T5.4.2.
+
 ---
 
 ## 1. Principi

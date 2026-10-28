@@ -21,7 +21,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
-**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. **T5.20 è chiuso** il 28/10/2026: sconti percentuali o a importo fisso su singola stampa e totale preventivo, con schema v4 e motore 1.0.0. **T5.21 è chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, workspace condiviso e magic link; l’implementazione non è ancora iniziata.
+**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. **T5.20 è chiuso** il 28/10/2026: sconti percentuali o a importo fisso su singola stampa e totale preventivo, con schema v4 e motore 1.0.0. **T5.21 è chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, **email/password** e workspace condiviso (ADR-0024); piano completo in `docs/planning/t5.4-cloud-sync.md`, implementazione non ancora iniziata (T5.4.0 chiuso il 28/10/2026).
 
 ---
 
@@ -179,7 +179,7 @@ npx vercel --prod
 - Stampa verificata su Chromium (PDF A4) e sull'engine WebKit; resta consigliata una prova su una stampante fisica e su Safari reale.
 - Audit `axe` automatico su tutte le route; resta consigliata una prova con screen reader reale (VoiceOver/NVDA).
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
-- Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link) ma non ancora implementata. Vedi ADR-0018.
+- Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, email/password, workspace condiviso) ma non ancora implementata. Piano in `docs/planning/t5.4-cloud-sync.md`; vedi ADR-0018 e ADR-0024.
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
 - Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020); preferenze rapide, azioni in alto, colore filamento e vista cliente separata (T5.15–T5.19).
 - Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.21, T5.12, la barra “Aggiungi riga”, l'accento viola, le card degli sconti e le card comprimibili. Il batch T5.20 è deployato in produzione con la build `index-DbmNNSiw.js` / `index-DsZxzrV2.css`.
@@ -194,7 +194,7 @@ npx vercel --prod
 
 1. **T5.3 — Import diretto da `.3mf`**: **chiuso** (fixture, parser ZIP/XML con worker, mapping puro, UI, performance e deploy).
 2. **T5.6 — Interfaccia inglese**, **T5.12 — Export `.xlsx`** e **T5.20 — Sconti**: chiusi. **T5.13–T5.19**: preventivi modificabili, card del calcolatore, preferenze rapide, azioni in alto, colore filamento, utile in euro e vista cliente separata. Prossimo: **T5.4 sync** (richiesto); il resto del backlog è chiuso/non in scope.
-3. **T5.4 — Sync cloud**: richiesto il 26/10/2026; Supabase Free, workspace condiviso, magic link. Prima serve il refactor async di `DataRepository`/store, poi schema/RLS, conflitti e test.
+3. **T5.4 — Sync cloud**: richiesto il 26/10/2026; Supabase Free, email/password, workspace condiviso (ADR-0024). **T5.4.0 chiuso** (piano e ADR); si parte da T5.4.1 (refactor async), poi schema/RLS, auth, sync/conflitti e operazioni (backup/keep-alive).
 4. **Baseline visive** di T5.20, T5.15–T5.19, T5.12 e della barra “Aggiungi riga” rigenerate in CI; produzione Vercel aggiornata con la build che include T5.20.
 5. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
 6. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
@@ -204,12 +204,12 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso**, **T5.6 chiuso** (T5.6.1–T5.6.5), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.19 chiusi** e **T5.20 chiuso** (sconti di riga e preventivo): i18n, formattazione locale, schema v4 con `Quote.locale`/`Quote.status`/`DiscountRule`, selettori rapidi di tema e lingua, preventivi modificabili fino all’invio, card del calcolatore, azioni in alto, colore filamento, export Excel, vista cliente separata con utile in euro e sconti. Prossimo task: **T5.4** (sync, richiesto); il resto del backlog è chiuso/non in scope.
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.8, §3, §5 e §6, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019/0020/0022/0023.
+- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso**, **T5.6 chiuso** (T5.6.1–T5.6.5), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.19 chiusi** e **T5.20 chiuso** (sconti di riga e preventivo): i18n, formattazione locale, schema v4 con `Quote.locale`/`Quote.status`/`DiscountRule`, selettori rapidi di tema e lingua, preventivi modificabili fino all’invio, card del calcolatore, azioni in alto, colore filamento, export Excel, vista cliente separata con utile in euro e sconti. Prossimo task: **T5.4.1** (refactor async del repository); piano completo in `docs/planning/t5.4-cloud-sync.md`. Il resto del backlog è chiuso/non in scope.
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), **`docs/planning/t5.4-cloud-sync.md`**, `docs/planning/phase-5.md` §4, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §4 e §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019/0020/0022/0023/**0024**.
 - **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
-- **Punti aperti:** definire schema/RLS e refactor async per il sync Supabase; verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Punti aperti:** implementare schema/RLS, auth, refactor async e sync Supabase secondo `t5.4-cloud-sync.md`; verificare il restore del backup via session pooler; verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. La preview Vercel richiede login SSO; la produzione è pubblica.
 - **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
-- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` e gli sconti hanno le migrazioni v2 e v4 descritte in ADR-0019 e ADR-0023. Il sync Supabase introduce backend/auth: aggiornare ADR-0018 prima del codice.
+- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` e gli sconti hanno le migrazioni v2 e v4 descritte in ADR-0019 e ADR-0023. Il sync Supabase introduce backend/auth: decisione in **ADR-0024**, che supersede in parte ADR-0018.
 
 ---
 
@@ -224,8 +224,10 @@ npx vercel --prod
 - `docs/engineering/deployment.md` — deploy.
 - `docs/engineering/release.md` — checklist e verifiche della v1.0.0.
 - `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese, export `.xlsx` e sync.
+- `docs/planning/t5.4-cloud-sync.md` — piano dettagliato di T5.4: schema, RLS, auth, sync, task e operazioni free.
 - `docs/adr/0017-3mf-import.md` — formato di import diretto.
-- `docs/adr/0018-cloud-sync-free.md` — sync opzionale e gratuito, richiesto e pianificato.
+- `docs/adr/0018-cloud-sync-free.md` — sync opzionale e gratuito; provider e vincoli free restano validi.
+- `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e operazioni free del sync.
 - `docs/adr/0019-english-ui.md` — interfaccia inglese e `Quote.locale`.
 - `docs/adr/0022-internal-customer-quote-views.md` — vista interna e vista cliente.
 - `docs/adr/0023-line-and-quote-discounts.md` — sconti di riga e di preventivo.

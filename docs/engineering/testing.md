@@ -6,6 +6,9 @@
 
 ## 1. Strategia
 
+> Fase 5 (pianificata): il sync aggiunge test di contratto del repository, test RLS con due utenti su Supabase locale, E2E a due contesti e test di outbox/conflitto. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
+
+
 | Livello  | Strumento             | Cosa copre                                                                        |
 | -------- | --------------------- | --------------------------------------------------------------------------------- |
 | Unit     | Vitest                | Unità, arrotondamenti, formule, prezzi                                            |
