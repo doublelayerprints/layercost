@@ -1,8 +1,8 @@
 # Design system — Strato
 
-**Stato:** T4.3, T4.4, T4.5, T4.7 e T4.6 completati; v1.0.0 rilasciata
-**Data:** 24 ottobre 2026
-**Direzione:** A — Strato (`achromatic-ledger`), ADR-0015 · tema scuro ADR-0016
+**Stato:** T4.3, T4.4, T4.5, T4.7 e T4.6 completati; v1.0.0 rilasciata; accent viola da ADR-0021
+**Data:** 28 ottobre 2026
+**Direzione:** A — Strato (`achromatic-ledger`), ADR-0015 · tema scuro ADR-0016 · accent ADR-0021
 **Ambito:** token, tipografia, componenti, accessibilità e stampa. La composizione delle schermate è stata applicata in T4.4.
 
 ---
@@ -11,7 +11,7 @@
 
 1. **Token prima di tutto.** Colori, font, raggi, ombre e dimensioni del denaro sono token in `src/index.css`. I componenti non contengono hex.
 2. **Superfici piatte.** Nessuna ombra a riposo; l'unica eccezione è il dialogo, che flotta davvero.
-3. **Un solo blu di dato.** Il chrome è ink e grigio; `--color-data` segna la banda più grande dello stack e il focus.
+3. **Un solo viola di dato.** Il chrome è ink e grigio; `--color-data` segna la banda più grande dello stack e il focus.
 4. **Una scala tipografica di cinque passi.** 34 / 24 / 16 / 14 / 12 px. Source Serif 4 solo per il denaro e il documento.
 5. **Focus immediato.** Anello 2 px `--color-data`, offset 2 px, nessuna transizione sull'outline.
 6. **Due temi, movimento minimo.** Tema chiaro e scuro (ADR-0016), con preferenza Sistema/Chiaro/Scuro; la stampa resta sempre chiara. Solo feedback; nessuna animazione d'ingresso; `prefers-reduced-motion` rispettato.
@@ -24,32 +24,32 @@
 
 ### 2.1 Colore
 
-| Token                      | Valore                | Utility principali           | Uso                                                    |
-| -------------------------- | --------------------- | ---------------------------- | ------------------------------------------------------ |
-| `--color-ground`           | `#f4f3f1`             | `bg-ground`                  | sfondo pagina, pietra calda a bassa croma              |
-| `--color-surface`          | `#ffffff`             | `bg-surface`                 | card, campi, pannello risultato                        |
-| `--color-raised`           | `#efeeeb`             | `bg-raised`                  | superfici secondarie, hover, voce attiva               |
-| `--color-line`             | `#e3e1dc`             | `border-line`, `divide-line` | bordi non interattivi, separatori                      |
-| `--color-rule`             | `#eeede9`             | `border-rule`                | righe di tabella                                       |
-| `--color-control`          | `#8a8a8a`             | `border-control`             | bordo dei campi interattivi (3,45:1 su bianco)         |
-| `--color-ink`              | `#0a0a0a`             | `text-ink`, `bg-ink`         | testo, numeri, azione primaria                         |
-| `--color-muted`            | `#6b6b6b`             | `text-muted`                 | etichette, unità, testo secondario                     |
-| `--color-data`             | `#1d5fbf`             | `text-data`, `bg-data`       | banda più grande dello stack, focus, stato informativo |
-| `--color-selection`        | `#c7d8f1`             | `::selection`                | selezione del testo                                    |
-| `--color-positive`         | `#2e7d32`             | `text-positive`              | successo, delta favorevole                             |
-| `--color-negative`         | `#c4242a`             | `text-negative`              | errore, delta sfavorevole, azione distruttiva          |
-| `--color-warning`          | `#92400e`             | `text-warning`               | stime, avvisi                                          |
-| `--color-scrim`            | `rgb(10 10 10 / 0.4)` | `bg-scrim`                   | velo del dialogo                                       |
-| `--color-pill-neutral-bg`  | `#eeeeee`             | `bg-pill-neutral-bg`         | badge neutro                                           |
-| `--color-pill-neutral-ink` | `#3d3d3d`             | `text-pill-neutral-ink`      | testo badge neutro                                     |
-| `--color-pill-success-bg`  | `#dcfae5`             | `bg-pill-success-bg`         | badge di successo                                      |
-| `--color-pill-success-ink` | `#04250e`             | `text-pill-success-ink`      | testo badge di successo                                |
-| `--color-pill-info-bg`     | `#e8f0fb`             | `bg-pill-info-bg`            | badge informativo                                      |
-| `--color-pill-info-ink`    | `#1d5fbf`             | `text-pill-info-ink`         | testo badge informativo                                |
-| `--color-pill-warning-bg`  | `#fffbeb`             | `bg-pill-warning-bg`         | badge di avviso                                        |
-| `--color-pill-warning-ink` | `#92400e`             | `text-pill-warning-ink`      | testo badge di avviso                                  |
-| `--color-pill-danger-bg`   | `#ffedea`             | `bg-pill-danger-bg`          | badge di errore                                        |
-| `--color-pill-danger-ink`  | `#831c1e`             | `text-pill-danger-ink`       | testo badge di errore                                  |
+| Token                      | Valore                | Utility principali           | Uso                                                                             |
+| -------------------------- | --------------------- | ---------------------------- | ------------------------------------------------------------------------------- |
+| `--color-ground`           | `#f4f3f1`             | `bg-ground`                  | sfondo pagina, pietra calda a bassa croma                                       |
+| `--color-surface`          | `#ffffff`             | `bg-surface`                 | card, campi, pannello risultato                                                 |
+| `--color-raised`           | `#efeeeb`             | `bg-raised`                  | superfici secondarie, hover, voce attiva                                        |
+| `--color-line`             | `#e3e1dc`             | `border-line`, `divide-line` | bordi non interattivi, separatori                                               |
+| `--color-rule`             | `#eeede9`             | `border-rule`                | righe di tabella                                                                |
+| `--color-control`          | `#8a8a8a`             | `border-control`             | bordo dei campi interattivi (3,45:1 su bianco)                                  |
+| `--color-ink`              | `#0a0a0a`             | `text-ink`, `bg-ink`         | testo, numeri, azione primaria                                                  |
+| `--color-muted`            | `#6b6b6b`             | `text-muted`                 | etichette, unità, testo secondario                                              |
+| `--color-data`             | `#5b21b6`             | `text-data`, `bg-data`       | banda più grande dello stack, focus, stato informativo, barra “Completa i dati” |
+| `--color-selection`        | `#ddd6fe`             | `::selection`                | selezione del testo                                                             |
+| `--color-positive`         | `#2e7d32`             | `text-positive`              | successo, delta favorevole                                                      |
+| `--color-negative`         | `#c4242a`             | `text-negative`              | errore, delta sfavorevole, azione distruttiva                                   |
+| `--color-warning`          | `#92400e`             | `text-warning`               | stime, avvisi                                                                   |
+| `--color-scrim`            | `rgb(10 10 10 / 0.4)` | `bg-scrim`                   | velo del dialogo                                                                |
+| `--color-pill-neutral-bg`  | `#eeeeee`             | `bg-pill-neutral-bg`         | badge neutro                                                                    |
+| `--color-pill-neutral-ink` | `#3d3d3d`             | `text-pill-neutral-ink`      | testo badge neutro                                                              |
+| `--color-pill-success-bg`  | `#dcfae5`             | `bg-pill-success-bg`         | badge di successo                                                               |
+| `--color-pill-success-ink` | `#04250e`             | `text-pill-success-ink`      | testo badge di successo                                                         |
+| `--color-pill-info-bg`     | `#f5f3ff`             | `bg-pill-info-bg`            | badge informativo                                                               |
+| `--color-pill-info-ink`    | `#5b21b6`             | `text-pill-info-ink`         | testo badge informativo                                                         |
+| `--color-pill-warning-bg`  | `#fffbeb`             | `bg-pill-warning-bg`         | badge di avviso                                                                 |
+| `--color-pill-warning-ink` | `#92400e`             | `text-pill-warning-ink`      | testo badge di avviso                                                           |
+| `--color-pill-danger-bg`   | `#ffedea`             | `bg-pill-danger-bg`          | badge di errore                                                                 |
+| `--color-pill-danger-ink`  | `#831c1e`             | `text-pill-danger-ink`       | testo badge di errore                                                           |
 
 ### 2.1.1 Tema scuro
 
@@ -65,8 +65,8 @@ Il tema scuro è un **grafite caldo**, non nero puro: conserva la famiglia croma
 | `--color-control`          | `#75756f`          | bordo dei campi (3,68:1 su surface)      |
 | `--color-ink`              | `#f3f2ef`          | testo, numeri, azione primaria invertita |
 | `--color-muted`            | `#a8a7a0`          | etichette e testo secondario             |
-| `--color-data`             | `#4f8fe0`          | dato, focus, link (5,15:1 su surface)    |
-| `--color-selection`        | `#2c4a75`          | selezione del testo                      |
+| `--color-data`             | `#9d7bf5`          | dato, focus, link (5,35:1 su surface)    |
+| `--color-selection`        | `#3b2a66`          | selezione del testo                      |
 | `--color-positive`         | `#74c98a`          | successo e delta favorevoli              |
 | `--color-negative`         | `#ef8a85`          | errore e azioni distruttive              |
 | `--color-warning`          | `#e5b06a`          | stime e avvisi                           |
@@ -75,8 +75,8 @@ Il tema scuro è un **grafite caldo**, non nero puro: conserva la famiglia croma
 | `--color-pill-neutral-ink` | `#dedcd6`          | testo badge neutro                       |
 | `--color-pill-success-bg`  | `#17301d`          | badge di successo                        |
 | `--color-pill-success-ink` | `#a3dfae`          | testo badge di successo                  |
-| `--color-pill-info-bg`     | `#182a42`          | badge informativo                        |
-| `--color-pill-info-ink`    | `#a9c9f2`          | testo badge informativo                  |
+| `--color-pill-info-bg`     | `#2a1f45`          | badge informativo                        |
+| `--color-pill-info-ink`    | `#c4b5fd`          | testo badge informativo                  |
 | `--color-pill-warning-bg`  | `#33260f`          | badge di avviso                          |
 | `--color-pill-warning-ink` | `#f2c98a`          | testo badge di avviso                    |
 | `--color-pill-danger-bg`   | `#351a1a`          | badge di errore                          |
@@ -160,7 +160,7 @@ Toni: `neutral`, `success`, `warning`, `info`, `danger`. Pill 20 px, testo 12 px
 
 ### 3.5 Alert
 
-Bordo da 1 px `--color-line` e barra sinistra da 4 px nel tono (`info` data, `warning` warning, `danger` negative, `success` positive). Titolo e corpo in ink; il tono non sostituisce il testo.
+Bordo da 1 px `--color-line` e barra sinistra da 4 px nel tono (`info` data, `warning` warning, `danger` negative, `success` positive). Titolo e corpo in ink; il tono non sostituisce il testo. La barra dell'avviso “Completa i dati” nel riepilogo del calcolatore usa `info`, quindi l'accent; la pillola “Da completare” resta `warning`.
 
 ### 3.6 Modal
 
@@ -194,12 +194,12 @@ Titolo `h1` 24/600, descrizione 14 muted, azioni a destra. Niente eyebrow: l'eti
 
 - Quattro bande: Materiale, Macchina (energia + ammortamento + manutenzione), Lavoro ed extra (manodopera e extra di riga e di lavoro), Rischio (riserva guasti). La somma è esattamente il costo pieno.
 - Le bande a zero non compaiono; le bande sotto il 3% si accorpano in "Altro". La tabella dettaglio resta completa.
-- Larghezze proporzionali agli importi in µ€, pixel con resto più grande; la banda più grande è blu, le altre ink/grigio.
+- Larghezze proporzionali agli importi in µ€, pixel con resto più grande; la banda più grande è viola, le altre ink/grigio.
 - `role="img"` con `aria-label` e legenda `<dl>` con nome e importo. Il colore non è l'unica informazione.
 
 ### 3.13 Logo
 
-Marchio a tre strati sfalsati, 28 × 28, `currentColor`; wordmark Archivo 600 con tracking del titolo. La favicon usa la stessa forma con il primo strato blu.
+Marchio a tre strati sfalsati, 28 × 28, `currentColor`; wordmark Archivo 600 con tracking del titolo. La favicon usa la stessa forma con il primo strato viola.
 
 ### 3.14 InfoDot
 
@@ -234,8 +234,8 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 | ink su surface                           | 19,80:1  | AA/AAA |
 | muted su ground                          | 4,81:1   | AA     |
 | muted su surface                         | 5,33:1   | AA     |
-| data su surface                          | 6,10:1   | AA     |
-| data su ground                           | 5,50:1   | AA     |
+| data su surface                          | 8,98:1   | AA     |
+| data su ground                           | 8,10:1   | AA     |
 | positive su surface                      | 5,13:1   | AA     |
 | negative su surface                      | 5,78:1   | AA     |
 | warning su surface                       | 7,09:1   | AA     |
@@ -243,8 +243,9 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 | badge success (ink su bg)                | 14,77:1  | AA/AAA |
 | badge danger (ink su bg)                 | 8,63:1   | AA/AAA |
 | badge warning (ink su bg)                | 6,84:1   | AA     |
-| badge info (ink su bg)                   | 5,31:1   | AA     |
+| badge info (ink su bg)                   | 8,19:1   | AA     |
 | badge neutral (ink su bg)                | 9,36:1   | AA/AAA |
+| ink su selection                         | 14,26:1  | AA/AAA |
 
 **Tema scuro (ADR-0016).**
 
@@ -254,8 +255,8 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 | ink su surface                           | 15,25:1  | AA/AAA |
 | muted su ground                          | 7,64:1   | AA/AAA |
 | muted su surface                         | 7,07:1   | AA/AAA |
-| data su surface                          | 5,15:1   | AA     |
-| data su ground                           | 5,56:1   | AA     |
+| data su surface                          | 5,35:1   | AA     |
+| data su ground                           | 5,78:1   | AA     |
 | positive su surface                      | 8,50:1   | AA/AAA |
 | negative su surface                      | 7,03:1   | AA/AAA |
 | warning su surface                       | 8,74:1   | AA/AAA |
@@ -263,13 +264,13 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 | badge success (ink su bg)                | 9,29:1   | AA/AAA |
 | badge danger (ink su bg)                 | 8,49:1   | AA/AAA |
 | badge warning (ink su bg)                | 9,47:1   | AA/AAA |
-| badge info (ink su bg)                   | 8,51:1   | AA/AAA |
+| badge info (ink su bg)                   | 8,24:1   | AA/AAA |
 | badge neutral (ink su bg)                | 10,21:1  | AA/AAA |
-| ink su selection                         | 8,00:1   | AA/AAA |
+| ink su selection                         | 10,98:1  | AA/AAA |
 
 - `--color-border` e `--color-rule` sono separatori non informativi: non devono raggiungere 3:1.
 - Il bordo dei campi è stato corretto rispetto al sheet (`#d4d4d4` → `#8a8a8a`) per WCAG 1.4.11.
-- Il focus ring è `--color-data` con offset 2 px; su ink/surface il contrasto è ≥ 5,5:1.
+- Il focus ring è `--color-data` con offset 2 px; su ink/surface il contrasto è ≥ 5:1.
 
 ### 4.2 Regole
 
@@ -317,7 +318,7 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 - `src/lib/format.test.ts` — 3 test: arrotondamento dei centesimi simmetrico, roundtrip dei centesimi interi (property test), formattazione it-IT.
 - `tests/e2e/design-system.spec.ts` — 2 test:
   1. token e font caricati (`--color-ground`, `--color-data`, `--color-control`, Archivo, Source Serif 4);
-  2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#1d5fbf`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude e mostra le preferenze rapide.
+  2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#5b21b6`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude e mostra le preferenze rapide.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro dalla sidebar, sincronizzazione con Impostazioni, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px.
 - `tests/e2e/locale.spec.ts` — 1 test: cambio lingua dalla sidebar, sincronizzazione con Impostazioni, `<html lang>`, titolo, persistenza al reload, salvataggio in inglese e stampa inglese anche con UI italiana.
 - `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
@@ -331,7 +332,7 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 - Tema scuro: screenshot di calcolatore, preventivi, impostazioni, materiali e confronto a 1440/768/390 px; nessuno scroll orizzontale a 390 px; `color-scheme: dark` sui controlli nativi; PDF A4 generato con tema scuro e token di stampa riportati al chiaro.
 - Stati T4.5: modale “Iniziare un nuovo preventivo?” a 1440 e 390 px; vuoto della ricerca preventivi; confronto senza due stampanti attive; alert “Preventivo salvato” sul dettaglio. Esc chiude la modale e il focus torna a “Nuovo”.
 - `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN** in tema chiaro (T4.4) e **0 FAIL, 1 WARN** con il sistema in tema scuro (T4.7). Il WARN è `ragged-row`: il pannello risultato è una rail sticky alta meno del form, come da wireframe §3.4 della direzione. Non è una coppia di card affiancate da bilanciare: mentre si scorre, il pannello resta in vista.
-- Tastiera: skip link con anello da 2 px `#1d5fbf`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
+- Tastiera: skip link con anello da 2 px `#5b21b6`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
 - Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non era verificato in T4.4; la release 1.0 copre l'engine WebKit e il PDF A4, mentre una prova su stampante fisica resta manuale.
 - Produzione Vercel: deploy `759ed0f` (T4.5) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN); prezzo 3,70 € con il nuovo seed, conferma della bozza e alert di salvataggio verificati. Le preview deployment sono protette da SSO; la produzione è pubblica.
@@ -364,7 +365,7 @@ npm run test:e2e
 
 ```text
 ROUND 1
-Seen in one second: un preventivo sul banco: prezzo serif a destra, form a sinistra, stack blu.
+Seen in one second: un preventivo sul banco: prezzo serif a destra, form a sinistra, stack d'accento.
 Idea: gli strati della stampa diventano gli strati del costo; il prezzo è la somma di ciò che si vede.
 Live thing: prezzo e stack si aggiornano mentre si digita; il confronto rapido mostra il delta senza toccare la bozza.
 Layout words by screen: calcolatore=form 7/12 + rail 5/12 / preventivi=tabella / dettaglio=prezzo+stack, righe, dettaglio / confronto=delta + tabella a due colonne / anagrafiche=righe o tabelle / impostazioni=etichetta + pannello.

@@ -1,6 +1,6 @@
 # ADR-0015 — Direzione visiva: Strato
 
-**Stato:** Accettato; il punto 6 (base chiara, nessuna dark mode) è superato da ADR-0016
+**Stato:** Accettato; il punto 6 (base chiara, nessuna dark mode) è superato da ADR-0016; il punto 1 (accent blu) è superato da ADR-0021
 **Data:** 24 ottobre 2026
 
 ## Contesto

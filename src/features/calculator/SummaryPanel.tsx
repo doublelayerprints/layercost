@@ -181,7 +181,8 @@ export function SummaryPanel({
 
       {error ? (
         <div className="mt-4">
-          <Alert tone="warning" title={t('summary.completeData')}>
+          {/* The incomplete-data bar uses the data accent; the title carries the warning. */}
+          <Alert tone="info" title={t('summary.completeData')}>
             {error}
           </Alert>
         </div>

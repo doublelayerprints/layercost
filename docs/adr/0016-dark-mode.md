@@ -1,6 +1,6 @@
 # ADR-0016 — Dark mode in v1
 
-**Stato:** Accettato
+**Stato:** Accettato; il blu del punto 3 è superato da ADR-0021
 **Data:** 24 ottobre 2026
 
 ## Contesto

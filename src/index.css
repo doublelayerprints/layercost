@@ -26,8 +26,8 @@
   --color-control: #8a8a8a;
   --color-ink: #0a0a0a;
   --color-muted: #6b6b6b;
-  --color-data: #1d5fbf;
-  --color-selection: #c7d8f1;
+  --color-data: #5b21b6;
+  --color-selection: #ddd6fe;
   --color-positive: #2e7d32;
   --color-negative: #c4242a;
   --color-warning: #92400e;
@@ -37,8 +37,8 @@
   --color-pill-neutral-ink: #3d3d3d;
   --color-pill-success-bg: #dcfae5;
   --color-pill-success-ink: #04250e;
-  --color-pill-info-bg: #e8f0fb;
-  --color-pill-info-ink: #1d5fbf;
+  --color-pill-info-bg: #f5f3ff;
+  --color-pill-info-ink: #5b21b6;
   --color-pill-warning-bg: #fffbeb;
   --color-pill-warning-ink: #92400e;
   --color-pill-danger-bg: #ffedea;
@@ -84,8 +84,8 @@
     --color-control: #75756f;
     --color-ink: #f3f2ef;
     --color-muted: #a8a7a0;
-    --color-data: #4f8fe0;
-    --color-selection: #2c4a75;
+    --color-data: #9d7bf5;
+    --color-selection: #3b2a66;
     --color-positive: #74c98a;
     --color-negative: #ef8a85;
     --color-warning: #e5b06a;
@@ -95,8 +95,8 @@
     --color-pill-neutral-ink: #dedcd6;
     --color-pill-success-bg: #17301d;
     --color-pill-success-ink: #a3dfae;
-    --color-pill-info-bg: #182a42;
-    --color-pill-info-ink: #a9c9f2;
+    --color-pill-info-bg: #2a1f45;
+    --color-pill-info-ink: #c4b5fd;
     --color-pill-warning-bg: #33260f;
     --color-pill-warning-ink: #f2c98a;
     --color-pill-danger-bg: #351a1a;

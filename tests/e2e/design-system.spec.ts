@@ -20,7 +20,7 @@ test('carica i font e i token della direzione Strato', async ({ page }) => {
   })
 
   expect(data.ground).toBe('#f4f3f1')
-  expect(data.data).toBe('#1d5fbf')
+  expect(data.data).toBe('#5b21b6')
   expect(data.control).toBe('#8a8a8a')
   expect(data.bodyFont).toContain('Archivo')
   expect(data.archivo).toBe(true)
@@ -62,7 +62,7 @@ test('i controlli usano i token, il focus è visibile e non c’è overflow a 37
       outlineStyle: styles.outlineStyle,
     }
   })
-  expect(focus.outlineColor).toBe('rgb(29, 95, 191)')
+  expect(focus.outlineColor).toBe('rgb(91, 33, 182)')
   expect(focus.outlineWidth).toBe('2px')
   expect(focus.outlineStyle).toBe('solid')
 

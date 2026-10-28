@@ -1,6 +1,6 @@
 # Direzioni di design — LayerCost
 
-**Stato:** T4.2 — direzione scelta: **A — Strato** (ADR-0015)
+**Stato:** T4.2 — direzione scelta: **A — Strato** (ADR-0015); accent aggiornato da ADR-0021
 **Data:** 24 ottobre 2026
 **Task:** T4.2 — Direzioni di design
 **Input:** `docs/design/ui-brief.md`, `PLAN.md`, `AGENTS.md`, `TASKS.md`, `references/app-screens.md` della skill `design-taste-frontend`, skill `frontend-design`
@@ -67,16 +67,16 @@ Restano nell'ADR come alternative considerate, non come direzioni da sviluppare.
 
 ### 2.1 Dati e grandezze
 
-| Oggetto         | Campi che contano nella UI                                                                                        | Grandezza tipica                  |
-| --------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| Stampante       | nome, prezzo, residuo, vita in ore, manutenzione €/h, potenza media per famiglia, avvio, multicolore, volume      | 2 macchine; 15.000–20.000 h; €299–€449    |
-| Materiale       | famiglia, prezzo €/kg, peso netto, fornitore, colore, override guasti                                             | 8 materiali; €20–€60/kg           |
-| Tariffa energia | etichetta, €/kWh, decorrenza, override per stampante                                                              | 1 tariffa attiva; €0,20–€0,35/kWh |
-| Extra           | nome, importo, per unità o per lavoro                                                                             | 5 voci; €0,03–€6,00               |
-| Impostazioni    | manodopera €/h, guasti, maggiorazione tempo, modalità prezzo, ricarico/margine, arrotondamento, IVA, ripartizione | 0–30%; 0–22% IVA                  |
-| Riga            | stampante, materiali + grammi, tempo slicer, quantità, finitura, override, extra                                  | 20–800 g; 1–12 h; 1–20 pezzi      |
-| Preventivo      | nome, data, cliente, stato, righe, costi di lavoro, snapshot, risultato                                           | 1–10 righe; €2–€80                |
-| Archivio        | preventivi salvati e archiviati, ricerca per nome                                                                 | 0–100 preventivi                  |
+| Oggetto         | Campi che contano nella UI                                                                                        | Grandezza tipica                       |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| Stampante       | nome, prezzo, residuo, vita in ore, manutenzione €/h, potenza media per famiglia, avvio, multicolore, volume      | 2 macchine; 15.000–20.000 h; €299–€449 |
+| Materiale       | famiglia, prezzo €/kg, peso netto, fornitore, colore, override guasti                                             | 8 materiali; €20–€60/kg                |
+| Tariffa energia | etichetta, €/kWh, decorrenza, override per stampante                                                              | 1 tariffa attiva; €0,20–€0,35/kWh      |
+| Extra           | nome, importo, per unità o per lavoro                                                                             | 5 voci; €0,03–€6,00                    |
+| Impostazioni    | manodopera €/h, guasti, maggiorazione tempo, modalità prezzo, ricarico/margine, arrotondamento, IVA, ripartizione | 0–30%; 0–22% IVA                       |
+| Riga            | stampante, materiali + grammi, tempo slicer, quantità, finitura, override, extra                                  | 20–800 g; 1–12 h; 1–20 pezzi           |
+| Preventivo      | nome, data, cliente, stato, righe, costi di lavoro, snapshot, risultato                                           | 1–10 righe; €2–€80                     |
+| Archivio        | preventivi salvati e archiviati, ricerca per nome                                                                 | 0–100 preventivi                       |
 
 I numeri dei wireframe sono **illustrativi**, non golden case: servono a mostrare la gerarchia e a verificare che le quote si sommino. I golden case restano in `docs/domain/golden-cases.md`.
 
@@ -112,6 +112,8 @@ Il job più frequente è **calcolare e leggere il prezzo**; il secondo è **salv
 ---
 
 ## 3. Direzione A — Strato
+
+> **Aggiornamento 28/10/2026.** L'accent blu di questa specifica T4.2 è stato sostituito dal viola di ADR-0021 (`#5b21b6` chiaro, `#9d7bf5` scuro). I valori sotto restano la documentazione della direzione originale; per i token correnti vale `docs/design/design-system.md`.
 
 **Stile:** `achromatic-ledger` (seed `924240909`), adattato con una faccia scelta dal brief.
 **Idea:** _In questa app, gli strati di una stampa diventano gli strati del costo: il preventivo è una sezione trasversale e il prezzo è la somma di ciò che si vede._

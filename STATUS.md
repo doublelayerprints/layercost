@@ -1,6 +1,6 @@
 # LayerCost — Stato del progetto
 
-**Data:** 26 ottobre 2026
+**Data:** 28 ottobre 2026
 **Versione:** 1.0.0 — prima release stabile
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
@@ -86,6 +86,14 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - **T5.17:** `PrintLine.color` opzionale (`#rrggbb`) con picker, swatch e rimozione; schema v3 invariato, nessun impatto su formule o `engineVersion`.
 - **Deploy:** build `index-CKBs4VCV.js` verificata in produzione prima di questo batch. Il batch T5.15–T5.17 ha build locale `index-BTc3DwEd.js`; preview Vercel e baseline visive sono da verificare al deploy.
 
+### Accento viola (T4.8, ADR-0021, 28/10/2026)
+
+- Accent unico **viola**: `#5b21b6` nel tema chiaro e `#9d7bf5` nel tema scuro; selezione `#ddd6fe` / `#3b2a66`, pill informativa `#f5f3ff` / `#5b21b6` e `#2a1f45` / `#c4b5fd`.
+- Contrasti AA: **8,98:1** su surface e **8,10:1** su ground in chiaro; **5,35:1** e **5,78:1** in scuro. Focus ring 2 px con l'accent.
+- La barra dell'avviso “Completa i dati” nel riepilogo del calcolatore usa l'accent; la pillola “Da completare” resta warning.
+- Favicon aggiornata; test E2E dei token e dell'hover della barra “Aggiungi riga” allineati. Baseline visive Linux rigenerate.
+- Nessun cambio a formule, `engineVersion`, schema, snapshot, export/import o privacy.
+
 ### Seed
 
 - Anycubic Kobra 3 (250 × 250 × 260 mm, senza multicolore).
@@ -107,11 +115,11 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | Test E2E           | 36 superati in CI (30 eseguiti + 6 visual; 2 WebKit)                               |
 | Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                        |
 | Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux                    |
-| Build produzione   | verde (~661 KB JS main + ~108 KB worker; ~188 KB gzip JS; ~37 KB CSS; ~58 KB font)  |
+| Build produzione   | verde (~661 KB JS main + ~108 KB worker; ~188 KB gzip JS; ~37 KB CSS; ~58 KB font) |
 | Budget bundle      | 284,8 KB gzip totali su 350 KB (limite JS 225 KB)                                  |
 | CI GitHub `check`  | verde su `main`                                                                    |
 | CI GitHub `e2e`    | verde su `main`                                                                    |
-| Vercel produzione  | deploy `index-CKBs4VCV.js` verificato prima di T5.15–T5.17; T5.12 non verificato     |
+| Vercel produzione  | deploy `index-CKBs4VCV.js` verificato prima di T5.15–T5.17; T5.12 non verificato   |
 
 Comandi:
 
@@ -167,7 +175,7 @@ npx vercel --prod
 - Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link) ma non ancora implementata. Vedi ADR-0018.
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
 - Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020); preferenze rapide, azioni in alto e colore filamento (T5.15–T5.17).
-- Le 36 baseline visive sono precedenti a T5.15–T5.17, T5.12 e alla barra “Aggiungi riga”: vanno rigenerate in CI. La preview Vercel del batch non è ancora stata verificata.
+- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.17, T5.12, la barra “Aggiungi riga” e l'accento viola. La preview Vercel del batch è verificata al deploy su `main`.
 - Export `.xlsx` per analisi esterna; il backup JSON resta l’unica copia esterna completa.
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v3; rifiuto versioni future).

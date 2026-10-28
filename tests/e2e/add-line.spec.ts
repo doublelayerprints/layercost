@@ -21,7 +21,7 @@ test('aggiunge una riga dal pulsante largo sotto la card', async ({ page }) => {
   await add.hover()
   await expect
     .poll(() => add.evaluate((element) => getComputedStyle(element).borderColor))
-    .toBe('rgb(29, 95, 191)')
+    .toBe('rgb(91, 33, 182)')
 
   await add.click()
   await expect(cards).toHaveCount(2)

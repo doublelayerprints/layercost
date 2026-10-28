@@ -19,6 +19,10 @@
 - Export `.xlsx` (T5.12): writer locale senza nuove dipendenze, tre fogli (Preventivi, Righe, Materiali), valori numerici con formati Excel, intestazioni in italiano/inglese, archiviati inclusi e pulsanti in Preventivi e Impostazioni → Dati.
 - Test: 112 unitari, 36 E2E, 36 screenshot visuali.
 
+### Changed
+
+- Accento viola (T4.8, ADR-0021): `--color-data` passa a `#5b21b6` nel tema chiaro e `#9d7bf5` nel tema scuro, con selezione, pill informativa e favicon allineate; la barra “Completa i dati” del riepilogo usa l'accent, mentre la pillola “Da completare” resta warning. Test E2E aggiornati e baseline visive Linux rigenerate. Nessun cambio a formule, `engineVersion`, schema, snapshot o persistenza.
+
 ## [1.0.0] — 2026-10-24
 
 ### Added
