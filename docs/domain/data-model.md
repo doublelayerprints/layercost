@@ -3,7 +3,7 @@
 **Stato:** implementazione v1.0.0
 **Codice:** `src/domain/types.ts`, `src/data/schemas.ts`, `src/data/storage.ts`
 
-> Fase 5 (pianificata): il modello cloud aggiunge `workspaces`, `workspace_members` e le tabelle di sincronizzazione. Il dominio locale resta invariato. Schema e mapping in `docs/planning/t5.4-cloud-sync.md` §5; questo documento va aggiornato in T5.4.2.
+> Fase 5: il modello cloud è implementato in T5.4.2 (`supabase/migrations/20261028120000_init.sql`). Il dominio locale resta invariato; vedi §7 per le tabelle cloud.
 
 ---
 
@@ -259,9 +259,39 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 6. Privacy e sicurezza
 
-- I dati restano nel browser; nessun backend.
+- In modalità ospite i dati restano nel browser; nessun backend.
+- Con account, configurazione e preventivi sono su Supabase in regione EU; bozza, tema e lingua restano locali.
 - I link condivisi contengono una copia compressa del preventivo nell'URL.
 - L'import non esegue codice: JSON + validazione Zod.
 - Nessun `eval`, nessun `dangerouslySetInnerHTML`.
 - Svuotare i dati del browser cancella i dati: il backup JSON è l'unica copia esterna.
 - L'export `.xlsx` è locale e di sola lettura: serve per analisi e non sostituisce il backup JSON.
+
+---
+
+## 7. Schema cloud (T5.4.2)
+
+Il modello cloud è in `supabase/migrations/20261028120000_init.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`.
+
+| Tabella | Contenuto |
+| --- | --- |
+| `workspaces` | Spazio condiviso; ID `text` stabile |
+| `workspace_members` | Membership `owner`/`editor`; PK `(workspace_id, user_id)` |
+| `settings` | Una riga per workspace, campi scalari di `Settings` |
+| `energy_tariffs` | Tariffe energia con `effective_from` |
+| `printers` | Stampanti, profili potenza JSONB, `archived_at` |
+| `materials` | Materiali, famiglia, prezzo al kg, `archived_at` |
+| `extras` | Extra `perUnit`/`perJob`, `archived_at` |
+| `quotes` | Preventivi `saved`/`sent`/`completed`; righe, lavoro, prezzo, snapshot e risultato in JSONB |
+
+Invarianti cloud:
+
+1. Le bozze restano locali: `quotes.status` ammette solo `saved`, `sent` e `completed`.
+2. RLS su ogni tabella; l'accesso è consentito solo ai membri del workspace tramite `is_workspace_member`.
+3. `workspace_members` è gestito solo dagli owner; l'ultimo owner non può essere rimosso.
+4. I preventivi `sent`/`completed` non cambiano i campi economici; un trigger blocca anche le transizioni all'indietro.
+5. La cancellazione fisica non è concessa: si usano `archived_at` e `deleted_at`.
+6. `updated_at`/`updated_by` sono impostati dal database; il client non li usa per i calcoli.
+7. I soldi restano interi in micro-euro, le percentuali in basis point, il tempo in secondi e la massa in centigrammi.
+
+Test: `supabase/tests/rls.test.sql` (21 asserzioni pgTAP) e `src/data/cloud/mappers.test.ts`.

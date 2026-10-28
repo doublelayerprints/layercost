@@ -8,7 +8,7 @@
 ## Stato implementazione
 
 - **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5). Release **v1.0.0** (T4.6) del 24/10/2026, tag `v1.0.0` su `cc949b3`, con axe WCAG 2.2 AA, WebKit, stampa/PDF, regressione visiva e budget del bundle. Fase 5: import `.3mf` (T5.3), interfaccia inglese (T5.6), preventivi modificabili fino all'invio (T5.13), card del calcolatore (T5.14), preferenze rapide (T5.15), azioni del preventivo in alto (T5.16), colore filamento (T5.17), export `.xlsx` (T5.12) e barra “Aggiungi riga” sotto le card del calcolatore.
-- **Da fare:** **T5.4 sync** (richiesto il 26/10/2026, solo su piano gratuito: Supabase Free, **email/password**, workspace condiviso; ADR-0024). Piano completo in `docs/planning/t5.4-cloud-sync.md`; T5.4.0 (piano e ADR) e T5.4.1 (repository async) sono chiusi, l'implementazione prosegue da T5.4.2. Il resto del backlog è chiuso/non in scope. Rigenerare le baseline visive e verificare la preview Vercel di T5.15–T5.17, T5.12 e della barra “Aggiungi riga”. Restano rimandate le prove manuali su stampante fisica e screen reader.
+- **Da fare:** **T5.4 sync** (richiesto il 26/10/2026, solo su piano gratuito: Supabase Free, **email/password**, workspace condiviso; ADR-0024). Piano completo in `docs/planning/t5.4-cloud-sync.md`; T5.4.0 (piano e ADR), T5.4.1 (repository async) e T5.4.2 (schema cloud, RLS, trigger, mapper) sono chiusi, l'implementazione prosegue da T5.4.3 (auth). Il resto del backlog è chiuso/non in scope. Rigenerare le baseline visive e verificare la preview Vercel di T5.15–T5.17, T5.12 e della barra “Aggiungi riga”. Restano rimandate le prove manuali su stampante fisica e screen reader.
 - **Non fatto (fuori v1, pianificato in fase 5):** sincronizzazione cloud, magazzino bobine, PWA; import da slicer e interfaccia inglese sono stati completati.
 
 ---
@@ -416,7 +416,7 @@ La specifica operativa è in `docs/README.md`; le regole per il coding agent son
 
 **MVP:** fasi 0–3 implementate. Deploy Vercel live su https://layercost.vercel.app.
 **v1.0:** fase 4 completata e rilasciata il 24/10/2026.
-**Fase 5:** in corso dal 26/10/2026 in `docs/planning/phase-5.md`; T5.3, T5.6, T5.12 e T5.13–T5.21 chiusi; T5.4.0 e T5.4.1 chiusi, prossimo T5.4.2.
+**Fase 5:** in corso dal 26/10/2026 in `docs/planning/phase-5.md`; T5.3, T5.6, T5.12 e T5.13–T5.21 chiusi; T5.4.0–T5.4.2 chiusi, prossimo T5.4.3.
 Le stime sono indicative e si riferiscono a lavoro assistito da agente, non a giornate umane.
 
 ---

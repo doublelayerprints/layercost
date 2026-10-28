@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. **T5.21 chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**: piano e ADR-0024 pronti, **T5.4.1 chiuso** il 28/10/2026 (repository async); prossimo **T5.4.2** (schema, RLS, trigger). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.21 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022, ADR-0023 e ADR-0024 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni, preventivi, card degli sconti (T5.20) e card comprimibili (T5.21).
+**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. **T5.21 chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**: piano e ADR-0024 pronti, **T5.4.1 chiuso** (repository async) e **T5.4.2 chiuso** (schema, RLS, trigger, mapper) il 28/10/2026; prossimo **T5.4.3** (auth email/password). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.21 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022, ADR-0023 e ADR-0024 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni, preventivi, card degli sconti (T5.20) e card comprimibili (T5.21).
 
 ---
 
@@ -768,7 +768,7 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; **T5.4.0 chiuso** (piano e ADR-0024) e **T5.4.1 chiuso** (refactor async), prossimo **T5.4.2** (schema, RLS, trigger). Piano completo in `docs/planning/t5.4-cloud-sync.md`, riepilogo e domande aperte in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
+**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (refactor async) e **T5.4.2 chiuso** (schema, RLS, trigger, mapper), prossimo **T5.4.3** (auth email/password). Piano completo in `docs/planning/t5.4-cloud-sync.md`, riepilogo e domande aperte in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
 
 **Nota di scope (26/10/2026):** il committente ha indicato che T5.1, T5.2, T5.5 e T5.7–T5.11 sono fatte, non volute o svolte direttamente. Non sono più nel perimetro; restano **T5.4 sync** (richiesto) e **T5.12 export `.xlsx`** (chiuso).
 
@@ -885,7 +885,7 @@ Sottotask:
 ## T5.4 — Sincronizzazione cloud
 
 **Dipende da:** ADR-0018, ADR-0024, T5.3, T5.6, T5.12
-**Stato:** `[~]` — T5.4.0 e T5.4.1 chiusi il 28/10/2026; prossimo T5.4.2
+**Stato:** `[~]` — T5.4.0, T5.4.1 e T5.4.2 chiusi il 28/10/2026; prossimo T5.4.3
 **Piano:** `docs/planning/t5.4-cloud-sync.md` (dettaglio task e operazioni), riepilogo in `docs/planning/phase-5.md` §4
 
 **Nota:** il sync è opzionale, local-first e **solo su piano gratuito**. Decisioni del 28/10/2026 (ADR-0024): **Supabase Free** in regione EU, **email + password** con signup pubblico disabilitato e due utenti pre-creati, **workspace condiviso** con `workspace_members` e RLS, niente SMTP nella prima iterazione. Dati sincronizzati: configurazione e preventivi `saved`/`sent`/`completed`; bozza, tema, lingua e onboarding restano locali. Conflitti visibili, outbox offline, nessun realtime nella prima iterazione, backup prima del primo sync e `pg_dump` settimanale. Serve prima il refactor async di `DataRepository`/store.
@@ -894,7 +894,7 @@ Sottotask:
 
 - **T5.4.0 — Decisioni e piano** `[x]` (28/10/2026): ADR-0024, piano operativo, allineamento di `TASKS.md`, `PLAN.md`, `STATUS.md`, `README.md`, `docs/README.md`, `docs/planning/phase-5.md`, `AGENTS.md` e indice ADR.
 - **T5.4.1 — Refactor async del repository** `[x]` (28/10/2026): `DataRepository` asincrono, coda di scrittura serializzata, hydration asincrona con gate e stati `hydrating`/`hydrateError`, export/reset asincroni, test di contratto e di coda. 141 test unitari; `npm run check` verde con budget 225,1 KB JS / 226 KB.
-- **T5.4.2 — Schema Supabase, RLS e trigger** `[ ]`: migrazioni, tabelle, helper di membership, policy, trigger di immutabilità, tipi generati, test RLS con due utenti.
+- **T5.4.2 — Schema Supabase, RLS e trigger** `[x]` (28/10/2026): migrazione iniziale con 8 tabelle, RLS per membership, trigger di audit/immutabilità/ultimo owner, `keepalive`, tipi generati e mapper Zod; 21 test pgTAP RLS con due workspace e un utente esterno. `npm run db:test` verde.
 - **T5.4.3 — Auth email/password** `[ ]`: client lazy, auth store/provider, pagina di login, logout, sessione scaduta, sezione Sincronizzazione; axe ed E2E.
 - **T5.4.4 — Repository cloud, sync e conflitti** `[ ]`: pull, primo login, scritture ottimistiche, outbox, conflitti, stato sync; test unit/integration/E2E.
 - **T5.4.5 — Workspace condiviso** `[ ]`: runbook workspace/membership, accesso dei due owner, audit minimo, test di isolamento.

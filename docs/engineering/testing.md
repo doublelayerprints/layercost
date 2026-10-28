@@ -1,12 +1,12 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1 — 141 test unitari + 39 E2E (6 visual su CI, 36 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.2 — 148 test unitari + 39 E2E (6 visual su CI, 36 screenshot) + 21 pgTAP RLS
 
 ---
 
 ## 1. Strategia
 
-> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura. Il sync aggiungerà test RLS con due utenti su Supabase locale, E2E a due contesti e test di outbox/conflitto. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
+> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e 21 test pgTAP RLS su Supabase locale (`npm run db:test`). Il sync aggiungerà E2E a due contesti e test di outbox/conflitto. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
 
 
 | Livello  | Strumento             | Cosa copre                                                                        |
@@ -29,6 +29,9 @@ npm run test:e2e     # build + Playwright (Chromium + WebKit; visual saltati su 
 npm run test:visual  # solo test visuali, richiede baseline Linux
 npm run budget       # controllo del peso della build
 npm run check        # typecheck + lint + test + build + budget
+npm run db:start     # Supabase locale (Docker)
+npm run db:reset     # migrazioni + seed locali
+npm run db:test      # pgTAP/RLS
 ```
 
 Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in CI usa Chromium bundled. WebKit usa il browser Playwright installato con `npx playwright install webkit`.
@@ -37,6 +40,11 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 
 - `src/domain/cost.test.ts` — 18 test: conversioni, arrotondamenti, allocazione, esempio 1, lotto, pricing, guasti, tariffe, multi-materiale, sconti di riga/preventivo, limite a zero, somma esatta e proprietà.
 - `src/data/storage.test.ts` — 9 test: seed valido, colore riga valido/rifiutato, schema futuro rifiutato, payload invalido rifiutato, migrazione v1 → v4, envelope v1, backup raw prima della migrazione, v2 → v4 e v3 → v4 con `discountBp`.
+- `src/data/repository.test.ts` — 6 test: contratto asincrono locale e fake, roundtrip, import, reset ed export.
+- `src/data/cloud/mappers.test.ts` — 7 test: settings/tariffe, stampanti/materiali/extra, archivio, preventivi, configurazione, unità intere e roundtrip.
+- `src/state/persist-queue.test.ts` — 4 test: avvio immediato, serializzazione, errore e flush.
+- `src/state/app-store.test.ts` — 7 test: hydration, doppia hydration, errore, scrittura immediata, export, reset e reset fallito.
+- `supabase/tests/rls.test.sql` — 21 asserzioni pgTAP: isolamento workspace, accesso condiviso, scritture, quote bloccate, settings, membership, ultimo owner e keep-alive.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
 - `src/lib/cost-details.test.ts` — 4 test: componenti, costo pieno, totali di colonna, prezzo allocato.
 - `src/lib/format.test.ts` — 6 test: arrotondamento dei centesimi, roundtrip, formattazione it-IT, formattazione en-GB, parsing con virgola/punto, valori non numerici.
@@ -111,12 +119,13 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check` (typecheck, lint, 101 test, build, budget);
+- `npm run check` (typecheck, lint, 148 test, build, budget);
 - `npm run build` + Playwright con Chromium e WebKit.
+- `npm run db:test` è eseguito localmente; il job CI dedicato al database è pianificato in T5.4.6.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 26/10/2026: **verde su GitHub** per i job `check` ed `e2e` (101 unitari, 32 E2E).
+Stato al 28/10/2026: **verde su GitHub** per i job `check` ed `e2e` (148 unitari, 39 E2E); `db:test` verde in locale con 21 asserzioni pgTAP.
 
 ## 7. Come aggiungere un test
 

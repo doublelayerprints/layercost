@@ -111,7 +111,7 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 - Senza account i dati restano sul dispositivo; con account esiste una copia sul server.
 - I link condivisi sono leggibili da chiunque abbia l'URL.
 
-## 9. Sync cloud (fase 5, pianificata)
+## 9. Sync cloud (fase 5, in implementazione)
 
 L'interfaccia `DataRepository` è astratta. In v1 era sincrona perché usava `localStorage`; il refactor async è completato in **T5.4.1**. La sincronizzazione cloud è un caso d'uso separato (`CloudGateway`) e non va accumulata dentro `DataRepository`:
 
@@ -131,7 +131,7 @@ interface CloudGateway {
 }
 ```
 
-La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`.
+La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Lo schema, le RLS e i mapper sono implementati in T5.4.2 (`supabase/migrations/20261028120000_init.sql`); il client auth e il gateway cloud arrivano in T5.4.3–T5.4.4.
 
 Regole:
 
@@ -141,7 +141,7 @@ Regole:
 - La cache cloud usa una chiave separata (`layercost:cloud-cache`) e non sovrascrive `layercost:data`.
 - Prima del primo sync va esportato un backup JSON; sul database esiste un `pg_dump` settimanale.
 
-La v1.0.0 resta local-only. L'adapter cloud non è previsto nella v1 e va implementato solo nell'ambito di T5.4.
+La v1.0.0 resta local-only. Il gateway cloud è in implementazione nell'ambito di T5.4; fino a T5.4.4 l'app continua a usare solo `localRepository`.
 
 ## 10. Backup consigliato
 

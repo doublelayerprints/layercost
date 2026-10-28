@@ -30,6 +30,8 @@
 | Lint          | oxlint                 | 1.88     |
 | Format        | Prettier               | 3.9      |
 | CI            | GitHub Actions         | —        |
+| Database (fase 5) | Supabase Free      | Postgres 17 |
+| Database CLI  | `supabase` (dev)       | 2.122    |
 
 > Nota: il piano iniziale citava ESLint. In implementazione è stato scelto **oxlint** perché già integrato dallo scaffold Vite, più veloce e sufficiente per il progetto. La sostituzione è una deviazione consapevole, non un cambio di architettura.
 
@@ -50,9 +52,9 @@
 
 ## 4. Dipendenze vietate in v1
 
-- Backend, ORM, auth, database.
+- Backend, ORM, auth, database (eccezione pianificata: Supabase in fase 5, ADR-0024).
 
-> Fase 5 (pianificata): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` è caricato lazy solo per login/sync (ADR-0024). In modalità ospite l'app resta statica e non chiama la rete.
+> Fase 5 (in corso): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` sarà caricato lazy solo per login/sync (ADR-0024). T5.4.2 ha aggiunto schema, RLS, trigger, tipi e mapper; il client arriva in T5.4.3. In modalità ospite l'app resta statica e non chiama la rete.
 - Librerie di componenti (shadcn/Radix/MUI/Ant).
 - Librerie di grafici.
 - Librerie di money/decimal (le unità intere bastano).
@@ -101,4 +103,10 @@ npm run test:e2e
 npm run test:visual
 npm run budget
 npm run check
+npm run db:start
+npm run db:reset
+npm run db:test
+npm run db:types
 ```
+
+`supabase` è una devDependency: serve solo per migrazioni, test pgTAP e generazione tipi, non entra nel bundle.

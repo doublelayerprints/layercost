@@ -50,6 +50,10 @@ npm run build        # build di produzione
 npm run preview      # anteprima build
 npm run budget       # budget del bundle
 npm run check        # typecheck + lint + test + build + budget
+npm run db:start     # Supabase locale (Docker)
+npm run db:reset     # migrazioni + seed locali
+npm run db:test      # pgTAP/RLS
+npm run db:types     # rigenera i tipi dal DB locale
 ```
 
 `npm run check` è il gate prima di ogni commit. Non dichiarare un task chiuso se non è verde.

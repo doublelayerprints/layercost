@@ -1,0 +1,5 @@
+-- Local seed intentionally empty.
+--
+-- Workspaces and auth users are created by the admin runbook
+-- (docs/planning/t5.4-cloud-sync.md §11) and by the RLS test fixtures.
+-- Never commit real user UUIDs, emails or passwords here.

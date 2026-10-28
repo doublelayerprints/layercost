@@ -31,6 +31,19 @@ Il deploy automatico su ogni push si ottiene collegando il repository GitHub al 
 
 Il routing è **hash-based**: non servono rewrite per le SPA. La build è statica e portabile.
 
+## 1.1 Supabase locale (fase 5)
+
+Il database e l'auth si sviluppano in locale con Supabase CLI e Docker:
+
+```bash
+npm run db:start   # avvia Postgres/Auth locali
+npm run db:reset   # applica supabase/migrations + supabase/seed.sql
+npm run db:test    # pgTAP/RLS
+npm run db:types   # rigenera src/data/cloud/database.types.ts
+```
+
+La configurazione è in `supabase/config.toml`: signup disabilitato, password minima 12, `auto_expose_new_tables = false`, realtime/storage disabilitati. Il progetto cloud di produzione sarà creato in T5.4.6; le variabili pubbliche arriveranno con T5.4.3.
+
 ## 2. Header
 
 `vercel.json` imposta:

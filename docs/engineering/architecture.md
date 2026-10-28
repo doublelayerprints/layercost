@@ -67,7 +67,7 @@ DataRepository ──► Zustand store ──► UI
    └────────────────────┘
 ```
 
-L'interfaccia `DataRepository` è in `src/data/repository.ts` ed è asincrona dalla T5.4.1. L'adapter attuale è `localRepository`; le scritture passano da una coda serializzata in `src/state/persist-queue.ts`. Il sync cloud opzionale è pianificato in `docs/planning/t5.4-cloud-sync.md` (ADR-0024). La v1.0.0 resta local-only; il cloud non è obbligatorio.
+L'interfaccia `DataRepository` è in `src/data/repository.ts` ed è asincrona dalla T5.4.1. L'adapter attuale è `localRepository`; le scritture passano da una coda serializzata in `src/state/persist-queue.ts`. Il sync cloud opzionale è in implementazione secondo `docs/planning/t5.4-cloud-sync.md` (ADR-0024): T5.4.2 ha aggiunto schema, RLS, trigger e mapper in `src/data/cloud/`; il client auth e il gateway arrivano nei task successivi. La v1.0.0 resta local-only; il cloud non è obbligatorio.
 
 ---
 
@@ -97,7 +97,7 @@ src/
   state/          app-store, persist-queue, theme-store
 ```
 
-Fase 5 (pianificata, `docs/planning/t5.4-cloud-sync.md`): `data/cloud/` (client Supabase, mapping, gateway, outbox), `features/auth/`, `features/sync/`, `state/auth-store.ts`. Il dominio non cambia. T5.4.1 ha già introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`.
+Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene già `database.types.ts` e `mappers.ts` (T5.4.2); client Supabase, gateway e outbox arrivano in T5.4.3–T5.4.4, con `features/auth/`, `features/sync/` e `state/auth-store.ts`. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`.
 
 ---
 
