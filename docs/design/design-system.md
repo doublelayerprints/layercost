@@ -483,7 +483,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Header unico.** `CollapsibleCard` usa un heading reale, un chevron SVG piatto in stile ghost che ruota di 180° e un pulsante trasparente che copre l'header per il toggle; le azioni dell'header stanno sopra con `z-10`.
 - **Sintesi.** Da compressa la card mostra data/cliente, righe/grammi/costo diretto, manodopera/extra o ricarico/IVA; le righe di stampa mostrano nome, colore, stampante, grammi, tempo, pezzi e costo diretto.
 - **Stato.** Locale, default espanso, nessuna persistenza; nessun cambio a dati, formule, schema o `engineVersion`.
-- **Verifiche.** `npm run check` verde (124 unitari, 39 E2E, budget 224,6 KB JS / 225 KB); axe invariato; baseline visive del calcolatore da rigenerare in CI.
+- **Verifiche.** `npm run check` verde (124 unitari, 39 E2E, budget 224,6 KB JS / 225 KB); axe invariato; baseline visive del calcolatore rigenerate in CI.
 
 ---
 

@@ -500,7 +500,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 - **UI:** Preventivo, Stampe, Costi di lavoro e Prezzo hanno un header con freccia, `aria-expanded` e `aria-controls`; da compressi mostrano una sintesi (data/cliente, righe/grammi/costo diretto, manodopera/extra, ricarico/IVA). Anche ogni riga di stampa si comprime in una riga con nome, colore, stampante, grammi, tempo, pezzi e costo diretto.
 - **Azioni:** Importa `.3mf`, Ripristina default, Duplica e Rimuovi restano cliccabili a card compressa.
 - **Stato:** locale alla schermata, default espanso, nessuna persistenza. Nessun cambio a formule, schema, snapshot o `engineVersion`.
-- **Esito:** chiuso il 28/10/2026. 4 chiavi i18n (899 totali), 1 E2E dedicato; `npm run check` verde e budget 224,5 KB JS / 225 KB. Baseline visive del calcolatore da rigenerare in CI.
+- **Esito:** chiuso il 28/10/2026. 4 chiavi i18n (899 totali), 1 E2E dedicato; `npm run check` verde e budget 224,6 KB JS / 225 KB. Baseline visive del calcolatore rigenerate in CI.
 
 ---
 

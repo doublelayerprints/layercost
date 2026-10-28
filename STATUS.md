@@ -113,19 +113,19 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 ## 3. Verifiche
 
-| Verifica           | Stato                                                                                    |
-| ------------------ | ---------------------------------------------------------------------------------------- |
-| TypeScript strict  | verde                                                                                    |
-| oxlint             | verde                                                                                    |
-| Test unitari/dati  | 124 superati                                                                             |
-| Test E2E           | 39 totali (33 eseguiti + 6 visual; 2 WebKit)                                             |
-| Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                              |
-| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux da rigenerare dopo T5.21 |
-| Build produzione   | verde (~682 KB JS main + ~108 KB worker; ~193 KB gzip JS; ~39 KB CSS; ~57 KB font)       |
-| Budget bundle      | 289,4 KB gzip totali su 350 KB (limite JS 224,6 KB su 225 KB)                            |
-| CI GitHub `check`  | verde su `main`                                                                          |
-| CI GitHub `e2e`    | verde su `main`                                                                          |
-| Vercel produzione  | deploy 28/10/2026 pre-T5.20, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde  |
+| Verifica           | Stato                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| TypeScript strict  | verde                                                                                   |
+| oxlint             | verde                                                                                   |
+| Test unitari/dati  | 124 superati                                                                            |
+| Test E2E           | 39 totali (33 eseguiti + 6 visual; 2 WebKit)                                            |
+| Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                             |
+| Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux rigenerate dopo T5.21   |
+| Build produzione   | verde (~682 KB JS main + ~108 KB worker; ~193 KB gzip JS; ~39 KB CSS; ~57 KB font)      |
+| Budget bundle      | 289,4 KB gzip totali su 350 KB (limite JS 224,6 KB su 225 KB)                           |
+| CI GitHub `check`  | verde su `main`                                                                         |
+| CI GitHub `e2e`    | verde su `main`                                                                         |
+| Vercel produzione  | deploy 28/10/2026 pre-T5.20, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde |
 
 Comandi:
 
@@ -182,7 +182,7 @@ npx vercel --prod
 - Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link) ma non ancora implementata. Vedi ADR-0018.
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
 - Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020); preferenze rapide, azioni in alto, colore filamento e vista cliente separata (T5.15–T5.19).
-- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.20, T5.12, la barra “Aggiungi riga”, l'accento viola e le card degli sconti. Il batch T5.20 è deployato in produzione con la build `index-DbmNNSiw.js` / `index-DsZxzrV2.css`.
+- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.21, T5.12, la barra “Aggiungi riga”, l'accento viola, le card degli sconti e le card comprimibili. Il batch T5.20 è deployato in produzione con la build `index-DbmNNSiw.js` / `index-DsZxzrV2.css`.
 - Export `.xlsx` per analisi esterna; il backup JSON resta l’unica copia esterna completa.
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v4; rifiuto versioni future).
