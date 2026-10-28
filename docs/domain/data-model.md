@@ -273,10 +273,12 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 Il modello cloud è in `supabase/migrations/20261028120000_init.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`.
 
+Gli account (email, password, sessione) sono gestiti da **Supabase Auth** in `auth.users`; l'app non ha una tabella utenti propria. Le membership collegano `auth.users` ai workspace. La sessione è un token tecnico nel browser, non un dato economico e non entra nei backup.
+
 | Tabella | Contenuto |
 | --- | --- |
 | `workspaces` | Spazio condiviso; ID `text` stabile |
-| `workspace_members` | Membership `owner`/`editor`; PK `(workspace_id, user_id)` |
+| `workspace_members` | Membership `owner`/`editor`; PK `(workspace_id, user_id)`, FK a `auth.users` |
 | `settings` | Una riga per workspace, campi scalari di `Settings` |
 | `energy_tariffs` | Tariffe energia con `effective_from` |
 | `printers` | Stampanti, profili potenza JSONB, `archived_at` |

@@ -15,6 +15,7 @@ import { MoneyField, PercentField, SelectField } from '@/components/number-field
 import { useThemeStore } from '@/state/theme-store'
 import { useLocaleStore } from '@/state/locale-store'
 import { ExportXlsxButton } from '@/features/quotes/ExportXlsxButton'
+import { SyncSettings } from './SyncSettings'
 import type { ThemePreference } from '@/lib/theme'
 import type { Locale } from '@/i18n'
 import { storageErrorMessage } from '@/lib/storage-error-message'
@@ -401,6 +402,8 @@ export function SettingsPage() {
             <p className="mt-2 text-xs text-muted">{t('settings.themeSystemHint')}</p>
           </fieldset>
         </section>
+
+        <SyncSettings />
 
         <section
           className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"

@@ -16,7 +16,7 @@ Repo GitHub: **https://github.com/doublelayerprints/layercost** (privata).
 4. Build command: `npm run build`.
 5. Output directory: `dist`.
 6. Node: 22.x.
-7. Nessuna variabile d'ambiente obbligatoria. Dalla fase 5 (pianificata) il cloud opzionale usa `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`; se mancano, l'app resta local-only. Dettagli in `docs/planning/t5.4-cloud-sync.md`.
+7. Nessuna variabile d'ambiente obbligatoria. Il cloud opzionale usa `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` (o `VITE_SUPABASE_ANON_KEY`); se mancano, l'app resta local-only. Vedi `.env.example`.
 8. Deploy.
 
 In alternativa, dal repository:
@@ -42,7 +42,18 @@ npm run db:test    # pgTAP/RLS
 npm run db:types   # rigenera src/data/cloud/database.types.ts
 ```
 
-La configurazione è in `supabase/config.toml`: signup disabilitato, password minima 12, `auto_expose_new_tables = false`, realtime/storage disabilitati. Il progetto cloud di produzione sarà creato in T5.4.6; le variabili pubbliche arriveranno con T5.4.3.
+La configurazione è in `supabase/config.toml`: signup disabilitato a livello progetto, provider email attivo per il login degli utenti pre-creati, password minima 12, `auto_expose_new_tables = false`, realtime/storage disabilitati. Il progetto cloud di produzione sarà creato in T5.4.6.
+
+Per provare login e sync in locale:
+
+1. `npm run db:start`;
+2. copia `API_URL` e `PUBLISHABLE_KEY` da `npx supabase status -o env` in `.env.local`;
+3. crea l'utente dal dashboard locale o via Admin API;
+4. `npm run dev` e apri `/#/login`.
+
+Le variabili sono pubbliche e opzionali: senza di esse la build resta local-only e la UI cloud è nascosta. La service role key non deve mai entrare in Vercel o nel bundle.
+
+Gli E2E auth si eseguono con `npm run test:e2e:auth`; lo script legge le env locali, builda con le credenziali pubbliche e crea/elimina l'utente di test.
 
 ## 2. Header
 

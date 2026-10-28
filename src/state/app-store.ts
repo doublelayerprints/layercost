@@ -99,6 +99,7 @@ export interface AppState {
   hydrate: () => Promise<void>
   persist: () => void
   flushPersistence: () => Promise<void>
+  pendingWrites: () => number
   setWarning: (warning?: AppWarning) => void
 
   updateSettings: (patch: Partial<Settings>) => void
@@ -205,6 +206,8 @@ export const useAppStore = create<AppState>()((set, get) => {
     },
 
     flushPersistence: () => persistQueue.flush(),
+
+    pendingWrites: () => persistQueue.pending(),
 
     setWarning: (warning) => set({ warning }),
 

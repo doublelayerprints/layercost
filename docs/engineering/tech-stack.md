@@ -18,6 +18,7 @@
 | Validazione    | Zod                         | 4.6                  |
 | Link condivisi | lz-string                   | 1.5                  |
 | Font           | Archivo + Source Serif 4    | self-hosted, OFL 1.1 |
+| Cloud (fase 5) | `@supabase/supabase-js`     | 2.118, lazy          |
 
 ## 2. Test e qualità
 
@@ -78,17 +79,19 @@ Prima di aggiungerla:
 
 ## 7. Bundle
 
-Build v1.0.0: circa 509 KB JS (147 KB gzip Vite; 142 KB con lo script di budget), 34 KB CSS (7,6 KB gzip) e 58 KB di font WOFF2.
+Build attuale (T5.4.3): circa 700 KB JS raw (197,5 KB gzip iniziale), 39 KB CSS (8,3 KB gzip) e 58 KB di font WOFF2. Con il cloud configurato si aggiunge un chunk lazy di circa 55 KB gzip. La v1.0.0 era circa 509 KB JS raw.
 
-`scripts/check-budget.mjs` fallisce se supera:
+`scripts/check-budget.mjs` separa il caricamento iniziale dai chunk opzionali:
 
-- 226 KB gzip di JavaScript (225 KB dopo T5.12/T5.21; T5.4.1 aggiunge repository async, hydration gate e stati di errore);
+- 205 KB gzip di **JavaScript iniziale** (quello referenziato da `dist/index.html`);
+- 80 KB gzip di **chunk lazy** (il client Supabase, circa 53,5 KB con env);
+- 40 KB gzip di **worker `.3mf`** (circa 37,6 KB);
 - 20 KB gzip di CSS;
 - 120 KB gzip di font;
 - 4 KB gzip di HTML;
-- 350 KB gzip totali.
+- 350 KB gzip per **JS iniziale + CSS + font**.
 
-La build con i dizionari italiani e inglesi, l’export `.xlsx` e il refactor T5.4.1 è a circa 290 KB gzip totali (225 KB JS), quindi il vincolo reale resta il totale di 350 KB. Se cresce ancora, valutare code splitting per le pagine di configurazione o il caricamento differito del dizionario inglese.
+La build senza env è a **191,4 KB JS iniziale** e **256,2 KB iniziali** totali; con env il chunk cloud è **53,5 KB** e non entra nel caricamento iniziale. Se il chunk lazy cresce oltre 80 KB, valutare un import più selettivo o un budget dedicato più alto con motivazione.
 
 ## 8. Comandi
 
@@ -107,6 +110,7 @@ npm run db:start
 npm run db:reset
 npm run db:test
 npm run db:types
+npm run test:e2e:auth
 ```
 
 `supabase` è una devDependency: serve solo per migrazioni, test pgTAP e generazione tipi, non entra nel bundle.

@@ -4,6 +4,7 @@ import { useI18n } from '@/app/i18n-context'
 import type { MessageKey } from '@/i18n'
 import { QuickPreferences } from '@/app/QuickPreferences'
 import { useAppStore, type AppWarning } from '@/state/app-store'
+import { useAuthStore } from '@/state/auth-store'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
@@ -130,6 +131,8 @@ export function Layout() {
   const { t } = useI18n()
   const warning = useAppStore((state) => state.warning)
   const setWarning = useAppStore((state) => state.setWarning)
+  const authStatus = useAuthStore((state) => state.status)
+  const location = useLocation()
 
   return (
     <div className="min-h-screen bg-ground text-ink">
@@ -178,6 +181,21 @@ export function Layout() {
                 onClose={() => setWarning(undefined)}
               >
                 {t(warningKeys[warning])}
+              </Alert>
+            </div>
+          ) : null}
+          {authStatus === 'expired' && location.pathname !== '/login' ? (
+            <div className="no-print mb-6">
+              <Alert tone="warning" title={t('auth.expired.title')}>
+                <p>
+                  {t('auth.expired.body')}{' '}
+                  <Link
+                    to="/login"
+                    className="font-medium text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
+                  >
+                    {t('auth.loginAction')}
+                  </Link>
+                </p>
               </Alert>
             </div>
           ) : null}

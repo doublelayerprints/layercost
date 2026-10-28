@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.2 — 148 test unitari + 39 E2E (6 visual su CI, 36 screenshot) + 21 pgTAP RLS
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.3 — 159 test unitari + 41 E2E (33 eseguiti + 6 visual + 2 auth) + 21 pgTAP RLS
 
 ---
 
@@ -32,6 +32,7 @@ npm run check        # typecheck + lint + test + build + budget
 npm run db:start     # Supabase locale (Docker)
 npm run db:reset     # migrazioni + seed locali
 npm run db:test      # pgTAP/RLS
+npm run test:e2e:auth # build con Supabase locale + E2E auth
 ```
 
 Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in CI usa Chromium bundled. WebKit usa il browser Playwright installato con `npx playwright install webkit`.
@@ -45,6 +46,8 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/state/persist-queue.test.ts` — 4 test: avvio immediato, serializzazione, errore e flush.
 - `src/state/app-store.test.ts` — 7 test: hydration, doppia hydration, errore, scrittura immediata, export, reset e reset fallito.
 - `supabase/tests/rls.test.sql` — 21 asserzioni pgTAP: isolamento workspace, accesso condiviso, scritture, quote bloccate, settings, membership, ultimo owner e keep-alive.
+- `src/state/auth-store.test.ts` — 11 test: unconfigured, sessione, inizializzazione idempotente, errori, login, logout, sessione scaduta ed eventi esterni.
+- `tests/e2e/auth.spec.ts` — 2 test con Supabase locale: login, reload, impostazioni, logout, credenziali errate; axe a 375/1440.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
 - `src/lib/cost-details.test.ts` — 4 test: componenti, costo pieno, totali di colonna, prezzo allocato.
 - `src/lib/format.test.ts` — 6 test: arrotondamento dei centesimi, roundtrip, formattazione it-IT, formattazione en-GB, parsing con virgola/punto, valori non numerici.
@@ -119,13 +122,14 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check` (typecheck, lint, 148 test, build, budget);
-- `npm run build` + Playwright con Chromium e WebKit.
+- `npm run check` (typecheck, lint, 159 test, build, budget);
+- `npm run build` + Playwright con Chromium e WebKit; gli auth test sono saltati senza `E2E_AUTH`.
 - `npm run db:test` è eseguito localmente; il job CI dedicato al database è pianificato in T5.4.6.
+- `npm run test:e2e:auth` è un comando separato: legge le env da Supabase locale, builda con le credenziali pubbliche e crea l'utente via Admin API.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 28/10/2026: **verde su GitHub** per i job `check` ed `e2e` (148 unitari, 39 E2E); `db:test` verde in locale con 21 asserzioni pgTAP.
+Stato al 28/10/2026: **verde su GitHub** per i job `check` ed `e2e` (159 unitari, 41 E2E); `db:test` verde in locale con 21 asserzioni pgTAP; `test:e2e:auth` verde con 2 test.
 
 ## 7. Come aggiungere un test
 

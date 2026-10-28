@@ -8,8 +8,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     // The gzip budget is enforced by scripts/check-budget.mjs. The raw-size warning
-    // is only a Vite hint: the i18n dictionaries and the XLSX writer push the chunk past 650 KB raw.
-    chunkSizeWarningLimit: 700,
+    // is only a Vite hint: the i18n dictionaries, the XLSX writer and the auth UI
+    // push the initial chunk past 700 KB raw. The Supabase client is a lazy chunk.
+    chunkSizeWarningLimit: 720,
   },
   resolve: {
     alias: {

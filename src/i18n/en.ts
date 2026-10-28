@@ -1,3 +1,4 @@
+import { authEn } from './en/auth'
 import { calculatorEn } from './en/calculator'
 import { catalogsEn } from './en/catalogs'
 import { miscEn } from './en/misc'
@@ -115,4 +116,5 @@ export const en: Messages = {
   ...settingsEn,
   ...miscEn,
   ...xlsxEn,
+  ...authEn,
 }

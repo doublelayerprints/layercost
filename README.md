@@ -57,6 +57,7 @@ npm run db:start     # Supabase locale (richiede Docker)
 npm run db:reset     # migrazioni + seed locali
 npm run db:test      # test pgTAP/RLS
 npm run db:types     # rigenera i tipi TypeScript dal DB locale
+npm run test:e2e:auth # build con Supabase locale + login/logout E2E
 ```
 
 ## Dati e backup
@@ -69,6 +70,16 @@ I dati vivono in `localStorage` (`layercost:data`). Svuotare i dati del browser 
 - I link condivisi contengono una copia del preventivo nell'URL: non sono un backup completo e non contengono la configurazione.
 
 I valori di partenza di prezzi, potenze e vita utile sono **stime modificabili**. La guida iniziale porta a confermare i quattro numeri che contano: prezzo stampanti, vita utile, tariffa kWh, prezzi bobine.
+
+## Cloud opzionale
+
+La build senza variabili Supabase resta **local-only**: login, sync e chunk cloud non vengono caricati. Per provare il cloud in locale:
+
+1. `npm run db:start`
+2. copia i valori `API_URL` e `PUBLISHABLE_KEY` da `npx supabase status -o env` in `.env.local` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
+3. `npm run dev` e apri `#/login`
+
+Gli account sono creati dall'amministratore; la registrazione è disabilitata.
 
 ## Deploy
 
@@ -83,7 +94,7 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 - Framework preset: Vite
 - Build: `npm run build`
 - Output: `dist`
-- Nessuna variabile d'ambiente obbligatoria
+- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 
@@ -104,15 +115,15 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 | `docs/design/ui-brief.md`      | Requisiti per la fase design                     |
 | `docs/design/directions.md`    | Direzioni e scelta visiva                        |
 | `docs/design/design-system.md` | Token, componenti, accessibilità                 |
-| `docs/adr/`                    | 20 decisioni architetturali                      |
+| `docs/adr/`                    | 24 decisioni architetturali                      |
 
 ## Stato
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 148 unitari, 39 E2E (Chromium + WebKit), 21 test pgTAP RLS, 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
+- **Verifiche:** 159 unitari, 41 E2E (33 eseguiti + 6 visual + 2 auth), 21 test pgTAP RLS, 36 screenshot di regressione, axe 0 violazioni, stampa/PDF e budget.
 - **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
-- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async) e **T5.4.2 chiuso** (schema, RLS, trigger, mapper); prossimo T5.4.3 (auth). Piano in `docs/planning/t5.4-cloud-sync.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
+- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper) e **T5.4.3 chiuso** (auth email/password); prossimo T5.4.4 (sync). Piano in `docs/planning/t5.4-cloud-sync.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

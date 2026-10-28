@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async) e **T5.4.2 chiuso** (schema, RLS, trigger, mapper)
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper) e **T5.4.3 chiuso** (auth email/password)
 **Data:** 28 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** **T5.4.3** (auth email/password). Piano completo in `t5.4-cloud-sync.md`; il resto del backlog è chiuso/non in scope.
+**Prossima sessione:** **T5.4.4** (repository cloud, sync e conflitti). Piano completo in `t5.4-cloud-sync.md`; il resto del backlog è chiuso/non in scope.
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---

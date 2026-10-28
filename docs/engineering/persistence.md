@@ -14,6 +14,8 @@ layercost:data
 
 Contenuto: `AppData` con `schemaVersion`, `config`, `quotes`, `draft`.
 
+La sessione Supabase, quando il cloud è configurato, è gestita da `supabase-js` in una chiave `sb-<project-ref>-auth-token` separata da `AppData`. Non contiene dati economici e non entra nei backup.
+
 La preferenza del tema è un dato di interfaccia separato:
 
 ```text
@@ -131,7 +133,7 @@ interface CloudGateway {
 }
 ```
 
-La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Lo schema, le RLS e i mapper sono implementati in T5.4.2 (`supabase/migrations/20261028120000_init.sql`); il client auth e il gateway cloud arrivano in T5.4.3–T5.4.4.
+La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Lo schema, le RLS e i mapper sono implementati in T5.4.2 (`supabase/migrations/20261028120000_init.sql`); client e store auth sono in T5.4.3; il gateway cloud per i dati arriva in T5.4.4.
 
 Regole:
 
