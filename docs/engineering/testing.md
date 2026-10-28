@@ -1,12 +1,12 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 — 124 test unitari + 39 E2E (6 visual su CI, 36 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1 — 141 test unitari + 39 E2E (6 visual su CI, 36 screenshot)
 
 ---
 
 ## 1. Strategia
 
-> Fase 5 (pianificata): il sync aggiunge test di contratto del repository, test RLS con due utenti su Supabase locale, E2E a due contesti e test di outbox/conflitto. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
+> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura. Il sync aggiungerà test RLS con due utenti su Supabase locale, E2E a due contesti e test di outbox/conflitto. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
 
 
 | Livello  | Strumento             | Cosa copre                                                                        |

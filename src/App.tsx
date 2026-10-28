@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/app/Layout'
 import { I18nProvider } from '@/app/I18nProvider'
+import { HydrationGate } from '@/app/HydrationGate'
 import { ThemeController } from '@/app/ThemeController'
 import { useAppStore } from '@/state/app-store'
 import { useLocaleStore } from '@/state/locale-store'
@@ -24,7 +25,7 @@ export default function App() {
   const locale = useLocaleStore((state) => state.locale)
 
   useEffect(() => {
-    hydrate()
+    void hydrate()
   }, [hydrate])
 
   useEffect(() => {
@@ -34,23 +35,25 @@ export default function App() {
   return (
     <I18nProvider>
       <ThemeController />
-      <HashRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<CalculatorPage />} />
-            <Route path="quotes" element={<QuotesPage />} />
-            <Route path="quotes/:id" element={<QuoteDetailPage />} />
-            <Route path="share" element={<SharePage />} />
-            <Route path="printers" element={<PrintersPage />} />
-            <Route path="materials" element={<MaterialsPage />} />
-            <Route path="tariffs" element={<TariffsPage />} />
-            <Route path="extras" element={<ExtrasPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="compare" element={<ComparePage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
-        </Routes>
-      </HashRouter>
+      <HydrationGate>
+        <HashRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route index element={<CalculatorPage />} />
+              <Route path="quotes" element={<QuotesPage />} />
+              <Route path="quotes/:id" element={<QuoteDetailPage />} />
+              <Route path="share" element={<SharePage />} />
+              <Route path="printers" element={<PrintersPage />} />
+              <Route path="materials" element={<MaterialsPage />} />
+              <Route path="tariffs" element={<TariffsPage />} />
+              <Route path="extras" element={<ExtrasPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="compare" element={<ComparePage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+          </Routes>
+        </HashRouter>
+      </HydrationGate>
     </I18nProvider>
   )
 }

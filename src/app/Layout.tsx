@@ -1,8 +1,9 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/app/i18n-context'
+import type { MessageKey } from '@/i18n'
 import { QuickPreferences } from '@/app/QuickPreferences'
-import { useAppStore } from '@/state/app-store'
+import { useAppStore, type AppWarning } from '@/state/app-store'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
@@ -116,6 +117,15 @@ function MobileHeader() {
   )
 }
 
+const warningKeys: Record<AppWarning, MessageKey> = {
+  storageUnavailable: 'errors.storage.storageUnavailable',
+  corruptData: 'errors.storage.corruptData',
+  saveFailed: 'errors.storage.saveFailed',
+  loadFailed: 'errors.storage.loadFailed',
+  exportFailed: 'errors.storage.exportFailed',
+  resetFailed: 'errors.storage.resetFailed',
+}
+
 export function Layout() {
   const { t } = useI18n()
   const warning = useAppStore((state) => state.warning)
@@ -167,11 +177,7 @@ export function Layout() {
                 title={t('common.warning')}
                 onClose={() => setWarning(undefined)}
               >
-                {warning === 'storageUnavailable'
-                  ? t('errors.storage.storageUnavailable')
-                  : warning === 'corruptData'
-                    ? t('errors.storage.corruptData')
-                    : t('errors.storage.saveFailed')}
+                {t(warningKeys[warning])}
               </Alert>
             </div>
           ) : null}

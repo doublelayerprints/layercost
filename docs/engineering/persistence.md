@@ -44,10 +44,11 @@ La chiave è stabile per versione di partenza (`layercost:backup:schema-1`, `sch
 | `src/data/storage.ts`      | Chiavi, load/save, export, import, reset, migrazione |
 | `src/data/theme.ts`        | Preferenza del tema, separata dai dati               |
 | `src/data/locale.ts`       | Preferenza della lingua, separata dai dati           |
-| `src/data/repository.ts`   | Interfaccia `DataRepository` + adapter locale        |
+| `src/data/repository.ts`   | Interfaccia `DataRepository` asincrona + adapter locale |
 | `src/data/schemas.ts`      | Validazione Zod                                      |
 | `src/data/seed.ts`         | Configurazione iniziale                              |
-| `src/state/app-store.ts`   | Autosave e orchestrazione                            |
+| `src/state/app-store.ts`   | Autosave, hydration e orchestrazione                 |
+| `src/state/persist-queue.ts` | Coda serializzata delle scritture                  |
 | `src/state/theme-store.ts` | Stato della preferenza del tema                      |
 
 Lo storage è l'unico punto che tocca `localStorage`.
@@ -112,7 +113,7 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 
 ## 9. Sync cloud (fase 5, pianificata)
 
-L'interfaccia `DataRepository` è astratta. In v1 è sincrona perché usa `localStorage`; il refactor async è **T5.4.1**. La sincronizzazione cloud è un caso d'uso separato (`CloudGateway`) e non va accumulata dentro `DataRepository`:
+L'interfaccia `DataRepository` è astratta. In v1 era sincrona perché usava `localStorage`; il refactor async è completato in **T5.4.1**. La sincronizzazione cloud è un caso d'uso separato (`CloudGateway`) e non va accumulata dentro `DataRepository`:
 
 ```ts
 interface DataRepository {

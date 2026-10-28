@@ -109,17 +109,19 @@ export function SettingsPage() {
     }
   }
 
-  const confirmImport = () => {
+  const confirmImport = async () => {
     if (!pendingImport) return
-    exportData()
+    const exported = await exportData()
+    if (!exported) return
     importData(pendingImport)
     setPendingImport(undefined)
     setImportOpen(false)
     setMessage(t('settings.importSuccess'))
   }
 
-  const confirmReset = () => {
-    reset()
+  const confirmReset = async () => {
+    const restored = await reset()
+    if (!restored) return
     setResetOpen(false)
     setMessage(t('settings.resetSuccess'))
   }
@@ -437,7 +439,7 @@ export function SettingsPage() {
             </dl>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button variant="secondary" onClick={exportData}>
+              <Button variant="secondary" onClick={() => void exportData()}>
                 {t('settings.exportJson')}
               </Button>
               <ExportXlsxButton />
@@ -475,7 +477,7 @@ export function SettingsPage() {
             <Button variant="secondary" onClick={() => setImportOpen(false)}>
               {t('common.cancel')}
             </Button>
-            <Button onClick={confirmImport}>{t('settings.importConfirm')}</Button>
+            <Button onClick={() => void confirmImport()}>{t('settings.importConfirm')}</Button>
           </>
         }
       >
@@ -515,7 +517,7 @@ export function SettingsPage() {
             <Button variant="secondary" onClick={() => setResetOpen(false)}>
               {t('common.cancel')}
             </Button>
-            <Button variant="danger" onClick={confirmReset}>
+            <Button variant="danger" onClick={() => void confirmReset()}>
               {t('settings.resetConfirm')}
             </Button>
           </>

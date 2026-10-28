@@ -67,7 +67,7 @@ DataRepository ──► Zustand store ──► UI
    └────────────────────┘
 ```
 
-L'interfaccia `DataRepository` è in `src/data/repository.ts`. L'adapter attuale è `localRepository`; il sync cloud opzionale è pianificato in `docs/planning/t5.4-cloud-sync.md` (ADR-0024) e richiede un refactor async dello store. La v1.0.0 resta local-only; il cloud non è obbligatorio.
+L'interfaccia `DataRepository` è in `src/data/repository.ts` ed è asincrona dalla T5.4.1. L'adapter attuale è `localRepository`; le scritture passano da una coda serializzata in `src/state/persist-queue.ts`. Il sync cloud opzionale è pianificato in `docs/planning/t5.4-cloud-sync.md` (ADR-0024). La v1.0.0 resta local-only; il cloud non è obbligatorio.
 
 ---
 
@@ -87,17 +87,17 @@ Il risultato è memorizzato in `Quote.result`. Il ricalcolo usa lo snapshot; “
 
 ```text
 src/
-  app/            Layout, routing, theme
+  app/            Layout, HydrationGate, routing, theme
   components/     ui.tsx, number-fields.tsx
   data/           repository, storage, schemas, seed, theme, three-mf
   domain/         units, money, types, version, cost/, three-mf
   features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding
   i18n/           it.ts, en.ts, index.ts
   lib/            format, date, id, share, labels, cn, theme, draft, xlsx
-  state/          app-store, theme-store
+  state/          app-store, persist-queue, theme-store
 ```
 
-Fase 5 (pianificata, `docs/planning/t5.4-cloud-sync.md`): `data/cloud/` (client Supabase, mapping, gateway, outbox), `features/auth/`, `features/sync/`, `state/auth-store.ts`. Il dominio non cambia.
+Fase 5 (pianificata, `docs/planning/t5.4-cloud-sync.md`): `data/cloud/` (client Supabase, mapping, gateway, outbox), `features/auth/`, `features/sync/`, `state/auth-store.ts`. Il dominio non cambia. T5.4.1 ha già introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`.
 
 ---
 

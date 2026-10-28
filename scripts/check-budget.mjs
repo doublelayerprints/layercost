@@ -22,8 +22,9 @@ const fontBytes = totalBytes(files, '.woff2')
 const htmlBytes = gzipBytes('dist/index.html')
 
 const checks = [
-  // 225 KB: the i18n dictionaries (220 KB) plus the XLSX writer and export labels.
-  { label: 'JavaScript', bytes: jsBytes, limit: 225 * KB },
+  // 226 KB: 225 KB after T5.12/T5.21, plus the async repository, hydration gate
+  // and error states added by T5.4.1.
+  { label: 'JavaScript', bytes: jsBytes, limit: 226 * KB },
   { label: 'CSS', bytes: cssBytes, limit: 20 * KB },
   { label: 'Font WOFF2', bytes: fontBytes, limit: 120 * KB },
   { label: 'HTML', bytes: htmlBytes, limit: 4 * KB },

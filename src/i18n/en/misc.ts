@@ -115,6 +115,9 @@ export const miscEn: Record<keyof typeof miscIt, string> = {
   'errors.storage.futureSchema': 'The data was created with a newer version of LayerCost.',
   'errors.storage.unsupportedSchema': 'The schema version is not supported.',
   'errors.storage.saveFailed': 'Could not save the data in the browser.',
+  'errors.storage.loadFailed': 'Could not load the saved data.',
+  'errors.storage.exportFailed': 'Could not export the backup.',
+  'errors.storage.resetFailed': 'Could not restore the initial data.',
   'errors.storage.storageUnavailable': 'Local storage is not available: data will not be saved.',
   'errors.storage.corruptData':
     'The local data cannot be read. An initial configuration was created; the original data was kept where possible.',
