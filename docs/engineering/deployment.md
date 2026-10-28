@@ -42,7 +42,7 @@ npm run db:test    # pgTAP/RLS
 npm run db:types   # rigenera src/data/cloud/database.types.ts
 ```
 
-La configurazione è in `supabase/config.toml`: signup disabilitato a livello progetto, provider email attivo per il login degli utenti pre-creati, password minima 12, `auto_expose_new_tables = false`, realtime/storage disabilitati. Attenzione: `[auth].enable_signup = false` disabilita solo la registrazione; `[auth.email].enable_signup` deve restare `true`, altrimenti il login email risponde `email_provider_disabled`. Il progetto cloud di produzione sarà creato in T5.4.6.
+La configurazione è in `supabase/config.toml`: signup disabilitato a livello progetto, provider email attivo per il login degli utenti pre-creati, password minima 12, `auto_expose_new_tables = false`, realtime/storage disabilitati. Attenzione: `[auth].enable_signup = false` disabilita solo la registrazione; `[auth.email].enable_signup` deve restare `true`, altrimenti il login email risponde `email_provider_disabled`. Il progetto cloud di produzione `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`) è creato e configurato; le migrazioni sono applicate con `supabase db push`.
 
 Per provare login e sync in locale:
 
@@ -142,8 +142,9 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - Repository locale: `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`.
 - Nome prodotto: **LayerCost**.
 - Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
-- CI GitHub: verde su PR #20 (`check`, `e2e`, `database`); `main` resta a `f3b7071` finché il deploy cloud non è pronto.
-- Deploy Vercel: **live su https://layercost.vercel.app**.
+- CI GitHub: verde su `main` `1bf641e` (`check`, `e2e`, `database`) in 3m25s.
+- Deploy Vercel: **live su https://layercost.vercel.app**, build cloud `index-D9pxS7o0.js` / `index-BPCFEMKa.css`.
+- Supabase produzione: `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner, signup disabilitato, keep-alive e backup verificati.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`; deploy di produzione verificato con build `index-C_5bQZYu.js`, gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, bozza protetta, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.
 - Le preview deployment sono protette da SSO Vercel; la produzione è pubblica.
@@ -175,4 +176,4 @@ npm run smoke:production
 
 Lo script crea un utente e un workspace temporanei, accede alla produzione, verifica lo stato “Sincronizzato”, crea un preventivo, controlla che sia nell'archivio e pulisce workspace e utente. La service role key resta nella shell locale: non va in Vercel, nel repository o nel bundle.
 
-Il comando è stato verificato il 28/10/2026 contro una preview locale con Supabase locale; contro la produzione va eseguito una volta dopo il deploy e prima di considerare T5.4.6 chiuso. Se il cleanup fallisce, eliminare workspace e utente con la procedura del `docs/engineering/workspace-runbook.md`.
+Il comando è stato verificato il 28/10/2026 sia contro una preview locale con backend di produzione sia contro https://layercost.vercel.app; entrambe le esecuzioni hanno creato e rimosso correttamente utente e workspace temporanei. Se il cleanup fallisce, eliminare workspace e utente con la procedura del `docs/engineering/workspace-runbook.md`.
