@@ -146,6 +146,8 @@ La procedura è stata provata su Supabase locale:
 
 Il test conferma che l'ordine auth → public e l'assenza di `--disable-triggers` funzionano sul database Supabase locale.
 
+**Primo backup di produzione (28/10/2026):** workflow `Supabase backup` eseguito con successo in 44s sul progetto `layercost-prod`. Artifact `supabase-backup-40748445045` scaricato; checksum SHA-256 verificato, entrambi gli archivi decifrati e `pg_restore --list` ha confermato le tabelle `public` e `auth`. Il backup conteneva il workspace reale e nessun utente di test residuo.
+
 ---
 
 ## 6. Limiti e sicurezza

@@ -274,7 +274,7 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 7. Schema cloud (T5.4.2)
 
-Il modello cloud è in `supabase/migrations/20261028120000_init.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`.
+Il modello cloud è in `supabase/migrations/20261028120000_init.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`. La produzione usa il progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`) con due account `owner` nello stesso workspace.
 
 Gli account (email, password, sessione) sono gestiti da **Supabase Auth** in `auth.users`; l'app non ha una tabella utenti propria. Le membership collegano `auth.users` ai workspace. La sessione è un token tecnico nel browser, non un dato economico e non entra nei backup.
 

@@ -768,7 +768,7 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; **T5.4.0–T5.4.5 chiusi** (piano/ADR, refactor async, schema/RLS/mapper, auth email/password, sync/outbox/conflitti, workspace/runbook/audit), prossimo **T5.4.6** (keep-alive, backup, CI database, axe/visual, budget e deploy). Piano completo in `docs/planning/t5.4-cloud-sync.md`, runbook in `docs/engineering/workspace-runbook.md`, riepilogo e domande aperte in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
+**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; **T5.4.0–T5.4.6 chiusi** (piano/ADR, refactor async, schema/RLS/mapper, auth email/password, sync/outbox/conflitti, workspace/runbook/audit, keep-alive, backup, CI database, budget e deploy). Il cloud è live in produzione; resta come follow-up opzionale la baseline visual delle schermate cloud. Piano completo in `docs/planning/t5.4-cloud-sync.md`, runbook in `docs/engineering/workspace-runbook.md`, backup in `docs/engineering/backup-restore.md`, riepilogo in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
 
 **Nota di scope (26/10/2026):** il committente ha indicato che T5.1, T5.2, T5.5 e T5.7–T5.11 sono fatte, non volute o svolte direttamente. Non sono più nel perimetro; restano **T5.4 sync** (richiesto) e **T5.12 export `.xlsx`** (chiuso).
 
@@ -885,7 +885,7 @@ Sottotask:
 ## T5.4 — Sincronizzazione cloud
 
 **Dipende da:** ADR-0018, ADR-0024, T5.3, T5.6, T5.12
-**Stato:** `[~]` — T5.4.0–T5.4.5 chiusi il 28/10/2026; prossimo T5.4.6
+**Stato:** `[x]` — T5.4.0–T5.4.6 chiusi il 28/10/2026; cloud live in produzione
 **Piano:** `docs/planning/t5.4-cloud-sync.md` (dettaglio task e operazioni), riepilogo in `docs/planning/phase-5.md` §4
 
 **Nota:** il sync è opzionale, local-first e **solo su piano gratuito**. Decisioni del 28/10/2026 (ADR-0024): **Supabase Free** in regione EU, **email + password** con signup pubblico disabilitato e due utenti pre-creati, **workspace condiviso** con `workspace_members` e RLS, niente SMTP nella prima iterazione. Dati sincronizzati: configurazione e preventivi `saved`/`sent`/`completed`; bozza, tema, lingua e onboarding restano locali. Conflitti visibili, outbox offline, nessun realtime nella prima iterazione, backup prima del primo sync e `pg_dump` settimanale. Serve prima il refactor async di `DataRepository`/store.
@@ -898,7 +898,7 @@ Sottotask:
 - **T5.4.3 — Auth email/password** `[x]` (28/10/2026): client Supabase lazy, auth gateway/store, pagina `#/login`, logout con flush, banner sessione scaduta, sezione Sincronizzazione in Impostazioni, i18n, 11 test auth, 2 E2E auth con axe. `npm run test:e2e:auth` verde; 159 unitari totali (182 dopo T5.4.4).
 - **T5.4.4 — Repository cloud, sync e conflitti** `[x]` (28/10/2026): gateway Supabase pull/push, cache cloud separata, import iniziale con backup, outbox persistita, scritture ottimistiche su `updated_at`, conflitti espliciti, indicatore e impostazioni sync. 182 unitari, 2 E2E sync, 22 pgTAP.
 - **T5.4.5 — Workspace condiviso** `[x]` (28/10/2026): runbook in `docs/engineering/workspace-runbook.md`; entrambi gli owner vedono e modificano gli stessi preventivi; audit `created_by`/`updated_by` nel dettaglio (solo cloud, “te”/“un altro membro”); 33 pgTAP e 3 E2E sync, inclusi utente senza membership e workspace separato.
-- **T5.4.6 — Operazioni, test e deploy** `[~]` (28/10/2026): keep-alive, backup/restore, CI database e budget chiusi; deploy in attesa delle credenziali Supabase/Vercel; visual cloud e verifica finale post-deploy ancora aperte.
+- **T5.4.6 — Operazioni, test e deploy** `[x]` (28/10/2026): keep-alive, backup/restore, CI database, budget e **deploy di produzione chiusi**; baseline visual cloud come follow-up opzionale.
 
 **Esito T5.4.5 (28/10/2026):**
 
@@ -909,14 +909,15 @@ Sottotask:
 - **Test:** 185 unitari, 33 pgTAP, 3 E2E sync, 49 scansioni axe, 0 violazioni. `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth` e `npm run test:e2e:sync` verdi. Budget 202,3/205 KB iniziali con env, cloud lazy 53,5/80 KB, worker 37,6/40 KB, totale 267,1/350 KB.
 - **Limite noto:** l’audit UI non espone l’email; con due owner “un altro membro” identifica l’altra persona, con più membri servirà una directory o un nome visibile.
 
-**Esito parziale T5.4.6 (28/10/2026):**
+**Esito T5.4.6 (28/10/2026):**
 
-- **PR #20:** `check` 34s, `e2e` 2m06s, `database` 3m31s, Vercel preview completata. La PR è verde e pronta per il merge dopo il deploy cloud.
+- **PR #20:** `check` 34s, `e2e` 2m06s, `database` 3m31s; mergiata con squash `1bf641e`. CI `main` verde in 3m25s.
 - **CI database:** il job avvia Supabase locale, esegue `npm run db:test`, `npm run test:e2e:auth` e `npm run test:e2e:sync`; nessun segreto di produzione.
-- **Backup/restore:** workflow settimanale `.github/workflows/backup.yml` con dump data-only `public` + `auth.users`/`auth.identities`, cifratura AES-256, checksum e artifact 30 giorni. Restore verificato su Supabase locale: 1 workspace, 1 utente, 1 membership, 1 settings, 1 preventivo. Procedura in `docs/engineering/backup-restore.md`.
-- **Keep-alive:** workflow giornaliero `.github/workflows/keepalive.yml` con secret `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`, issue `[ops] Supabase keep-alive failed` e chiusura automatica al ripristino.
+- **Backup/restore:** workflow settimanale `.github/workflows/backup.yml` con dump data-only `public` + `auth.users`/`auth.identities`, cifratura AES-256, checksum e artifact 30 giorni. Restore verificato su Supabase locale: 1 workspace, 1 utente, 1 membership, 1 settings, 1 preventivo. Procedura in `docs/engineering/backup-restore.md`; primo backup di produzione eseguito e verificato.
+- **Keep-alive:** workflow giornaliero `.github/workflows/keepalive.yml` con secret `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`, issue `[ops] Supabase keep-alive failed` e chiusura automatica al ripristino; prima esecuzione di produzione verde.
 - **Budget:** 202,3/205 KB iniziali con env, 53,5/80 KB cloud lazy, 37,6/40 KB worker, 267,1/350 KB totali.
-- **Deploy:** non eseguito. Servono `supabase login`, `vercel login`, progetto Supabase EU, utenti, workspace, env Vercel e smoke test. La produzione attuale resta invariata.
+- **Deploy:** progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), migrazioni applicate, signup disabilitato, workspace `ws-doublelayer`, due account `owner`. Produzione `index-D9pxS7o0.js` / `index-BPCFEMKa.css`, cloud attivo, smoke test verde.
+- **Follow-up:** baseline visual cloud (login/sync/conflitto); E2E e axe già verdi.
 
 **Accettazione:** due dispositivi vedono gli stessi dati; offline e conflitti gestiti senza perdita; RLS testata con due utenti; piano €0; export sempre disponibile; `npm run check`, E2E, axe e visual verdi; nessuna modifica a formule, `engineVersion` o snapshot.
 
