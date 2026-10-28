@@ -68,7 +68,9 @@
 
 **Stato T5.4.4:** aggiunte 56 chiavi per stati sync, primo login con backup, conflitti (motivo, entità, azioni, eliminazione), indicatore, errori, logout con modifiche in sospeso e avviso import cloud. Parità it/en a **1002** chiavi; il test di parità e aree resta verde.
 
-**Stato T5.21:** aggiunte 4 chiavi per le card comprimibili: `common.expand`, `common.collapse`, `line.expand`, `line.collapse`. Parità it/en a **899** chiavi.
+**Stato T5.21:** aggiunte 4 chiavi per le card comprimibili: `common.expand`, `common.collapse`, `line.expand`, `line.collapse`. Parità it/en a **1002** chiavi.
+
+**Stato T5.4.5:** aggiunte 5 chiavi `quote.audit.*` per la sezione “Workspace condiviso” e l’audit del preventivo (creatore, ultima modifica, “te”/“un altro membro”). Parità it/en a **1007** chiavi.
 
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 

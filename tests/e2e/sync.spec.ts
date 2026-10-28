@@ -76,6 +76,43 @@ async function createWorkspace(accounts: Account[]): Promise<string> {
   return workspaceId
 }
 
+async function seedOtherWorkspace(workspaceId: string): Promise<void> {
+  const settings = await admin('/rest/v1/settings', {
+    method: 'POST',
+    body: JSON.stringify({ workspace_id: workspaceId }),
+  })
+  if (!settings.ok) {
+    throw new Error(`Creazione settings fallita: ${settings.status} ${await settings.text()}`)
+  }
+
+  const quote = await admin('/rest/v1/quotes', {
+    method: 'POST',
+    body: JSON.stringify({
+      id: `q-other-${Date.now()}`,
+      workspace_id: workspaceId,
+      status: 'saved',
+      name: 'Altro workspace',
+      quote_date: '2026-10-28',
+      locale: 'it',
+      lines: [],
+      job: { setupSeconds: 0, designSeconds: 0, extraIds: [] },
+      pricing: {
+        mode: 'markup',
+        markupBp: 3000,
+        marginBp: 2500,
+        roundingStep: 100000,
+        roundingMode: 'up',
+        vatMode: 'none',
+        vatRateBp: 0,
+      },
+      schema_version: 4,
+    }),
+  })
+  if (!quote.ok) {
+    throw new Error(`Creazione preventivo fallita: ${quote.status} ${await quote.text()}`)
+  }
+}
+
 function deleteWorkspace(workspaceId: string): void {
   const dbUrl = process.env.SUPABASE_DB_URL
   if (!dbUrl) return
@@ -191,8 +228,20 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
 
     await page.goto(quoteUrl)
     await expect(page.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
+    const auditRegion = page.getByRole('region', { name: 'Workspace condiviso' })
+    await expect(auditRegion.getByText('te', { exact: true }).first()).toBeVisible()
+    await audit(page)
+
     await secondPage.goto(quoteUrl)
-    await expect(secondPage.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
+    await expect(
+      secondPage.getByRole('heading', { name: 'Nuovo preventivo' }).first(),
+    ).toBeVisible()
+    await expect(
+      secondPage
+        .getByRole('region', { name: 'Workspace condiviso' })
+        .getByText('un altro membro', { exact: true })
+        .first(),
+    ).toBeVisible()
 
     // A edits offline; B edits and saves while A is still offline.
     await page.context().setOffline(true)
@@ -223,9 +272,76 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
 
     await page.goto(quoteUrl)
     await expect(page.getByRole('heading', { name: 'Versione B online' }).first()).toBeVisible()
+    await expect(
+      page
+        .getByRole('region', { name: 'Workspace condiviso' })
+        .getByText('un altro membro', { exact: true })
+        .first(),
+    ).toBeVisible()
   } finally {
     await secondContext.close()
     deleteWorkspace(workspaceId)
     await Promise.all(accounts.map((account) => deleteUser(account.id)))
+  }
+})
+
+test('un utente senza membership o di un altro workspace non vede i dati condivisi', async ({
+  browser,
+  page,
+}) => {
+  const sharedOwner = await createUser('shared-owner')
+  const sharedPeer = await createUser('shared-peer')
+  const outsider = await createUser('outsider')
+  const otherOwner = await createUser('other-owner')
+  const sharedWorkspace = await createWorkspace([sharedOwner, sharedPeer])
+  const otherWorkspace = await createWorkspace([otherOwner])
+  await seedOtherWorkspace(otherWorkspace)
+  const outsiderContext = await (browser as Browser).newContext()
+  const otherContext = await (browser as Browser).newContext()
+  const outsiderPage = await outsiderContext.newPage()
+  const otherPage = await otherContext.newPage()
+
+  try {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await login(page, sharedOwner)
+    await page.goto('/#/settings')
+    await waitForSynced(page)
+
+    await page.goto('/#/')
+    await page.getByLabel('Nome preventivo').fill('Solo workspace condiviso')
+    await page.locator('input[aria-label="Ore"]').first().fill('10')
+    await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
+    await page.getByRole('button', { name: 'Salva preventivo' }).click()
+    await page.waitForURL(/#\/quotes\/.+/)
+    await page.goto('/#/settings')
+    await waitForSynced(page)
+
+    // Authenticated but not a member: the app stays local and explains why.
+    await outsiderPage.setViewportSize({ width: 1440, height: 900 })
+    await login(outsiderPage, outsider)
+    await outsiderPage.goto('/#/settings')
+    await expect(outsiderPage.getByText(/non è associato a un workspace/)).toBeVisible({
+      timeout: 20_000,
+    })
+    await audit(outsiderPage)
+    await outsiderPage.goto('/#/quotes')
+    await expect(outsiderPage.getByText('Solo workspace condiviso')).toHaveCount(0)
+
+    // A member of another workspace only sees that workspace's archive.
+    await otherPage.setViewportSize({ width: 1440, height: 900 })
+    await login(otherPage, otherOwner)
+    await otherPage.goto('/#/settings')
+    await waitForSynced(otherPage)
+    await otherPage.goto('/#/quotes')
+    await expect(otherPage.getByText('Solo workspace condiviso')).toHaveCount(0)
+    await expect(otherPage.getByText('Altro workspace').first()).toBeVisible()
+  } finally {
+    await outsiderContext.close()
+    await otherContext.close()
+    deleteWorkspace(sharedWorkspace)
+    deleteWorkspace(otherWorkspace)
+    await Promise.all(
+      [sharedOwner, sharedPeer, outsider, otherOwner].map((account) => deleteUser(account.id)),
+    )
   }
 })

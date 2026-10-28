@@ -113,7 +113,7 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 - Senza account i dati restano sul dispositivo; con account esiste una copia sul server.
 - I link condivisi sono leggibili da chiunque abbia l'URL.
 
-## 9. Sync cloud (fase 5, T5.4.4)
+## 9. Sync cloud (fase 5, T5.4.5)
 
 L'interfaccia `DataRepository` è astratta. In v1 era sincrona perché usava `localStorage`; il refactor async è completato in **T5.4.1**. La sincronizzazione cloud è un caso d'uso separato (`CloudGateway`) e non è accumulata dentro `DataRepository`:
 
@@ -134,13 +134,14 @@ interface CloudGateway {
 }
 ```
 
-La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Schema, RLS e mapper sono in T5.4.2; client e store auth in T5.4.3; gateway dati, outbox e conflitti in T5.4.4.
+La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Schema, RLS e mapper sono in T5.4.2; client e store auth in T5.4.3; gateway dati, outbox e conflitti in T5.4.4; workspace condiviso, runbook e audit in T5.4.5. La procedura amministrativa è in `docs/engineering/workspace-runbook.md`.
 
 Regole:
 
 - Configurazione e preventivi `saved`/`sent`/`completed` si sincronizzano; bozza, tema, lingua e onboarding restano locali.
 - Le scritture usano `updated_at` lato server per il controllo ottimistico; offline vanno in un outbox e vengono riprodotte al ritorno.
 - I conflitti sono visibili; nessun overwrite silenzioso. I preventivi `sent`/`completed` sono bloccati anche da un trigger.
+- `created_by`/`updated_by` sono audit del database; il client li mostra come “te”/“un altro membro”, non li riscrive nelle update e non li include nei link condivisi.
 - La cache cloud usa `layercost:cloud-cache` e non sovrascrive `layercost:data`; al logout l'app torna ai dati ospite.
 - L'outbox, i metadati `updated_at`, il workspace e l'ultimo sync vivono in `layercost:sync-state`. Se il workspace cambia, cache e outbox vengono scartati prima di riusarli.
 - Al logout con scritture in sospeso cache e outbox restano nel browser e riprendono al prossimo accesso; senza scritture in sospeso vengono rimosse.

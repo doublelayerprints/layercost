@@ -79,7 +79,7 @@ Prima di aggiungerla:
 
 ## 7. Bundle
 
-Build attuale (T5.4.4): circa 742 KB JS raw (201,9 KB gzip iniziale con env), 39 KB CSS (8,3 KB gzip) e 58 KB di font WOFF2. Con il cloud configurato si aggiunge un chunk lazy di circa 55 KB gzip. La v1.0.0 era circa 509 KB JS raw.
+Build attuale (T5.4.5): circa 744 KB JS raw (202,3 KB gzip iniziale con env), 39 KB CSS (8,3 KB gzip) e 58 KB di font WOFF2. Con il cloud configurato si aggiunge un chunk lazy di circa 55 KB gzip. La v1.0.0 era circa 509 KB JS raw.
 
 `scripts/check-budget.mjs` separa il caricamento iniziale dai chunk opzionali:
 

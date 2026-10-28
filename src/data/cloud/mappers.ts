@@ -241,6 +241,8 @@ export function quoteFromRow(row: QuoteRow): Quote {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     archived: row.archived_at !== null,
+    createdBy: row.created_by ?? undefined,
+    updatedBy: row.updated_by ?? undefined,
   })
   return parsed as unknown as Quote
 }

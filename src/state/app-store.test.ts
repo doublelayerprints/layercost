@@ -182,4 +182,23 @@ describe('app store async', () => {
     expect(useAppStore.getState().mode).toBe('guest')
     expect(useAppStore.getState().draft.name).toBe('Bozza locale')
   })
+
+  it('non trascina i metadati di audit nelle copie e nelle modifiche', () => {
+    const config = useAppStore.getState().config
+    const quote = {
+      ...createEmptyDraft(config),
+      status: 'saved' as const,
+      createdBy: 'user-a',
+      updatedBy: 'user-b',
+    }
+    useAppStore.setState({ quotes: [quote] })
+
+    useAppStore.getState().duplicateQuote(quote.id)
+    expect(useAppStore.getState().draft.createdBy).toBeUndefined()
+    expect(useAppStore.getState().draft.updatedBy).toBeUndefined()
+
+    useAppStore.getState().editQuote(quote.id)
+    expect(useAppStore.getState().draft.createdBy).toBe('user-a')
+    expect(useAppStore.getState().draft.updatedBy).toBeUndefined()
+  })
 })

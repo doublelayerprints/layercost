@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(22);
+select plan(33);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres, bypassing RLS)
@@ -146,6 +146,66 @@ select results_eq(
   'C sees only workspace B data'
 );
 
+-- ---------------------------------------------------------------------------
+-- Shared quote access and audit metadata
+-- ---------------------------------------------------------------------------
+
+set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';
+
+select results_eq(
+  $$ select id from public.quotes where id = 'q-a' $$,
+  array['q-a']::text[],
+  'owner B sees the quote created by owner A'
+);
+
+select lives_ok(
+  $$ update public.quotes set name = 'Quote A by B' where id = 'q-a' $$,
+  'owner B can edit the quote created by owner A'
+);
+
+set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
+
+select is(
+  (select name from public.quotes where id = 'q-a'),
+  'Quote A by B',
+  'owner A sees the change made by owner B'
+);
+
+select lives_ok(
+  $$
+    insert into public.quotes (
+      id, workspace_id, status, name, quote_date, locale,
+      lines, job, pricing, schema_version
+    ) values (
+      'q-audit', 'ws-a', 'saved', 'Audit quote', '2026-10-28', 'it',
+      '[]'::jsonb,
+      '{"setupSeconds":0,"designSeconds":0,"extraIds":[]}'::jsonb,
+      '{"mode":"markup","markupBp":3000,"marginBp":2500,"roundingStep":100000,"roundingMode":"up","vatMode":"none","vatRateBp":0}'::jsonb,
+      4
+    )
+  $$,
+  'owner A can create a quote'
+);
+
+select results_eq(
+  $$ select created_by::text || '|' || updated_by::text from public.quotes where id = 'q-audit' $$,
+  array['11111111-1111-1111-1111-111111111111|11111111-1111-1111-1111-111111111111']::text[],
+  'the database records the creator and the first editor'
+);
+
+set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';
+
+select lives_ok(
+  $$ update public.quotes set name = 'Audit quote by B' where id = 'q-audit' $$,
+  'owner B can edit the new quote'
+);
+
+select results_eq(
+  $$ select created_by::text || '|' || updated_by::text from public.quotes where id = 'q-audit' $$,
+  array['11111111-1111-1111-1111-111111111111|22222222-2222-2222-2222-222222222222']::text[],
+  'the creator stays and the last editor changes'
+);
+
 set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","role":"authenticated"}';
 
 select results_eq(
@@ -198,6 +258,56 @@ select is(
   (select name from public.printers where id = 'p-b'),
   'Printer B',
   'a member cannot update another workspace'
+);
+
+-- ---------------------------------------------------------------------------
+-- Quote isolation
+-- ---------------------------------------------------------------------------
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"33333333-3333-3333-3333-333333333333","role":"authenticated"}';
+
+select results_eq(
+  $$ select id from public.quotes where id = 'q-a' $$,
+  '{}'::text[],
+  'an owner of another workspace cannot see the shared quote'
+);
+
+update public.quotes set name = 'Hijacked' where id = 'q-a';
+
+reset role;
+
+select is(
+  (select name from public.quotes where id = 'q-a'),
+  'Quote A by B',
+  'an owner of another workspace cannot update the shared quote'
+);
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","role":"authenticated"}';
+
+select results_eq(
+  $$ select id from public.quotes $$,
+  '{}'::text[],
+  'a user without membership sees no quotes'
+);
+
+select throws_ok(
+  $$
+    insert into public.quotes (
+      id, workspace_id, status, name, quote_date, locale,
+      lines, job, pricing, schema_version
+    ) values (
+      'q-outsider', 'ws-a', 'saved', 'Outsider', '2026-10-28', 'it',
+      '[]'::jsonb,
+      '{"setupSeconds":0,"designSeconds":0,"extraIds":[]}'::jsonb,
+      '{"mode":"markup","markupBp":3000,"marginBp":2500,"roundingStep":100000,"roundingMode":"up","vatMode":"none","vatRateBp":0}'::jsonb,
+      4
+    )
+  $$,
+  '42501',
+  null,
+  'a user without membership cannot insert a quote'
 );
 
 -- ---------------------------------------------------------------------------

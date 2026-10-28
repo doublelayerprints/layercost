@@ -70,6 +70,11 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.manage.title': 'Manage quote',
   'quote.manage.description':
     'Editable while saved: sending and completion lock it. Archiving deletes nothing.',
+  'quote.audit.title': 'Shared workspace',
+  'quote.audit.created': 'Created by',
+  'quote.audit.updated': 'Last edit',
+  'quote.audit.you': 'you',
+  'quote.audit.member': 'another member',
   'quote.duplicate': 'Duplicate in calculator',
   'quote.archive': 'Archive',
   'quote.restore': 'Restore',

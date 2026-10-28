@@ -241,6 +241,20 @@ describe('cloud mappers', () => {
     )
   })
 
+  it('espone i metadati di audit cloud senza riscriverli', () => {
+    const quote = quoteFromRow({
+      ...quoteRow,
+      created_by: '11111111-1111-1111-1111-111111111111',
+      updated_by: '22222222-2222-2222-2222-222222222222',
+    })
+    expect(quote.createdBy).toBe('11111111-1111-1111-1111-111111111111')
+    expect(quote.updatedBy).toBe('22222222-2222-2222-2222-222222222222')
+
+    const row = quoteToRow(quote, 'ws-1', undefined, NOW)
+    expect(row).not.toHaveProperty('created_by')
+    expect(row).not.toHaveProperty('updated_by')
+  })
+
   it('assembla la configurazione e ignora le righe cancellate', () => {
     const config = configFromRows({
       settings: settingsRow,

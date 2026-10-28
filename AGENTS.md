@@ -24,7 +24,7 @@ Prima di toccare il codice:
 3. `AGENTS.md` (questo file)
 4. `PLAN.md`
 5. `TASKS.md`
-6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4 e `docs/planning/i18n-inventory.md` per i task i18n
+6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/engineering/workspace-runbook.md` per utenti, membership e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
 7. `docs/domain/cost-model.md`
 8. `docs/domain/data-model.md`
 9. gli ADR rilevanti in `docs/adr/`
@@ -264,6 +264,7 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/engineering/manual-checks.md` — verifiche manuali Safari e VoiceOver.
 - `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese e sync.
 - `docs/planning/t5.4-cloud-sync.md` — piano dettagliato del sync Supabase: schema, RLS, auth, task e operazioni free.
+- `docs/engineering/workspace-runbook.md` — runbook del workspace condiviso: utenti, membership, reset password, audit e troubleshooting.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.
 - `docs/design/ui-brief.md` — requisiti per la fase design.

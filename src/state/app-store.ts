@@ -77,6 +77,8 @@ function cloneQuoteForDraft(quote: Quote, suffix: string): Quote {
     engineVersion: undefined,
     createdAt: now,
     updatedAt: now,
+    createdBy: undefined,
+    updatedBy: undefined,
   }
 }
 
@@ -683,6 +685,8 @@ export const useAppStore = create<AppState>()((set, get) => {
         draft: {
           ...structuredClone(quote),
           status: 'draft',
+          // The next save is by the current user; the server will confirm the audit.
+          updatedBy: undefined,
         },
       })
       get().persist()

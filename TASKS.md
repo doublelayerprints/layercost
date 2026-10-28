@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. **T5.21 chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**: piano e ADR-0024 pronti, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password) e **T5.4.4 chiuso** (repository cloud, outbox, conflitti) il 28/10/2026; prossimo **T5.4.5** (workspace condiviso e runbook). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.21 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022, ADR-0023 e ADR-0024 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni, preventivi, card degli sconti (T5.20) e card comprimibili (T5.21).
+**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. **T5.21 chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**: piano e ADR-0024 pronti, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password), **T5.4.4 chiuso** (repository cloud, outbox, conflitti) e **T5.4.5 chiuso** (workspace condiviso, runbook e audit) il 28/10/2026; prossimo **T5.4.6** (operazioni, test e deploy). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.21 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022, ADR-0023 e ADR-0024 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni, preventivi, card degli sconti (T5.20) e card comprimibili (T5.21).
 
 ---
 
@@ -768,7 +768,7 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; **T5.4.0–T5.4.4 chiusi** (piano/ADR, refactor async, schema/RLS/mapper, auth email/password, sync/outbox/conflitti), prossimo **T5.4.5** (workspace condiviso e runbook). Piano completo in `docs/planning/t5.4-cloud-sync.md`, riepilogo e domande aperte in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
+**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; **T5.4.0–T5.4.5 chiusi** (piano/ADR, refactor async, schema/RLS/mapper, auth email/password, sync/outbox/conflitti, workspace/runbook/audit), prossimo **T5.4.6** (keep-alive, backup, CI database, axe/visual, budget e deploy). Piano completo in `docs/planning/t5.4-cloud-sync.md`, runbook in `docs/engineering/workspace-runbook.md`, riepilogo e domande aperte in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
 
 **Nota di scope (26/10/2026):** il committente ha indicato che T5.1, T5.2, T5.5 e T5.7–T5.11 sono fatte, non volute o svolte direttamente. Non sono più nel perimetro; restano **T5.4 sync** (richiesto) e **T5.12 export `.xlsx`** (chiuso).
 
@@ -885,7 +885,7 @@ Sottotask:
 ## T5.4 — Sincronizzazione cloud
 
 **Dipende da:** ADR-0018, ADR-0024, T5.3, T5.6, T5.12
-**Stato:** `[~]` — T5.4.0–T5.4.4 chiusi il 28/10/2026; prossimo T5.4.5
+**Stato:** `[~]` — T5.4.0–T5.4.5 chiusi il 28/10/2026; prossimo T5.4.6
 **Piano:** `docs/planning/t5.4-cloud-sync.md` (dettaglio task e operazioni), riepilogo in `docs/planning/phase-5.md` §4
 
 **Nota:** il sync è opzionale, local-first e **solo su piano gratuito**. Decisioni del 28/10/2026 (ADR-0024): **Supabase Free** in regione EU, **email + password** con signup pubblico disabilitato e due utenti pre-creati, **workspace condiviso** con `workspace_members` e RLS, niente SMTP nella prima iterazione. Dati sincronizzati: configurazione e preventivi `saved`/`sent`/`completed`; bozza, tema, lingua e onboarding restano locali. Conflitti visibili, outbox offline, nessun realtime nella prima iterazione, backup prima del primo sync e `pg_dump` settimanale. Serve prima il refactor async di `DataRepository`/store.
@@ -897,8 +897,17 @@ Sottotask:
 - **T5.4.2 — Schema Supabase, RLS e trigger** `[x]` (28/10/2026): migrazione iniziale con 8 tabelle, RLS per membership, trigger di audit/immutabilità/ultimo owner, `keepalive`, tipi generati e mapper Zod; 21 test pgTAP RLS con due workspace e un utente esterno (22 dopo il cleanup admin di T5.4.4). `npm run db:test` verde.
 - **T5.4.3 — Auth email/password** `[x]` (28/10/2026): client Supabase lazy, auth gateway/store, pagina `#/login`, logout con flush, banner sessione scaduta, sezione Sincronizzazione in Impostazioni, i18n, 11 test auth, 2 E2E auth con axe. `npm run test:e2e:auth` verde; 159 unitari totali (182 dopo T5.4.4).
 - **T5.4.4 — Repository cloud, sync e conflitti** `[x]` (28/10/2026): gateway Supabase pull/push, cache cloud separata, import iniziale con backup, outbox persistita, scritture ottimistiche su `updated_at`, conflitti espliciti, indicatore e impostazioni sync. 182 unitari, 2 E2E sync, 22 pgTAP.
-- **T5.4.5 — Workspace condiviso** `[ ]`: runbook workspace/membership, accesso dei due owner, audit minimo, test di isolamento.
+- **T5.4.5 — Workspace condiviso** `[x]` (28/10/2026): runbook in `docs/engineering/workspace-runbook.md`; entrambi gli owner vedono e modificano gli stessi preventivi; audit `created_by`/`updated_by` nel dettaglio (solo cloud, “te”/“un altro membro”); 33 pgTAP e 3 E2E sync, inclusi utente senza membership e workspace separato.
 - **T5.4.6 — Operazioni, test e deploy** `[ ]`: keep-alive, backup/restore, CI database, axe/visual, budget, deploy, documentazione.
+
+**Esito T5.4.5 (28/10/2026):**
+
+- **Runbook:** `docs/engineering/workspace-runbook.md` copre progetto, utenti, membership, reset password, offboarding, audit, verifica RLS, troubleshooting e checklist. Nessuna password o chiave nel repository.
+- **Accesso condiviso:** i due owner leggono e modificano gli stessi preventivi; pgTAP verifica la modifica incrociata e l’audit. Il dettaglio del preventivo mostra “Workspace condiviso” con creatore e ultima modifica, solo in modalità cloud.
+- **Audit:** `Quote.createdBy`/`updatedBy` sono metadati opzionali mappati da `quotes.created_by`/`updated_by`; non entrano nello snapshot, non cambiano `engineVersion`, non vengono riscritti in update e sono rimossi dai link condivisi. Schema locale invariato v4.
+- **Isolamento:** un utente senza membership non vede né inserisce preventivi; un owner di un altro workspace non vede né modifica quelli del workspace condiviso. 11 nuove asserzioni pgTAP (22 → 33) e 1 nuovo E2E sync (2 → 3), con axe sulle nuove schermate.
+- **Test:** 185 unitari, 33 pgTAP, 3 E2E sync, 49 scansioni axe, 0 violazioni. `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth` e `npm run test:e2e:sync` verdi. Budget 202,3/205 KB iniziali con env, cloud lazy 53,5/80 KB, worker 37,6/40 KB, totale 267,1/350 KB.
+- **Limite noto:** l’audit UI non espone l’email; con due owner “un altro membro” identifica l’altra persona, con più membri servirà una directory o un nome visibile.
 
 **Accettazione:** due dispositivi vedono gli stessi dati; offline e conflitti gestiti senza perdita; RLS testata con due utenti; piano €0; export sempre disponibile; `npm run check`, E2E, axe e visual verdi; nessuna modifica a formule, `engineVersion` o snapshot.
 

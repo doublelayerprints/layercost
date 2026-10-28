@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { useAppStore } from '@/state/app-store'
+import { useAuthStore } from '@/state/auth-store'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
 import { ENGINE_VERSION } from '@/domain/version'
 import { draftHasContent } from '@/lib/draft'
@@ -32,6 +33,8 @@ export function QuoteDetailPage() {
   const { id } = useParams<{ id: string }>()
   const quotes = useAppStore((state) => state.quotes)
   const draft = useAppStore((state) => state.draft)
+  const mode = useAppStore((state) => state.mode)
+  const userId = useAuthStore((state) => state.user?.id)
   const duplicateQuote = useAppStore((state) => state.duplicateQuote)
   const refreshQuote = useAppStore((state) => state.refreshQuote)
   const archiveQuote = useAppStore((state) => state.archiveQuote)
@@ -227,6 +230,43 @@ export function QuoteDetailPage() {
             <p className="mt-3 text-sm text-muted">
               {quote.status === 'sent' ? t('quote.locked.sent') : t('quote.locked.completed')}
             </p>
+          ) : null}
+          {mode === 'cloud' && userId && (quote.createdBy || quote.updatedBy) ? (
+            <section className="mt-4 border-t border-line pt-3" aria-labelledby="quote-audit-title">
+              <h3 id="quote-audit-title" className="text-xs font-medium text-muted">
+                {t('quote.audit.title')}
+              </h3>
+              <dl className="mt-1 grid gap-1 text-xs text-muted sm:grid-cols-2">
+                {quote.createdBy ? (
+                  <div className="flex flex-wrap items-baseline gap-x-1">
+                    <dt>{t('quote.audit.created')}</dt>
+                    <dd className="text-ink">
+                      <span>
+                        {quote.createdBy === userId
+                          ? t('quote.audit.you')
+                          : t('quote.audit.member')}
+                      </span>
+                      <span aria-hidden="true"> · </span>
+                      <time dateTime={quote.createdAt}>{format.dateTime(quote.createdAt)}</time>
+                    </dd>
+                  </div>
+                ) : null}
+                {quote.updatedBy ? (
+                  <div className="flex flex-wrap items-baseline gap-x-1">
+                    <dt>{t('quote.audit.updated')}</dt>
+                    <dd className="text-ink">
+                      <span>
+                        {quote.updatedBy === userId
+                          ? t('quote.audit.you')
+                          : t('quote.audit.member')}
+                      </span>
+                      <span aria-hidden="true"> · </span>
+                      <time dateTime={quote.updatedAt}>{format.dateTime(quote.updatedAt)}</time>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+            </section>
           ) : null}
         </Card>
 
