@@ -134,7 +134,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 28/10/2026: **verde in locale** per `npm run check` (185 unitari), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 11 saltati), `test:e2e:auth` (2) e `test:e2e:sync` (3). La PR #20 ha superato `check` ed `e2e` su GitHub; il job `database` è stato aggiunto in T5.4.6 e viene verificato sulla stessa PR.
+Stato al 28/10/2026: **verde in locale** per `npm run check` (185 unitari), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 11 saltati), `test:e2e:auth` (2) e `test:e2e:sync` (3). La PR #20 ha superato `check` (34s), `e2e` (2m06s) e `database` (3m31s) su GitHub; il job `database` esegue Supabase locale, 33 pgTAP, 2 auth E2E e 3 sync E2E senza segreti di produzione.
 
 ## 7. Come aggiungere un test
 
