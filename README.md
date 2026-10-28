@@ -53,6 +53,12 @@ npm run test:e2e     # build + Playwright (Chromium + WebKit)
 npm run test:visual  # regressione visiva (baseline Linux)
 npm run budget       # budget del bundle
 npm run check        # typecheck + lint + test + build + budget
+npm run db:start     # Supabase locale (richiede Docker)
+npm run db:reset     # migrazioni + seed locali
+npm run db:test      # test pgTAP/RLS
+npm run db:types     # rigenera i tipi TypeScript dal DB locale
+npm run test:e2e:auth # build con Supabase locale + login/logout E2E
+npm run test:e2e:sync # build + due contesti, offline e conflitto (azzera il DB locale)
 ```
 
 ## Dati e backup
@@ -65,6 +71,18 @@ I dati vivono in `localStorage` (`layercost:data`). Svuotare i dati del browser 
 - I link condivisi contengono una copia del preventivo nell'URL: non sono un backup completo e non contengono la configurazione.
 
 I valori di partenza di prezzi, potenze e vita utile sono **stime modificabili**. La guida iniziale porta a confermare i quattro numeri che contano: prezzo stampanti, vita utile, tariffa kWh, prezzi bobine.
+
+## Cloud opzionale
+
+La build senza variabili Supabase resta **local-only**: login, sync e chunk cloud non vengono caricati. Per provare il cloud in locale:
+
+1. `npm run db:start`
+2. copia i valori `API_URL` e `PUBLISHABLE_KEY` da `npx supabase status -o env` in `.env.local` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
+3. `npm run dev` e apri `#/login`
+
+Gli account sono creati dall'amministratore; la registrazione è disabilitata.
+
+Con l'account attivo, configurazione e preventivi vivono nel **workspace condiviso**; bozza, tema e lingua restano locali. Le modifiche offline entrano in una coda persistita e vengono inviate al ritorno della rete; se lo stesso dato è cambiato su un altro dispositivo, l'app mostra un conflitto e chiede come risolverlo. Il primo accesso propone di importare i dati locali dopo aver scaricato un backup JSON. Al logout la copia locale dei dati cloud viene rimossa (o conservata se ci sono modifiche ancora in sospeso). Il database locale viene azzerato da `npm run test:e2e:sync`, non dalla build normale.
 
 ## Deploy
 
@@ -79,7 +97,7 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 - Framework preset: Vite
 - Build: `npm run build`
 - Output: `dist`
-- Nessuna variabile d'ambiente obbligatoria
+- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 
@@ -96,19 +114,20 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 | `docs/domain/golden-cases.md`  | Esempi numerici e test                           |
 | `docs/domain/sources.md`       | Fonti su stampanti e potenze                     |
 | `docs/engineering/`            | Architettura, persistenza, test, release, deploy |
+| `docs/engineering/workspace-runbook.md` | Workspace condiviso: utenti, membership, audit |
 | `docs/planning/phase-5.md`     | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync     |
 | `docs/design/ui-brief.md`      | Requisiti per la fase design                     |
 | `docs/design/directions.md`    | Direzioni e scelta visiva                        |
 | `docs/design/design-system.md` | Token, componenti, accessibilità                 |
-| `docs/adr/`                    | 20 decisioni architetturali                      |
+| `docs/adr/`                    | 24 decisioni architetturali                      |
 
 ## Stato
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 124 unitari, 39 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
+- **Verifiche:** 185 unitari, 44 E2E (33 default + 6 visual + 2 auth + 3 sync), 33 test pgTAP RLS, 36 screenshot di regressione, 49 scansioni axe con 0 violazioni, stampa/PDF e budget.
 - **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
-- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, workspace condiviso, magic link), non ancora implementato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
+- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password), **T5.4.4 chiuso** (sync, outbox e conflitti) e **T5.4.5 chiuso** (workspace condiviso, runbook e audit); prossimo T5.4.6 (operazioni e deploy). Piano in `docs/planning/t5.4-cloud-sync.md`, runbook in `docs/engineering/workspace-runbook.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

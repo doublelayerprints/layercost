@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { en } from './en'
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isLocale, plural, translate } from './index'
+import { authIt } from './it/auth'
 import { calculatorIt } from './it/calculator'
 import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
@@ -15,7 +16,7 @@ describe('dizionari i18n', () => {
   })
 
   it('le aree non duplicano chiavi', () => {
-    const parts = [baseIt, calculatorIt, quotesIt, catalogsIt, settingsIt, miscIt, xlsxIt]
+    const parts = [baseIt, calculatorIt, quotesIt, catalogsIt, settingsIt, miscIt, xlsxIt, authIt]
     const keys = parts.flatMap((part) => Object.keys(part))
     expect(new Set(keys).size).toBe(keys.length)
     expect(Object.keys(itDictionary).length).toBe(keys.length)

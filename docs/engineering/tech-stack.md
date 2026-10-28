@@ -18,6 +18,7 @@
 | Validazione    | Zod                         | 4.6                  |
 | Link condivisi | lz-string                   | 1.5                  |
 | Font           | Archivo + Source Serif 4    | self-hosted, OFL 1.1 |
+| Cloud (fase 5) | `@supabase/supabase-js`     | 2.118, lazy          |
 
 ## 2. Test e qualità
 
@@ -30,6 +31,8 @@
 | Lint          | oxlint                 | 1.88     |
 | Format        | Prettier               | 3.9      |
 | CI            | GitHub Actions         | —        |
+| Database (fase 5) | Supabase Free      | Postgres 17 |
+| Database CLI  | `supabase` (dev)       | 2.122    |
 
 > Nota: il piano iniziale citava ESLint. In implementazione è stato scelto **oxlint** perché già integrato dallo scaffold Vite, più veloce e sufficiente per il progetto. La sostituzione è una deviazione consapevole, non un cambio di architettura.
 
@@ -50,7 +53,9 @@
 
 ## 4. Dipendenze vietate in v1
 
-- Backend, ORM, auth, database.
+- Backend, ORM, auth, database (eccezione pianificata: Supabase in fase 5, ADR-0024).
+
+> Fase 5 (in corso): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` è caricato lazy solo per login/sync (ADR-0024). T5.4.2 ha aggiunto schema, RLS, trigger, tipi e mapper; T5.4.3 client e auth; T5.4.4 gateway dati, outbox e conflitti. In modalità ospite l'app resta statica e non chiama la rete.
 - Librerie di componenti (shadcn/Radix/MUI/Ant).
 - Librerie di grafici.
 - Librerie di money/decimal (le unità intere bastano).
@@ -74,17 +79,19 @@ Prima di aggiungerla:
 
 ## 7. Bundle
 
-Build v1.0.0: circa 509 KB JS (147 KB gzip Vite; 142 KB con lo script di budget), 34 KB CSS (7,6 KB gzip) e 58 KB di font WOFF2.
+Build attuale (T5.4.5): circa 744 KB JS raw (202,3 KB gzip iniziale con env), 39 KB CSS (8,3 KB gzip) e 58 KB di font WOFF2. Con il cloud configurato si aggiunge un chunk lazy di circa 55 KB gzip. La v1.0.0 era circa 509 KB JS raw.
 
-`scripts/check-budget.mjs` fallisce se supera:
+`scripts/check-budget.mjs` separa il caricamento iniziale dai chunk opzionali:
 
-- 225 KB gzip di JavaScript (era 200 KB prima di T5.6.2; i due dizionari i18n aggiungono circa 16 KB gzip e il writer XLSX di T5.12 circa 1 KB);
+- 205 KB gzip di **JavaScript iniziale** (quello referenziato da `dist/index.html`);
+- 80 KB gzip di **chunk lazy** (il client Supabase, circa 53,5 KB con env);
+- 40 KB gzip di **worker `.3mf`** (circa 37,6 KB);
 - 20 KB gzip di CSS;
 - 120 KB gzip di font;
 - 4 KB gzip di HTML;
-- 350 KB gzip totali.
+- 350 KB gzip per **JS iniziale + CSS + font**.
 
-La build con i dizionari italiani e inglesi e l’export `.xlsx` è a circa 285 KB gzip totali (220 KB JS), quindi il vincolo reale resta il totale di 350 KB. Se cresce ancora, valutare code splitting per le pagine di configurazione o il caricamento differito del dizionario inglese.
+La build senza env è a **201,1 KB JS iniziale** e **265,9 KB iniziali** totali; con env il chunk cloud è **53,5 KB** e non entra nel caricamento iniziale. Se il chunk lazy cresce oltre 80 KB, valutare un import più selettivo o un budget dedicato più alto con motivazione.
 
 ## 8. Comandi
 
@@ -99,4 +106,12 @@ npm run test:e2e
 npm run test:visual
 npm run budget
 npm run check
+npm run db:start
+npm run db:reset
+npm run db:test
+npm run db:types
+npm run test:e2e:auth
+npm run test:e2e:sync
 ```
+
+`supabase` è una devDependency: serve solo per migrazioni, test pgTAP e generazione tipi, non entra nel bundle.

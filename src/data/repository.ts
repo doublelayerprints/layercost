@@ -7,22 +7,30 @@ import {
   saveAppData,
 } from './storage'
 
-export interface DataRepository {
-  load: () => { data: AppData; warning?: LoadWarning }
-  save: (data: AppData) => void
-  export: (data: AppData) => void
-  import: (file: File) => Promise<AppData>
-  reset: () => AppData
+export interface LoadResult {
+  data: AppData
+  warning?: LoadWarning
 }
 
 /**
- * Adapter locale. In futuro si potrà aggiungere un adapter Supabase
- * senza cambiare dominio, store o UI.
+ * Contratto del repository dati.
+ *
+ * L'adapter locale mantiene le operazioni sincrone internamente, ma espone
+ * sempre una Promise: il cloud adapter potrà implementare lo stesso contratto
+ * senza cambiare store o UI.
  */
+export interface DataRepository {
+  load: () => Promise<LoadResult>
+  save: (data: AppData) => Promise<void>
+  export: (data: AppData) => Promise<void>
+  import: (file: File) => Promise<AppData>
+  reset: () => Promise<AppData>
+}
+
 export const localRepository: DataRepository = {
-  load: loadAppData,
-  save: saveAppData,
-  export: downloadAppData,
+  load: async () => loadAppData(),
+  save: async (data) => saveAppData(data),
+  export: async (data) => downloadAppData(data),
   import: parseImportFile,
-  reset: resetStoredData,
+  reset: async () => resetStoredData(),
 }

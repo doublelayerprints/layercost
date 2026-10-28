@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore)
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password) e **T5.4.4 chiuso** (sync, outbox, conflitti)
 **Data:** 28 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** **T5.4** (sync, richiesto). Il resto del backlog è chiuso/non in scope.
+**Prossima sessione:** **T5.4.6.6** deploy di produzione (Supabase EU, utenti, workspace, env Vercel, smoke test) e baseline visual cloud. Keep-alive, backup/restore, CI database e budget sono chiusi. Piano completo in `t5.4-cloud-sync.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`; PR #20 verde. Il resto del backlog è chiuso/non in scope.
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -14,7 +14,7 @@
 | ------ | --------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------ |
 | 1      | **T5.3 — Import `.3mf`**          | Elimina il passaggio manuale più noioso e riduce gli errori di input.                                | ADR-0017, fixture reali        |
 | 2      | **T5.6 — Interfaccia inglese**    | Rende il prodotto utilizzabile fuori dall'Italia; tocca molte stringhe, meglio farlo prima del sync. | ADR-0019, migrazione schema v2 |
-| 3      | **T5.4 — Sincronizzazione cloud** | Rimandata dal committente; richiede refactor async e un provider free stabile.                       | ADR-0018, spike provider       |
+| 3      | **T5.4 — Sincronizzazione cloud** | Richiesta dal committente; richiede refactor async, RLS e operazioni free (backup/keep-alive).        | ADR-0018, ADR-0024, piano T5.4 |
 
 Il sync non deve iniziare prima di 3MF e inglese: il refactor async e la migrazione schema renderebbero il lavoro più fragile.
 
@@ -365,6 +365,8 @@ Estrazione stringhe e infrastruttura: 1–2 giorni. Traduzione e revisione: 1 gi
 
 ## 4. T5.4 — Sincronizzazione cloud (richiesta)
 
+**Piano dettagliato:** `docs/planning/t5.4-cloud-sync.md` (28/10/2026). **ADR:** ADR-0024, che supersede in parte ADR-0018 (auth e tenancy).
+
 ### 4.1 Obiettivo
 
 Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere il cloud obbligatorio e senza costi ricorrenti.
@@ -388,26 +390,28 @@ Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere i
 | **PocketBase self-host**    | Software gratuito, ma serve un host                                                                                                                               | Controllo totale; semplice                            | Non è €0 senza un server già disponibile            |
 | **GitHub repo privato**     | API e rate limit; nessuna concorrenza                                                                                                                             | Già disponibile                                       | Non è un database; sconsigliato                     |
 
-**Decisione del 26/10/2026:** **Supabase Free**, con magic link, due utenti pre-creati, signup pubblico disabilitato e **workspace condiviso** (RLS per household). Mitigare la pausa con un keep-alive GitHub Actions ogni 2–3 giorni (costo €0, pochi secondi). Se la pausa o i limiti non sono accettabili, passare a **Cloudflare Workers + D1**. Firebase resta la terza opzione.
+**Decisione del 26/10/2026, aggiornata il 28/10/2026 (ADR-0024):** **Supabase Free**, con **email + password**, due utenti pre-creati, signup pubblico disabilitato e **workspace condiviso** con RLS per membership. Il magic link è stato scartato per il limite di 2 email/ora del servizio integrato e per il callback con `HashRouter`; il reset password è amministrativo nella prima iterazione. Mitigare la pausa con un keep-alive GitHub Actions **giornaliero** (costo €0, pochi secondi) e l'assenza di backup automatici con un `pg_dump` settimanale. Se la pausa o i limiti non sono accettabili, passare a **Cloudflare Workers + D1**. Firebase resta la terza opzione.
 
 ### 4.4 Architettura
 
 - **Refactor async**: `DataRepository` e lo store oggi sono sincroni; il cloud richiede `load`, `save`, `import`, `export` asincroni e idratazione ottimistica. Farlo con test di contratto, prima del provider.
 - **Scope sync**: `config` + `quotes`; **non** draft, tema, lingua, onboarding.
-- **Entità**: ogni stampante/materiale/tariffa/extra ha un `id` stabile e un `updatedAt` di sync separato dal dominio; i preventivi sono modificabili finché `saved` e diventano immutabili dopo invio/completamento, con sync in append.
+- **Entità**: ogni stampante/materiale/tariffa/extra ha un `id` stabile e un `updatedAt` di sync separato dal dominio; i preventivi sono modificabili finché `saved` e diventano immutabili dopo invio/completamento. I `saved` si sincronizzano con update ottimistico; i bloccati si duplicano.
 - **Tombstone**: archiviazione/eliminazione come evento, non cancellazione fisica immediata.
 - **Conflitti**:
-  - preventivi: append; stesso `id` non si sovrascrive;
-  - configurazione: timestamp per entità; se locale e remoto divergono, modale “Mantieni locale / Usa remoto / Unisci”;
+  - preventivi `saved`: update ottimistico con `updated_at`; se il record è cambiato, modale “Ricarica remoto / Duplica le mie modifiche”;
+  - preventivi `sent`/`completed`: immutabili, si duplicano;
+  - configurazione: timestamp per entità; se locale e remoto divergono, modale “Mantieni locale / Usa remoto”;
   - impostazioni: last-write-wins con avviso.
-- **Auth**: magic link/OTP, due account, un “household” condiviso; RLS per household. Nessuna password gestita dall'app.
-- **Sicurezza**: chiave anonima pubblica + RLS; nessuna service role key; TLS; cifratura end-to-end da valutare dopo il primo spike.
-- **Backup**: export automatico prima del primo sync; export manuale sempre disponibile.
-- **Free-tier guardrail**: contatore/limite, errore quota → sync disattivato, app local-only, messaggio chiaro. Nessun addebito.
+- **Auth**: email + password, due account pre-creati, signup pubblico disabilitato; reset password amministrativo, nessun SMTP nella prima iterazione. Un **workspace** condiviso con `workspace_members`; RLS per membership, non per household.
+- **Sicurezza**: chiave pubblicabile/anon + RLS; nessuna service role key; TLS; cifratura end-to-end non richiesta nella prima iterazione.
+- **Backup**: export automatico prima del primo sync, export manuale sempre disponibile e `pg_dump` settimanale lato database.
+- **Free-tier guardrail**: pausa o limite raggiunto → sync disattivato, app local-only, messaggio chiaro. Nessun addebito.
 
 ### 4.5 UX
 
-- Impostazioni → **Sincronizzazione**: stato (disattiva / in attesa / attiva / errore), “Crea spazio condiviso”, “Invita l'altro dispositivo”, “Sincronizza ora”, “Disattiva”.
+- Impostazioni → **Sincronizzazione**: stato (non connesso / connessione / sincronizzato / offline / in sospeso / errore / conflitto), email dell'account, ultimo sync, “Accedi”, “Sincronizza ora”, “Esci”, “Scarica backup”.
+- Workspace e membership sono creati dall'amministratore nella prima iterazione: niente UI di inviti self-service.
 - Indicatore discreto nell'header: ultimo sync, offline, conflitto.
 - Conflitto: modale con data/ora e riepilogo delle differenze; mai overwrite silenzioso.
 - Disattivazione: i dati restano locali; il cloud non viene cancellato automaticamente.
@@ -417,9 +421,9 @@ Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere i
 - Contratto repository: local e cloud rispettano la stessa interfaccia.
 - Conflitti: quote duplicato, config modificata su due dispositivi, tombstone.
 - Offline: coda, retry, nessuna perdita.
-- Quota: errore simulato → sync disattivato, local-only.
-- RLS: un utente non vede i dati dell'altro household.
-- E2E con due contesti browser e un backend di test (mock o progetto Supabase di test).
+- Errore di rete o quota: sync disattivato, local-only.
+- RLS: un utente non vede i dati di un workspace a cui non appartiene; un membro dello stesso workspace li vede.
+- E2E con due contesti browser e Supabase locale (CLI + Docker), inclusi utente senza membership e workspace separato.
 - Migrazione schema e backup prima del primo sync.
 
 ### 4.7 Criteri di accettazione
@@ -427,22 +431,23 @@ Sincronizzare configurazione e preventivi tra i due dispositivi, senza rendere i
 - Due dispositivi vedono gli stessi preventivi e la stessa configurazione.
 - Senza rete l'app funziona in locale e sincronizza al ritorno.
 - Un conflitto è visibile e risolvibile; nessun dato sparisce.
-- Il piano resta €0; alla quota l'app avvisa e resta locale.
+- Il piano resta €0; se il progetto è in pausa o un limite viene raggiunto, l'app avvisa e resta locale.
 - Export JSON sempre disponibile; nessuna service role key nel bundle.
 
 ### 4.8 Domande aperte
 
-1. Provider: **Supabase Free scelto il 26/10/2026**. Resta lo spike sui limiti reali e sulla pausa.
-2. Serve la cifratura end-to-end subito o è sufficiente RLS + TLS?
-3. La configurazione si sincronizza per entità o come documento unico?
-4. Come si invita il secondo utente senza un servizio email a pagamento? Magic link Supabase o codice d'invito.
-5. Cosa succede se il progetto free viene messo in pausa? Keep-alive o fallback local-only.
-6. Si sincronizzano anche archiviati e tombstone per quanto tempo?
-7. Il tema/lingua restano locali: confermato.
+1. Provider: **Supabase Free scelto il 26/10/2026**, confermato il 28/10/2026. Resta lo spike sui limiti reali e sulla pausa.
+2. Cifratura end-to-end: **non richiesta** nella prima iterazione; RLS + TLS sono il perimetro. Rivalutare solo se cambia la sensibilità dei dati.
+3. Configurazione: **per entità**, con timestamp e conflitto visibile.
+4. Secondo utente: **creato dall'amministratore** nel dashboard Supabase e aggiunto al workspace via SQL. Niente magic link o inviti email nella prima iterazione.
+5. Progetto in pausa: keep-alive giornaliero; se la pausa avviene, l'app resta local-only e il progetto si ripristina dal dashboard (finestra documentata di 1 anno).
+6. Tombstone: conservati per la cache e la sincronizzazione; nessuna UI di ripristino nella prima iterazione.
+7. Tema e lingua restano locali: confermato.
+8. Backup: `pg_dump` settimanale via session pooler; verifica di restore in T5.4.6.
 
 ### 4.9 Stima
 
-Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Conflitti/UX/test: 2–3 giorni. Totale indicativo: **5–8 giorni assistiti**, da rivalutare dopo lo spike.
+Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 giorni. Repository cloud, outbox e conflitti: 3–4 giorni. Operazioni, test e deploy: 1,5–2,5 giorni. Totale indicativo: **8–12 giorni assistiti**, da rivalutare dopo lo spike su RLS e backup.
 
 ---
 
@@ -506,11 +511,11 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 ## 6. Lavoro trasversale
 
-- **ADR:** 0017 (3MF), 0018 (sync), 0019 (inglese) e 0023 (sconti) sono la direzione. Ogni cambio di schema o formula richiede un ADR successivo.
+- **ADR:** 0017 (3MF), 0018 (sync), 0019 (inglese), 0023 (sconti) e 0024 (sync Supabase: auth, tenancy, operazioni free) sono la direzione. Ogni cambio di schema o formula richiede un ADR successivo.
 - **Schema:** v4 con `Quote.locale` (inglese), `Quote.status` (ciclo di vita, ADR-0020), `PrintLine.color` opzionale (T5.17; nessuna migrazione) e sconti di riga/preventivo (T5.20, migrazione v3 → v4).
 - **Test:** ogni iniziativa porta unit, property (dove ha senso), E2E, axe e visual. `npm run check` resta il gate. Gli sconti aggiungono 5 test del motore (di cui 1 property), 1 test di migrazione, 2 test sui link e 2 E2E; l’export `.xlsx` aggiunge test sul writer e sul mapping.
 - **Documentazione:** `cost-model.md` aggiornato per gli sconti (T5.20); `data-model.md` per `Quote.locale`, `Quote.status`, `PrintLine.color` e `DiscountRule`; `testing.md`, `deployment.md`, `STATUS.md`, `TASKS.md`.
-- **Deploy:** Vercel free; per il sync valutare env pubbliche (URL + anon key) e un progetto di test separato.
+- **Deploy:** Vercel free; per il sync due env pubbliche (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`), un progetto cloud EU e Supabase locale per i test. Se le env mancano, l'app resta local-only.
 - **Sicurezza:** nessun upload di `.3mf`; nessun analytics; nessuna chiamata esterna oltre al provider scelto per il sync.
 
 ---
@@ -519,7 +524,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019, l’ADR-0020, l’ADR-0022 e l’ADR-0023. T5.3, T5.6, T5.12, T5.13–T5.21 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5), `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.21 e T5.4.0–T5.4.5 sono chiusi; T5.4.6 ha keep-alive, backup/restore, CI database e budget chiusi. Prossimo: **T5.4.6.6 deploy** (Supabase EU, utenti, workspace, env Vercel, smoke test) e baseline visual cloud. La produzione è invariata: i commit T5.4 sono nella PR #20 `feat/cloud-sync` (feature T5.4.4 `57fec46`, feature T5.4.5 `4092307`, operazioni `dcee449`), `main` = `origin/main` = `f3b7071`; la PR è verde e non va mergiata senza progetto Supabase pronto e decisione esplicita. Servono `npx supabase login` e `npx vercel login`. Supabase è solo locale (Docker); env pubbliche opzionali in `.env.local`. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync` e il job CI `database` verdi.
 
 ---
 
@@ -529,7 +534,9 @@ Prompt sintetico da riusare:
 - Printago, **3MF File Format: How Bambu Studio and Orca Slicer Structure Your Prints** (13 aprile 2026): https://printago.io/blog/3mf-file-format — struttura `slice_info.config`, `prediction`, `used_g`, caveat. Fonte terza, utile ma da verificare con file reali.
 - OrcaSlicer, `src/libslic3r/Format/3mf.cpp`: https://github.com/SoftFever/OrcaSlicer — nomi dei file e gestione del progetto.
 - PrusaSlicer, `src/libslic3r/Format/3mf.cpp`: https://github.com/prusa3d/PrusaSlicer — `Metadata/Slic3r_PE.config`; i progetti non contengono tempo/grammi affidabili.
-- Supabase, **Pricing** (consultato il 26/10/2026): https://supabase.com/pricing — limiti Free e pausa dopo una settimana.
+- Supabase, **Pricing** (consultato il 28/10/2026): https://supabase.com/pricing — limiti Free e pausa dopo una settimana.
+- Supabase, **Project Pausing** (consultato il 28/10/2026): https://supabase.com/docs/guides/platform/free-project-pausing — attività richiesta, ripristino fino a 1 anno.
+- Supabase, **Auth Email** (consultato il 28/10/2026): https://supabase.com/docs/guides/auth/auth-email — servizio email integrato limitato a 2 email/ora.
 - Cloudflare, **Workers Pricing** (2 ottobre 2026): https://developers.cloudflare.com/workers/platform/pricing/ — Workers, D1, KV, R2.
 - Firebase, **Pricing** (consultato il 26/10/2026): https://firebase.google.com/pricing — Firestore e Auth Spark.
 - MDN, **Intl**: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl — formattazione locale.

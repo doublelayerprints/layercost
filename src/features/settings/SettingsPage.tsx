@@ -15,6 +15,7 @@ import { MoneyField, PercentField, SelectField } from '@/components/number-field
 import { useThemeStore } from '@/state/theme-store'
 import { useLocaleStore } from '@/state/locale-store'
 import { ExportXlsxButton } from '@/features/quotes/ExportXlsxButton'
+import { SyncSettings } from './SyncSettings'
 import type { ThemePreference } from '@/lib/theme'
 import type { Locale } from '@/i18n'
 import { storageErrorMessage } from '@/lib/storage-error-message'
@@ -44,6 +45,7 @@ export function SettingsPage() {
   const exportData = useAppStore((state) => state.exportData)
   const importData = useAppStore((state) => state.importData)
   const reset = useAppStore((state) => state.reset)
+  const mode = useAppStore((state) => state.mode)
   const themePreference = useThemeStore((state) => state.preference)
   const setThemePreference = useThemeStore((state) => state.setPreference)
   const locale = useLocaleStore((state) => state.locale)
@@ -109,17 +111,19 @@ export function SettingsPage() {
     }
   }
 
-  const confirmImport = () => {
+  const confirmImport = async () => {
     if (!pendingImport) return
-    exportData()
+    const exported = await exportData()
+    if (!exported) return
     importData(pendingImport)
     setPendingImport(undefined)
     setImportOpen(false)
     setMessage(t('settings.importSuccess'))
   }
 
-  const confirmReset = () => {
-    reset()
+  const confirmReset = async () => {
+    const restored = await reset()
+    if (!restored) return
     setResetOpen(false)
     setMessage(t('settings.resetSuccess'))
   }
@@ -400,6 +404,8 @@ export function SettingsPage() {
           </fieldset>
         </section>
 
+        <SyncSettings />
+
         <section
           className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-10"
           aria-labelledby="settings-dati"
@@ -437,7 +443,7 @@ export function SettingsPage() {
             </dl>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button variant="secondary" onClick={exportData}>
+              <Button variant="secondary" onClick={() => void exportData()}>
                 {t('settings.exportJson')}
               </Button>
               <ExportXlsxButton />
@@ -454,9 +460,15 @@ export function SettingsPage() {
               <p className="mt-0.5 max-w-xl text-sm leading-snug text-muted">
                 {t('settings.resetDescription')}
               </p>
+              {mode === 'cloud' ? (
+                <p className="mt-2 max-w-xl text-xs leading-relaxed text-muted">
+                  {t('sync.resetDisabled')}
+                </p>
+              ) : null}
               <Button
                 variant="ghost"
                 className="mt-2 text-negative hover:bg-raised"
+                disabled={mode === 'cloud'}
                 onClick={() => setResetOpen(true)}
               >
                 {t('settings.resetAction')}
@@ -475,12 +487,17 @@ export function SettingsPage() {
             <Button variant="secondary" onClick={() => setImportOpen(false)}>
               {t('common.cancel')}
             </Button>
-            <Button onClick={confirmImport}>{t('settings.importConfirm')}</Button>
+            <Button onClick={() => void confirmImport()}>{t('settings.importConfirm')}</Button>
           </>
         }
       >
         <div className="space-y-3 text-sm text-muted">
           <p>{t('settings.importModalDescription')}</p>
+          {mode === 'cloud' ? (
+            <Alert tone="warning" title={t('common.warning')}>
+              {t('sync.importCloudWarning')}
+            </Alert>
+          ) : null}
           {pendingImport ? (
             <dl className="grid grid-cols-3 gap-3 border-y border-line py-3">
               <div>
@@ -515,7 +532,7 @@ export function SettingsPage() {
             <Button variant="secondary" onClick={() => setResetOpen(false)}>
               {t('common.cancel')}
             </Button>
-            <Button variant="danger" onClick={confirmReset}>
+            <Button variant="danger" onClick={() => void confirmReset()}>
               {t('settings.resetConfirm')}
             </Button>
           </>

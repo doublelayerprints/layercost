@@ -186,6 +186,8 @@ export const quoteSchema = z.object({
   createdAt: timestampString,
   updatedAt: timestampString,
   archived: z.boolean().optional(),
+  createdBy: z.string().optional(),
+  updatedBy: z.string().optional(),
 })
 
 export const appDataSchema = z.object({

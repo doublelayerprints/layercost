@@ -1,3 +1,4 @@
+import { authIt } from './it/auth'
 import { calculatorIt } from './it/calculator'
 import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
@@ -40,6 +41,7 @@ export const baseIt = {
   'common.next': 'Avanti',
   'common.optional': 'opzionale',
   'common.loading': 'Caricamento…',
+  'common.retry': 'Riprova',
   'common.error': 'Errore',
   'common.warning': 'Attenzione',
   'common.expand': 'Espandi {name}',
@@ -117,6 +119,7 @@ export const it = {
   ...settingsIt,
   ...miscIt,
   ...xlsxIt,
+  ...authIt,
 } as const
 
 export type BaseMessageKey = keyof typeof baseIt

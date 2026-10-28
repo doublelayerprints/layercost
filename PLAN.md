@@ -3,12 +3,12 @@
 **Stato:** **v1.0.0 rilasciata** (fasi 0–4); fase 5 in corso; CI verde su GitHub; deploy Vercel live
 **Data:** 26 ottobre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
-**Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link); preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel; fase 5: import `.3mf`, interfaccia inglese, export `.xlsx`, sync gratuito (ADR-0017/0018/0019)
+**Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione richiesta il 26/10/2026 (Supabase Free, email/password, workspace condiviso; ADR-0024); preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel; fase 5: import `.3mf`, interfaccia inglese, export `.xlsx`, sync gratuito (ADR-0017/0018/0019/0024)
 
 ## Stato implementazione
 
 - **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5). Release **v1.0.0** (T4.6) del 24/10/2026, tag `v1.0.0` su `cc949b3`, con axe WCAG 2.2 AA, WebKit, stampa/PDF, regressione visiva e budget del bundle. Fase 5: import `.3mf` (T5.3), interfaccia inglese (T5.6), preventivi modificabili fino all'invio (T5.13), card del calcolatore (T5.14), preferenze rapide (T5.15), azioni del preventivo in alto (T5.16), colore filamento (T5.17), export `.xlsx` (T5.12) e barra “Aggiungi riga” sotto le card del calcolatore.
-- **Da fare:** **T5.4 sync** (richiesto il 26/10/2026, solo su piano gratuito: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Rigenerare le baseline visive e verificare la preview Vercel di T5.15–T5.17, T5.12 e della barra “Aggiungi riga”. Piano in `docs/planning/phase-5.md`. Restano rimandate le prove manuali su stampante fisica e screen reader.
+- **Da fare:** **T5.4 sync** (richiesto il 26/10/2026, solo su piano gratuito: Supabase Free, **email/password**, workspace condiviso; ADR-0024). Piano completo in `docs/planning/t5.4-cloud-sync.md`; T5.4.0 (piano e ADR), T5.4.1 (repository async), T5.4.2 (schema cloud, RLS, trigger, mapper), T5.4.3 (auth email/password), T5.4.4 (sync, outbox e conflitti) e T5.4.5 (workspace condiviso, runbook e audit) sono chiusi, l'implementazione prosegue da T5.4.6 (keep-alive, backup, CI database, axe/visual, budget e deploy). Il resto del backlog è chiuso/non in scope. Rigenerare le baseline visive e verificare la preview Vercel di T5.15–T5.17, T5.12 e della barra “Aggiungi riga”. Restano rimandate le prove manuali su stampante fisica e screen reader.
 - **Non fatto (fuori v1, pianificato in fase 5):** sincronizzazione cloud, magazzino bobine, PWA; import da slicer e interfaccia inglese sono stati completati.
 
 ---
@@ -155,7 +155,7 @@ La fase 5 riprende alcune di queste voci: import `.3mf` e interfaccia inglese (c
 
 - **Prestazioni:** calcolo di 50 righe in meno di 100 ms; caricamento iniziale inferiore a 2 s su rete 3G ragionevole.
 - **Affidabilità:** nessuna perdita di dati al reload; export/import con roundtrip esatto; migrazioni testate.
-- **Privacy:** nessuna chiamata di rete oltre agli asset statici; nessun analytics; nessun cookie.
+- **Privacy:** in modalità ospite nessuna chiamata di rete oltre agli asset statici; con account, solo Supabase (regione EU). Nessun analytics, nessun cookie, nessun tracciamento.
 - **Accessibilità:** obiettivo WCAG 2.1 AA.
 - **Browser:** ultime versioni di Chrome, Safari, Firefox ed Edge; Safari iOS.
 - **Manutenibilità:** dominio senza dipendenze da React, browser o storage; ogni formula documentata e testata.
@@ -259,12 +259,12 @@ docs/
 
 ### 7.4 Sync-ready
 
-- Interfaccia `DataRepository` astratta: `load`, `save`, `export`, `import`, `reset`. In v1 è sincrona (localStorage); un adapter cloud potrà richiedere un refactor async dello store.
-- Adapter locale in v1; adapter Supabase in una fase futura.
+- Interfaccia `DataRepository` astratta: `load`, `save`, `export`, `import`, `reset`. In v1 era sincrona (localStorage); il refactor async è completato in T5.4.1.
+- Adapter locale in v1; adapter Supabase in fase 5, con piano in `docs/planning/t5.4-cloud-sync.md`.
 - Nessuna chiamata a `localStorage` fuori da `data/`.
 - ID stabili; timestamp ISO su preventivi e snapshot, per facilitare un merge futuro.
 - I preventivi sono snapshot immutabili: il merge per ID è semplice.
-- La sincronizzazione delle impostazioni richiederà un ADR dedicato (conflitti, last-write-wins o merge per entità).
+- Conflitti, outbox e tenancy sono definiti in ADR-0024 e nel piano T5.4; niente merge automatico nella prima iterazione.
 
 ---
 
@@ -289,6 +289,8 @@ docs/
 
 **Non usare in v1:** librerie di componenti (shadcn/Radix/MUI), librerie di grafici, date-fns, library di money, backend, ORM, analytics.
 
+**Fase 5:** Supabase Free (Postgres + Auth + RLS) e `@supabase/supabase-js` caricato lazy solo per login/sync (ADR-0024). In modalità ospite l'app resta statica e non chiama la rete.
+
 ---
 
 ## 9. Hosting e deploy
@@ -297,7 +299,7 @@ docs/
 
 - Repository GitHub collegato a Vercel.
 - Build: `npm run build`; output: `dist`.
-- Nessuna funzione server, nessuna variabile d'ambiente obbligatoria.
+- Nessuna funzione server. Dalla fase 5 due variabili pubbliche opzionali (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`); se mancano, l'app resta local-only.
 - Hash routing: nessun rewrite necessario.
 - Preview deployment su ogni pull request.
 - Header consigliati: CSP, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` minimale.
@@ -357,11 +359,12 @@ L'utente può "aggiornare ai prezzi correnti" solo creando una copia. L'original
 
 ### 10.3 Privacy e backup
 
-- I dati vivono nel browser: nessun server li riceve.
+- Senza account i dati vivono nel browser: nessun server li riceve.
+- Con account, configurazione e preventivi sono su Supabase (regione EU); bozza, tema e lingua restano locali. Il cloud è opzionale.
 - I link condivisibili contengono il preventivo compresso nell'URL. Chiunque abbia il link può leggerlo: non inserire dati sensibili.
-- Svuotare i dati del browser cancella anche i preventivi. L'export JSON è un pulsante visibile, con un promemoria periodico.
+- Svuotare i dati del browser cancella anche i preventivi locali. L'export JSON è un pulsante visibile, con un promemoria periodico; con account esiste anche il backup lato database.
 - Prima di una migrazione dello schema, l'app conserva un backup raw dei dati.
-- Nessun analytics, nessun cookie, nessun tracciamento.
+- Nessun analytics, nessun cookie, nessun tracciamento. La sessione Supabase è un token tecnico nel browser, non un cookie di profilazione.
 
 ---
 
@@ -413,7 +416,7 @@ La specifica operativa è in `docs/README.md`; le regole per il coding agent son
 
 **MVP:** fasi 0–3 implementate. Deploy Vercel live su https://layercost.vercel.app.
 **v1.0:** fase 4 completata e rilasciata il 24/10/2026.
-**Fase 5:** in corso dal 26/10/2026 in `docs/planning/phase-5.md`; T5.3, T5.6, T5.12 e T5.13–T5.17 chiusi, prossimo T5.4.
+**Fase 5:** in corso dal 26/10/2026 in `docs/planning/phase-5.md`; T5.3, T5.6, T5.12 e T5.13–T5.21 chiusi; T5.4.0–T5.4.5 chiusi, prossimo T5.4.6.
 Le stime sono indicative e si riferiscono a lavoro assistito da agente, non a giornate umane.
 
 ---
@@ -523,7 +526,7 @@ Ordine concordato per la fase 5:
 1. **Import diretto da `.3mf`** — file già slicato, tempo/grammi/materiali; piano in `docs/planning/phase-5.md` §2.
 2. **Interfaccia inglese** — italiano predefinito, dizionari tipizzati, `Quote.locale`; piano §3.
 3. **Export `.xlsx`** — preventivi, righe e materiali; piano §5.4.
-4. **Sincronizzazione cloud** — richiesta, solo piano gratuito, Supabase Free, workspace condiviso, magic link; piano §4.
+4. **Sincronizzazione cloud** — richiesta, solo piano gratuito, Supabase Free, email/password, workspace condiviso; piano in `docs/planning/t5.4-cloud-sync.md` e ADR-0024.
 
 Altri candidati (non in scope attuale, salvo richiesta esplicita):
 
@@ -548,7 +551,7 @@ Non bloccano l'implementazione:
 
 - Prezzi di acquisto reali delle due stampanti e ore di vita stimate.
 - Se e quando inizierete a vendere, e con quale regime IVA.
-- Provider di sincronizzazione: **Supabase Free** (scelto il 26/10/2026).
+- Provider di sincronizzazione: **Supabase Free** (scelto il 26/10/2026). Auth **email/password**, workspace condiviso e RLS per membership (ADR-0024, 28/10/2026).
 - Se il repository sarà pubblico o privato.
 - Nome definitivo e branding dell'app.
 - Lista materiali iniziale completa (oltre ai default).

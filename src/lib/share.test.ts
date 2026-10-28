@@ -47,6 +47,18 @@ describe('link condivisi', () => {
     expect(decoded.pricing.discount).toEqual({ mode: 'percent', valueBp: 1_000 })
   })
 
+  it('non espone i metadati di audit cloud nel link condiviso', () => {
+    const quote = {
+      ...createEmptyDraft(config),
+      createdBy: '11111111-1111-1111-1111-111111111111',
+      updatedBy: '22222222-2222-2222-2222-222222222222',
+    }
+
+    const decoded = decodeSharedQuote(encodeSharedQuote(quote))
+    expect(decoded.createdBy).toBeUndefined()
+    expect(decoded.updatedBy).toBeUndefined()
+  })
+
   it('rifiuta un payload senza preventivo', () => {
     expect(() => decodeSharedQuote('not-a-valid-payload')).toThrow()
   })

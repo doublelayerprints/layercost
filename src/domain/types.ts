@@ -247,6 +247,9 @@ export interface Quote {
   createdAt: string
   updatedAt: string
   archived?: boolean
+  /** Cloud audit metadata: member IDs, never part of the economic snapshot. */
+  createdBy?: string
+  updatedBy?: string
 }
 
 export type RoundingMode = QuotePricing['roundingMode']

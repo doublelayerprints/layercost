@@ -5,7 +5,7 @@
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
 **Locale:** `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`
-**Branch:** `main`
+**Branch:** `feat/cloud-sync` (T5.4; `main` resta su `origin/main`)
 
 ---
 
@@ -21,7 +21,7 @@ LayerCost è una SPA statica, local-first, per calcolare costo e prezzo di stamp
 
 T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La release è verificata con test unitari, E2E, WebKit, axe, stampa/PDF, regressione visiva e budget del bundle.
 
-**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. **T5.20 è chiuso** il 28/10/2026: sconti percentuali o a importo fisso su singola stampa e totale preventivo, con schema v4 e motore 1.0.0. **T5.21 è chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, workspace condiviso e magic link; l’implementazione non è ancora iniziata.
+**Fase 5:** **T5.3 è chiuso** il 26/10/2026. Le fixture `.3mf` reali sono verificate per Kobra 3, Kobra X, multi-piatto e progetto non slicato; il parser ZIP/XML locale è implementato con limiti di sicurezza, Web Worker e `ThreeMfSummary`; il mapping puro propone stampante/materiali e produce `PrintLine[]`; la UI “Importa .3mf” è disponibile nel calcolatore. Performance: file reale da 22 MB compressi in 915 ms, archivio sintetico da 50 MB in ~100 ms e progetto non slicato da 15 MB rifiutato in ~100 ms. **T5.6 è chiuso**: infrastruttura i18n, estrazione stringhe, formattazione, `Quote.locale`, selettore e verifiche in inglese. **T5.12 è chiuso**: export `.xlsx` locale di preventivi, righe e materiali. **T5.15–T5.19 chiusi** il 26–28/10/2026: preferenze rapide in sidebar, azioni del preventivo in alto, colore filamento per riga, utile in euro e separazione tra vista interna e cliente. **T5.20 è chiuso** il 28/10/2026: sconti percentuali o a importo fisso su singola stampa e totale preventivo, con schema v4 e motore 1.0.0. **T5.21 è chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il prossimo task richiesto è **T5.4 sync** con Supabase Free, **email/password** e workspace condiviso (ADR-0024); piano completo in `docs/planning/t5.4-cloud-sync.md`. **T5.4.0 chiuso** (piano e ADR), **T5.4.1 chiuso** (repository async, hydration gate, coda di scrittura), **T5.4.2 chiuso** (schema Supabase, RLS, trigger, mapper, test pgTAP), **T5.4.3 chiuso** (auth email/password, login, sessione e SyncSettings), **T5.4.4 chiuso** (gateway cloud, cache separata, outbox, conflitti) e **T5.4.5 chiuso** (workspace condiviso, runbook, audit e test di isolamento) il 28/10/2026. **T5.4.6 in corso**: keep-alive, backup/restore, CI database e budget chiusi; deploy in attesa delle credenziali Supabase/Vercel e della baseline visual cloud.
 
 ---
 
@@ -60,6 +60,10 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - Composizione del prezzo (T5.19): barra del prezzo netto divisa in costo pieno e guadagno sopra la composizione del costo; nella lista preventivi l'intera riga è cliccabile e si evidenzia all'hover, senza il pulsante “Apri”.
 - Export `.xlsx` di preventivi, righe e materiali (T5.12): writer locale senza nuove dipendenze, tre fogli, valori numerici con formati Excel, intestazioni in italiano/inglese, archiviati inclusi e pulsanti in Preventivi e Impostazioni → Dati.
 - Sconti (T5.20): ogni riga e il preventivo hanno uno sconto opzionale percentuale o a importo fisso; l'importo di riga si applica al totale della riga, gli sconti si cumulano e un importo superiore al prezzo viene limitato a zero con avviso. Il dettaglio è visibile in riepilogo, dettaglio, stampa, link condiviso ed export `.xlsx` (schema v4, motore 1.0.0).
+- Auth cloud opzionale (T5.4.3): login email/password con utenti creati dall'amministratore, sessione persistente, logout con flush, banner di sessione scaduta e sezione Sincronizzazione in Impostazioni. Senza env la UI cloud è nascosta e l'app resta identica alla modalità ospite. Il client Supabase è un chunk lazy; nessuna service role nel bundle.
+- Sync cloud (T5.4.4): configurazione e preventivi salvati vivono nel workspace condiviso; cache di lavoro separata (`layercost:cloud-cache`), outbox persistita (`layercost:sync-state`), scritture ottimistiche su `updated_at`, modifiche offline riprodotte al ritorno, conflitti espliciti con ricarica remota/duplicazione per i preventivi e mantieni locale/usa remoto per la configurazione. Primo login con backup JSON e scelta di import; al logout la cache viene rimossa se non ci sono scritture in sospeso. Indicatore di stato in sidebar/menu e azioni in Impostazioni → Sincronizzazione.
+- Workspace condiviso (T5.4.5): runbook amministrativo in `docs/engineering/workspace-runbook.md` per progetto, utenti, membership, reset password, offboarding e troubleshooting. Entrambi gli owner vedono e modificano lo stesso archivio; il dettaglio del preventivo mostra “Workspace condiviso” con creatore e ultima modifica (“te” o “un altro membro”) usando `created_by`/`updated_by`, senza esporre l’email e senza entrare nello snapshot. Test pgTAP estesi a 33 asserzioni e E2E sync a 3 test, inclusi utente senza membership e workspace separato.
+- Operazioni cloud (T5.4.6, parziale): workflow giornaliero di keep-alive con alert su issue, backup settimanale cifrato `public` + `auth` con restore verificato, job CI `database` con Supabase locale, pgTAP, auth E2E e sync E2E. La CI della PR #20 è verde (`check`, `e2e`, `database`); mancano deploy di produzione e visual cloud.
 - Stati e rifiniture (T4.5): conferma accessibile prima di scartare o sostituire la bozza; eliminazioni con `Modal`; alert “Preventivo salvato”; vuoti con azione; microcopy su bozza, storico e preventivo non ricalcolabile.
 - Stampa: intestazione, meta, righe, totali e note; la versione cliente non mostra costi, utile o margine, mentre la stampa interna aggiunge composizione in grigi e totali economici. PDF A4 verificato su Chromium e stampa verificata sull'engine WebKit.
 - Verifiche 1.0: audit `axe` WCAG 2.2 AA su tutte le route (chiaro/scuro, desktop/mobile, menu e modali), test WebKit, regressione visiva a 1440/768/390 px, budget del bundle e nessuna richiesta esterna.
@@ -117,15 +121,19 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 | ------------------ | --------------------------------------------------------------------------------------- |
 | TypeScript strict  | verde                                                                                   |
 | oxlint             | verde                                                                                   |
-| Test unitari/dati  | 124 superati                                                                            |
-| Test E2E           | 39 totali (33 eseguiti + 6 visual; 2 WebKit)                                            |
-| Accessibilità      | axe WCAG 2.2 AA: 40 scansioni (26 it + 14 en), 0 violazioni                             |
+| Test unitari/dati  | 185 superati                                                                            |
+| Database locale    | 33 test pgTAP RLS + 8 test mapper; `npm run db:test` verde                               |
+| Test E2E           | 44 totali (33 default + 6 visual + 2 auth + 3 sync; 2 WebKit)                           |
+| Auth E2E           | 2 test con Supabase locale (login, reload, impostazioni, logout, errori); axe 375/1440   |
+| Sync E2E           | 3 test con Supabase locale (primo login, due contesti/offline/conflitto, isolamento)     |
+| Accessibilità      | axe WCAG 2.2 AA: 49 scansioni (40 + 4 auth + 5 sync), 0 violazioni                       |
 | Regressione visiva | 36 screenshot (18 it + 18 en) a 1440/768/390 px, baseline Linux rigenerate dopo T5.21   |
-| Build produzione   | verde (~682 KB JS main + ~108 KB worker; ~193 KB gzip JS; ~39 KB CSS; ~57 KB font)      |
-| Budget bundle      | 289,4 KB gzip totali su 350 KB (limite JS 224,6 KB su 225 KB)                           |
-| CI GitHub `check`  | verde su `main`                                                                         |
-| CI GitHub `e2e`    | verde su `main`                                                                         |
-| Vercel produzione  | deploy 28/10/2026 pre-T5.20, build `index-CZsBAkWj.js` / `index-TxJUUDVw.css`; CI verde |
+| Build produzione   | verde (~742 KB JS main; ~108 KB worker; 202,3 KB gzip iniziale; cloud lazy 55,2 KB con env) |
+| Budget bundle      | JS iniziale 202,3/205 KB; cloud lazy 53,5/80 KB; worker 37,6/40 KB; totale iniziale 267,1/350 KB |
+| CI GitHub `check`  | verde sulla PR #20 (34s); `main` resta a `f3b7071`                                      |
+| CI GitHub `e2e`    | verde sulla PR #20 (2m06s)                                                              |
+| CI GitHub `database` | verde sulla PR #20 (3m31s): 33 pgTAP, 2 auth E2E, 3 sync E2E                          |
+| Vercel produzione  | invariata: build `index-uo9RPBtr.js` / `index-BuCfxu1w.css`; nessun push T5.4          |
 
 Comandi:
 
@@ -134,6 +142,12 @@ npm run check
 npm run test:e2e
 npm run budget
 npm run test:visual   # solo con baseline Linux; in locale i test visual sono saltati
+npm run db:start      # Supabase locale (Docker)
+npm run db:reset
+npm run db:test
+npm run db:types
+npm run test:e2e:auth # build con Supabase locale + login/logout E2E
+npm run test:e2e:sync # build + due contesti, offline, conflitto e isolamento; azzera il DB locale
 ```
 
 ---
@@ -143,7 +157,11 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 - Dati in `localStorage`, chiave `layercost:data`, schema v4 con `Quote.locale`, `Quote.status`, `PrintLine.color` opzionale e sconti di riga/preventivo (`DiscountRule`).
 - Preferenza del tema in `layercost:theme` e lingua in `layercost:locale`, separate dai dati e non incluse nei backup; i selettori rapidi in sidebar scrivono le stesse chiavi.
 - Prima della migrazione v1 → v2 il raw viene salvato in `layercost:backup:schema-1`; la migrazione v3 → v4 conserva il raw in `layercost:backup:schema-3`.
-- Nessun backend, account o analytics.
+- In modalità ospite nessun backend, account o analytics. Con account, configurazione e preventivi sono nel workspace Supabase condiviso (regione EU nella configurazione prevista); la sessione è un token tecnico in `localStorage` e non entra nei backup.
+- La modalità connessa usa `layercost:cloud-cache` (copia di lavoro) e `layercost:sync-state` (outbox, metadati `updated_at`, workspace, ultimo sync). `layercost:data` resta intatto e torna attivo al logout. Se il workspace cambia, cache e outbox vengono scartati prima di riusarli.
+- L’audit `created_by`/`updated_by` resta nel database e nella cache cloud; nel dettaglio viene mostrato come “te”/“un altro membro”, senza email. Non entra nello snapshot, nei calcoli o nei link condivisi.
+- Al logout senza scritture in sospeso cache e outbox vengono rimosse; con scritture in sospeso restano nel browser e riprendono al prossimo accesso. Il cloud non viene cancellato.
+- RLS su ogni tabella; il client usa solo la chiave pubblicabile. Gli script admin usano il service role fuori dal browser.
 - Export/import JSON; backup automatico prima dell'import.
 - Export `.xlsx` locale di preventivi, righe e materiali: nessun upload e nessuna richiesta di rete.
 - Link condivisi = copia compressa del preventivo nell'URL, con la lingua del preventivo.
@@ -157,7 +175,7 @@ npm run test:visual   # solo con baseline Linux; in locale i test visual sono sa
 - Progetto Vercel collegato alla repo GitHub.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`. Deploy di produzione verificato su https://layercost.vercel.app: build `index-C_5bQZYu.js` / `index-BGmXv2w6.css`, `inspect.mjs --app` a 1440/768/390 con **0 FAIL, 1 WARN** (`ragged-row`, rail sticky), prezzo 3,70 €, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Deploy **28/10/2026** (accento viola, T4.8/ADR-0021): build `index-C7Ct7znW.js` / `index-DH8EgtHU.css`, verificata su https://layercost.vercel.app. `--color-data` vale `#5b21b6` in chiaro e `#9d7bf5` in scuro; la barra “Completa i dati” del riepilogo è viola. Il batch T5.12–T5.17 e la barra “Aggiungi riga” sono inclusi. CI `check` + `e2e` verdi (36 E2E).
-- **T5.20 è in produzione.** La build verificata è `index-DbmNNSiw.js` / `index-DsZxzrV2.css`; le baseline visive sono state rigenerate in CI.
+- **Stato attuale della produzione (28/10/2026):** invariata. L'ultima verifica serve `index-uo9RPBtr.js` / `index-BuCfxu1w.css`; i commit T5.4 sono nella PR #20, verde su `check`, `e2e` e `database`, ma non sono ancora mergiati in `main`. Il deploy del sync è pianificato in T5.4.6 e richiede le credenziali Supabase/Vercel.
 - Le preview Vercel sono protette da SSO; la produzione è pubblica. Per verificare una preview serve un browser autenticato su Vercel.
 - `vercel.json` configurato (framework Vite, output `dist`, header di sicurezza).
 - Deploy automatico su push su `main` (verificato dallo status check Vercel).
@@ -179,10 +197,14 @@ npx vercel --prod
 - Stampa verificata su Chromium (PDF A4) e sull'engine WebKit; resta consigliata una prova su una stampante fisica e su Safari reale.
 - Audit `axe` automatico su tutte le route; resta consigliata una prova con screen reader reale (VoiceOver/NVDA).
 - Test visuali di regressione con baseline Linux: girano in CI, non su macOS.
-- Nessuna sincronizzazione cloud: richiesta il 26/10/2026 (Supabase Free, workspace condiviso, magic link) ma non ancora implementata. Vedi ADR-0018.
+- Sync cloud implementato in T5.4.1–T5.4.5 e operazioni pronte in T5.4.6, ma **non ancora in produzione**: mancano progetto Supabase remoto, utenti/workspace, env Vercel, deploy e smoke test. Keep-alive e backup sono configurati nei workflow ma non ancora eseguiti contro la produzione. Piano in `docs/planning/t5.4-cloud-sync.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`; vedi ADR-0018 e ADR-0024.
+- Sync senza realtime: pull completo all'avvio, al focus, dopo una scrittura e su “Sincronizza ora”. Accettabile per due utenti.
+- Un solo workspace condiviso previsto. Gli ID sono PK globali: due workspace nello stesso database con gli stessi ID seed colliderebbero; una multi-tenancy piena richiederebbe PK `(workspace_id, id)`. L’E2E di isolamento usa un secondo workspace con dati propri e ID univoci, non con il seed.
+- L’audit del preventivo mostra “te” o “un altro membro”, non l’email: con due owner identifica l’altra persona, ma con più membri servirà una directory o un nome visibile.
+- Il comando `npm run test:e2e:sync` azzera il database Supabase **locale** e richiede `psql`; non va eseguito contro un progetto remoto.
 - Import `.3mf` disponibile per file già slicati. Performance verificata con un file reale (22 MB compressi, 75 MB decompressi) e con un archivio sintetico da 50 MB; il fixture Bambu reale resta da autorizzare.
 - Interfaccia inglese chiusa (T5.6.1–T5.6.5, ADR-0019); preventivi modificabili fino all’invio e card del calcolatore (T5.13–T5.14, ADR-0020); preferenze rapide, azioni in alto, colore filamento e vista cliente separata (T5.15–T5.19).
-- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.21, T5.12, la barra “Aggiungi riga”, l'accento viola, le card degli sconti e le card comprimibili. Il batch T5.20 è deployato in produzione con la build `index-DbmNNSiw.js` / `index-DsZxzrV2.css`.
+- Le 36 baseline visive sono state rigenerate il 28/10/2026 per includere T5.15–T5.21, T5.12, la barra “Aggiungi riga”, l'accento viola, le card degli sconti e le card comprimibili. Le schermate cloud non hanno ancora una baseline visual dedicata; axe copre login, impostazioni sync, primo login, conflitto e isolamento.
 - Export `.xlsx` per analisi esterna; il backup JSON resta l’unica copia esterna completa.
 - Nessun magazzino bobine.
 - Migrazioni schema minime (v4; rifiuto versioni future).
@@ -193,9 +215,9 @@ npx vercel --prod
 ## 7. Prossimi passi
 
 1. **T5.3 — Import diretto da `.3mf`**: **chiuso** (fixture, parser ZIP/XML con worker, mapping puro, UI, performance e deploy).
-2. **T5.6 — Interfaccia inglese**, **T5.12 — Export `.xlsx`** e **T5.20 — Sconti**: chiusi. **T5.13–T5.19**: preventivi modificabili, card del calcolatore, preferenze rapide, azioni in alto, colore filamento, utile in euro e vista cliente separata. Prossimo: **T5.4 sync** (richiesto); il resto del backlog è chiuso/non in scope.
-3. **T5.4 — Sync cloud**: richiesto il 26/10/2026; Supabase Free, workspace condiviso, magic link. Prima serve il refactor async di `DataRepository`/store, poi schema/RLS, conflitti e test.
-4. **Baseline visive** di T5.20, T5.15–T5.19, T5.12 e della barra “Aggiungi riga” rigenerate in CI; produzione Vercel aggiornata con la build che include T5.20.
+2. **T5.6 — Interfaccia inglese**, **T5.12 — Export `.xlsx`** e **T5.20 — Sconti**: chiusi. **T5.13–T5.19**: preventivi modificabili, card del calcolatore, preferenze rapide, azioni in alto, colore filamento, utile in euro e vista cliente separata. **T5.4.0–T5.4.5 chiusi**; prossimo **T5.4.6** (keep-alive, backup, CI DB, deploy). Il resto del backlog è chiuso/non in scope.
+3. **T5.4 — Sync cloud**: richiesto il 26/10/2026; Supabase Free, email/password, workspace condiviso (ADR-0024). **T5.4.0–T5.4.5 chiusi**; **T5.4.6 in corso**: keep-alive, backup/restore, CI database e budget chiusi; restano deploy di produzione, smoke test e baseline visual cloud.
+4. **Produzione Vercel:** invariata (`index-uo9RPBtr.js` / `index-BuCfxu1w.css` all'ultima verifica). I commit T5.4 sono sul branch `feat/cloud-sync` e nella PR #20; `main` è ancora a `f3b7071`. Nessun deploy di produzione è stato fatto.
 5. Verificare se `prediction` include il riscaldamento iniziale confrontandola con una stampa reale.
 6. Raccogliere feedback reale sulle due stampanti e sui valori di seed.
 7. Eventuale magazzino bobine, actual vs estimated, PWA.
@@ -204,12 +226,14 @@ npx vercel --prod
 
 ## 8. Ripresa rapida
 
-- **Stato:** v1.0.0 rilasciata; `main` pulito e allineato a `origin/main`. **T5.3 chiuso**, **T5.6 chiuso** (T5.6.1–T5.6.5), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.19 chiusi** e **T5.20 chiuso** (sconti di riga e preventivo): i18n, formattazione locale, schema v4 con `Quote.locale`/`Quote.status`/`DiscountRule`, selettori rapidi di tema e lingua, preventivi modificabili fino all’invio, card del calcolatore, azioni in alto, colore filamento, export Excel, vista cliente separata con utile in euro e sconti. Prossimo task: **T5.4** (sync, richiesto); il resto del backlog è chiuso/non in scope.
-- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §2.2.1–§2.8, §3, §5 e §6, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §9–§10, `tests/fixtures/3mf/README.md`, `docs/engineering/release.md`, ADR-0017/0018/0019/0020/0022/0023.
-- **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`.
-- **Punti aperti:** definire schema/RLS e refactor async per il sync Supabase; verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. La preview Vercel richiede login SSO; la produzione è pubblica.
-- **Branch remoti:** i branch di feature sono eliminati dopo il merge; su `origin` resta `main` e il tag `v1.0.0`.
-- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` e gli sconti hanno le migrazioni v2 e v4 descritte in ADR-0019 e ADR-0023. Il sync Supabase introduce backend/auth: aggiornare ADR-0018 prima del codice.
+- **Stato:** v1.0.0 rilasciata. I commit T5.4 sono sul branch **`feat/cloud-sync`** e nella **PR #20**; la feature T5.4.4 è **`57fec46`**, la feature T5.4.5 è **`4092307`** e le operazioni T5.4.6 sono in **`dcee449`**. `main` = `origin/main` = `f3b7071`. La produzione Vercel è invariata. **T5.4.0–T5.4.5 chiusi**; **T5.4.6 in corso**: keep-alive, backup/restore, CI database e budget chiusi; restano deploy, smoke test e visual cloud. Piano in `docs/planning/t5.4-cloud-sync.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`.
+- **Ultima verifica (28/10/2026):** locale `npm run check` verde (185 unitari, budget 202,3/205 KB iniziali con env, 267,1/350 KB totali), `npm run db:test` 33 pgTAP, `npm run test:e2e` 33 passati + 11 saltati, auth 2, sync 3, 49 scansioni axe. GitHub PR #20: `check` 34s, `e2e` 2m06s, `database` 3m31s, tutti verdi; Vercel preview completata. La produzione non è stata toccata.
+- **Da leggere prima di riprendere:** `AGENTS.md`, `TASKS.md` (fase 5), **`docs/planning/t5.4-cloud-sync.md`** (incluso §0), `docs/planning/phase-5.md` §4, `docs/planning/i18n-inventory.md`, `docs/engineering/architecture.md` §4, `docs/engineering/persistence.md` §9, `docs/engineering/deployment.md` §1.1, **`docs/engineering/workspace-runbook.md`**, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7, ADR-0017/0018/0019/0020/0022/0023/**0024**, `supabase/config.toml`, le tre migrazioni in `supabase/migrations/`, `supabase/tests/rls.test.sql`, `src/data/cloud/{client,auth,gateway,sync,sync-state}.ts`, `src/data/cloud-cache.ts`, `src/state/{auth-store,sync-store}.ts`, `src/features/sync/`.
+- **Comandi:** `npm run dev`, `npm run check`, `npm run test:e2e`, `npm run budget`, `npm run db:test` (Supabase locale/Docker), `npm run test:e2e:auth` (auth con Supabase locale), `npm run test:e2e:sync` (tre test; azzera il DB locale e richiede `psql`). Per lo stato git: `git status -sb` e `git log --oneline origin/main..HEAD`.
+- **Ambiente locale:** Docker e Supabase locale sono attivi; fermali con `npm run db:stop`. Dopo T5.4.5 il database locale contiene le migrazioni `20261028120000_init`, `20261028130000_service_role_grants` e `20261028140000_admin_last_owner`; `npm run db:test` verde con 33 asserzioni. Non c'è un progetto Supabase di produzione, non ci sono env Supabase su Vercel e non è stato pushato nulla. `VITE_SUPABASE_*` non è impostata nel repository: senza `.env.local` l'app resta local-only.
+- **Punti aperti:** **T5.4.6.6 deploy** — servono `npx supabase login`, `npx vercel login`, progetto Supabase EU, due utenti, workspace/membership, env Vercel, merge della PR #20, smoke test e baseline visual cloud. Limite noto: un solo workspace previsto, ID globali; l’audit UI mostra “un altro membro”, non l’email. Verificare se `prediction` include il riscaldamento iniziale con una stampa reale; aggiungere un fixture Bambu committabile; misurare l’import con un file reale da 50–100 MB (il target è già verificato con un archivio sintetico). Prove manuali Safari/VoiceOver **rimandate** il 26/10/2026 (non bloccanti); checklist in `docs/engineering/manual-checks.md`. La preview Vercel richiede login SSO; la produzione è pubblica.
+- **Branch remoti:** su `origin` ci sono `main` (fermo a `f3b7071`), il branch `feat/cloud-sync` e il tag `v1.0.0`. La PR #20 è aperta e verde; non fare merge su `main` senza il progetto Supabase pronto e senza una decisione esplicita di deploy.
+- **Vincolo:** non toccare dominio, formule, `engineVersion`, snapshot o persistenza senza un nuovo ADR e i test collegati. Tema e lingua restano fuori da `AppData`; `Quote.locale` e gli sconti hanno le migrazioni v2 e v4 descritte in ADR-0019 e ADR-0023. Il sync Supabase introduce backend/auth: decisione in **ADR-0024**, che supersede in parte ADR-0018.
 
 ---
 
@@ -222,10 +246,24 @@ npx vercel --prod
 - `docs/engineering/architecture.md` — livelli, flussi e parser `.3mf` (§9).
 - `docs/engineering/testing.md` — strategia, fixture `.3mf` e conteggi.
 - `docs/engineering/deployment.md` — deploy.
+- `docs/engineering/workspace-runbook.md` — setup e manutenzione del workspace condiviso, utenti, membership, audit e troubleshooting.
+- `docs/engineering/backup-restore.md` — backup settimanale cifrato, verifica e restore.
+- `.github/workflows/keepalive.yml`, `.github/workflows/backup.yml` — operazioni free automatiche.
+- `.github/workflows/ci.yml` — job `check`, `e2e` e `database` con Supabase locale.
 - `docs/engineering/release.md` — checklist e verifiche della v1.0.0.
 - `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese, export `.xlsx` e sync.
+- `docs/planning/t5.4-cloud-sync.md` — piano dettagliato di T5.4: schema, RLS, auth, sync, task e operazioni free.
+- `supabase/migrations/20261028120000_init.sql` — schema cloud, RLS, trigger e keep-alive.
+- `supabase/migrations/20261028130000_service_role_grants.sql` — grant amministrativi per service role (solo script).
+- `supabase/migrations/20261028140000_admin_last_owner.sql` — cleanup admin dell'ultimo owner, protezione invariata per gli utenti.
+- `supabase/tests/rls.test.sql` — 33 test pgTAP su quote condivise, audit, isolamento, membership e cleanup admin.
+- `src/data/cloud/gateway.ts` — pull/push Supabase, import iniziale e conflitti.
+- `src/data/cloud/sync.ts`, `src/data/cloud/sync-state.ts` — diff, outbox, metadati e stato locale del sync.
+- `src/state/sync-store.ts` — orchestrazione di connessione, primo login, sync e conflitti.
+- `src/features/sync/` — controller, indicatore e dialoghi di primo login/conflitto.
 - `docs/adr/0017-3mf-import.md` — formato di import diretto.
-- `docs/adr/0018-cloud-sync-free.md` — sync opzionale e gratuito, richiesto e pianificato.
+- `docs/adr/0018-cloud-sync-free.md` — sync opzionale e gratuito; provider e vincoli free restano validi.
+- `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e operazioni free del sync.
 - `docs/adr/0019-english-ui.md` — interfaccia inglese e `Quote.locale`.
 - `docs/adr/0022-internal-customer-quote-views.md` — vista interna e vista cliente.
 - `docs/adr/0023-line-and-quote-discounts.md` — sconti di riga e di preventivo.

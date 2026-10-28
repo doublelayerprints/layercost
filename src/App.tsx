@@ -2,8 +2,10 @@ import { useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/app/Layout'
 import { I18nProvider } from '@/app/I18nProvider'
+import { HydrationGate } from '@/app/HydrationGate'
 import { ThemeController } from '@/app/ThemeController'
 import { useAppStore } from '@/state/app-store'
+import { useAuthStore } from '@/state/auth-store'
 import { useLocaleStore } from '@/state/locale-store'
 import { CalculatorPage } from '@/features/calculator/CalculatorPage'
 import { QuotesPage } from '@/features/quotes/QuotesPage'
@@ -15,17 +17,26 @@ import { TariffsPage } from '@/features/tariffs/TariffsPage'
 import { ExtrasPage } from '@/features/extras/ExtrasPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { ComparePage } from '@/features/compare/ComparePage'
+import { LoginPage } from '@/features/auth/LoginPage'
+import { SyncController } from '@/features/sync/SyncController'
+import { FirstLoginDialog } from '@/features/sync/FirstLoginDialog'
+import { SyncConflictDialog } from '@/features/sync/SyncConflictDialog'
 import { NotFoundPage } from '@/features/NotFoundPage'
 
 export default function App() {
   const hydrate = useAppStore((state) => state.hydrate)
   const hydrated = useAppStore((state) => state.hydrated)
   const adoptLocale = useAppStore((state) => state.adoptLocale)
+  const initializeAuth = useAuthStore((state) => state.initialize)
   const locale = useLocaleStore((state) => state.locale)
 
   useEffect(() => {
-    hydrate()
+    void hydrate()
   }, [hydrate])
+
+  useEffect(() => {
+    void initializeAuth()
+  }, [initializeAuth])
 
   useEffect(() => {
     if (hydrated) adoptLocale(locale)
@@ -34,23 +45,29 @@ export default function App() {
   return (
     <I18nProvider>
       <ThemeController />
-      <HashRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<CalculatorPage />} />
-            <Route path="quotes" element={<QuotesPage />} />
-            <Route path="quotes/:id" element={<QuoteDetailPage />} />
-            <Route path="share" element={<SharePage />} />
-            <Route path="printers" element={<PrintersPage />} />
-            <Route path="materials" element={<MaterialsPage />} />
-            <Route path="tariffs" element={<TariffsPage />} />
-            <Route path="extras" element={<ExtrasPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="compare" element={<ComparePage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
-        </Routes>
-      </HashRouter>
+      <HydrationGate>
+        <SyncController />
+        <FirstLoginDialog />
+        <SyncConflictDialog />
+        <HashRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route index element={<CalculatorPage />} />
+              <Route path="quotes" element={<QuotesPage />} />
+              <Route path="quotes/:id" element={<QuoteDetailPage />} />
+              <Route path="share" element={<SharePage />} />
+              <Route path="printers" element={<PrintersPage />} />
+              <Route path="materials" element={<MaterialsPage />} />
+              <Route path="tariffs" element={<TariffsPage />} />
+              <Route path="extras" element={<ExtrasPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="compare" element={<ComparePage />} />
+              <Route path="login" element={<LoginPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+          </Routes>
+        </HashRouter>
+      </HydrationGate>
     </I18nProvider>
   )
 }

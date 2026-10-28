@@ -8,10 +8,10 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud richiesto (ADR-0018: Supabase Free, workspace condiviso, magic link), non ancora implementato.
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud richiesto (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, T5.4.0–T5.4.5 chiusi, prossimo T5.4.6.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 124 unitari + 39 E2E (6 visual su CI, 36 screenshot); axe 0 violazioni su 40 scansioni.
+- Test: 185 unitari + 44 E2E (33 default + 6 visual + 2 auth + 3 sync) + 33 pgTAP RLS; axe 49 scansioni, 0 violazioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) verificata; le preview sono protette da SSO.
@@ -68,6 +68,8 @@
 │   │   ├── persistence.md
 │   │   ├── testing.md
 │   │   ├── deployment.md
+│   │   ├── workspace-runbook.md
+│   │   ├── backup-restore.md
 │   │   ├── release.md
 │   │   ├── manual-checks.md
 │   │   └── conventions.md
@@ -77,6 +79,7 @@
 │   │   └── design-system.md
 │   ├── planning/
 │   │   ├── phase-5.md
+│   │   ├── t5.4-cloud-sync.md
 │   │   └── i18n-inventory.md
 │   └── adr/
 │       ├── README.md
@@ -540,6 +543,61 @@ Sezioni:
 - test e verifiche.
 
 **Aggiornare quando:** si estrae o si aggiunge una stringa, o cambia lo scope della traduzione.
+
+---
+
+### 5.23 `docs/planning/t5.4-cloud-sync.md`
+
+**Scopo:** piano operativo dettagliato del sync cloud (T5.4).
+
+Sezioni:
+
+- decisioni (ADR-0024) e fuori scope;
+- architettura, contratti e modalità ospite/connesso/offline;
+- auth email/password e route;
+- schema Postgres, RLS, trigger e mapping;
+- sincronizzazione, outbox, conflitti e primo login;
+- UX, microcopy e accessibilità;
+- operazioni free: keep-alive, backup, progetti, bundle e deploy;
+- task T5.4.0–T5.4.6 con accettazione e stime;
+- test, runbook, rischi, domande aperte e fonti.
+
+**Aggiornare quando:** cambia una decisione di T5.4, si chiude un subtask o cambiano i limiti free.
+
+---
+
+### 5.24 `docs/engineering/workspace-runbook.md`
+
+**Scopo:** procedura amministrativa del workspace condiviso Supabase.
+
+Sezioni:
+
+- setup del progetto, utenti e membership;
+- SQL di bootstrap e verifica;
+- aggiunta, rimozione e cambio ruolo;
+- reset password e offboarding;
+- audit `created_by`/`updated_by`;
+- smoke test, risultati attesi della RLS, troubleshooting e sicurezza;
+- ambiente locale e checklist.
+
+**Aggiornare quando:** cambiano utenti, membership, policy RLS o procedure amministrative.
+
+---
+
+### 5.25 `docs/engineering/backup-restore.md`
+
+**Scopo:** backup settimanale cifrato e restore del database Supabase.
+
+Sezioni:
+
+- dati inclusi ed esclusi;
+- workflow, secret, cifratura e retention;
+- verifica checksum e decifratura;
+- restore auth → public;
+- verifica post-restore;
+- restore testato e limiti di sicurezza.
+
+**Aggiornare quando:** cambiano schema, workflow di backup, secret o procedura di restore.
 
 ---
 

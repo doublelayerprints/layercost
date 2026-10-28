@@ -1,3 +1,4 @@
+import { authEn } from './en/auth'
 import { calculatorEn } from './en/calculator'
 import { catalogsEn } from './en/catalogs'
 import { miscEn } from './en/misc'
@@ -38,6 +39,7 @@ const baseEn: Record<BaseMessageKey, string> = {
   'common.next': 'Next',
   'common.optional': 'optional',
   'common.loading': 'Loading…',
+  'common.retry': 'Try again',
   'common.error': 'Error',
   'common.warning': 'Warning',
   'common.expand': 'Expand {name}',
@@ -114,4 +116,5 @@ export const en: Messages = {
   ...settingsEn,
   ...miscEn,
   ...xlsxEn,
+  ...authEn,
 }

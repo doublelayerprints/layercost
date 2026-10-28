@@ -22,7 +22,8 @@ export class ShareError extends Error {
 export function encodeSharedQuote(quote: Quote): string {
   const payload: SharedPayload = {
     app: 'LayerCost',
-    quote,
+    // Audit metadata belongs to the workspace, not to the shared document.
+    quote: { ...quote, createdBy: undefined, updatedBy: undefined },
   }
   return LZString.compressToEncodedURIComponent(JSON.stringify(payload))
 }

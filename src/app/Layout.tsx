@@ -1,8 +1,11 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/app/i18n-context'
+import type { MessageKey } from '@/i18n'
 import { QuickPreferences } from '@/app/QuickPreferences'
-import { useAppStore } from '@/state/app-store'
+import { useAppStore, type AppWarning } from '@/state/app-store'
+import { useAuthStore } from '@/state/auth-store'
+import { SyncIndicator } from '@/features/sync/SyncIndicator'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
@@ -73,6 +76,7 @@ function ScrollToTop() {
 
 function MobileHeader() {
   const { t } = useI18n()
+  const mode = useAppStore((state) => state.mode)
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -96,11 +100,14 @@ function MobileHeader() {
           aria-label={t('nav.main')}
         >
           <NavItems mobile onNavigate={() => setMenuOpen(false)} />
-          <div className="mt-6 border-t border-line pt-4">
+          <div className="mt-3 border-t border-line pt-2">
+            <SyncIndicator mobile />
+          </div>
+          <div className="mt-3 border-t border-line pt-4">
             <QuickPreferences mobile />
           </div>
           <div className="mt-4 border-t border-line pt-3 text-xs text-muted">
-            <p>{t('app.dataLocal')}</p>
+            <p>{mode === 'cloud' ? t('sync.accountMode') : t('app.dataLocal')}</p>
             <Link
               to="/settings"
               onClick={() => setMenuOpen(false)}
@@ -116,10 +123,22 @@ function MobileHeader() {
   )
 }
 
+const warningKeys: Record<AppWarning, MessageKey> = {
+  storageUnavailable: 'errors.storage.storageUnavailable',
+  corruptData: 'errors.storage.corruptData',
+  saveFailed: 'errors.storage.saveFailed',
+  loadFailed: 'errors.storage.loadFailed',
+  exportFailed: 'errors.storage.exportFailed',
+  resetFailed: 'errors.storage.resetFailed',
+}
+
 export function Layout() {
   const { t } = useI18n()
   const warning = useAppStore((state) => state.warning)
   const setWarning = useAppStore((state) => state.setWarning)
+  const mode = useAppStore((state) => state.mode)
+  const authStatus = useAuthStore((state) => state.status)
+  const location = useLocation()
 
   return (
     <div className="min-h-screen bg-ground text-ink">
@@ -137,11 +156,14 @@ export function Layout() {
         <nav className="mt-2 flex-1 overflow-y-auto" aria-label={t('nav.main')}>
           <NavItems />
         </nav>
-        <div className="border-t border-line px-3 pt-3">
+        <div className="border-t border-line px-3 pt-2">
+          <SyncIndicator />
+        </div>
+        <div className="mt-2 border-t border-line px-3 pt-3">
           <QuickPreferences />
         </div>
         <div className="mt-3 border-t border-line px-3 pt-3 text-xs text-muted">
-          <p>{t('app.dataLocal')}</p>
+          <p>{mode === 'cloud' ? t('sync.accountMode') : t('app.dataLocal')}</p>
           <Link
             to="/settings"
             className="mt-1 inline-block text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
@@ -167,11 +189,22 @@ export function Layout() {
                 title={t('common.warning')}
                 onClose={() => setWarning(undefined)}
               >
-                {warning === 'storageUnavailable'
-                  ? t('errors.storage.storageUnavailable')
-                  : warning === 'corruptData'
-                    ? t('errors.storage.corruptData')
-                    : t('errors.storage.saveFailed')}
+                {t(warningKeys[warning])}
+              </Alert>
+            </div>
+          ) : null}
+          {authStatus === 'expired' && location.pathname !== '/login' ? (
+            <div className="no-print mb-6">
+              <Alert tone="warning" title={t('auth.expired.title')}>
+                <p>
+                  {t('auth.expired.body')}{' '}
+                  <Link
+                    to="/login"
+                    className="font-medium text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
+                  >
+                    {t('auth.loginAction')}
+                  </Link>
+                </p>
               </Alert>
             </div>
           ) : null}

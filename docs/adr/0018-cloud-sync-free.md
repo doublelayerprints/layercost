@@ -1,6 +1,6 @@
 # ADR-0018 — Sincronizzazione cloud opzionale e gratuita
 
-**Stato:** Accettato; richiesto il 26/10/2026 (implementazione da iniziare)
+**Stato:** Accettato; superseded in parte da ADR-0024 (auth e tenancy); provider e vincoli free restano validi
 **Data:** 26 ottobre 2026
 
 ## Contesto
@@ -23,6 +23,8 @@ Nota: l'interfaccia `DataRepository` descritta in ADR-0001 è oggi sincrona. Un 
 8. **Nessun backend in v1.** Questa decisione vale solo per la fase 5 e non cambia la v1 già rilasciata.
 
 ## Aggiornamento 26/10/2026
+
+> Le decisioni su metodo di autenticazione e modello di tenancy sono state aggiornate il 28/10/2026 da **ADR-0024** (email/password e workspace con membership). Il resto di questo aggiornamento resta storico.
 
 Il committente ha chiesto esplicitamente il sync cloud con login, database e tabelle. Decisioni prese:
 

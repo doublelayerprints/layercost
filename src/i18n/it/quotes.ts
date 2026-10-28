@@ -71,6 +71,11 @@ export const quotesIt = {
   'quote.manage.title': 'Gestione del preventivo',
   'quote.manage.description':
     'Modificabile finché è salvato: invio e completamento lo bloccano. Archiviare non cancella nulla.',
+  'quote.audit.title': 'Workspace condiviso',
+  'quote.audit.created': 'Creato da',
+  'quote.audit.updated': 'Ultima modifica',
+  'quote.audit.you': 'te',
+  'quote.audit.member': 'un altro membro',
   'quote.duplicate': 'Duplica nel calcolatore',
   'quote.archive': 'Archivia',
   'quote.restore': 'Ripristina',

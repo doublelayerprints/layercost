@@ -1,0 +1,140 @@
+name: Supabase backup
+
+on:
+  schedule:
+    # Weekly, Sunday 03:23 UTC. Free plan has no automatic backups.
+    - cron: '23 3 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: supabase-backup
+  cancel-in-progress: false
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Validate secrets
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_DB_URL:-}" ] || [ -z "${BACKUP_ENCRYPTION_KEY:-}" ]; then
+            echo "::error::Missing SUPABASE_DB_URL or BACKUP_ENCRYPTION_KEY repository secret"
+            exit 1
+          fi
+
+      - name: Dump and encrypt
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          set -euo pipefail
+          stamp="$(date -u +%Y-%m-%d)"
+
+          # Schema comes from the migrations; the backup is data-only.
+          # Public data and auth users are split because auth tables are owned
+          # by supabase_auth_admin and must be restored without --disable-triggers.
+          # The session pooler is IPv4; postgres:17 matches the Supabase server version.
+          docker run --rm --user "$(id -u):$(id -g)" \
+            -e SUPABASE_DB_URL \
+            -v "$PWD:/backup" \
+            --entrypoint sh postgres:17 -c \
+            'pg_dump "$SUPABASE_DB_URL" --data-only --no-owner --no-privileges --format=custom --schema=public --file=/backup/layercost-public.dump'
+
+          docker run --rm --user "$(id -u):$(id -g)" \
+            -e SUPABASE_DB_URL \
+            -v "$PWD:/backup" \
+            --entrypoint sh postgres:17 -c \
+            'pg_dump "$SUPABASE_DB_URL" --data-only --no-owner --no-privileges --format=custom --table=auth.users --table=auth.identities --file=/backup/layercost-auth.dump'
+
+          for part in public auth; do
+            openssl enc -aes-256-cbc -pbkdf2 -salt \
+              -in "layercost-${part}.dump" \
+              -out "layercost-${part}-${stamp}.dump.enc" \
+              -pass env:BACKUP_ENCRYPTION_KEY
+            rm "layercost-${part}.dump"
+            sha256sum "layercost-${part}-${stamp}.dump.enc" > "layercost-${part}-${stamp}.dump.enc.sha256"
+          done
+
+          ls -lh layercost-*.dump.enc layercost-*.dump.enc.sha256
+
+      - name: Upload encrypted backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-backup-${{ github.run_id }}
+          path: |
+            layercost-*.dump.enc
+            layercost-*.dump.enc.sha256
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Open or update failure issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '[ops] Supabase backup failed'
+            const { owner, repo } = context.repo
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            })
+            const existing = open.find((issue) => !issue.pull_request && issue.title === title)
+            const body = [
+              'The weekly Supabase backup failed.',
+              '',
+              `- Run: ${runUrl}`,
+              `- Time: ${new Date().toISOString()}`,
+              '',
+              'Check `SUPABASE_DB_URL` (session pooler, IPv4, `sslmode=require`) and `BACKUP_ENCRYPTION_KEY`.',
+            ].join('\n')
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body,
+              })
+            } else {
+              await github.rest.issues.create({ owner, repo, title, body })
+            }
+
+      - name: Close recovered issue
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '[ops] Supabase backup failed'
+            const { owner, repo } = context.repo
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            })
+            const existing = open.find((issue) => !issue.pull_request && issue.title === title)
+            if (existing) {
+              const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body: `Backup recovered in ${runUrl}.`,
+              })
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                state: 'closed',
+              })
+            }

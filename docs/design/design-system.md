@@ -340,7 +340,7 @@ Card con header comprimibile per le sezioni del calcolatore. Il titolo resta un 
 - `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
 - `tests/e2e/collapsible-cards.spec.ts` — 1 test: comprimi/espandi le card e le righe, sintesi da compressa, azione “Ripristina default” cliccabile senza aprire la card.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **124 unitari/dati, 39 E2E** (33 eseguiti + 6 visual su CI).
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **185 unitari/dati, 44 E2E** (33 default + 6 visual + 2 auth + 3 sync con Supabase locale).
 
 ### 7.2 Manuali
 
