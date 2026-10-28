@@ -1,0 +1,111 @@
+name: Supabase keep-alive
+
+on:
+  schedule:
+    # Once a day, off-peak. Supabase Free pauses after a week without activity.
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call keepalive RPC
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_PUBLISHABLE_KEY:-}" ]; then
+            echo "::error::Missing SUPABASE_URL or SUPABASE_PUBLISHABLE_KEY repository secret"
+            exit 1
+          fi
+
+          response="$(curl --silent --show-error --fail-with-body \
+            --max-time 30 --retry 3 --retry-delay 5 \
+            --request POST "$SUPABASE_URL/rest/v1/rpc/keepalive" \
+            --header "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            --header "Authorization: Bearer $SUPABASE_PUBLISHABLE_KEY" \
+            --header "Content-Type: application/json" \
+            --data '{}')"
+
+          echo "keepalive response: $response"
+          case "$response" in
+            '"ok"'|'ok') ;;
+            *)
+              echo "::error::Unexpected keepalive response"
+              exit 1
+              ;;
+          esac
+
+      - name: Open or update failure issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '[ops] Supabase keep-alive failed'
+            const { owner, repo } = context.repo
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            })
+            const existing = open.find((issue) => !issue.pull_request && issue.title === title)
+            const body = [
+              'The daily Supabase keep-alive call failed.',
+              '',
+              `- Run: ${runUrl}`,
+              `- Time: ${new Date().toISOString()}`,
+              '',
+              'Check the repository secrets `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`, the project status and the RPC `public.keepalive()`.',
+            ].join('\n')
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body,
+              })
+            } else {
+              await github.rest.issues.create({ owner, repo, title, body })
+            }
+
+      - name: Close recovered issue
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '[ops] Supabase keep-alive failed'
+            const { owner, repo } = context.repo
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            })
+            const existing = open.find((issue) => !issue.pull_request && issue.title === title)
+            if (existing) {
+              const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body: `Keep-alive recovered in ${runUrl}.`,
+              })
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                state: 'closed',
+              })
+            }

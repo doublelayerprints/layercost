@@ -124,18 +124,17 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 ## 6. CI
 
-`.github/workflows/ci.yml` esegue:
+`.github/workflows/ci.yml` esegue tre job:
 
-- `npm ci`;
-- `npm run check` (typecheck, lint, 185 test, build, budget);
-- `npm run build` + Playwright con Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
-- `npm run db:test` è eseguito localmente; il job CI dedicato al database è pianificato in T5.4.6.
-- `npm run test:e2e:auth` è un comando separato: legge le env da Supabase locale, builda con le credenziali pubbliche e crea l'utente via Admin API.
-- `npm run test:e2e:sync` è un comando separato: azzera il database locale, builda con le env pubbliche, crea utenti/workspace via Admin API e pulisce con `psql`. Richiede `psql` nel PATH e non va eseguito contro un progetto remoto.
+- **check** — `npm ci`, `npm run check` (typecheck, lint, 185 test, build, budget).
+- **e2e** — build, Playwright Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
+- **database** — Supabase locale, `npm run db:test` (33 pgTAP), `npm run test:e2e:auth` (2 test), `npm run test:e2e:sync` (3 test), stop del database. Non usa segreti di produzione.
+
+`npm run test:e2e:auth` legge le env da Supabase locale, builda con le credenziali pubbliche e crea l'utente via Admin API. `npm run test:e2e:sync` azzera il database locale, builda con le env pubbliche, crea utenti/workspace via Admin API e pulisce con `psql`.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 28/10/2026: **verde in locale** per `npm run check` (185 unitari), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 11 saltati), `test:e2e:auth` (2) e `test:e2e:sync` (3). I commit T5.4 sono sul branch `feat/cloud-sync` e non sono ancora su `origin/main`: la CI GitHub non ha ancora eseguito questa suite.
+Stato al 28/10/2026: **verde in locale** per `npm run check` (185 unitari), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 11 saltati), `test:e2e:auth` (2) e `test:e2e:sync` (3). La PR #20 ha superato `check` ed `e2e` su GitHub; il job `database` è stato aggiunto in T5.4.6 e viene verificato sulla stessa PR.
 
 ## 7. Come aggiungere un test
 

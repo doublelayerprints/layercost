@@ -59,6 +59,13 @@ Gli E2E sync si eseguono con `npm run test:e2e:sync`. Lo script **azzera il data
 
 Le migrazioni `20261028130000_service_role_grants.sql` e `20261028140000_admin_last_owner.sql` servono solo agli script amministrativi: il service role non è mai usato dal client e `protect_last_owner` continua a bloccare gli utenti autenticati. La creazione di workspace e membership resta amministrativa: SQL, verifica RLS, reset password e offboarding sono in `docs/engineering/workspace-runbook.md` (T5.4.5).
 
+Operazioni automatiche (T5.4.6):
+
+- `.github/workflows/keepalive.yml` chiama ogni giorno la RPC `keepalive()` con la chiave pubblicabile e apre un issue se fallisce.
+- `.github/workflows/backup.yml` esegue un `pg_dump` settimanale data-only via session pooler, cifra gli archivi con `BACKUP_ENCRYPTION_KEY` e li conserva come artifact per 30 giorni. Procedura e restore verificato in `docs/engineering/backup-restore.md`.
+- La CI GitHub esegue anche il job `database`: Supabase locale, 33 test pgTAP/RLS, E2E auth e E2E sync. Non usa segreti di produzione.
+- Secret GitHub richiesti per le operazioni: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_DB_URL`, `BACKUP_ENCRYPTION_KEY`.
+
 ## 2. Header
 
 `vercel.json` imposta:

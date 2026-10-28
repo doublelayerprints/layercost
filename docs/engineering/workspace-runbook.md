@@ -338,11 +338,36 @@ npm run test:e2e:sync    # due contesti, offline, conflitto, isolamento
 
 ---
 
-## 14. Riferimenti
+## 14. Keep-alive
+
+Il progetto Free va in pausa dopo circa 7 giorni senza attività. Il workflow `.github/workflows/keepalive.yml` chiama ogni giorno alle 06:17 UTC la RPC `public.keepalive()` con la chiave pubblicabile:
+
+```bash
+curl --fail-with-body \
+  -X POST "$SUPABASE_URL/rest/v1/rpc/keepalive" \
+  -H "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_PUBLISHABLE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Risposta attesa: `"ok"`.
+
+- Secret GitHub: `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`.
+- Se la chiamata fallisce, il workflow apre o aggiorna l'issue `[ops] Supabase keep-alive failed`; quando torna verde la chiude.
+- Esecuzione manuale: **Actions → Supabase keep-alive → Run workflow**.
+- Se il progetto è in pausa, riattivalo dal dashboard: l'app resta local-only nel frattempo.
+- La RPC è `security definer`, `search_path = ''` e ha `grant execute` ad `anon`; non richiede service role.
+
+---
+
+## 15. Riferimenti
 
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace e operazioni free.
 - `docs/planning/t5.4-cloud-sync.md` — piano completo, schema, RLS, test e rollback.
 - `docs/engineering/deployment.md` §1.1 — Supabase locale, env e comandi.
+- `docs/engineering/backup-restore.md` — backup settimanale cifrato e restore verificato.
+- `.github/workflows/keepalive.yml` e `.github/workflows/backup.yml` — operazioni automatiche.
 - `docs/domain/data-model.md` §7 — schema cloud, audit e limite degli ID globali.
 - `supabase/migrations/20261028120000_init.sql` — tabelle, RLS, trigger e `keepalive`.
 - `supabase/tests/rls.test.sql` — 33 asserzioni di isolamento e audit.

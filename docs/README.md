@@ -69,6 +69,7 @@
 │   │   ├── testing.md
 │   │   ├── deployment.md
 │   │   ├── workspace-runbook.md
+│   │   ├── backup-restore.md
 │   │   ├── release.md
 │   │   ├── manual-checks.md
 │   │   └── conventions.md
@@ -580,6 +581,23 @@ Sezioni:
 - ambiente locale e checklist.
 
 **Aggiornare quando:** cambiano utenti, membership, policy RLS o procedure amministrative.
+
+---
+
+### 5.25 `docs/engineering/backup-restore.md`
+
+**Scopo:** backup settimanale cifrato e restore del database Supabase.
+
+Sezioni:
+
+- dati inclusi ed esclusi;
+- workflow, secret, cifratura e retention;
+- verifica checksum e decifratura;
+- restore auth → public;
+- verifica post-restore;
+- restore testato e limiti di sicurezza.
+
+**Aggiornare quando:** cambiano schema, workflow di backup, secret o procedura di restore.
 
 ---
 
