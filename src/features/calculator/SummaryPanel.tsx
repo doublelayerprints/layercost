@@ -4,8 +4,10 @@ import { useFormat } from '@/app/use-format'
 import type { Quote, QuoteResult } from '@/domain/types'
 import { Alert, Badge, Button, Card, Price } from '@/components/ui'
 import { CostStack } from '@/components/cost-stack'
+import { PriceComposition } from '@/components/price-composition'
 import { costBandLabel, costBands } from '@/lib/cost-bands'
 import { ShareQuoteButton } from '@/features/quotes/ShareQuoteButton'
+import { quoteProfitMicroEur } from '@/lib/quote-profit'
 import { displayCents, type Formatters } from '@/lib/format'
 
 export interface QuickComparisonOption {
@@ -153,6 +155,7 @@ export function SummaryPanel({
   const format = useFormat()
   const [selectedPrinter, setSelectedPrinter] = useState<string>()
   const insight = result ? finding(result, t, format) : undefined
+  const profit = result ? quoteProfitMicroEur(result) : 0
 
   return (
     <Card className="p-5 sm:p-6">
@@ -198,15 +201,18 @@ export function SummaryPanel({
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium text-muted">{t('summary.effectiveMargin')}</dt>
+              <dt className="text-xs font-medium text-muted">{t('summary.profit')}</dt>
               <dd
                 className={
-                  result.effectiveMarginBp < 0
+                  profit < 0
                     ? 'mt-0.5 text-2xl font-medium leading-tight tabular-nums text-warning'
                     : 'mt-0.5 text-2xl font-medium leading-tight tabular-nums text-ink'
                 }
               >
-                {format.percent(result.effectiveMarginBp)}
+                {format.currency(profit)}
+              </dd>
+              <dd className="mt-0.5 text-xs tabular-nums text-muted">
+                {t('summary.effectiveMargin')} {format.percent(result.effectiveMarginBp)}
               </dd>
             </div>
           </dl>
@@ -223,8 +229,12 @@ export function SummaryPanel({
             </p>
           ) : null}
 
-          <div className="mt-4">
-            <CostStack bands={costBands(result)} />
+          <div className="mt-4 space-y-4">
+            <PriceComposition result={result} />
+            <div>
+              <p className="text-xs font-medium text-muted">{t('quote.costComposition')}</p>
+              <CostStack bands={costBands(result)} className="mt-2" />
+            </div>
           </div>
 
           {comparison ? (

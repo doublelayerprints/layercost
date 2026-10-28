@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.17 chiusi** (preferenze rapide, azioni del preventivo in alto e colore filamento per riga). Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.17 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020 e ADR-0021 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni e preventivi.
+**Stato al 26/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**, richiesto il 26/10/2026 con Supabase Free, workspace condiviso e magic link; alternativa **T5.7**. Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.19 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021 e ADR-0022 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni e preventivi.
 
 ---
 
@@ -1094,6 +1094,35 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 
 **Accettazione:** colore impostabile e rimovibile, persistente al reload e nel preventivo salvato; visibile in dettaglio e stampa; dati vecchi invariati; nessun cambio a formule o `engineVersion`. → soddisfatta; baseline visive da rigenerare in CI.
 
+## T5.18 — Utile in euro e separazione tra vista interna e cliente
+
+**Stato:** `[x]` — chiuso il 28/10/2026
+**ADR:** 0022
+
+**Nota:** il riepilogo mostrava solo il margine effettivo in percentuale; l'utile in euro non era visibile, mentre link condiviso e stampa/PDF mostravano già costo pieno, margine e composizione del costo.
+
+- Il pannello del calcolatore e il dettaglio mostrano **Guadagno** in euro (`netPrice − totalCost`) con il margine effettivo come nota; sotto costo l'importo usa il warning.
+- `QuoteOverview` e `QuotePrint` accettano `audience: 'internal' | 'customer'`. Il link condiviso e la stampa standard mostrano solo prezzi, IVA e note; la vista interna resta su calcolatore e dettaglio.
+- Il dettaglio ha due azioni: “Stampa / PDF” per il cliente e “Stampa interna” con costi, utile, margine e composizione, marcata “Uso interno”.
+- L'utile è un valore derivato di visualizzazione in `src/lib/quote-profit.ts`, con test; non entra in `QuoteResult`, schema, snapshot o `engineVersion`.
+- Nessuna modifica a formule, persistenza o dati salvati. Il link condiviso continua a contenere i dati del preventivo, ma la pagina e la stampa non renderizzano quelli interni.
+
+**Accettazione:** utile visibile in euro in calcolatore e dettaglio; cliente e PDF standard senza costo, utile o margine; stampa interna esplicita e marcata; `npm run check` verde; E2E aggiornato. → soddisfatta.
+
+## T5.19 — Composizione del prezzo, righe cliccabili e stampa in tema scuro
+
+**Stato:** `[x]` — chiuso il 28/10/2026
+
+**Nota:**
+
+- Nuovo `PriceComposition`: sopra la composizione del costo, una barra del **prezzo netto** divisa in **costo pieno** e **guadagno**, con legenda e importi. Appare nel calcolatore, nel dettaglio e nella stampa interna; è nascosta nella vista cliente e quando l'utile è negativo.
+- **Preventivi:** rimossa l'azione “Apri”. Tutta la riga della tabella è cliccabile, con hover sull'intera riga; il nome passa al colore accent senza sottolineatura. Su mobile tutta la card è un link. Il link sul nome resta per tastiera e screen reader.
+- **Stampa:** i token chiari sono applicati solo a `.quote-print`, non all'intera pagina. L'interfaccia resta scura durante l'anteprima, il foglio è bianco e il PDF mantiene i margini bianchi (`color-scheme: light` in stampa). Le pagine senza foglio preventivo mantengono il fallback chiaro.
+- i18n: 4 chiavi `priceComposition.*`, rimosse `quotes.open` e `quote.label.actions` non più usate. Parità it/en a **872** chiavi.
+- Nessun cambio a formule, schema, snapshot o `engineVersion`.
+
+**Accettazione:** due barre visibili in calcolatore e dettaglio; riga preventivo cliccabile senza “Apri”; stampa/PDF bianca con UI scura; `npm run check` e `npm run test:e2e` verdi. → soddisfatta.
+
 ---
 
 ## Ordine consigliato
@@ -1103,7 +1132,7 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 3. T2.1 → T2.12
 4. T3.1 → T3.12
 5. T4.1 → T4.7
-6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.4 (sync richiesto il 26/10/2026)
+6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.18 → T5.19 → T5.4 (sync richiesto il 26/10/2026)
 7. Nessun altro task di fase 5: T5.1, T5.2, T5.5 e T5.7–T5.11 sono chiusi/non in scope su indicazione del committente.
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.

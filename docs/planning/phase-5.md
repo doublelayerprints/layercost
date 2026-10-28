@@ -501,7 +501,7 @@ Spike provider + auth: 1–2 giorni. Refactor async + adapter: 2–3 giorni. Con
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019 e l’ADR-0020. T5.3, T5.6, T5.12 e T5.13–T5.17 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
+> Leggi `AGENTS.md`, `STATUS.md`, `TASKS.md` (fase 5), `docs/planning/phase-5.md` §3–§5, `docs/planning/i18n-inventory.md`, l’ADR-0019, l’ADR-0020 e l’ADR-0022. T5.3, T5.6, T5.12 e T5.13–T5.19 sono chiusi. Prossimo: T5.4 sync (richiesto: Supabase Free, workspace condiviso, magic link). Il resto del backlog è chiuso/non in scope. Non cambiare formule, `engineVersion` o snapshot economici. Un task = un commit; `npm run check` verde.
 
 ---
 

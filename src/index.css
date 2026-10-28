@@ -173,8 +173,30 @@
     margin: 14mm;
   }
 
-  /* Printing is always ink on white, whichever theme is on screen. */
-  :root[data-theme='dark'] {
+  /* The printed quote is always ink on white, even when the UI is dark. */
+  .quote-print {
+    color-scheme: light;
+    background: #fff;
+    color: #000;
+    min-height: 100vh;
+    font-size: 11pt;
+
+    --color-ground: #ffffff;
+    --color-surface: #ffffff;
+    --color-raised: #ffffff;
+    --color-line: #d4d4d4;
+    --color-rule: #e5e5e5;
+    --color-control: #8a8a8a;
+    --color-ink: #000000;
+    --color-muted: #525252;
+    --color-data: #000000;
+    --color-positive: #1b5e20;
+    --color-negative: #b3261e;
+    --color-warning: #7a3e00;
+  }
+
+  /* Pages without a quote sheet still print ink on white. */
+  html:not(:has(.quote-print))[data-theme='dark'] {
     color-scheme: light;
 
     --color-ground: #ffffff;
@@ -191,11 +213,18 @@
     --color-warning: #7a3e00;
   }
 
+  html:not(:has(.quote-print)) body {
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
   html,
   body {
     background: #fff !important;
-    color: #000 !important;
-    font-size: 11pt;
+  }
+
+  html {
+    color-scheme: light;
   }
 
   .no-print {

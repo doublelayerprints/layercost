@@ -451,7 +451,7 @@ export function CalculatorPage() {
         ) : null}
       </div>
 
-      <QuotePrint quote={draft} result={calculation.result} />
+      <QuotePrint quote={draft} result={calculation.result} audience="customer" />
     </>
   )
 }

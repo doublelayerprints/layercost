@@ -295,7 +295,7 @@ Lo stack è il pezzo che appartiene solo a LayerCost: il nome e il modello di co
 ### 3.7 Stampa e PDF
 
 - A4, margini 14 mm, corpo 11 pt, piccolo 9 pt, totale 18 pt. Source Serif 4 per il titolo del documento e il totale; Archivo per il resto.
-- Nessun chrome, nessuna sidebar, nessun bottone, nessuna ombra. Intestazione: LayerCost, "Preventivo", numero, data, cliente. Righe, composizione del costo (stack in toni di grigio + legenda con importi), totali, note. Footer: "Generato con LayerCost il gg/mm/aaaa".
+- Nessun chrome, nessuna sidebar, nessun bottone, nessuna ombra. Intestazione: LayerCost, "Preventivo", numero, data, cliente. Righe, totali e note. La stampa standard è per il cliente: non mostra costo pieno, utile, margine o composizione del costo. La stampa interna, scelta dal dettaglio, aggiunge la composizione in grigi con gli importi e i totali economici, ed è marcata "Uso interno". Footer: "Generato con LayerCost il gg/mm/aaaa".
 - Lo stato "Bozza" è testo nell'intestazione, non una filigrana.
 - I prezzi di riga hanno la nota "Quota del totale" per non far credere che siano indipendenti.
 - Il foglio è bianco e nero; la stampa non dipende dal colore.

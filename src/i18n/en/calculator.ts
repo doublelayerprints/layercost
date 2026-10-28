@@ -135,6 +135,7 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'summary.toComplete': 'Needs completion',
   'summary.completeData': 'Complete the data',
   'summary.fullCost': 'Full cost',
+  'summary.profit': 'Profit',
   'summary.effectiveMargin': 'Effective margin',
   'summary.detailsLink': 'Cost details',
   'summary.empty': 'Enter printer, time and grams to see the cost and price.',

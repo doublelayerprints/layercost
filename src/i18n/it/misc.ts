@@ -75,6 +75,11 @@ export const miscIt = {
   'costBands.risk': 'Rischio',
   'costBands.otherLabel': 'Altro',
   'costBands.aria': 'Composizione del costo: {label}',
+  'priceComposition.title': 'Prezzo netto',
+  'priceComposition.cost': 'Costo pieno',
+  'priceComposition.profit': 'Guadagno',
+  'priceComposition.aria':
+    'Prezzo netto {total}: costo pieno {cost}, guadagno {profit}',
   'labels.material.PLA': 'PLA',
   'labels.material.PETG': 'PETG',
   'labels.material.TPU': 'TPU',

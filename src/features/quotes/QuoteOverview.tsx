@@ -5,21 +5,30 @@ import type { Quote, QuoteResult } from '@/domain/types'
 import { Alert, Card, Price, SectionHeader, TableScroll } from '@/components/ui'
 import { LineColorSwatch } from '@/components/line-color'
 import { CostStack } from '@/components/cost-stack'
+import { PriceComposition } from '@/components/price-composition'
 import { costBands } from '@/lib/cost-bands'
 import { CostDetails } from '@/features/calculator/CostDetails'
+import { quoteProfitMicroEur } from '@/lib/quote-profit'
 import { plural } from '@/i18n'
+
+/** `internal` shows every cost figure; `customer` shows only the prices of the quote. */
+export type QuoteAudience = 'internal' | 'customer'
 
 export function QuoteOverview({
   quote,
   result,
   snapshotAction,
+  audience = 'internal',
 }: {
   quote: Quote
   result?: QuoteResult
   snapshotAction?: ReactNode
+  audience?: QuoteAudience
 }) {
   const t = useTranslator(quote.locale)
   const format = useFormat(quote.locale)
+  const internal = audience === 'internal'
+  const profit = result ? quoteProfitMicroEur(result) : 0
   const totalGrams = result
     ? result.lines.reduce(
         (sum, line) =>
@@ -54,8 +63,8 @@ export function QuoteOverview({
         </Alert>
       ) : (
         <Card className="p-5 sm:p-6">
-          <div className="grid items-start gap-6 lg:grid-cols-12">
-            <div className="lg:col-span-7">
+          <div className={internal ? 'grid items-start gap-6 lg:grid-cols-12' : undefined}>
+            <div className={internal ? 'lg:col-span-7' : undefined}>
               <p className="text-xs font-medium text-muted">{t('quote.totalPrice')}</p>
               <Price
                 value={format.cents(result.grossPriceCents)}
@@ -69,61 +78,73 @@ export function QuoteOverview({
                 }
               />
 
-              <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 sm:grid-cols-4">
-                <div>
-                  <dt className="text-xs font-medium text-muted">
-                    {t('quote.label.fullyLoadedCost')}
-                  </dt>
-                  <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
-                    {format.currency(result.totalCost)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted">{t('quote.directCost')}</dt>
-                  <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
-                    {format.currency(result.directTotal)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted">{t('quote.fixedCosts')}</dt>
-                  <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
-                    {format.currency(result.jobFixedTotal)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted">{t('quote.effectiveMargin')}</dt>
-                  <dd
-                    className={
-                      result.effectiveMarginBp < 0
-                        ? 'mt-0.5 text-base font-medium tabular-nums text-warning'
-                        : 'mt-0.5 text-base font-medium tabular-nums text-ink'
-                    }
-                  >
-                    {format.percent(result.effectiveMarginBp)}
-                  </dd>
-                </div>
-              </dl>
+              {internal ? (
+                <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 sm:grid-cols-4">
+                  <div>
+                    <dt className="text-xs font-medium text-muted">
+                      {t('quote.label.fullyLoadedCost')}
+                    </dt>
+                    <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
+                      {format.currency(result.totalCost)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium text-muted">{t('quote.directCost')}</dt>
+                    <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
+                      {format.currency(result.directTotal)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium text-muted">{t('quote.fixedCosts')}</dt>
+                    <dd className="mt-0.5 text-base font-medium tabular-nums text-ink">
+                      {format.currency(result.jobFixedTotal)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium text-muted">{t('quote.profit')}</dt>
+                    <dd
+                      className={
+                        profit < 0
+                          ? 'mt-0.5 text-base font-medium tabular-nums text-warning'
+                          : 'mt-0.5 text-base font-medium tabular-nums text-ink'
+                      }
+                    >
+                      {format.currency(profit)}
+                    </dd>
+                    <dd className="mt-0.5 text-xs tabular-nums text-muted">
+                      {t('quote.effectiveMargin')} {format.percent(result.effectiveMarginBp)}
+                    </dd>
+                  </div>
+                </dl>
+              ) : null}
             </div>
 
-            <div className="lg:col-span-5">
-              <h2 className="text-sm font-semibold text-ink">{t('quote.costComposition')}</h2>
-              <CostStack bands={costBands(result)} locale={quote.locale} className="mt-3" />
-            </div>
+            {internal ? (
+              <div className="lg:col-span-5">
+                <PriceComposition result={result} locale={quote.locale} />
+                <h2 className="mt-4 text-sm font-semibold text-ink">
+                  {t('quote.costComposition')}
+                </h2>
+                <CostStack bands={costBands(result)} locale={quote.locale} className="mt-3" />
+              </div>
+            ) : null}
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
-            <p className="text-xs text-muted">
-              {quote.snapshot
-                ? t('quote.snapshot.frozen', {
-                    date: format.dateTime(quote.snapshot.capturedAt),
-                    version: quote.snapshot.engineVersion,
-                  })
-                : quote.engineVersion
-                  ? t('app.engineVersion', { version: quote.engineVersion })
-                  : t('quote.currentPrices')}
-            </p>
-            {snapshotAction}
-          </div>
+          {internal ? (
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
+              <p className="text-xs text-muted">
+                {quote.snapshot
+                  ? t('quote.snapshot.frozen', {
+                      date: format.dateTime(quote.snapshot.capturedAt),
+                      version: quote.snapshot.engineVersion,
+                    })
+                  : quote.engineVersion
+                    ? t('app.engineVersion', { version: quote.engineVersion })
+                    : t('quote.currentPrices')}
+              </p>
+              {snapshotAction}
+            </div>
+          ) : null}
         </Card>
       )}
 
@@ -158,9 +179,11 @@ export function QuoteOverview({
                 <th scope="col" className="py-2 pr-4 text-right font-medium">
                   {t('quote.label.time')}
                 </th>
-                <th scope="col" className="py-2 pr-4 text-right font-medium">
-                  {t('quote.label.fullyLoadedCost')}
-                </th>
+                {internal ? (
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">
+                    {t('quote.label.fullyLoadedCost')}
+                  </th>
+                ) : null}
                 <th scope="col" className="py-2 text-right font-medium">
                   {t('quote.label.price')}
                 </th>
@@ -192,9 +215,11 @@ export function QuoteOverview({
                     <td className="py-3 pr-4 text-right tabular-nums text-muted">
                       {format.duration(lineResult?.effectiveSeconds ?? line.timeSeconds)}
                     </td>
-                    <td className="py-3 pr-4 text-right tabular-nums">
-                      {lineResult ? format.currency(lineResult.fullyLoadedLineCost) : '—'}
-                    </td>
+                    {internal ? (
+                      <td className="py-3 pr-4 text-right tabular-nums">
+                        {lineResult ? format.currency(lineResult.fullyLoadedLineCost) : '—'}
+                      </td>
+                    ) : null}
                     <td className="py-3 text-right tabular-nums">
                       {lineResult ? (
                         <>
@@ -242,9 +267,11 @@ export function QuoteOverview({
                     <p className="text-sm font-medium tabular-nums text-ink">
                       {lineResult ? format.cents(lineResult.priceCents) : '—'}
                     </p>
-                    <p className="text-xs text-muted">
-                      {lineResult ? format.currency(lineResult.fullyLoadedLineCost) : ''}
-                    </p>
+                    {internal ? (
+                      <p className="text-xs text-muted">
+                        {lineResult ? format.currency(lineResult.fullyLoadedLineCost) : ''}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </li>
@@ -260,7 +287,9 @@ export function QuoteOverview({
         ) : null}
       </Card>
 
-      {result ? <CostDetails quote={quote} result={result} locale={quote.locale} /> : null}
+      {result && internal ? (
+        <CostDetails quote={quote} result={result} locale={quote.locale} />
+      ) : null}
     </div>
   )
 }

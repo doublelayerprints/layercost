@@ -371,6 +371,14 @@ effectiveMarginBp = roundHalfUp((netPrice − totalCost) × 10.000 / netPrice)
 
 Se `netPrice = 0`, il margine non è definito e la UI mostra `—`. Se lo sconto è alto, il margine effettivo può essere negativo: la UI lo mostra con il segno, non lo nasconde.
 
+L'utile in euro è il complemento assoluto del margine:
+
+```text
+profitµ€ = netPrice × 10.000 − totalCost
+```
+
+È un valore derivato di sola visualizzazione: non entra in `QuoteResult`, non viene persistito e non cambia `engineVersion`. La **vista interna** (calcolatore e dettaglio) mostra costo pieno, utile e margine effettivo; la composizione del prezzo è una barra costo + utile sopra la composizione del costo. La **vista cliente** (link condiviso e stampa/PDF standard) mostra solo prezzi, IVA e note: costo pieno, costo diretto, costi fissi, utile, margine e composizione del costo restano nascosti. La stampa interna, scelta esplicitamente dal dettaglio, li include ed è marcata “Uso interno”.
+
 ### 7.6 Prezzo per riga
 
 Il prezzo canonico è quello **totale** del preventivo. Per mostrare un prezzo per riga:

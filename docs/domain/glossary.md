@@ -1,6 +1,6 @@
 # Glossario
 
-**Stato:** v1.0.0
+**Stato:** v1.0.0 + T5.18
 
 | Termine               | Significato                                                                                                |
 | --------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -29,6 +29,9 @@
 | **Tema**              | Preferenza dell'interfaccia: sistema, chiaro o scuro. Vive sul dispositivo, fuori dai dati del preventivo. |
 | **Tempo effettivo**   | Tempo slicer maggiorato e sommato ai minuti di avvio.                                                      |
 | **Usura**             | Ammortamento + manutenzione della stampante.                                                               |
+| **Utile (guadagno)**  | Prezzo netto meno costo pieno, in euro. Valore di visualizzazione della vista interna; può essere negativo. |
 | **Valore residuo**    | Valore della stampante a fine vita, in percentuale del prezzo di acquisto.                                 |
+| **Vista cliente**     | Link condiviso e stampa/PDF standard: solo prezzi, IVA e note, senza costi o margine.                       |
+| **Vista interna**     | Calcolatore e dettaglio: costo pieno, utile, margine effettivo e composizione del costo.                   |
 | **Vita utile**        | Ore di stampa stimate prima della sostituzione della stampante.                                            |
 | **Wh**                | Wattora. 1 kWh = 1.000 Wh.                                                                                 |

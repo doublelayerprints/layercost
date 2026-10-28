@@ -57,6 +57,10 @@
 
 **Stato T5.12:** l’area `xlsx` aggiunge 53 chiavi per azione, hint, nomi dei fogli, valori sì/no e intestazioni di colonna in italiano e inglese. Parità it/en a **865** chiavi.
 
+**Stato T5.18:** aggiunte 5 chiavi per “Guadagno” (`summary.profit`, `quote.profit`), “Stampa interna” (`print.internalAction`), la marcatura “Uso interno” e il footer della stampa cliente (`quote.print.internalBadge`, `quote.print.footerCustomer`). Parità it/en a **870** chiavi.
+
+**Stato T5.19:** aggiunte 4 chiavi `priceComposition.*` per titolo, costo, utile e aria-label; rimosse `quotes.open` e `quote.label.actions`, non più usate dopo la riga cliccabile. Parità it/en a **872** chiavi.
+
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 
 1. Shell e componenti comuni (chiude subito le stringhe condivise).

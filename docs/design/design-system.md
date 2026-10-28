@@ -222,6 +222,12 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 
 `LineColorField` è un quadratino stondato con bordo `--color-control`; vuoto mostra un bordo tratteggiato e un “+”, pieno mostra il colore scelto. Il picker è un `<input type="color">` nativo, accessibile da tastiera; “Rimuovi colore” compare solo quando c'è un colore. `LineColorSwatch` è la versione di sola lettura usata accanto al nome della stampa nel calcolatore, nel dettaglio, nella tabella costi e in stampa. Il colore è un dato, non un token: non è mai l'unica informazione e non entra nei calcoli.
 
+### 3.18 PriceComposition
+
+- Barra del **prezzo netto** divisa in due segmenti: costo pieno (`control`, grigio) e guadagno (`data`, viola). Larghezze in millesimi con resto più grande; gli importi della legenda sono allocati in centesimi e sommano al prezzo netto.
+- Sta sopra `CostStack` per leggere prima “quanto è costo e quanto è margine”, poi “di cosa è fatto il costo”. Appare solo nella vista interna (calcolatore, dettaglio, stampa interna) e solo con utile non negativo.
+- `role="img"` con `aria-label` che riporta prezzo netto, costo e guadagno; legenda `<dl>` con swatch e importi. Il colore non è l'unica informazione.
+
 ---
 
 ## 4. Accessibilità
@@ -290,7 +296,8 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 - A4, margini 14 mm, corpo 11 pt, piccolo 9 pt, totale 18 pt. Il layout stampa è in `QuotePrint`; il wrapper di `Layout` ha `print:pl-0` per togliere il rientro della sidebar.
 - Niente sidebar, header, pulsanti, ombre o sfondi colorati. Font Archivo per il testo; Source Serif 4 per il totale/titolo del documento dove previsto.
 - I colori diventano neri/grigi: lo stack usa toni di grigio + legenda con importi; nessuna informazione affidata al colore.
-- La stampa è sempre chiara, anche con tema scuro: `@media print` riporta i token ai valori chiari (`ink` nero, `muted` `#525252`, `surface` bianco, `data` nero) prima di stampare.
+- Due audience: `QuotePrint` e `QuoteOverview` accettano `audience: 'internal' | 'customer'`. La vista cliente mostra solo prezzi, IVA e note; la vista interna mostra costo pieno, utile, margine effettivo e composizione del costo. La stampa interna è marcata "Uso interno".
+- La stampa del preventivo è sempre chiara, anche con tema scuro: i token chiari sono applicati a `.quote-print`, non all'intera pagina; l'interfaccia resta nel tema corrente e `html { color-scheme: light }` mantiene bianchi i margini del PDF. Le pagine senza foglio preventivo usano il fallback chiaro.
 - `print:hidden` e `.no-print` nascondono la UI; `break-inside: avoid` protegge le righe.
 - Le dimensioni in `pt` sono l'unica eccezione alla scala in `px`: appartengono al mezzo stampa.
 
@@ -324,7 +331,7 @@ Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'
 - `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
 - `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
-- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **112 unitari/dati, 36 E2E** (30 eseguiti + 6 visual su CI).
+- I test allegano screenshot di base a 1440 e 375 px al report Playwright. Totale oggi: **116 unitari/dati, 36 E2E** (30 eseguiti + 6 visual su CI).
 
 ### 7.2 Manuali
 
@@ -352,13 +359,13 @@ npm run test:e2e
 ### 8.1 Cosa è stato applicato
 
 - **Shell.** Open plane: sidebar da 256 px sulla pietra, hairline, righe da ~34 px, voce attiva con pill neutra. Barra mobile da 56 px con wordmark e menu; il menu porta i due gruppi di navigazione e il backup.
-- **Calcolatore.** Griglia 7/12 + 5/12 con pannello risultato sticky a ≥1024 px, `max-height` a viewport meno 48 px e scroll interno su schermi bassi. Il form è una superficie bianca unica, con sezioni separate da regole da 1 px (intestazione, stampe, costi di lavoro, prezzo); le righe sono `<fieldset>` con testata editabile e non card annidate. `Price` 34 px serif, costo pieno e margine a 24 px, `CostStack`, frase del risultato e link al dettaglio.
+- **Calcolatore.** Griglia 7/12 + 5/12 con pannello risultato sticky a ≥1024 px, `max-height` a viewport meno 48 px e scroll interno su schermi bassi. Il form è una superficie bianca unica, con sezioni separate da regole da 1 px (intestazione, stampe, costi di lavoro, prezzo); le righe sono `<fieldset>` con testata editabile e non card annidate. `Price` 34 px serif, costo pieno e guadagno a 24 px, margine effettivo come nota, `CostStack`, frase del risultato e link al dettaglio.
 - **Confronto rapido.** Nel pannello risultato, due stati con le stampanti attive: scegliendo l’altra si legge il costo ipotetico e il delta rispetto al preventivo corrente. La bozza non viene mai mutata.
 - **Preventivi e dettaglio.** Lista tabellare con identity, stato, righe, costo, prezzo e una sola azione di riga; su mobile righe a due linee. Dettaglio con prezzo + stack, righe (tabella su desktop, card su mobile), snapshot con “Aggiorna ai prezzi correnti” e gestione (duplica, archivia, elimina) separata; una sola azione primaria per schermata.
 - **Anagrafiche.** Stampanti a righe con costo orario in evidenza; materiali, extra e tariffe in tabelle con importi allineati a destra e liste a due linee su mobile. Tariffa corrente in una striscia con barra dati.
 - **Impostazioni.** Colonna etichetta + pannello, sezioni separate da regole, anteprima reale del prezzo con `calculatePricing`, riepilogo dei valori correnti e azioni distruttive in fondo.
-- **Condivisione.** Vista read-only con prezzo, stack, righe e dettaglio; import nel proprio archivio come azione primaria.
-- **Stampa.** A4 con intestazione, meta, righe, composizione in grigi, totali e note; prezzo di riga etichettato come quota del totale; footer “Generato con LayerCost il gg/mm/aaaa”.
+- **Condivisione.** Vista read-only con prezzo e righe; niente costo, margine o composizione del costo. Import nel proprio archivio come azione primaria. Il report interno resta disponibile solo nell'app.
+- **Stampa.** A4 con intestazione, meta, righe, totali e note; prezzo di riga etichettato come quota del totale; footer “Generato con LayerCost il gg/mm/aaaa”. La stampa standard è per il cliente; la stampa interna include composizione in grigi e totali economici ed è marcata “Uso interno”.
 - **Correzioni di visualizzazione (non del motore).** Le bande dello stack moltiplicano i componenti di riga per la quantità; gli importi della legenda sono allocati in centesimi con resto più grande, così la somma coincide con il costo pieno mostrato. La tabella dettaglio alloca le sei componenti al costo diretto della riga, così righe e totali di colonna tornano al centesimo. I grammi totali includono la quantità. `formatCurrency` arrotonda i centesimi con aritmetica intera per evitare il mezzo centesimo instabile. `engineVersion`, formule, snapshot e persistenza non sono cambiati.
 
 ### 8.2 Critique (round 1 → round 2)
@@ -439,7 +446,21 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Preferenze rapide (T5.15).** `QuickPreferences` in fondo alla sidebar e nel menu mobile: tre radio per il tema e due per la lingua, sincronizzate con Impostazioni e persistenti fuori da `AppData`. L'input invisibile copre l'etichetta, quindi il click è su tutto il pulsantino; il focus ring è sul contenitore. La lingua adotta la bozza vuota e non tocca i preventivi salvati.
 - **Azioni del preventivo (T5.16).** “Gestione del preventivo” è passata subito sotto testata e avvisi, prima di prezzo e righe; “Stampa / PDF” è secondaria. Il ciclo di vita e le conferme restano invariati.
 - **Colore filamento (T5.17).** `PrintLine.color?: string` (`#rrggbb`) è un dato opzionale di presentazione, senza migrazione e senza impatto su formule, `engineVersion` o snapshot. Swatch nel calcolatore (picker nativo + rimozione), nel dettaglio, nella tabella costi e in stampa A4.
-- **Verifiche.** `npm run check` verde (112 unitari, build, budget 284,8 KB totali su 350 KB); 36 E2E (30 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px sono state rigenerate in CI il 28/10/2026 con l'accento viola e il batch T5.12–T5.17.
+- **Verifiche.** `npm run check` verde (116 unitari, build, budget 285,8 KB totali su 350 KB); 36 E2E (30 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px sono state rigenerate in CI il 28/10/2026 con l'accento viola e il batch T5.12–T5.19.
+
+### 8.9 Utile e vista cliente — esito (T5.18, 28/10/2026)
+
+- **Riepilogo interno.** “Guadagno” in euro prende il posto del solo margine percentuale nel pannello del calcolatore e nel dettaglio del preventivo; il margine effettivo resta come nota sotto l'importo. Se il prezzo è sotto costo, l'importo usa il warning e la frase “Il prezzo è sotto il costo”.
+- **Vista cliente.** `QuoteOverview` e `QuotePrint` accettano `audience: 'internal' | 'customer'`. Nel link condiviso e nella stampa standard il cliente vede solo prezzi, IVA e note; costo pieno, costo diretto, costi fissi, utile, margine, composizione del costo, dettaglio costi e versione motore non vengono renderizzati.
+- **Stampa interna.** Il dettaglio ha due azioni: “Stampa / PDF” (cliente) e “Stampa interna” (include i costi, marcata “Uso interno” nell'intestazione). Il calcolatore stampa la versione cliente.
+- **Dati.** L'utile è `netPrice − totalCost` in µ€, calcolato per la UI da `src/lib/quote-profit.ts`; non entra in `QuoteResult`, nello schema o nei link condivisi. Nessun cambio a formule, `engineVersion` o persistenza.
+
+### 8.10 Composizione del prezzo, righe e stampa — esito (T5.19, 28/10/2026)
+
+- **Prezzo e costo.** `PriceComposition` aggiunge sopra `CostStack` una barra del prezzo netto divisa in costo pieno e guadagno, con legenda. Compare in calcolatore, dettaglio e stampa interna; è assente nella vista cliente e quando l'utile è negativo.
+- **Preventivi.** Rimosso il pulsante “Apri”: la riga della tabella è cliccabile e si evidenzia per intero all'hover; il nome passa al colore accent senza sottolineatura. Su mobile l'intera card è un link. Il link sul nome resta per tastiera e screen reader.
+- **Stampa e tema.** I token chiari sono limitati a `.quote-print`: l'interfaccia intorno resta nel tema scuro durante l'anteprima, il foglio è bianco e il PDF mantiene i margini bianchi grazie a `color-scheme: light`. Il tema viene riapplicato anche su `afterprint`.
+- **i18n.** 4 chiavi `priceComposition.*`; rimosse `quotes.open` e `quote.label.actions`. Parità it/en a 872 chiavi. Nessun cambio a formule, schema, snapshot o `engineVersion`.
 
 ---
 
@@ -464,6 +485,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 | `src/components/ui.tsx`                           | Button, Card, Badge, Field, Input, Select, Textarea, Toggle, Alert, Modal, EmptyState, Stat, Price, PageHeader, InfoDot, TableScroll, Table, Tabs |
 | `src/components/field-context.ts`                 | id di label/hint/error condivisi                                                                                                                  |
 | `src/components/cost-stack.tsx`                   | stack dei costi                                                                                                                                   |
+| `src/components/price-composition.tsx`             | barra prezzo netto divisa in costo pieno e guadagno                                                                                                |
 | `src/lib/cost-bands.ts`                           | raggruppamento delle bande e test                                                                                                                 |
 | `src/lib/cost-details.ts`                         | componenti per riga in centesimi, allineati al costo diretto mostrato                                                                             |
 | `src/lib/format.ts`                               | formattazione it-IT e arrotondamento dei centesimi                                                                                                |

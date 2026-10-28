@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.17 — 112 test unitari + 36 E2E (6 visual su CI, 36 screenshot)
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.19 — 116 test unitari + 36 E2E (6 visual su CI, 36 screenshot)
 
 ---
 
@@ -43,14 +43,15 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/lib/draft.test.ts` — 7 test: bozza vuota, nomi predefiniti inglesi, metadati, righe (incluso il colore), costi di lavoro, prezzo, override.
 - `src/lib/color.test.ts` — 2 test: hex `#rrggbb` valido, nomi/forme brevi/non testuali rifiutati.
 - `src/lib/quote-status.test.ts` — 3 test: modificabilità per stato/archivio, blocco inviato/completato, transizioni solo in avanti.
+- `src/lib/quote-profit.test.ts` — 4 test: utile positivo, zero, negativo e coerenza con prezzo netto e costo pieno.
 - `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
-- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`.
+- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a 872 chiavi dopo T5.19.
 - `src/lib/share.test.ts` — 3 test: roundtrip con lingua, migrazione dei vecchi link senza `locale` a italiano, payload non valido rifiutato.
 - `src/lib/xlsx.test.ts` — 5 test: pacchetto OPC, XML ben formato, formati numerici e date Excel, riferimenti oltre la Z, valori non finiti, nomi dei fogli sanificati e univoci.
 - `src/features/quotes/export-xlsx.test.ts` — 3 test: tre fogli con preventivi/righe/materiali, intestazioni inglesi, preventivo senza risultato esportato con valori vuoti.
 - `tests/e2e/import.spec.ts` — 8 test: file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload e overflow a 375 px.
-- `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload, condivisione/import in contesto pulito, navigazione sezioni.
+- `tests/e2e/smoke.spec.ts` — 3 test: calcolo/salvataggio/reload con utile e barra prezzo, stampa cliente senza costi e stampa interna con costi, riga preventivo cliccabile senza “Apri”, condivisione/import in contesto pulito, navigazione sezioni.
 - `tests/e2e/design-system.spec.ts` — 2 test: token e font caricati; bordo campo, altezza touch, focus, primario, overflow a 375, menu mobile e preferenze rapide.
 - `tests/e2e/theme.spec.ts` — 1 test: tema scuro dalla sidebar, sincronizzazione con Impostazioni, persistenza, “Sistema” che segue il dispositivo.
 - `tests/e2e/locale.spec.ts` — 1 test: cambio lingua dalla sidebar, sincronizzazione con Impostazioni, `<html lang>`, titolo, persistenza al reload, salvataggio in inglese e stampa inglese anche con UI italiana.
@@ -61,7 +62,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/xlsx.spec.ts` — 2 test: download reale del workbook con preventivo archiviato e verifica di fogli e contenuto; pulsante disabilitato senza preventivi.
 - `tests/e2e/a11y.spec.ts` — 3 test: 40 scansioni axe (26 italiane, 14 inglesi) su tutte le route, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni.
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
-- `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con token chiari partendo dal tema scuro; nessuna richiesta esterna.
+- `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con foglio chiaro e margini bianchi partendo dal tema scuro; nessuna richiesta esterna.
 - `tests/e2e/visual.spec.ts` — 6 test, 36 screenshot: 18 italiani e 18 inglesi (calcolatore, modale import `.3mf`, dettaglio, preventivi, materiali e impostazioni) a 1440/768/390 px. Saltati fuori dalla CI; le baseline vanno rigenerate dopo T5.15–T5.17 e T5.12.
 - `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser sono in `parse.test.ts`.
 

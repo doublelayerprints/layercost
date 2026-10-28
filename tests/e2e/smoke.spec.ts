@@ -16,11 +16,14 @@ test('calcola, salva e ricarica un preventivo', async ({ page }) => {
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
 
   await expect(page.getByText(/3,70/).first()).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('Guadagno').first()).toBeVisible()
+  await expect(page.getByText('Prezzo netto').first()).toBeVisible()
 
   await page.getByRole('button', { name: 'Salva preventivo' }).click()
   await page.waitForURL(/#\/quotes\//)
   await expect(page.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
   await expect(page.getByText(/3,70/).first()).toBeVisible()
+  await expect(page.getByText('Guadagno').first()).toBeVisible()
   await expect(page.getByText('Preventivo salvato')).toBeVisible()
   await page.getByRole('button', { name: 'Chiudi avviso' }).click()
   await expect(page.getByText('Preventivo salvato')).toHaveCount(0)
@@ -31,9 +34,28 @@ test('calcola, salva e ricarica un preventivo', async ({ page }) => {
   await expect(page.getByText('Preventivo salvato')).toHaveCount(0)
 
   await page.emulateMedia({ media: 'print' })
-  await expect(page.getByText('Generato con LayerCost')).toBeVisible()
+  const print = page.getByTestId('quote-print')
+  await expect(print.getByText('Generato con LayerCost')).toBeVisible()
+  await expect(print.getByText('Costo pieno')).toHaveCount(0)
+  await expect(print.getByText('Margine effettivo')).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'Calcolatore' })).toBeHidden()
   await page.emulateMedia({ media: 'screen' })
+
+  await page.evaluate(() => {
+    window.print = () => {}
+  })
+  await page.getByRole('button', { name: 'Stampa interna' }).click()
+  await page.emulateMedia({ media: 'print' })
+  await expect(print.getByText('Uso interno')).toBeVisible()
+  await expect(print.getByText('Costo pieno').first()).toBeVisible()
+  await expect(print.getByText('Guadagno').first()).toBeVisible()
+  await page.emulateMedia({ media: 'screen' })
+
+  await page.goto('/#/quotes')
+  await expect(page.getByRole('button', { name: 'Apri' })).toHaveCount(0)
+  await page.locator('tbody tr').first().click()
+  await page.waitForURL(/#\/quotes\/.+/)
+  await expect(page.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
 
   expect(errors).toEqual([])
 })
@@ -58,6 +80,18 @@ test('condivide e importa un preventivo in un contesto pulito', async ({ page })
   await otherPage.goto(link)
   await expect(otherPage.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
   await expect(otherPage.getByText(/3,70/).first()).toBeVisible()
+  await expect(otherPage.getByText('Costo pieno')).toHaveCount(0)
+  await expect(otherPage.getByText('Margine effettivo')).toHaveCount(0)
+  await expect(otherPage.getByText('Guadagno')).toHaveCount(0)
+  await expect(otherPage.getByText('Prezzo netto')).toHaveCount(0)
+  await expect(otherPage.getByText('Composizione del costo')).toHaveCount(0)
+
+  await otherPage.emulateMedia({ media: 'print' })
+  await expect(otherPage.getByText('Generato con LayerCost')).toBeVisible()
+  await expect(otherPage.getByText('Costo pieno')).toHaveCount(0)
+  await expect(otherPage.getByText('Margine effettivo')).toHaveCount(0)
+  await otherPage.emulateMedia({ media: 'screen' })
+
   await otherPage.getByRole('button', { name: 'Importa nel mio archivio' }).click()
   await otherPage.waitForURL(/#\/quotes\//)
   await expect(otherPage.getByRole('heading', { name: /Nuovo preventivo/ }).first()).toBeVisible()

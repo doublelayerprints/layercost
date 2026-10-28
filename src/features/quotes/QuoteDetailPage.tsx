@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
@@ -46,11 +47,19 @@ export function QuoteDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [statusToSet, setStatusToSet] = useState<'sent' | 'completed'>()
   const [pendingDraftAction, setPendingDraftAction] = useState<'duplicate' | 'refresh' | 'edit'>()
+  const [printAudience, setPrintAudience] = useState<'customer' | 'internal'>('customer')
 
   // The confirmation is for this visit only: drop it from history so a reload does not repeat it.
   useEffect(() => {
     if (cameFromSave) navigate(location.pathname, { replace: true, state: null })
   }, [cameFromSave, location.pathname, navigate])
+
+  // Keep the chosen audience until the print dialog closes, then restore the customer copy.
+  useEffect(() => {
+    const resetAudience = () => setPrintAudience('customer')
+    window.addEventListener('afterprint', resetAudience)
+    return () => window.removeEventListener('afterprint', resetAudience)
+  }, [])
 
   const quote = quotes.find((candidate) => candidate.id === id)
   const format = useFormat(quote?.locale)
@@ -100,6 +109,12 @@ export function QuoteDetailPage() {
     navigate('/quotes')
   }
 
+  const requestPrint = (audience: 'customer' | 'internal') => {
+    // The hidden print layout must reflect the chosen audience before the dialog opens.
+    flushSync(() => setPrintAudience(audience))
+    window.print()
+  }
+
   return (
     <>
       <div className="print:hidden">
@@ -134,9 +149,18 @@ export function QuoteDetailPage() {
                 {quote.result ? (
                   <ShareQuoteButton quote={quote} result={quote.result} variant="secondary" />
                 ) : null}
-                <Button variant="secondary" onClick={() => window.print()} disabled={!quote.result}>
+                <Button
+                  variant="secondary"
+                  onClick={() => requestPrint('customer')}
+                  disabled={!quote.result}
+                >
                   {t('print.action')}
                 </Button>
+                {quote.result ? (
+                  <Button variant="ghost" onClick={() => requestPrint('internal')}>
+                    {t('print.internalAction')}
+                  </Button>
+                ) : null}
               </>
             }
           />
@@ -297,7 +321,7 @@ export function QuoteDetailPage() {
         </Modal>
       </div>
 
-      <QuotePrint quote={quote} result={quote.result} />
+      <QuotePrint quote={quote} result={quote.result} audience={printAudience} />
     </>
   )
 }

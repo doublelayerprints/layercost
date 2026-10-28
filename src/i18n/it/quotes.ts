@@ -15,7 +15,6 @@ export const quotesIt = {
   'quote.label.lines': 'Righe',
   'quote.label.cost': 'Costo',
   'quote.label.price': 'Prezzo',
-  'quote.label.actions': 'Azioni',
   'quote.label.print': 'Stampa',
   'quote.label.printer': 'Stampante',
   'quote.label.material': 'Materiale',
@@ -42,7 +41,6 @@ export const quotesIt = {
   'quotes.noResults.search': 'Nessun preventivo corrisponde alla ricerca.',
   'quotes.noResults.archived': 'Gli unici preventivi presenti sono archiviati.',
   'quotes.table.caption': 'Preventivi salvati',
-  'quotes.open': 'Apri',
 
   // Quote detail (QuoteDetailPage).
   'quote.notFound.title': 'Preventivo non trovato',
@@ -99,6 +97,7 @@ export const quotesIt = {
   'quote.price.noVat': 'Nessuna IVA',
   'quote.directCost': 'Costo diretto',
   'quote.fixedCosts': 'Costi fissi',
+  'quote.profit': 'Guadagno',
   'quote.effectiveMargin': 'Margine effettivo',
   'quote.costComposition': 'Composizione del costo',
   'quote.snapshot.frozen': 'Tariffe congelate al {date} · Motore v{version}',
@@ -116,6 +115,7 @@ export const quotesIt = {
 
   // Print layout (QuotePrint).
   'print.action': 'Stampa / PDF',
+  'print.internalAction': 'Stampa interna',
   'quote.print.title': 'Preventivo',
   'quote.print.customer': 'Cliente: {name}',
   'quote.print.effectiveTime': 'Tempo effettivo',
@@ -123,8 +123,10 @@ export const quotesIt = {
   'quote.print.lineGramsTotal': '{total} totali',
   'quote.print.linePriceNote':
     'Il prezzo di riga è una quota del prezzo totale, non un prezzo indipendente.',
+  'quote.print.internalBadge': 'Uso interno · include i costi',
   'quote.print.footer':
     'Generato con LayerCost il {date}. I costi sono una stima basata sui parametri configurati.',
+  'quote.print.footerCustomer': 'Generato con LayerCost il {date}.',
 
   // Shared quote link (SharePage).
   'share.error.noPayload': 'Il link non contiene un preventivo.',

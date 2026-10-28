@@ -15,9 +15,11 @@
 - Preferenze rapide (T5.15): tema Sistema/Chiaro/Scuro e lingua IT/EN in fondo alla sidebar e nel menu mobile, sincronizzati con Impostazioni.
 - Azioni del preventivo in alto (T5.16): gestione sotto la testata, prima del prezzo e delle righe; “Stampa / PDF” secondaria.
 - Colore filamento per riga (T5.17): colore `#rrggbb` opzionale con picker, swatch in dettaglio/stampa e rimozione; schema v3 invariato.
+- Utile e vista cliente (T5.18): “Guadagno” in euro nel calcolatore e nel dettaglio, con margine effettivo come nota; link condiviso e stampa standard per il cliente mostrano solo prezzi, IVA e note; “Stampa interna” dal dettaglio include costi e composizione ed è marcata “Uso interno”. Valore derivato di UI, nessun cambio a formule, schema, snapshot o `engineVersion`.
+- Composizione del prezzo, righe cliccabili e stampa in tema scuro (T5.19): barra del prezzo netto divisa in costo pieno e guadagno sopra la composizione del costo; lista preventivi senza “Apri” e con riga cliccabile evidenziata all'hover; i token chiari di stampa sono limitati al foglio `.quote-print`, così l'interfaccia resta scura durante l'anteprima e il PDF mantiene i margini bianchi.
 - Calcolatore: aggiunta riga tramite una barra trasparente a tutta larghezza sotto l’ultima card, con `+` centrale e stato accent su hover, focus e click; l’azione è stata tolta dalla testata della sezione Stampe.
 - Export `.xlsx` (T5.12): writer locale senza nuove dipendenze, tre fogli (Preventivi, Righe, Materiali), valori numerici con formati Excel, intestazioni in italiano/inglese, archiviati inclusi e pulsanti in Preventivi e Impostazioni → Dati.
-- Test: 112 unitari, 36 E2E, 36 screenshot visuali.
+- Test: 116 unitari, 36 E2E, 36 screenshot visuali.
 
 ### Changed
 

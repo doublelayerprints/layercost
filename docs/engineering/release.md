@@ -97,7 +97,7 @@ Restano verifiche manuali consigliate con uno screen reader reale (VoiceOver/NVD
 - **WebKit:** calcolo, salvataggio, reload, link condiviso, cambio tema e `@media print`.
 - **Safari reale e stampante fisica:** non automatizzati. La release è verificata sull'engine WebKit e sul PDF; una prova su carta resta consigliata.
 
-La stampa usa sempre fondo bianco e testo nero, nasconde la navigazione e mantiene la composizione del costo in grigi.
+La stampa usa sempre fondo bianco e testo nero, nasconde la navigazione e, nella versione interna, mantiene la composizione del costo in grigi; la stampa standard per il cliente mostra solo prezzi, IVA e note.
 
 ---
 

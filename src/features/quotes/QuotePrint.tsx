@@ -3,18 +3,31 @@ import type { Quote, QuoteResult } from '@/domain/types'
 import { useTranslator } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { CostStack } from '@/components/cost-stack'
+import { PriceComposition } from '@/components/price-composition'
 import { LineColorSwatch } from '@/components/line-color'
 import { costBands } from '@/lib/cost-bands'
 import { todayIsoDate } from '@/lib/date'
+import { quoteProfitMicroEur } from '@/lib/quote-profit'
 import { plural } from '@/i18n'
+import type { QuoteAudience } from './QuoteOverview'
 
 /** Document date, resolved once per mount: the print footer must not read the clock on every render. */
-export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResult }) {
+export function QuotePrint({
+  quote,
+  result,
+  audience = 'customer',
+}: {
+  quote: Quote
+  result?: QuoteResult
+  audience?: QuoteAudience
+}) {
   const t = useTranslator(quote.locale)
   const format = useFormat(quote.locale)
   const [printDate] = useState(() => format.dateOnly(todayIsoDate()))
 
   if (!result) return null
+
+  const internal = audience === 'internal'
 
   const totalGrams = result.lines.reduce(
     (sum, line) =>
@@ -26,7 +39,10 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
   const totalPieces = result.lines.reduce((sum, line) => sum + line.quantity, 0)
 
   return (
-    <div className="hidden print:block print:text-black">
+    <div
+      className="quote-print hidden print:block print:text-black"
+      data-testid="quote-print"
+    >
       <header className="flex items-start justify-between gap-8 border-b border-black pb-3">
         <div>
           <p className="text-[9pt] font-semibold">{t('app.name')}</p>
@@ -49,7 +65,10 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
                     : 'quote.status.saved',
             )}
           </p>
-          <p>{t('app.engineVersion', { version: result.engineVersion })}</p>
+          {internal ? <p>{t('app.engineVersion', { version: result.engineVersion })}</p> : null}
+          {internal ? (
+            <p className="font-semibold">{t('quote.print.internalBadge')}</p>
+          ) : null}
           <p>
             {plural(quote.locale, quote.lines.length, {
               one: 'quote.lineCount.one',
@@ -93,9 +112,11 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
             <th scope="col" className="py-1 pr-2 text-right font-medium">
               {t('quote.label.pieces')}
             </th>
-            <th scope="col" className="py-1 pr-2 text-right font-medium">
-              {t('quote.label.fullyLoadedCost')}
-            </th>
+            {internal ? (
+              <th scope="col" className="py-1 pr-2 text-right font-medium">
+                {t('quote.label.fullyLoadedCost')}
+              </th>
+            ) : null}
             <th scope="col" className="py-1 text-right font-medium">
               {t('quote.label.linePrice')}
             </th>
@@ -130,9 +151,11 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
                 </td>
                 <td className="py-1.5 pr-2">{format.duration(line.effectiveSeconds)}</td>
                 <td className="py-1.5 pr-2 text-right">{line.quantity}</td>
-                <td className="py-1.5 pr-2 text-right">
-                  {format.currency(line.fullyLoadedLineCost)}
-                </td>
+                {internal ? (
+                  <td className="py-1.5 pr-2 text-right">
+                    {format.currency(line.fullyLoadedLineCost)}
+                  </td>
+                ) : null}
                 <td className="py-1.5 text-right">
                   {format.cents(line.priceCents)}
                   <span className="block text-[8pt] text-black/60">
@@ -147,13 +170,16 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
       </table>
       <p className="mt-1 text-[8pt] text-black/60">{t('quote.print.linePriceNote')}</p>
 
-      <div className="mt-4 grid grid-cols-[1fr_72mm] gap-8">
-        <div>
-          <p className="text-[9pt] font-semibold">{t('quote.costComposition')}</p>
-          <CostStack bands={costBands(result)} locale={quote.locale} className="mt-2" />
-        </div>
+      <div className={internal ? 'mt-4 grid grid-cols-[1fr_72mm] gap-8' : 'mt-4 flex justify-end'}>
+        {internal ? (
+          <div>
+            <PriceComposition result={result} locale={quote.locale} />
+            <p className="mt-3 text-[9pt] font-semibold">{t('quote.costComposition')}</p>
+            <CostStack bands={costBands(result)} locale={quote.locale} className="mt-2" />
+          </div>
+        ) : null}
 
-        <div>
+        <div className={internal ? undefined : 'w-[72mm]'}>
           <p className="text-[9pt] font-semibold">{t('quote.label.price')}</p>
           <p className="mt-1 font-serif text-[18pt] font-semibold leading-tight">
             {format.cents(result.grossPriceCents)}
@@ -166,20 +192,26 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
                 })
               : t('quote.price.noVat')}
           </p>
-          <dl className="mt-2 border-t border-black/25 pt-1 text-[9pt]">
-            <div className="flex items-center justify-between gap-4 py-0.5">
-              <dt>{t('quote.label.fullyLoadedCost')}</dt>
-              <dd className="tabular-nums">{format.currency(result.totalCost)}</dd>
-            </div>
-            <div className="flex items-center justify-between gap-4 py-0.5">
-              <dt>{t('quote.effectiveMargin')}</dt>
-              <dd className="tabular-nums">{format.percent(result.effectiveMarginBp)}</dd>
-            </div>
-            <div className="flex items-center justify-between gap-4 py-0.5">
-              <dt>{t('quote.netPrice')}</dt>
-              <dd className="tabular-nums">{format.cents(result.netPriceCents)}</dd>
-            </div>
-          </dl>
+          {internal ? (
+            <dl className="mt-2 border-t border-black/25 pt-1 text-[9pt]">
+              <div className="flex items-center justify-between gap-4 py-0.5">
+                <dt>{t('quote.label.fullyLoadedCost')}</dt>
+                <dd className="tabular-nums">{format.currency(result.totalCost)}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-0.5">
+                <dt>{t('quote.profit')}</dt>
+                <dd className="tabular-nums">{format.currency(quoteProfitMicroEur(result))}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-0.5">
+                <dt>{t('quote.effectiveMargin')}</dt>
+                <dd className="tabular-nums">{format.percent(result.effectiveMarginBp)}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-0.5">
+                <dt>{t('quote.netPrice')}</dt>
+                <dd className="tabular-nums">{format.cents(result.netPriceCents)}</dd>
+              </div>
+            </dl>
+          ) : null}
         </div>
       </div>
 
@@ -191,7 +223,7 @@ export function QuotePrint({ quote, result }: { quote: Quote; result?: QuoteResu
       ) : null}
 
       <p className="mt-4 border-t border-black/25 pt-2 text-[8pt] text-black/60">
-        {t('quote.print.footer', { date: printDate })}
+        {t(internal ? 'quote.print.footer' : 'quote.print.footerCustomer', { date: printDate })}
       </p>
     </div>
   )

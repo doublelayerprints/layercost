@@ -51,10 +51,15 @@ test('la stampa produce un PDF A4 chiaro anche con tema scuro', async ({ page })
   await expect(page.getByRole('link', { name: 'Calcolatore' })).toBeHidden()
   await expect(page.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
 
-  const colors = await page.evaluate(() => ({
-    background: getComputedStyle(document.body).backgroundColor,
-    text: getComputedStyle(document.body).color,
-  }))
+  const colors = await page.evaluate(() => {
+    const sheet = document.querySelector('[data-testid="quote-print"]')
+    if (!sheet) throw new Error('Print sheet not found')
+    const style = getComputedStyle(sheet)
+    return {
+      background: style.backgroundColor,
+      text: style.color,
+    }
+  })
   expect(colors).toEqual({ background: 'rgb(255, 255, 255)', text: 'rgb(0, 0, 0)' })
 
   const pdf = await page.pdf({ format: 'A4', printBackground: true })

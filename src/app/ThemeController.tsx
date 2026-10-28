@@ -19,5 +19,12 @@ export function ThemeController() {
     return () => media.removeEventListener('change', handleChange)
   }, [])
 
+  // The print stylesheet forces ink on white; make sure the screen theme is restored afterwards.
+  useEffect(() => {
+    const reapply = () => applyThemePreference(useThemeStore.getState().preference)
+    window.addEventListener('afterprint', reapply)
+    return () => window.removeEventListener('afterprint', reapply)
+  }, [])
+
   return null
 }

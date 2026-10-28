@@ -93,11 +93,11 @@ export function SharePage() {
         </div>
 
         <div className="mt-6">
-          <QuoteOverview quote={quote} result={quote.result} />
+          <QuoteOverview quote={quote} result={quote.result} audience="customer" />
         </div>
       </div>
 
-      <QuotePrint quote={quote} result={quote.result} />
+      <QuotePrint quote={quote} result={quote.result} audience="customer" />
     </>
   )
 }

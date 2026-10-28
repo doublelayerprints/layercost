@@ -133,6 +133,7 @@ export const calculatorIt = {
   'summary.toComplete': 'Da completare',
   'summary.completeData': 'Completa i dati',
   'summary.fullCost': 'Costo pieno',
+  'summary.profit': 'Guadagno',
   'summary.effectiveMargin': 'Margine effettivo',
   'summary.detailsLink': 'Dettaglio costi',
   'summary.empty': 'Inserisci stampante, tempo e grammi per vedere il costo e il prezzo.',

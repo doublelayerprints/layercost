@@ -113,7 +113,7 @@ export function QuotesPage() {
               <caption className="sr-only">{t('quotes.table.caption')}</caption>
               <thead>
                 <tr className="text-xs text-muted">
-                  <th scope="col" className="py-2 pr-4 text-left font-medium">
+                  <th scope="col" className="py-2 pl-4 pr-4 text-left font-medium">
                     {t('quote.label.quote')}
                   </th>
                   <th scope="col" className="py-2 pr-4 text-left font-medium">
@@ -128,20 +128,24 @@ export function QuotesPage() {
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
                     {t('quote.label.price')}
                   </th>
-                  <th scope="col" className="py-2 text-right font-medium">
-                    <span className="sr-only">{t('quote.label.actions')}</span>
-                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((quote) => {
                   const status = quoteStatusDisplay(quote)
                   return (
-                    <tr key={quote.id} className="border-t border-rule align-middle">
-                      <th scope="row" className="py-3 pr-4 text-left font-normal">
+                    <tr
+                      key={quote.id}
+                      className="group cursor-pointer border-t border-rule align-middle transition-feedback hover:bg-raised focus-within:bg-raised"
+                      onClick={(event) => {
+                        if ((event.target as HTMLElement).closest('a')) return
+                        navigate(`/quotes/${quote.id}`)
+                      }}
+                    >
+                      <th scope="row" className="py-3 pl-4 pr-4 text-left font-normal">
                         <Link
                           to={`/quotes/${quote.id}`}
-                          className="font-medium text-ink underline-offset-2 hover:underline"
+                          className="font-medium text-ink underline-offset-2 transition-feedback group-hover:text-data"
                         >
                           {quote.name}
                         </Link>
@@ -162,15 +166,6 @@ export function QuotesPage() {
                       <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
                         {quote.result ? format.cents(quote.result.grossPriceCents) : '—'}
                       </td>
-                      <td className="py-3 text-right">
-                        <Button
-                          variant="subtle"
-                          size="sm"
-                          onClick={() => navigate(`/quotes/${quote.id}`)}
-                        >
-                          {t('quotes.open')}
-                        </Button>
-                      </td>
                     </tr>
                   )
                 })}
@@ -182,42 +177,36 @@ export function QuotesPage() {
             {filtered.map((quote) => {
               const status = quoteStatusDisplay(quote)
               return (
-                <li key={quote.id} className="border-b border-rule py-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <Link
-                        to={`/quotes/${quote.id}`}
-                        className="block truncate text-sm font-medium text-ink underline-offset-2 hover:underline"
-                      >
-                        {quote.name}
-                      </Link>
-                      <p className="mt-0.5 text-xs text-muted">
-                        {format.dateOnly(quote.quoteDate)}
-                        {quote.customer ? ` · ${quote.customer}` : ''} ·{' '}
-                        {plural(locale, quote.lines.length, {
-                          one: 'quote.lineCount.one',
-                          other: 'quote.lineCount.other',
-                        })}
-                      </p>
-                      <div className="mt-1.5">
-                        <Badge tone={status.tone}>{t(status.labelKey)}</Badge>
+                <li key={quote.id} className="border-b border-rule">
+                  <Link
+                    to={`/quotes/${quote.id}`}
+                    className="block py-3 transition-feedback hover:bg-raised focus-visible:bg-raised"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-ink">{quote.name}</p>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {format.dateOnly(quote.quoteDate)}
+                          {quote.customer ? ` · ${quote.customer}` : ''} ·{' '}
+                          {plural(locale, quote.lines.length, {
+                            one: 'quote.lineCount.one',
+                            other: 'quote.lineCount.other',
+                          })}
+                        </p>
+                        <div className="mt-1.5">
+                          <Badge tone={status.tone}>{t(status.labelKey)}</Badge>
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-base font-medium tabular-nums text-ink">
+                          {quote.result ? format.cents(quote.result.grossPriceCents) : '—'}
+                        </p>
+                        <p className="text-xs text-muted">
+                          {quote.result ? format.currency(quote.result.totalCost) : ''}
+                        </p>
                       </div>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-base font-medium tabular-nums text-ink">
-                        {quote.result ? format.cents(quote.result.grossPriceCents) : '—'}
-                      </p>
-                      <p className="text-xs text-muted">
-                        {quote.result ? format.currency(quote.result.totalCost) : ''}
-                      </p>
-                      <Link
-                        to={`/quotes/${quote.id}`}
-                        className="mt-1 inline-block text-sm font-medium text-data underline-offset-2 hover:underline"
-                      >
-                        {t('quotes.open')}
-                      </Link>
-                    </div>
-                  </div>
+                  </Link>
                 </li>
               )
             })}

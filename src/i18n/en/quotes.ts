@@ -16,7 +16,6 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.label.lines': 'Lines',
   'quote.label.cost': 'Cost',
   'quote.label.price': 'Price',
-  'quote.label.actions': 'Actions',
   'quote.label.print': 'Print',
   'quote.label.printer': 'Printer',
   'quote.label.material': 'Material',
@@ -42,7 +41,6 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quotes.noResults.search': 'No quote matches the search.',
   'quotes.noResults.archived': 'All the quotes available are archived.',
   'quotes.table.caption': 'Saved quotes',
-  'quotes.open': 'Open',
 
   'quote.notFound.title': 'Quote not found',
   'quote.notFound.heading': 'This quote no longer exists',
@@ -98,6 +96,7 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.price.noVat': 'No VAT',
   'quote.directCost': 'Direct cost',
   'quote.fixedCosts': 'Fixed costs',
+  'quote.profit': 'Profit',
   'quote.effectiveMargin': 'Effective margin',
   'quote.costComposition': 'Cost breakdown',
   'quote.snapshot.frozen': 'Rates frozen at {date} · Engine v{version}',
@@ -113,6 +112,7 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.unit.pricePerPiece': '/pc',
 
   'print.action': 'Print / PDF',
+  'print.internalAction': 'Internal print',
   'quote.print.title': 'Quote',
   'quote.print.customer': 'Customer: {name}',
   'quote.print.effectiveTime': 'Actual time',
@@ -120,8 +120,10 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.print.lineGramsTotal': '{total} total',
   'quote.print.linePriceNote':
     'The line price is a share of the total price, not an independent price.',
+  'quote.print.internalBadge': 'Internal use · includes costs',
   'quote.print.footer':
     'Generated with LayerCost on {date}. Costs are an estimate based on the configured parameters.',
+  'quote.print.footerCustomer': 'Generated with LayerCost on {date}.',
 
   'share.error.noPayload': 'The link does not contain a quote.',
   'share.error.invalid': 'The link is not valid.',

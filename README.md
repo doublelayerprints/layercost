@@ -21,6 +21,8 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Confronta Kobra 3 e Kobra X sullo stesso lavoro.
 - Importa un `.3mf` già slicato con anteprima dei piatti, mappatura di stampante e materiali e import nel preventivo.
 - Esporta/importa JSON, esporta preventivi, righe e materiali in `.xlsx`, condivide un preventivo via link, stampa il PDF dal browser.
+- Mostra l'utile in euro nel calcolatore e nel dettaglio; link condiviso e stampa/PDF per il cliente mostrano solo prezzi, IVA e note. La stampa interna con costi e margine è un'azione separata.
+- Divide il prezzo netto in costo pieno e guadagno con due barre, e apre un preventivo cliccando tutta la riga nella lista.
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
 - Funziona interamente nel browser: nessun backend, nessun account, nessun analytics.
 
@@ -103,7 +105,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 112 unitari, 36 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
+- **Verifiche:** 116 unitari, 36 E2E (Chromium + WebKit), 36 screenshot di regressione, axe 0 violazioni (40 scansioni), stampa/PDF e budget.
 - **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
 - **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto e colore filamento (T5.15–T5.17); sync gratuito richiesto (Supabase Free, workspace condiviso, magic link), non ancora implementato. Piano in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
