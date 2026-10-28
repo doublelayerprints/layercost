@@ -103,7 +103,7 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 - `localStorage` è tipicamente 5–10 MB per origine.
 - Svuotare i dati del browser cancella tutto.
 - I link condivisi contengono una copia del preventivo: non sono un backup completo.
-- Non c'è sincronizzazione tra dispositivi in v1. La fase 5 aggiunge un sync cloud opzionale: la cache cloud usa una chiave separata e non sovrascrive `layercost:data`.
+- Non c'è sincronizzazione tra dispositivi in v1. La fase 5 aggiunge un sync cloud opzionale: la cache cloud usa `layercost:cloud-cache`, l'outbox `layercost:sync-state` e nessuna delle due sovrascrive `layercost:data`.
 
 ## 8. Privacy
 
@@ -113,9 +113,9 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 - Senza account i dati restano sul dispositivo; con account esiste una copia sul server.
 - I link condivisi sono leggibili da chiunque abbia l'URL.
 
-## 9. Sync cloud (fase 5, in implementazione)
+## 9. Sync cloud (fase 5, T5.4.4)
 
-L'interfaccia `DataRepository` è astratta. In v1 era sincrona perché usava `localStorage`; il refactor async è completato in **T5.4.1**. La sincronizzazione cloud è un caso d'uso separato (`CloudGateway`) e non va accumulata dentro `DataRepository`:
+L'interfaccia `DataRepository` è astratta. In v1 era sincrona perché usava `localStorage`; il refactor async è completato in **T5.4.1**. La sincronizzazione cloud è un caso d'uso separato (`CloudGateway`) e non è accumulata dentro `DataRepository`:
 
 ```ts
 interface DataRepository {
@@ -127,23 +127,26 @@ interface DataRepository {
 }
 
 interface CloudGateway {
-  pull(): Promise<CloudSnapshot>
-  push(changes: ChangeSet): Promise<PushResult>
-  health(): Promise<void>
+  resolveWorkspace(): Promise<string>
+  pull(workspaceId: string): Promise<CloudSnapshot>
+  push(workspaceId: string, operation: SyncOperation): Promise<PushResult>
+  importAll(workspaceId: string, data: AppData): Promise<CloudSnapshot>
 }
 ```
 
-La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Lo schema, le RLS e i mapper sono implementati in T5.4.2 (`supabase/migrations/20261028120000_init.sql`); client e store auth sono in T5.4.3; il gateway cloud per i dati arriva in T5.4.4.
+La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Schema, RLS e mapper sono in T5.4.2; client e store auth in T5.4.3; gateway dati, outbox e conflitti in T5.4.4.
 
 Regole:
 
 - Configurazione e preventivi `saved`/`sent`/`completed` si sincronizzano; bozza, tema, lingua e onboarding restano locali.
 - Le scritture usano `updated_at` lato server per il controllo ottimistico; offline vanno in un outbox e vengono riprodotte al ritorno.
 - I conflitti sono visibili; nessun overwrite silenzioso. I preventivi `sent`/`completed` sono bloccati anche da un trigger.
-- La cache cloud usa una chiave separata (`layercost:cloud-cache`) e non sovrascrive `layercost:data`.
+- La cache cloud usa `layercost:cloud-cache` e non sovrascrive `layercost:data`; al logout l'app torna ai dati ospite.
+- L'outbox, i metadati `updated_at`, il workspace e l'ultimo sync vivono in `layercost:sync-state`. Se il workspace cambia, cache e outbox vengono scartati prima di riusarli.
+- Al logout con scritture in sospeso cache e outbox restano nel browser e riprendono al prossimo accesso; senza scritture in sospeso vengono rimosse.
 - Prima del primo sync va esportato un backup JSON; sul database esiste un `pg_dump` settimanale.
 
-La v1.0.0 resta local-only. Il gateway cloud è in implementazione nell'ambito di T5.4; fino a T5.4.4 l'app continua a usare solo `localRepository`.
+La v1.0.0 resta local-only. La modalità ospite usa solo `localRepository`; il cloud è opzionale.
 
 ## 10. Backup consigliato
 

@@ -21,10 +21,12 @@
 - Card comprimibili nel calcolatore (T5.21): Preventivo, Stampe, Costi di lavoro, Prezzo e ogni riga di stampa hanno un header con drop down e sintesi compatta (data/cliente, righe/grammi/costo diretto, manodopera/extra, ricarico/IVA, nome/stampante/tempo/costo di riga). Duplica, Rimuovi, Importa `.3mf` e Ripristina default restano disponibili a card compressa. Stato locale, nessun cambio a dati, formule, schema o `engineVersion`. Baseline visive Linux rigenerate.
 - Calcolatore: aggiunta riga tramite una barra trasparente a tutta larghezza sotto l’ultima card, con `+` centrale e stato accent su hover, focus e click; l’azione è stata tolta dalla testata della sezione Stampe.
 - Export `.xlsx` (T5.12): writer locale senza nuove dipendenze, tre fogli (Preventivi, Righe, Materiali), valori numerici con formati Excel, intestazioni in italiano/inglese, archiviati inclusi e pulsanti in Preventivi e Impostazioni → Dati.
-- Test: 124 unitari, 39 E2E, 36 screenshot visuali.
+- Sync cloud opzionale (T5.4.1–T5.4.4): repository async con hydration gate e coda serializzata; schema Supabase con RLS, trigger e mapper; auth email/password con client lazy; gateway pull/push, cache cloud separata, outbox persistita, scritture ottimistiche su `updated_at`, primo login con backup JSON, conflitti espliciti (ricarica remota/duplica per i preventivi, mantieni locale/usa remoto per la configurazione), indicatore di stato e logout con modifiche in sospeso. Migrazioni admin per service role e cleanup dell'ultimo owner. 182 unitari, 2 E2E sync, 22 pgTAP.
+- Test: 182 unitari, 43 E2E (33 default + 6 visual + 2 auth + 2 sync), 36 screenshot visuali.
 
 ### Changed
 
+- Amministrazione cloud (T5.4.4): il service role riceve grant espliciti per script admin e `protect_last_owner` consente alle richieste senza subject JWT di rimuovere l'ultimo owner, così la cancellazione di un workspace può fare cascade. Gli utenti autenticati restano protetti.
 - Accento viola (T4.8, ADR-0021): `--color-data` passa a `#5b21b6` nel tema chiaro e `#9d7bf5` nel tema scuro, con selezione, pill informativa e favicon allineate; la barra “Completa i dati” del riepilogo usa l'accent, mentre la pillola “Da completare” resta warning. Test E2E aggiornati e baseline visive Linux rigenerate. Nessun cambio a formule, `engineVersion`, schema, snapshot o persistenza.
 - `QuoteResult.discount` ora è la somma dello sconto di riga e dello sconto del preventivo; i due valori sono disponibili separatamente in `lineDiscountTotal` e `quoteDiscount`. `QuotePricing.discountBp` è sostituito da `QuotePricing.discount: DiscountRule`. `engineVersion` passa da `0.1.0` a `1.0.0`; lo schema passa da v3 a v4 con migrazione automatica.
 

@@ -58,6 +58,7 @@ npm run db:reset     # migrazioni + seed locali
 npm run db:test      # test pgTAP/RLS
 npm run db:types     # rigenera i tipi TypeScript dal DB locale
 npm run test:e2e:auth # build con Supabase locale + login/logout E2E
+npm run test:e2e:sync # build + due contesti, offline e conflitto (azzera il DB locale)
 ```
 
 ## Dati e backup
@@ -80,6 +81,8 @@ La build senza variabili Supabase resta **local-only**: login, sync e chunk clou
 3. `npm run dev` e apri `#/login`
 
 Gli account sono creati dall'amministratore; la registrazione è disabilitata.
+
+Con l'account attivo, configurazione e preventivi vivono nel **workspace condiviso**; bozza, tema e lingua restano locali. Le modifiche offline entrano in una coda persistita e vengono inviate al ritorno della rete; se lo stesso dato è cambiato su un altro dispositivo, l'app mostra un conflitto e chiede come risolverlo. Il primo accesso propone di importare i dati locali dopo aver scaricato un backup JSON. Al logout la copia locale dei dati cloud viene rimossa (o conservata se ci sono modifiche ancora in sospeso). Il database locale viene azzerato da `npm run test:e2e:sync`, non dalla build normale.
 
 ## Deploy
 
@@ -121,9 +124,9 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 159 unitari, 41 E2E (33 eseguiti + 6 visual + 2 auth), 21 test pgTAP RLS, 36 screenshot di regressione, axe 0 violazioni, stampa/PDF e budget.
+- **Verifiche:** 182 unitari, 43 E2E (33 default + 6 visual + 2 auth + 2 sync), 22 test pgTAP RLS, 36 screenshot di regressione, 46 scansioni axe con 0 violazioni, stampa/PDF e budget.
 - **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
-- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper) e **T5.4.3 chiuso** (auth email/password); prossimo T5.4.4 (sync). Piano in `docs/planning/t5.4-cloud-sync.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
+- **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password) e **T5.4.4 chiuso** (sync, outbox e conflitti); prossimo T5.4.5 (workspace condiviso). Piano in `docs/planning/t5.4-cloud-sync.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo.

@@ -55,6 +55,7 @@ npm run db:reset     # migrazioni + seed locali
 npm run db:test      # pgTAP/RLS
 npm run db:types     # rigenera i tipi dal DB locale
 npm run test:e2e:auth # build con Supabase locale + E2E auth
+npm run test:e2e:sync # build + due contesti, offline e conflitto (azzera il DB locale)
 ```
 
 `npm run check` è il gate prima di ogni commit. Non dichiarare un task chiuso se non è verde.

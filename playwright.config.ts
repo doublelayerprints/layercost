@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const isCI = Boolean(process.env.CI)
-const forceFreshServer = process.env.E2E_AUTH === '1'
+const forceFreshServer = process.env.E2E_AUTH === '1' || process.env.E2E_SYNC === '1'
 
 export default defineConfig({
   testDir: './tests/e2e',

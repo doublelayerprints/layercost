@@ -67,7 +67,7 @@ DataRepository ──► Zustand store ──► UI
    └────────────────────┘
 ```
 
-L'interfaccia `DataRepository` è in `src/data/repository.ts` ed è asincrona dalla T5.4.1. L'adapter attuale è `localRepository`; le scritture passano da una coda serializzata in `src/state/persist-queue.ts`. Il sync cloud opzionale è in implementazione secondo `docs/planning/t5.4-cloud-sync.md` (ADR-0024): T5.4.2 ha aggiunto schema, RLS, trigger e mapper in `src/data/cloud/`; T5.4.3 ha aggiunto client Supabase lazy, gateway auth (`src/data/cloud/auth.ts`), store (`src/state/auth-store.ts`), login e SyncSettings. Il gateway cloud per i dati arriva in T5.4.4. La v1.0.0 resta local-only; il cloud non è obbligatorio.
+L'interfaccia `DataRepository` è in `src/data/repository.ts` ed è asincrona dalla T5.4.1. In modalità ospite l'adapter è `localRepository` (`layercost:data`); in modalità connessa è `cloudCacheRepository` (`layercost:cloud-cache`). Le scritture passano da una coda serializzata in `src/state/persist-queue.ts`. Il sync cloud opzionale segue `docs/planning/t5.4-cloud-sync.md` (ADR-0024): T5.4.2 ha aggiunto schema, RLS, trigger e mapper in `src/data/cloud/`; T5.4.3 ha aggiunto client Supabase lazy, gateway auth (`src/data/cloud/auth.ts`), store (`src/state/auth-store.ts`), login e SyncSettings; T5.4.4 ha aggiunto il gateway dati (`src/data/cloud/gateway.ts`), diff/outbox/metadati (`src/data/cloud/sync.ts`, `sync-state.ts`), lo store di sync e le schermate di primo login/conflitto. La v1.0.0 resta local-only; il cloud non è obbligatorio.
 
 ---
 
@@ -89,15 +89,29 @@ Il risultato è memorizzato in `Quote.result`. Il ricalcolo usa lo snapshot; “
 src/
   app/            Layout, HydrationGate, routing, theme
   components/     ui.tsx, number-fields.tsx
-  data/           repository, storage, schemas, seed, theme, three-mf
+  data/           repository, storage, cloud-cache, schemas, seed, theme, three-mf, cloud/
   domain/         units, money, types, version, cost/, three-mf
-  features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding
+  features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding, auth, sync
   i18n/           it.ts, en.ts, index.ts
   lib/            format, date, id, share, labels, cn, theme, draft, xlsx
-  state/          app-store, persist-queue, theme-store
+  state/          app-store, auth-store, sync-store, persist-queue, theme-store, locale-store
 ```
 
-Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts` e `auth.ts` (T5.4.2–T5.4.3); `features/auth/LoginPage.tsx`, `features/settings/SyncSettings.tsx` e `state/auth-store.ts` sono implementati. Gateway cloud e outbox arrivano in T5.4.4. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`.
+Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts`, `auth.ts`, `gateway.ts`, `sync.ts` e `sync-state.ts`; `data/cloud-cache.ts` implementa la cache connessa. `features/auth/LoginPage.tsx`, `features/settings/SyncSettings.tsx`, `features/sync/SyncController.tsx`, i dialoghi di primo login/conflitto, `state/auth-store.ts` e `state/sync-store.ts` sono implementati. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`.
+
+Flusso connesso:
+
+```text
+Supabase (RLS) ⇄ CloudGateway ⇄ SyncStore ⇄ AppStore ⇄ UI
+                      │             │
+                      │             └── outbox + metadata (layercost:sync-state)
+                      └── cache cloud (layercost:cloud-cache)
+```
+
+- Il pull completo è accettabile per due utenti; non c'è realtime.
+- Il push usa `updated_at` come controllo ottimistico; un conflitto ferma la coda e apre un dialogo esplicito.
+- La cache cloud non sovrascrive `layercost:data`; al logout l'app torna ai dati ospite.
+- Gli script amministrativi usano il service role solo fuori dal browser (E2E, bootstrap, backup).
 
 ---
 

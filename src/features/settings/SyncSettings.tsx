@@ -1,42 +1,81 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
+import { useFormat } from '@/app/use-format'
 import { Alert, Badge, Button, Modal } from '@/components/ui'
 import { isCloudConfigured } from '@/data/cloud/client'
 import { useAppStore } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
+import { useSyncStore, type SyncStatus } from '@/state/sync-store'
+import { syncErrorKeys, syncStatusKeys } from '@/features/sync/messages'
+
+const statusTones: Record<
+  SyncStatus,
+  'neutral' | 'success' | 'warning' | 'info' | 'danger'
+> = {
+  disabled: 'neutral',
+  idle: 'neutral',
+  connecting: 'info',
+  firstLogin: 'info',
+  syncing: 'info',
+  synced: 'success',
+  pending: 'warning',
+  offline: 'warning',
+  conflict: 'danger',
+  error: 'danger',
+}
 
 export function SyncSettings() {
   const { t } = useI18n()
+  const format = useFormat()
   const navigate = useNavigate()
-  const status = useAuthStore((state) => state.status)
+  const authStatus = useAuthStore((state) => state.status)
   const user = useAuthStore((state) => state.user)
-  const error = useAuthStore((state) => state.error)
+  const authError = useAuthStore((state) => state.error)
   const initialize = useAuthStore((state) => state.initialize)
   const signOut = useAuthStore((state) => state.signOut)
-  const flushPersistence = useAppStore((state) => state.flushPersistence)
-  const pendingWrites = useAppStore((state) => state.pendingWrites)
+  const syncStatus = useSyncStore((state) => state.status)
+  const syncError = useSyncStore((state) => state.error)
+  const pending = useSyncStore((state) => state.pending)
+  const lastSyncedAt = useSyncStore((state) => state.lastSyncedAt)
+  const conflict = useSyncStore((state) => state.conflict)
+  const connect = useSyncStore((state) => state.connect)
+  const disconnect = useSyncStore((state) => state.disconnect)
+  const syncNow = useSyncStore((state) => state.syncNow)
+  const openConflict = useSyncStore((state) => state.openConflict)
+  const exportData = useAppStore((state) => state.exportData)
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [busy, setBusy] = useState(false)
 
   if (!isCloudConfigured()) return null
 
-  const pending = pendingWrites()
+  const lastSync = lastSyncedAt ? format.dateTime(lastSyncedAt) : t('sync.never')
+  const syncing = syncStatus === 'syncing' || syncStatus === 'connecting'
+  const manualSyncDisabled = syncing || syncStatus === 'firstLogin' || conflict !== undefined
+  const needsLogoutConfirmation = pending > 0 || conflict !== undefined
 
   const handleLogout = async () => {
     setBusy(true)
-    await flushPersistence()
-    await signOut()
-    setBusy(false)
-    setLogoutOpen(false)
+    try {
+      await disconnect()
+      await signOut()
+      setLogoutOpen(false)
+    } finally {
+      setBusy(false)
+    }
   }
 
   const requestLogout = () => {
-    if (pending > 0) {
+    if (needsLogoutConfirmation) {
       setLogoutOpen(true)
       return
     }
     void handleLogout()
+  }
+
+  const retrySync = async () => {
+    await syncNow()
+    if (!useSyncStore.getState().workspaceId) await connect()
   }
 
   return (
@@ -54,13 +93,13 @@ export function SyncSettings() {
         </div>
 
         <div className="space-y-4">
-          {status === 'loading' ? (
+          {authStatus === 'loading' ? (
             <p role="status" className="text-sm text-muted">
               {t('sync.status.loading')}
             </p>
           ) : null}
 
-          {status === 'expired' ? (
+          {authStatus === 'expired' ? (
             <Alert tone="warning" title={t('auth.expired.title')}>
               <p>{t('auth.expired.body')}</p>
               <Button className="mt-3" variant="secondary" onClick={() => navigate('/login')}>
@@ -69,16 +108,16 @@ export function SyncSettings() {
             </Alert>
           ) : null}
 
-          {status === 'error' ? (
+          {authStatus === 'error' ? (
             <Alert tone="danger" title={t('sync.status.error')}>
-              <p>{error ? t(`auth.error.${error}`) : t('auth.error.unknown')}</p>
+              <p>{authError ? t(`auth.error.${authError}`) : t('auth.error.unknown')}</p>
               <Button className="mt-3" variant="secondary" onClick={() => void initialize()}>
                 {t('sync.retry')}
               </Button>
             </Alert>
           ) : null}
 
-          {status === 'idle' || status === 'unconfigured' ? (
+          {authStatus === 'idle' || authStatus === 'unconfigured' ? (
             <>
               <div className="flex items-center gap-2">
                 <Badge tone="neutral">{t('sync.status.idle')}</Badge>
@@ -87,11 +126,17 @@ export function SyncSettings() {
             </>
           ) : null}
 
-          {status === 'authenticated' && user ? (
+          {authStatus === 'authenticated' && user ? (
             <>
-              <div className="flex items-center gap-2">
-                <Badge tone="success">{t('sync.status.authenticated')}</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone={statusTones[syncStatus]}>{t(syncStatusKeys[syncStatus])}</Badge>
+                {pending > 0 ? (
+                  <span className="text-xs font-medium text-warning">
+                    {t('sync.pending', { count: pending })}
+                  </span>
+                ) : null}
               </div>
+
               <dl className="grid gap-2 text-sm">
                 <div>
                   <dt className="text-xs font-medium text-muted">{t('sync.account')}</dt>
@@ -99,18 +144,62 @@ export function SyncSettings() {
                 </div>
                 <div>
                   <dt className="text-xs font-medium text-muted">{t('sync.lastSync')}</dt>
-                  <dd className="mt-0.5 text-ink">{t('sync.never')}</dd>
+                  <dd className="mt-0.5 text-ink">{lastSync}</dd>
                 </div>
               </dl>
-              {pending > 0 ? (
-                <p className="text-xs font-medium text-warning">
-                  {t('sync.pending', { count: pending })}
-                </p>
+
+              {syncStatus === 'synced' ? (
+                <p className="text-xs leading-relaxed text-muted">{t('sync.syncedHint')}</p>
               ) : null}
-              <p className="text-xs leading-relaxed text-muted">{t('sync.comingSoon')}</p>
+              {syncStatus === 'pending' ? (
+                <p className="text-xs leading-relaxed text-muted">{t('sync.pendingHint')}</p>
+              ) : null}
+              {syncStatus === 'offline' && syncError !== 'auth' ? (
+                <p className="text-xs leading-relaxed text-muted">{t('sync.offlineHint')}</p>
+              ) : null}
+
+              {syncStatus === 'offline' && syncError === 'auth' ? (
+                <Alert tone="warning" title={t('auth.expired.title')}>
+                  <p>{t('sync.error.auth')}</p>
+                  <Button className="mt-3" variant="secondary" onClick={() => navigate('/login')}>
+                    {t('auth.loginAction')}
+                  </Button>
+                </Alert>
+              ) : null}
+
+              {syncStatus === 'error' ? (
+                <Alert tone="danger" title={t('sync.status.error')}>
+                  <p>{t(syncErrorKeys[syncError ?? 'unknown'])}</p>
+                  <Button className="mt-3" variant="secondary" onClick={() => void retrySync()}>
+                    {t('sync.retry')}
+                  </Button>
+                </Alert>
+              ) : null}
+
+              {conflict ? (
+                <Alert tone="danger" title={t('sync.status.conflict')}>
+                  <p>{t('sync.conflict.description')}</p>
+                  <Button className="mt-3" variant="secondary" onClick={openConflict}>
+                    {t('sync.actions.resolveConflict')}
+                  </Button>
+                </Alert>
+              ) : null}
+
               <div className="flex flex-wrap items-center gap-2">
-                <Button variant="secondary" disabled title={t('sync.syncNowHint')}>
+                <Button
+                  variant="secondary"
+                  disabled={manualSyncDisabled}
+                  onClick={() => void retrySync()}
+                >
                   {t('sync.syncNow')}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    void exportData()
+                  }}
+                >
+                  {t('sync.actions.exportBackup')}
                 </Button>
                 <Button variant="ghost" disabled={busy} onClick={requestLogout}>
                   {t('sync.logout')}
@@ -124,19 +213,25 @@ export function SyncSettings() {
       <Modal
         open={logoutOpen}
         onClose={() => setLogoutOpen(false)}
-        title={t('sync.logoutTitle')}
+        title={
+          pending > 0 ? t('sync.logoutPendingTitle') : t('sync.logoutTitle')
+        }
         footer={
           <>
             <Button variant="secondary" onClick={() => setLogoutOpen(false)}>
               {t('common.cancel')}
             </Button>
             <Button variant="danger" disabled={busy} onClick={() => void handleLogout()}>
-              {t('sync.logoutConfirm')}
+              {pending > 0 ? t('sync.logoutAnyway') : t('sync.logoutConfirm')}
             </Button>
           </>
         }
       >
-        <p className="text-sm text-muted">{t('sync.logoutDescription')}</p>
+        <p className="text-sm text-muted">
+          {pending > 0
+            ? t('sync.logoutPendingDescription')
+            : t('sync.logoutDescription')}
+        </p>
         {pending > 0 ? (
           <p className="mt-3 text-xs font-medium text-warning">
             {t('sync.pending', { count: pending })}

@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper) e **T5.4.3 chiuso** (auth email/password)
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password) e **T5.4.4 chiuso** (sync, outbox, conflitti)
 **Data:** 28 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** **T5.4.4** (repository cloud, sync e conflitti). Piano completo in `t5.4-cloud-sync.md`; il resto del backlog è chiuso/non in scope.
+**Prossima sessione:** **T5.4.5** (workspace condiviso e runbook). Piano completo in `t5.4-cloud-sync.md`; il resto del backlog è chiuso/non in scope.
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -524,7 +524,7 @@ Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 gi
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5), `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.21 e T5.4.0–T5.4.3 sono chiusi. Prossimo: **T5.4.4** (repository cloud, pull/push, outbox, conflitti). La produzione è invariata: `main` locale è avanti di 4 commit non pushati; non fare push su `main` senza un branch/PR e senza il deploy pianificato in T5.4.6. Supabase è solo locale (Docker); env pubbliche opzionali in `.env.local`. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test` e `npm run test:e2e:auth` verdi.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5), `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.21 e T5.4.0–T5.4.4 sono chiusi. Prossimo: **T5.4.5** (workspace condiviso e runbook). La produzione è invariata: i commit T5.4 sono sul branch locale `feat/cloud-sync`, `main` è allineato a `origin/main`; non fare push su `main` senza un branch/PR e senza il deploy pianificato in T5.4.6. Supabase è solo locale (Docker); env pubbliche opzionali in `.env.local`. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test`, `npm run test:e2e:auth` e `npm run test:e2e:sync` verdi.
 
 ---
 

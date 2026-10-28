@@ -296,4 +296,14 @@ Invarianti cloud:
 6. `updated_at`/`updated_by` sono impostati dal database; il client non li usa per i calcoli.
 7. I soldi restano interi in micro-euro, le percentuali in basis point, il tempo in secondi e la massa in centigrammi.
 
-Test: `supabase/tests/rls.test.sql` (21 asserzioni pgTAP) e `src/data/cloud/mappers.test.ts`.
+Test: `supabase/tests/rls.test.sql` (22 asserzioni pgTAP) e `src/data/cloud/mappers.test.ts`.
+
+**Dati tecnici del sync (fuori da `AppData`):**
+
+- `layercost:cloud-cache` — copia di lavoro della modalità connessa; non sovrascrive `layercost:data`.
+- `layercost:sync-state` — outbox, metadati `updated_at` per entità, `workspaceId` e ultimo sync. Se il workspace cambia, cache e outbox vengono scartati prima di riusarli.
+- La sessione Supabase è nella chiave `sb-<project-ref>-auth-token` gestita da `supabase-js`; non entra nei backup.
+
+**Amministrazione:** `service_role` ha grant completi sulle tabelle solo per script admin (bootstrap, E2E, backup) e non viene usato dal client. `protect_last_owner` protegge gli utenti autenticati ma consente alle richieste senza subject JWT (service role/SQL) di rimuovere l'ultimo owner, così la cancellazione di un workspace può fare cascade. Il cleanup di test usa `delete from workspaces` con le FK attive.
+
+**Limite noto:** gli ID delle entità sono primary key globali (`text`). Il deployment previsto ha un solo workspace condiviso; due workspace nello stesso database con gli stessi ID seed colliderebbero. Una multi-tenancy piena richiederebbe PK `(workspace_id, id)` e un adeguamento dei mapper.

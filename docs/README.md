@@ -8,10 +8,10 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud richiesto (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, T5.4.0–T5.4.3 chiusi, implementazione in corso.
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud richiesto (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, T5.4.0–T5.4.4 chiusi, prossimo T5.4.5.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 159 unitari + 41 E2E (33 eseguiti + 6 visual + 2 auth) + 21 pgTAP RLS; axe 0 violazioni.
+- Test: 182 unitari + 43 E2E (33 default + 6 visual + 2 auth + 2 sync) + 22 pgTAP RLS; axe 0 violazioni.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) verificata; le preview sono protette da SSO.

@@ -55,7 +55,7 @@
 
 - Backend, ORM, auth, database (eccezione pianificata: Supabase in fase 5, ADR-0024).
 
-> Fase 5 (in corso): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` sarà caricato lazy solo per login/sync (ADR-0024). T5.4.2 ha aggiunto schema, RLS, trigger, tipi e mapper; il client arriva in T5.4.3. In modalità ospite l'app resta statica e non chiama la rete.
+> Fase 5 (in corso): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` è caricato lazy solo per login/sync (ADR-0024). T5.4.2 ha aggiunto schema, RLS, trigger, tipi e mapper; T5.4.3 client e auth; T5.4.4 gateway dati, outbox e conflitti. In modalità ospite l'app resta statica e non chiama la rete.
 - Librerie di componenti (shadcn/Radix/MUI/Ant).
 - Librerie di grafici.
 - Librerie di money/decimal (le unità intere bastano).
@@ -79,7 +79,7 @@ Prima di aggiungerla:
 
 ## 7. Bundle
 
-Build attuale (T5.4.3): circa 700 KB JS raw (197,5 KB gzip iniziale), 39 KB CSS (8,3 KB gzip) e 58 KB di font WOFF2. Con il cloud configurato si aggiunge un chunk lazy di circa 55 KB gzip. La v1.0.0 era circa 509 KB JS raw.
+Build attuale (T5.4.4): circa 742 KB JS raw (201,9 KB gzip iniziale con env), 39 KB CSS (8,3 KB gzip) e 58 KB di font WOFF2. Con il cloud configurato si aggiunge un chunk lazy di circa 55 KB gzip. La v1.0.0 era circa 509 KB JS raw.
 
 `scripts/check-budget.mjs` separa il caricamento iniziale dai chunk opzionali:
 
@@ -91,7 +91,7 @@ Build attuale (T5.4.3): circa 700 KB JS raw (197,5 KB gzip iniziale), 39 KB CSS 
 - 4 KB gzip di HTML;
 - 350 KB gzip per **JS iniziale + CSS + font**.
 
-La build senza env è a **191,4 KB JS iniziale** e **256,2 KB iniziali** totali; con env il chunk cloud è **53,5 KB** e non entra nel caricamento iniziale. Se il chunk lazy cresce oltre 80 KB, valutare un import più selettivo o un budget dedicato più alto con motivazione.
+La build senza env è a **201,1 KB JS iniziale** e **265,9 KB iniziali** totali; con env il chunk cloud è **53,5 KB** e non entra nel caricamento iniziale. Se il chunk lazy cresce oltre 80 KB, valutare un import più selettivo o un budget dedicato più alto con motivazione.
 
 ## 8. Comandi
 
@@ -111,6 +111,7 @@ npm run db:reset
 npm run db:test
 npm run db:types
 npm run test:e2e:auth
+npm run test:e2e:sync
 ```
 
 `supabase` è una devDependency: serve solo per migrazioni, test pgTAP e generazione tipi, non entra nel bundle.

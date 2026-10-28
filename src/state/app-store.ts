@@ -27,7 +27,8 @@ import {
 } from '@/lib/quote-defaults'
 import { createEmptyDraft, createEmptyLine, createSeedConfig } from '@/data/seed'
 import { SCHEMA_VERSION, type AppData } from '@/data/storage'
-import { localRepository } from '@/data/repository'
+import { localRepository, type DataRepository } from '@/data/repository'
+import { cloudCacheRepository } from '@/data/cloud-cache'
 import { createPersistQueue } from './persist-queue'
 
 function toAppData(state: Pick<AppState, 'config' | 'quotes' | 'draft'>): AppData {
@@ -87,10 +88,13 @@ export type AppWarning =
   | 'exportFailed'
   | 'resetFailed'
 
+export type AppMode = 'guest' | 'cloud'
+
 export interface AppState {
   config: CostConfig
   quotes: Quote[]
   draft: Quote
+  mode: AppMode
   hydrated: boolean
   hydrating: boolean
   hydrateError?: AppWarning
@@ -101,6 +105,10 @@ export interface AppState {
   flushPersistence: () => Promise<void>
   pendingWrites: () => number
   setWarning: (warning?: AppWarning) => void
+
+  enterCloudMode: (data: AppData) => Promise<AppData>
+  applyCloudData: (data: AppData) => Promise<AppData>
+  exitCloudMode: () => Promise<AppData>
 
   updateSettings: (patch: Partial<Settings>) => void
 
@@ -171,13 +179,32 @@ const initialData = (() => {
 })()
 
 export const useAppStore = create<AppState>()((set, get) => {
+  let activeRepository: DataRepository = localRepository
   const persistQueue = createPersistQueue(
-    (data) => localRepository.save(data),
+    (data) => activeRepository.save(data),
     () => set({ warning: 'saveFailed' }),
   )
 
+  const applyData = (data: AppData): AppData => {
+    const quotes = recomputeQuotes(data.quotes, data.config)
+    const next: AppData = {
+      schemaVersion: SCHEMA_VERSION,
+      config: data.config,
+      quotes,
+      draft: data.draft,
+    }
+    set({
+      config: next.config,
+      quotes: next.quotes,
+      draft: next.draft,
+      warning: undefined,
+    })
+    return next
+  }
+
   return {
     ...initialData,
+    mode: 'guest',
     hydrated: false,
     hydrating: false,
     hydrateError: undefined,
@@ -187,11 +214,14 @@ export const useAppStore = create<AppState>()((set, get) => {
       if (get().hydrated || get().hydrating) return
       set({ hydrating: true, hydrateError: undefined })
       try {
+        activeRepository = localRepository
         const { data, warning } = await localRepository.load()
+        const quotes = recomputeQuotes(data.quotes, data.config)
         set({
           config: data.config,
-          quotes: recomputeQuotes(data.quotes, data.config),
+          quotes,
           draft: data.draft,
+          mode: 'guest',
           hydrated: true,
           hydrating: false,
           warning,
@@ -210,6 +240,32 @@ export const useAppStore = create<AppState>()((set, get) => {
     pendingWrites: () => persistQueue.pending(),
 
     setWarning: (warning) => set({ warning }),
+
+    enterCloudMode: async (data) => {
+      await persistQueue.flush()
+      activeRepository = cloudCacheRepository
+      const next = applyData(data)
+      set({ mode: 'cloud' })
+      persistQueue.enqueue(next)
+      await persistQueue.flush()
+      return next
+    },
+
+    applyCloudData: async (data) => {
+      const next = applyData(data)
+      persistQueue.enqueue(next)
+      await persistQueue.flush()
+      return next
+    },
+
+    exitCloudMode: async () => {
+      await persistQueue.flush()
+      activeRepository = localRepository
+      const { data, warning } = await localRepository.load()
+      const next = applyData(data)
+      set({ mode: 'guest', warning })
+      return next
+    },
 
     updateSettings: (patch) => {
       set((state) => ({
@@ -712,7 +768,7 @@ export const useAppStore = create<AppState>()((set, get) => {
 
     exportData: async () => {
       try {
-        await localRepository.export(toAppData(get()))
+        await activeRepository.export(toAppData(get()))
         return true
       } catch {
         set({ warning: 'exportFailed' })
@@ -723,13 +779,15 @@ export const useAppStore = create<AppState>()((set, get) => {
     reset: async () => {
       try {
         await persistQueue.flush()
-        const data = await localRepository.reset()
+        const data = await activeRepository.reset()
+        const quotes = recomputeQuotes(data.quotes, data.config)
         set({
           config: data.config,
-          quotes: data.quotes,
+          quotes,
           draft: data.draft,
           warning: undefined,
         })
+        if (get().mode === 'cloud') get().persist()
         return true
       } catch {
         set({ warning: 'resetFailed' })

@@ -5,6 +5,7 @@ import type { MessageKey } from '@/i18n'
 import { QuickPreferences } from '@/app/QuickPreferences'
 import { useAppStore, type AppWarning } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
+import { SyncIndicator } from '@/features/sync/SyncIndicator'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
@@ -75,6 +76,7 @@ function ScrollToTop() {
 
 function MobileHeader() {
   const { t } = useI18n()
+  const mode = useAppStore((state) => state.mode)
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -98,11 +100,14 @@ function MobileHeader() {
           aria-label={t('nav.main')}
         >
           <NavItems mobile onNavigate={() => setMenuOpen(false)} />
-          <div className="mt-6 border-t border-line pt-4">
+          <div className="mt-3 border-t border-line pt-2">
+            <SyncIndicator mobile />
+          </div>
+          <div className="mt-3 border-t border-line pt-4">
             <QuickPreferences mobile />
           </div>
           <div className="mt-4 border-t border-line pt-3 text-xs text-muted">
-            <p>{t('app.dataLocal')}</p>
+            <p>{mode === 'cloud' ? t('sync.accountMode') : t('app.dataLocal')}</p>
             <Link
               to="/settings"
               onClick={() => setMenuOpen(false)}
@@ -131,6 +136,7 @@ export function Layout() {
   const { t } = useI18n()
   const warning = useAppStore((state) => state.warning)
   const setWarning = useAppStore((state) => state.setWarning)
+  const mode = useAppStore((state) => state.mode)
   const authStatus = useAuthStore((state) => state.status)
   const location = useLocation()
 
@@ -150,11 +156,14 @@ export function Layout() {
         <nav className="mt-2 flex-1 overflow-y-auto" aria-label={t('nav.main')}>
           <NavItems />
         </nav>
-        <div className="border-t border-line px-3 pt-3">
+        <div className="border-t border-line px-3 pt-2">
+          <SyncIndicator />
+        </div>
+        <div className="mt-2 border-t border-line px-3 pt-3">
           <QuickPreferences />
         </div>
         <div className="mt-3 border-t border-line px-3 pt-3 text-xs text-muted">
-          <p>{t('app.dataLocal')}</p>
+          <p>{mode === 'cloud' ? t('sync.accountMode') : t('app.dataLocal')}</p>
           <Link
             to="/settings"
             className="mt-1 inline-block text-ink underline decoration-line underline-offset-2 hover:decoration-ink"

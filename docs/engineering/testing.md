@@ -1,12 +1,12 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.3 — 159 test unitari + 41 E2E (33 eseguiti + 6 visual + 2 auth) + 21 pgTAP RLS
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.4 — 182 test unitari + 43 E2E (33 default + 6 visual + 2 auth + 2 sync) + 22 pgTAP RLS
 
 ---
 
 ## 1. Strategia
 
-> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e 21 test pgTAP RLS su Supabase locale (`npm run db:test`). Il sync aggiungerà E2E a due contesti e test di outbox/conflitto. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
+> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
 
 
 | Livello  | Strumento             | Cosa copre                                                                        |
@@ -33,6 +33,7 @@ npm run db:start     # Supabase locale (Docker)
 npm run db:reset     # migrazioni + seed locali
 npm run db:test      # pgTAP/RLS
 npm run test:e2e:auth # build con Supabase locale + E2E auth
+npm run test:e2e:sync # build + due contesti, offline e conflitto; azzera il DB locale
 ```
 
 Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in CI usa Chromium bundled. WebKit usa il browser Playwright installato con `npx playwright install webkit`.
@@ -43,11 +44,14 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/data/storage.test.ts` — 9 test: seed valido, colore riga valido/rifiutato, schema futuro rifiutato, payload invalido rifiutato, migrazione v1 → v4, envelope v1, backup raw prima della migrazione, v2 → v4 e v3 → v4 con `discountBp`.
 - `src/data/repository.test.ts` — 6 test: contratto asincrono locale e fake, roundtrip, import, reset ed export.
 - `src/data/cloud/mappers.test.ts` — 7 test: settings/tariffe, stampanti/materiali/extra, archivio, preventivi, configurazione, unità intere e roundtrip.
+- `src/data/cloud/sync.test.ts` — 13 test: diff per entità, delete, deduplica outbox, priorità, ack con payload cambiato, metadati e tombstone, snapshot → `AppData`, decisione del primo login e dati locali significativi.
 - `src/state/persist-queue.test.ts` — 4 test: avvio immediato, serializzazione, errore e flush.
-- `src/state/app-store.test.ts` — 7 test: hydration, doppia hydration, errore, scrittura immediata, export, reset e reset fallito.
-- `supabase/tests/rls.test.sql` — 21 asserzioni pgTAP: isolamento workspace, accesso condiviso, scritture, quote bloccate, settings, membership, ultimo owner e keep-alive.
+- `src/state/app-store.test.ts` — 8 test: hydration, doppia hydration, errore, scrittura immediata, export, reset, reset fallito e passaggio locale ↔ cache cloud.
+- `src/state/sync-store.test.ts` — 9 test: import automatico, primo login con backup, cloud che vince, modifica offline, conflitto, duplicazione, logout con/senza pending, workspace diverso e riconnessione dopo sessione scaduta.
+- `supabase/tests/rls.test.sql` — 22 asserzioni pgTAP: isolamento workspace, accesso condiviso, scritture, quote bloccate, settings, membership, ultimo owner (utente e admin), keep-alive.
 - `src/state/auth-store.test.ts` — 11 test: unconfigured, sessione, inizializzazione idempotente, errori, login, logout, sessione scaduta ed eventi esterni.
 - `tests/e2e/auth.spec.ts` — 2 test con Supabase locale: login, reload, impostazioni, logout, credenziali errate; axe a 375/1440.
+- `tests/e2e/sync.spec.ts` — 2 test con Supabase locale: primo login con backup JSON e import dei dati locali; due contesti, modifica offline, conflitto e ricarica remota. Il file è seriale perché i workspace di test usano gli ID seed.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
 - `src/lib/cost-details.test.ts` — 4 test: componenti, costo pieno, totali di colonna, prezzo allocato.
 - `src/lib/format.test.ts` — 6 test: arrotondamento dei centesimi, roundtrip, formattazione it-IT, formattazione en-GB, parsing con virgola/punto, valori non numerici.
@@ -114,6 +118,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
 - Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
 - Interfaccia inglese: copertura E2E/axe/visual in T5.6.5.
+- Sync cloud: E2E solo in locale con Supabase e reset del DB; la CI dedicata e il deploy sono in T5.4.6. Multi-workspace non coperto (un solo workspace previsto).
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
@@ -122,14 +127,15 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 `.github/workflows/ci.yml` esegue:
 
 - `npm ci`;
-- `npm run check` (typecheck, lint, 159 test, build, budget);
-- `npm run build` + Playwright con Chromium e WebKit; gli auth test sono saltati senza `E2E_AUTH`.
+- `npm run check` (typecheck, lint, 182 test, build, budget);
+- `npm run build` + Playwright con Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
 - `npm run db:test` è eseguito localmente; il job CI dedicato al database è pianificato in T5.4.6.
 - `npm run test:e2e:auth` è un comando separato: legge le env da Supabase locale, builda con le credenziali pubbliche e crea l'utente via Admin API.
+- `npm run test:e2e:sync` è un comando separato: azzera il database locale, builda con le env pubbliche, crea utenti/workspace via Admin API e pulisce con `psql`. Richiede `psql` nel PATH e non va eseguito contro un progetto remoto.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 28/10/2026: **verde su GitHub** per i job `check` ed `e2e` (159 unitari, 41 E2E); `db:test` verde in locale con 21 asserzioni pgTAP; `test:e2e:auth` verde con 2 test.
+Stato al 28/10/2026: **verde in locale** per `npm run check` (182 unitari), `db:test` (22 asserzioni pgTAP), `test:e2e` (33 default + 10 saltati), `test:e2e:auth` (2) e `test:e2e:sync` (2). I commit T5.4 sono sul branch `feat/cloud-sync` e non sono ancora su `origin/main`: la CI GitHub non ha ancora eseguito questa suite.
 
 ## 7. Come aggiungere un test
 

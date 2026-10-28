@@ -39,7 +39,7 @@
 | Tariffe              | `TariffsPage`, `TariffForm`                                                                                        | storico, decorrenza, ultima tariffa, nota non eliminabile                                               |                                                                                  |
 | Extra                | `ExtrasPage`, `ExtraForm`                                                                                          | per pezzo/per lavoro, categorie, importi, archivio                                                      |                                                                                  |
 | Impostazioni         | `SettingsPage`, `SyncSettings`                                                                                     | manodopera, rischio, prezzo, arrotondamento, IVA, backup, reset, tema, lingua, sync                     | Sezione Lingua in T5.6.4; sync in T5.4.3                                         |
-| Auth e sync          | `LoginPage`, `auth-store`, `SyncSettings`                                                                          | login, errori auth, sessione scaduta, stato sync, logout                                                | Area `auth` aggiunta in T5.4.3                                                   |
+| Auth e sync          | `LoginPage`, `auth-store`, `sync-store`, `SyncSettings`, `SyncIndicator`, dialoghi primo login/conflitto              | login, errori auth, sessione scaduta, stato sync, primo login, conflitti, logout                        | Area `auth` aggiunta in T5.4.3; dialoghi sync in T5.4.4                          |
 | Confronto            | `ComparePage`                                                                                                      | colonne, delta, vuoto, stampante più conveniente                                                        |                                                                                  |
 | Guida iniziale       | `OnboardingCard`                                                                                                   | quattro passi, “Ho capito, inizia”, valori stimati, skip                                                |                                                                                  |
 | Etichette di dominio | `src/lib/labels.ts`                                                                                                | famiglie materiale, fonte potenza, modalità prezzo, arrotondamento, IVA, allocazione, unità extra       | Diventano funzioni locale-aware o chiavi                                         |
@@ -65,6 +65,8 @@
 **Stato T5.20:** aggiunte 23 chiavi per gli sconti: `discount.*` (4), `line.discount*` (4), `pricing.discount*` (3), `summary.discount*` (4), `details.*Discount*` (2), `quote.discount*` (3) e `xlsx.column.*Discount*` (3). Parità it/en a **895** chiavi.
 
 **Stato T5.4.3:** aggiunte 43 chiavi nell'area `auth` per login, errori, sessione scaduta, stato sync, logout e conferma. Parità it/en a **946** chiavi; il test delle aree include `authIt`.
+
+**Stato T5.4.4:** aggiunte 56 chiavi per stati sync, primo login con backup, conflitti (motivo, entità, azioni, eliminazione), indicatore, errori, logout con modifiche in sospeso e avviso import cloud. Parità it/en a **1002** chiavi; il test di parità e aree resta verde.
 
 **Stato T5.21:** aggiunte 4 chiavi per le card comprimibili: `common.expand`, `common.collapse`, `line.expand`, `line.collapse`. Parità it/en a **899** chiavi.
 

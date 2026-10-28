@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(21);
+select plan(22);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres, bypassing RLS)
@@ -296,6 +296,17 @@ select throws_ok(
   'P0001',
   'last_owner',
   'the last owner cannot be removed'
+);
+
+-- Administrative cleanup (service role, no JWT subject) may remove the last
+-- owner so that deleting a workspace cascades correctly.
+set local role service_role;
+set local request.jwt.claims = '{}';
+
+select lives_ok(
+  $$ delete from public.workspace_members
+     where workspace_id = 'ws-a' and user_id = '11111111-1111-1111-1111-111111111111' $$,
+  'an admin without a JWT subject can remove the last owner'
 );
 
 -- ---------------------------------------------------------------------------

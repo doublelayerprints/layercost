@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CLOUD_CACHE_KEY } from '@/data/cloud-cache'
 import { localRepository } from '@/data/repository'
 import { createEmptyDraft, createSeedConfig } from '@/data/seed'
 import { createInitialData, STORAGE_KEY, type AppData } from '@/data/storage'
@@ -28,6 +29,7 @@ function resetStore() {
     config,
     quotes: [],
     draft: createEmptyDraft(config),
+    mode: 'guest',
     hydrated: true,
     hydrating: false,
     hydrateError: undefined,
@@ -39,6 +41,7 @@ beforeEach(async () => {
   values = new Map()
   installLocalStorage()
   await useAppStore.getState().flushPersistence()
+  await useAppStore.getState().exitCloudMode()
   resetStore()
 })
 
@@ -132,5 +135,51 @@ describe('app store async', () => {
 
     expect(ok).toBe(false)
     expect(useAppStore.getState().warning).toBe('resetFailed')
+  })
+
+  it('passa alla cache cloud senza sovrascrivere i dati locali', async () => {
+    const local = createInitialData()
+    local.draft.name = 'Bozza locale'
+    values.set(STORAGE_KEY, JSON.stringify(local))
+    useAppStore.setState({
+      config: local.config,
+      quotes: local.quotes,
+      draft: local.draft,
+      hydrated: true,
+      mode: 'guest',
+    })
+
+    const cloud = createInitialData()
+    cloud.draft.name = 'Bozza cloud'
+    const applied = await useAppStore.getState().enterCloudMode(cloud)
+
+    const localRaw = JSON.parse(values.get(STORAGE_KEY) ?? '{}') as AppData
+    const cloudRaw = JSON.parse(values.get(CLOUD_CACHE_KEY) ?? '{}') as AppData
+    expect(applied.draft.name).toBe('Bozza cloud')
+    expect(useAppStore.getState().mode).toBe('cloud')
+    expect(useAppStore.getState().draft.name).toBe('Bozza cloud')
+    expect(localRaw.draft.name).toBe('Bozza locale')
+    expect(cloudRaw.draft.name).toBe('Bozza cloud')
+
+    const updated = structuredClone(cloud)
+    updated.quotes = [
+      {
+        ...structuredClone(updated.draft),
+        id: 'quote-cloud',
+        name: 'Preventivo cloud',
+        status: 'saved',
+      },
+    ]
+    await useAppStore.getState().applyCloudData(updated)
+
+    const updatedRaw = JSON.parse(values.get(CLOUD_CACHE_KEY) ?? '{}') as AppData
+    expect(useAppStore.getState().quotes[0]?.name).toBe('Preventivo cloud')
+    expect(updatedRaw.quotes).toHaveLength(1)
+
+    const restored = await useAppStore.getState().exitCloudMode()
+
+    expect(restored.draft.name).toBe('Bozza locale')
+    expect(useAppStore.getState().mode).toBe('guest')
+    expect(useAppStore.getState().draft.name).toBe('Bozza locale')
   })
 })

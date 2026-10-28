@@ -18,6 +18,9 @@ import { ExtrasPage } from '@/features/extras/ExtrasPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { ComparePage } from '@/features/compare/ComparePage'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { SyncController } from '@/features/sync/SyncController'
+import { FirstLoginDialog } from '@/features/sync/FirstLoginDialog'
+import { SyncConflictDialog } from '@/features/sync/SyncConflictDialog'
 import { NotFoundPage } from '@/features/NotFoundPage'
 
 export default function App() {
@@ -43,6 +46,9 @@ export default function App() {
     <I18nProvider>
       <ThemeController />
       <HydrationGate>
+        <SyncController />
+        <FirstLoginDialog />
+        <SyncConflictDialog />
         <HashRouter>
           <Routes>
             <Route element={<Layout />}>
