@@ -1,6 +1,6 @@
 # Evolutive — Google login, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato il 29/10/2026 (ADR-0025, branch `feat/evo-1-google-login`); EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-2–EVO-4 proposte
 **Data:** 29 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
 **Piano collegato:** `docs/planning/t5.4-cloud-sync.md`
@@ -20,7 +20,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 - **Membri:** due account `owner`; le email non sono nel repository.
 - **Dati attuali:** 2 stampanti, 8 materiali, 5 extra, 2 preventivi (29/10/2026).
 - **Auth:** email + password, signup pubblico disabilitato, nessun SMTP; reset amministrativo.
-- **Deploy:** build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; cloud attivo.
+- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; dal 29/10/2026 build `index-BN8y8TA2.js` / `index-B2c8cUBY.css` con cloud e Google attivi.
 - **Operazioni:** keep-alive giornaliero e backup settimanale cifrato attivi e verificati.
 - **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
@@ -98,7 +98,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 ## 3. EVO-1 — Google login
 
 **Obiettivo:** i due account esistenti possono accedere con Google; email/password resta disponibile.
-**Stato:** **implementato e verificato** il 29/10/2026 per un account in locale contro il backend di produzione; il secondo owner deve ancora collegare Google.
+**Stato:** **implementato, distribuito e verificato** il 29/10/2026 (PR #24) per un account; il secondo owner deve ancora collegare Google.
 **Stima:** 0,5–1 giorno.
 **Dipende da:** accesso a Google Cloud e Supabase Dashboard.
 **ADR:** `docs/adr/0025-google-oauth.md`.

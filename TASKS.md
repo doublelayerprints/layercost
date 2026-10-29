@@ -916,7 +916,7 @@ Sottotask:
 - **Backup/restore:** workflow settimanale `.github/workflows/backup.yml` con dump data-only `public` + `auth.users`/`auth.identities`, cifratura AES-256, checksum e artifact 30 giorni. Restore verificato su Supabase locale: 1 workspace, 1 utente, 1 membership, 1 settings, 1 preventivo. Procedura in `docs/engineering/backup-restore.md`; primo backup di produzione eseguito e verificato.
 - **Keep-alive:** workflow giornaliero `.github/workflows/keepalive.yml` con secret `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`, issue `[ops] Supabase keep-alive failed` e chiusura automatica al ripristino; prima esecuzione di produzione verde.
 - **Budget:** 202,3/205 KB iniziali con env, 53,5/80 KB cloud lazy, 37,6/40 KB worker, 267,1/350 KB totali.
-- **Deploy:** progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), migrazioni applicate, signup disabilitato, workspace `ws-doublelayer`, due account `owner`. Produzione `index-D9pxS7o0.js` / `index-BPCFEMKa.css`, cloud attivo, smoke test verde.
+- **Deploy:** progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), migrazioni applicate, signup disabilitato, workspace `ws-doublelayer`, due account `owner`. Produzione `index-D9pxS7o0.js` / `index-BPCFEMKa.css` all'epoca, cloud attivo, smoke test verde; EVO-1 ha poi portato la produzione a `index-BN8y8TA2.js` / `index-B2c8cUBY.css`.
 - **Follow-up:** baseline visual cloud (login/sync/conflitto); E2E e axe già verdi.
 
 **Accettazione:** due dispositivi vedono gli stessi dati; offline e conflitti gestiti senza perdita; RLS testata con due utenti; piano €0; export sempre disponibile; `npm run check`, E2E, axe e visual verdi; nessuna modifica a formule, `engineVersion` o snapshot.
@@ -1206,17 +1206,17 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** EVO-1 implementato il 29/10/2026; EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-2–EVO-4 proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login
 
-**Stato:** `[x]` — implementato il 29/10/2026; login Google verificato per un account, secondo owner da collegare
+**Stato:** `[x]` — implementato e distribuito il 29/10/2026 (PR #24); login Google verificato per un account, secondo owner da collegare
 **Dipende da:** OAuth client Google e configurazione Supabase (Client ID/Secret non ancora disponibili in questa sessione)
 **ADR:** 0025
 
 - Provider Google affiancato a email/password; signup pubblico invariato e utenti pre-creati.
-- Login Google verificato in locale contro il backend di produzione il 29/10/2026 per un account (1 identità Google su 2); il secondo owner deve fare auto-link o “Collega Google”.
+- Login Google verificato in locale contro il backend di produzione e in produzione il 29/10/2026 per un account (1 identità Google su 2); il secondo owner deve fare auto-link o “Collega Google”.
 - PKCE (`flowType: 'pkce'`, `detectSessionInUrl: false`), redirect alla root, scambio manuale del `code`, pulizia del query string; `HashRouter` intatto.
 - Auto-link di Supabase per email verificata; fallback “Collega Google” con `linkIdentity` in Impostazioni → Sincronizzazione; “Google collegato” quando l'identità è presente.
 - Errori mappati (`oauthCancelled`, `oauthProviderDisabled`, `oauthSignupDisabled`, `oauthIdentityExists`, `oauthConfig`, `oauthCallback`, `manualLinkingDisabled`) con microcopy IT/EN e avviso `role="alert"`.
