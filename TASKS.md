@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 29/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato il 29/10/2026: route lazy, Formspree Free, i18n IT/EN, axe e budget 210 KB; restano la creazione del form Formspree reale, la verifica della notifica e il deploy. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026.
+**Stato al 29/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato e configurato con Formspree il 29/10/2026: route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; restano merge, deploy e smoke. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026.
 
 ---
 
@@ -1227,7 +1227,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-3a — Pagina “Richiedi accesso”
 
-**Stato:** `[~]` — codice, test e documentazione chiusi il 29/10/2026; PR #26 aperta e CI verde; configurazione Formspree reale, notifica live e deploy ancora manuali
+**Stato:** `[~]` — codice, test e documentazione chiusi il 29/10/2026; PR #26 aperta e CI verde; Formspree configurato e notifica verificata; restano merge, deploy e smoke
 **Dipende da:** account Formspree Free e env pubblica
 **ADR:** 0026
 **Piano e runbook:** `docs/planning/evo-3a-access-request.md`, `docs/engineering/access-requests.md`
@@ -1241,7 +1241,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - Privacy: Formspree processore USA, archivio 30 giorni, email admin cancellata dopo la decisione o entro 12 mesi; nessun analytics/cookie first-party/newsletter.
 - i18n IT/EN (36 chiavi `access.*`), axe a 375/1440, budget JS iniziale 206,6/210 KB (limite alzato con motivazione in ADR-0026).
 - Test: 17 unitari, 5 E2E con Formspree mockato, 1 E2E senza endpoint, parità i18n; `npm run test:e2e` costruisce con e senza endpoint.
-- Resta: creare il form Formspree di produzione e quello di test, verificare notifica e `_replyto`, impostare `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel, submission di prova, deploy e smoke.
+- Resta: merge della PR #26, deploy, smoke e cancellazione delle submission di prova.
 
 ## EVO-2 — Tetti utenti e preventivi
 

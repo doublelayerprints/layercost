@@ -1,6 +1,6 @@
 # EVO-3a — Pagina “Richiedi accesso” con Formspree Free
 
-**Stato:** implementazione completata il 29/10/2026 (PR #26, CI verde); form Formspree reale e verifica live da configurare
+**Stato:** implementazione completata il 29/10/2026 (PR #26, CI verde); form Formspree di produzione e test configurati, notifica verificata; restano merge, deploy e smoke
 **Data:** 29 ottobre 2026
 **ADR:** `docs/adr/0026-request-access-formspree.md`
 **Runbook:** `docs/engineering/access-requests.md`
@@ -237,7 +237,7 @@ docs/planning/evo-3a-access-request.md        questo piano
 
 - [x] `/#/request-access` accessibile senza login.
 - [x] Form valido, invio Formspree con endpoint pubblico e mock E2E.
-- [ ] Notifica reale all’amministratore e submission di prova sul form Formspree di produzione. _(manuale: richiede l’account Formspree)_
+- [x] Notifica reale all’amministratore e submission di prova sul form Formspree di produzione.
 - [x] Conferma in pagina; nessuna email al richiedente su Free (documentato in UI, ADR e runbook).
 - [x] Nessun utente/account/membership creato.
 - [x] Endpoint pubblico, nessun secret.
@@ -246,7 +246,7 @@ docs/planning/evo-3a-access-request.md        questo piano
 - [x] Route lazy; budget verde (JS iniziale 206,6/210 KB).
 - [x] ADR-0026, runbook, deployment env, STATUS/TASKS/CHANGELOG/testing.
 - [x] `npm run check`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run db:test` verdi.
-- [ ] Deploy di produzione e smoke, solo dopo aver impostato `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel.
+- [ ] Deploy di produzione e smoke, dopo il merge della PR #26.
 
 ---
 

@@ -1,9 +1,11 @@
 # Richieste di accesso — runbook amministratore
 
-**Stato:** EVO-3a implementato il 29/10/2026
+**Stato:** EVO-3a implementato e configurato il 29/10/2026
 **Ambito:** lettura delle richieste, creazione manuale dell’utente, retention, cancellazione e troubleshooting
 **Decisione:** `docs/adr/0026-request-access-formspree.md`
 **Piano:** `docs/planning/evo-3a-access-request.md`
+
+**Stato configurazione (29/10/2026):** form Formspree di produzione e test creati; endpoint impostati in `.env.local` e su Vercel (Production/Preview/Development); notifica email all’amministratore verificata; progetti separati; **Restrict to Domain = `layercost.vercel.app`** sul progetto di produzione. Restano merge, deploy e smoke.
 
 Questo runbook è la procedura per gestire le richieste che arrivano dalla pagina pubblica `/#/request-access`. Non contiene endpoint reali, email o credenziali: i valori tra `<...>` vanno sostituiti al momento dell’esecuzione e non vanno committati.
 

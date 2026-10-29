@@ -198,7 +198,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 ## 3A. EVO-3a — Pagina “Richiedi accesso”
 
 **Obiettivo:** una persona senza account può inviare una richiesta all’amministratore dalla pagina pubblica `/#/request-access`, senza creare utenti o account.
-**Stato:** **implementato** il 29/10/2026 (ADR-0026) nel branch `feat/evo-3a-request-access`, PR #26 aperta e CI verde; il form Formspree reale e la verifica live sono manuali.
+**Stato:** **implementato e configurato** il 29/10/2026 (ADR-0026) nel branch `feat/evo-3a-request-access`, PR #26 aperta e CI verde; form di produzione e test creati, notifica email verificata, progetti separati e Restrict to Domain impostato. Restano merge, deploy e smoke.
 **Stima:** 0,5–1 giorno.
 **Dipende da:** account Formspree Free e configurazione della env pubblica.
 **ADR:** `docs/adr/0026-request-access-formspree.md`.
@@ -214,24 +214,29 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 - Honeypot `_gotcha`; nessun analytics, cookie first-party o newsletter.
 - Nessuna modifica a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
 
-### 3A.2 Cosa resta manuale
+### 3A.2 Cosa è stato fatto e cosa resta
 
-1. Creare il form Formspree di produzione e quello di test.
-2. Verificare email e notifica all’amministratore, `_subject`, `_replyto`, spam.
-3. Impostare **Restrict to Domain = `layercost.vercel.app`** nelle impostazioni del **progetto** di produzione; il form di test va in un progetto separato senza restrizione.
-4. Impostare `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel Production/Preview.
-5. Inviare una submission di prova e controllare la notifica.
-6. Aggiornare il deploy e lo smoke, se si distribuisce.
+Fatto:
+
+1. Creati il form Formspree di produzione e quello di test.
+2. Verificate email e notifica all’amministratore; `_subject` e `_replyto` inviati dall’app.
+3. Impostato **Restrict to Domain = `layercost.vercel.app`** nel progetto di produzione; il form di test è in un progetto separato senza restrizione.
+4. Impostato `VITE_ACCESS_REQUEST_ENDPOINT` in `.env.local` e su Vercel (Production/Preview/Development).
+
+Resta:
+
+5. Mergiare la PR #26, deployare e inviare una submission di prova in produzione.
+6. Eseguire lo smoke e cancellare le submission di prova.
 
 ### 3A.3 Acceptance
 
 - [x] Route pubblica e lazy; link da login e sync.
 - [x] Form valido, invio mockato, stati success/error/endpoint mancante.
-- [ ] Notifica reale Formspree e submission di prova. _(manuale)_
+- [x] Notifica reale Formspree e submission di prova.
 - [x] Nessun utente/account/membership creato; endpoint pubblico; nessun secret.
 - [x] IT/EN, axe, 375/1440, focus e label; budget 206,6/210 KB.
 - [x] ADR-0026, runbook, deployment env, STATUS/TASKS/CHANGELOG/testing.
-- [ ] Deploy di produzione e smoke. _(dopo la env Formspree)_
+- [ ] Deploy di produzione e smoke. _(dopo il merge)_
 
 ---
 
