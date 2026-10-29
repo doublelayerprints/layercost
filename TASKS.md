@@ -1227,7 +1227,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-3a — Pagina “Richiedi accesso”
 
-**Stato:** `[~]` — codice, test e documentazione chiusi il 29/10/2026; configurazione Formspree reale, notifica live e deploy ancora manuali
+**Stato:** `[~]` — codice, test e documentazione chiusi il 29/10/2026; PR #26 aperta e CI verde; configurazione Formspree reale, notifica live e deploy ancora manuali
 **Dipende da:** account Formspree Free e env pubblica
 **ADR:** 0026
 **Piano e runbook:** `docs/planning/evo-3a-access-request.md`, `docs/engineering/access-requests.md`

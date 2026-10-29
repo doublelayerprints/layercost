@@ -20,7 +20,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 - **Membri:** due account `owner`; le email non sono nel repository.
 - **Dati attuali:** 2 stampanti, 8 materiali, 5 extra, 2 preventivi (29/10/2026).
 - **Auth:** email + password, signup pubblico disabilitato, nessun SMTP; reset amministrativo.
-- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; dal 29/10/2026 build `index-BN8y8TA2.js` / `index-B2c8cUBY.css` con cloud e Google attivi. EVO-3a è pronta nel branch `feat/evo-3a-request-access` e richiede `VITE_ACCESS_REQUEST_ENDPOINT` per essere attivata in produzione.
+- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; dal 29/10/2026 build `index-BN8y8TA2.js` / `index-B2c8cUBY.css` con cloud e Google attivi. EVO-3a è pronta nel branch `feat/evo-3a-request-access` (PR #26, CI verde) e richiede `VITE_ACCESS_REQUEST_ENDPOINT` per essere attivata in produzione.
 - **Operazioni:** keep-alive giornaliero e backup settimanale cifrato attivi e verificati.
 - **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e i flag pubblici (`VITE_AUTH_GOOGLE_ENABLED`). Per EVO-3a va aggiunto `VITE_ACCESS_REQUEST_ENDPOINT` (endpoint Formspree pubblico).
 
@@ -198,7 +198,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 ## 3A. EVO-3a — Pagina “Richiedi accesso”
 
 **Obiettivo:** una persona senza account può inviare una richiesta all’amministratore dalla pagina pubblica `/#/request-access`, senza creare utenti o account.
-**Stato:** **implementato** il 29/10/2026 (ADR-0026) nel branch `feat/evo-3a-request-access`; il form Formspree reale e la verifica live sono manuali.
+**Stato:** **implementato** il 29/10/2026 (ADR-0026) nel branch `feat/evo-3a-request-access`, PR #26 aperta e CI verde; il form Formspree reale e la verifica live sono manuali.
 **Stima:** 0,5–1 giorno.
 **Dipende da:** account Formspree Free e configurazione della env pubblica.
 **ADR:** `docs/adr/0026-request-access-formspree.md`.

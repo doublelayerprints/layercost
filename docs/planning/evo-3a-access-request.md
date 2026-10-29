@@ -1,6 +1,6 @@
 # EVO-3a — Pagina “Richiedi accesso” con Formspree Free
 
-**Stato:** implementazione completata il 29/10/2026; form Formspree reale e verifica live da configurare
+**Stato:** implementazione completata il 29/10/2026 (PR #26, CI verde); form Formspree reale e verifica live da configurare
 **Data:** 29 ottobre 2026
 **ADR:** `docs/adr/0026-request-access-formspree.md`
 **Runbook:** `docs/engineering/access-requests.md`
