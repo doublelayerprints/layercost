@@ -44,6 +44,7 @@ run('npm', ['run', 'build'], {
   ...process.env,
   VITE_SUPABASE_URL: url,
   VITE_SUPABASE_PUBLISHABLE_KEY: publishableKey,
+  VITE_AUTH_GOOGLE_ENABLED: 'true',
 })
 
 console.log('E2E auth con Supabase locale...')

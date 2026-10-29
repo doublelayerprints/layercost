@@ -8,6 +8,17 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'auth.password': 'Password',
   'auth.submit': 'Sign in',
   'auth.submitting': 'Signing in…',
+  'auth.google.continue': 'Continue with Google',
+  'auth.google.redirecting': 'Redirecting to Google…',
+  'auth.google.or': 'or',
+  'auth.google.accountTitle': 'Google sign-in',
+  'auth.google.link': 'Link Google',
+  'auth.google.linking': 'Linking…',
+  'auth.google.linked': 'Google linked',
+  'auth.google.linkHint':
+    'Link your Google account to sign in without a password. Email and password stay available.',
+  'auth.google.linkedHint':
+    'You can sign in with Google on this and other devices.',
   'auth.noSignup': 'Registration is closed. Accounts are created by the administrator.',
   'auth.forgotPassword': 'Forgot your password? Ask the administrator.',
   'auth.backToApp': 'Back to the calculator',
@@ -23,6 +34,15 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'auth.error.tooManyRequests': 'Too many attempts. Try again in a few minutes.',
   'auth.error.network': 'Could not reach the cloud. Check your connection.',
   'auth.error.notConfigured': 'Cloud not configured.',
+  'auth.error.oauthCancelled': 'Google sign-in was cancelled.',
+  'auth.error.oauthProviderDisabled': 'Google sign-in is not enabled. Use email and password.',
+  'auth.error.oauthSignupDisabled':
+    'This Google account is not authorized. Ask the administrator to create the user.',
+  'auth.error.oauthIdentityExists': 'This Google account is already linked to another user.',
+  'auth.error.oauthConfig': 'Invalid Google configuration. Contact the administrator.',
+  'auth.error.oauthCallback': 'Google sign-in failed. Try again or use email and password.',
+  'auth.error.manualLinkingDisabled':
+    'Linking Google is not enabled. Contact the administrator.',
   'auth.error.unknown': 'Sign-in failed. Try again.',
   'auth.showPassword': 'Show password',
   'auth.hidePassword': 'Hide password',

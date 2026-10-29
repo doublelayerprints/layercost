@@ -1206,19 +1206,24 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** proposte, non implementate
+**Stato:** EVO-1 implementato il 29/10/2026; EVO-2–EVO-4 proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login
 
-**Stato:** `[ ]`
-**Dipende da:** OAuth client Google e configurazione Supabase
+**Stato:** `[x]` — implementato il 29/10/2026; login Google verificato per un account, secondo owner da collegare
+**Dipende da:** OAuth client Google e configurazione Supabase (Client ID/Secret non ancora disponibili in questa sessione)
 **ADR:** 0025
 
-- Provider Google affiancato a email/password.
-- Login per i due account esistenti; auto-link o “Collega Google” con `linkIdentity`.
-- Callback compatibile con `HashRouter` e `detectSessionInUrl: false`.
-- Test locali, axe, smoke di produzione; nessun secret nel bundle o su Vercel.
+- Provider Google affiancato a email/password; signup pubblico invariato e utenti pre-creati.
+- Login Google verificato in locale contro il backend di produzione il 29/10/2026 per un account (1 identità Google su 2); il secondo owner deve fare auto-link o “Collega Google”.
+- PKCE (`flowType: 'pkce'`, `detectSessionInUrl: false`), redirect alla root, scambio manuale del `code`, pulizia del query string; `HashRouter` intatto.
+- Auto-link di Supabase per email verificata; fallback “Collega Google” con `linkIdentity` in Impostazioni → Sincronizzazione; “Google collegato” quando l'identità è presente.
+- Errori mappati (`oauthCancelled`, `oauthProviderDisabled`, `oauthSignupDisabled`, `oauthIdentityExists`, `oauthConfig`, `oauthCallback`, `manualLinkingDisabled`) con microcopy IT/EN e avviso `role="alert"`.
+- Flag pubblico `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il pulsante e per il rollback; nessun secret nel repository, nel bundle o su Vercel.
+- Test: `oauth.test.ts`, `auth.test.ts`, `client.test.ts`, `auth-store.test.ts` (216 unitari totali); E2E auth con provider mockato e annullamento; axe su login a 375/1440. Verdi in locale il 29/10/2026: `npm run check`, `db:test` (33 pgTAP), `test:e2e` (33 + 12 saltati), `test:e2e:auth` (3) e `test:e2e:sync` (3); `smoke:production` verde con il nuovo harness. CI della PR #24 verde (`check`, `e2e`, `database`).
+- Runbook: `docs/engineering/workspace-runbook.md` §15 (Google Cloud, Supabase, locale, verifica, troubleshooting, rollback).
+- Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, RLS o sync.
 
 ## EVO-2 — Tetti utenti e preventivi
 

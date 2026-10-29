@@ -14,7 +14,7 @@ layercost:data
 
 Contenuto: `AppData` con `schemaVersion`, `config`, `quotes`, `draft`.
 
-La sessione Supabase, quando il cloud è configurato, è gestita da `supabase-js` in una chiave `sb-<project-ref>-auth-token` separata da `AppData`. Non contiene dati economici e non entra nei backup.
+La sessione Supabase, quando il cloud è configurato, è gestita da `supabase-js` in una chiave `sb-<project-ref>-auth-token` separata da `AppData`. Non contiene dati economici e non entra nei backup. Con Google OAuth (ADR-0025) il client usa PKCE: durante il redirect `supabase-js` conserva un code verifier temporaneo in `localStorage` (`sb-<project-ref>-auth-token-code-verifier`), consumato al ritorno dal callback. Anche questo valore è tecnico, non entra nei backup e non viene letto dall'app.
 
 La preferenza del tema è un dato di interfaccia separato:
 
@@ -134,7 +134,7 @@ interface CloudGateway {
 }
 ```
 
-La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Schema, RLS e mapper sono in T5.4.2; client e store auth in T5.4.3; gateway dati, outbox e conflitti in T5.4.4; workspace condiviso, runbook e audit in T5.4.5. La procedura amministrativa è in `docs/engineering/workspace-runbook.md`.
+La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. **ADR-0025** aggiunge Google come provider opzionale (PKCE, auto-link e “Collega Google”), senza modificare la persistenza. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Schema, RLS e mapper sono in T5.4.2; client e store auth in T5.4.3; gateway dati, outbox e conflitti in T5.4.4; workspace condiviso, runbook e audit in T5.4.5. La procedura amministrativa è in `docs/engineering/workspace-runbook.md`.
 
 Regole:
 

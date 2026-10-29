@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { Alert, Badge, Button, Modal } from '@/components/ui'
-import { isCloudConfigured } from '@/data/cloud/client'
+import { isCloudConfigured, isGoogleAuthEnabled } from '@/data/cloud/client'
 import { useAppStore } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
 import { useSyncStore, type SyncStatus } from '@/state/sync-store'
@@ -32,8 +32,10 @@ export function SyncSettings() {
   const authStatus = useAuthStore((state) => state.status)
   const user = useAuthStore((state) => state.user)
   const authError = useAuthStore((state) => state.error)
+  const oauth = useAuthStore((state) => state.oauth)
   const initialize = useAuthStore((state) => state.initialize)
   const signOut = useAuthStore((state) => state.signOut)
+  const linkGoogle = useAuthStore((state) => state.linkGoogle)
   const syncStatus = useSyncStore((state) => state.status)
   const syncError = useSyncStore((state) => state.error)
   const pending = useSyncStore((state) => state.pending)
@@ -53,6 +55,8 @@ export function SyncSettings() {
   const syncing = syncStatus === 'syncing' || syncStatus === 'connecting'
   const manualSyncDisabled = syncing || syncStatus === 'firstLogin' || conflict !== undefined
   const needsLogoutConfirmation = pending > 0 || conflict !== undefined
+  const googleEnabled = isGoogleAuthEnabled()
+  const googleLinked = user?.providers.includes('google') ?? false
 
   const handleLogout = async () => {
     setBusy(true)
@@ -147,6 +151,41 @@ export function SyncSettings() {
                   <dd className="mt-0.5 text-ink">{lastSync}</dd>
                 </div>
               </dl>
+
+              {googleEnabled ? (
+                <div className="space-y-2 rounded-control border border-line bg-raised/40 p-3">
+                  <p className="text-xs font-medium text-muted">
+                    {t('auth.google.accountTitle')}
+                  </p>
+                  {googleLinked ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge tone="success">{t('auth.google.linked')}</Badge>
+                      <span className="text-xs text-muted">{t('auth.google.linkedHint')}</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button
+                        variant="secondary"
+                        disabled={oauth !== 'idle'}
+                        onClick={() => void linkGoogle()}
+                      >
+                        {oauth === 'linking'
+                          ? t('auth.google.linking')
+                          : t('auth.google.link')}
+                      </Button>
+                      <p className="text-xs leading-relaxed text-muted">
+                        {t('auth.google.linkHint')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
+              {authError ? (
+                <Alert tone="danger" title={t('common.error')}>
+                  <p>{t(`auth.error.${authError}`)}</p>
+                </Alert>
+              ) : null}
 
               {syncStatus === 'synced' ? (
                 <p className="text-xs leading-relaxed text-muted">{t('sync.syncedHint')}</p>

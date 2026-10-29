@@ -6,6 +6,17 @@ export const authIt = {
   'auth.password': 'Password',
   'auth.submit': 'Accedi',
   'auth.submitting': 'Accesso…',
+  'auth.google.continue': 'Continua con Google',
+  'auth.google.redirecting': 'Reindirizzamento a Google…',
+  'auth.google.or': 'oppure',
+  'auth.google.accountTitle': 'Accesso Google',
+  'auth.google.link': 'Collega Google',
+  'auth.google.linking': 'Collegamento…',
+  'auth.google.linked': 'Google collegato',
+  'auth.google.linkHint':
+    'Collega il tuo account Google per accedere senza password. Email e password restano disponibili.',
+  'auth.google.linkedHint':
+    'Puoi accedere con Google da questo e da altri dispositivi.',
   'auth.noSignup':
     'La registrazione è chiusa. Gli account sono creati dall’amministratore.',
   'auth.forgotPassword': 'Password dimenticata? Chiedi all’amministratore.',
@@ -22,6 +33,18 @@ export const authIt = {
   'auth.error.tooManyRequests': 'Troppi tentativi. Riprova tra qualche minuto.',
   'auth.error.network': 'Impossibile raggiungere il cloud. Controlla la connessione.',
   'auth.error.notConfigured': 'Cloud non configurato.',
+  'auth.error.oauthCancelled': 'Accesso con Google annullato.',
+  'auth.error.oauthProviderDisabled':
+    'L’accesso con Google non è abilitato. Usa email e password.',
+  'auth.error.oauthSignupDisabled':
+    'Questo account Google non è autorizzato. Chiedi all’amministratore di creare l’utente.',
+  'auth.error.oauthIdentityExists':
+    'Questo account Google è già collegato a un altro utente.',
+  'auth.error.oauthConfig': 'Configurazione Google non valida. Contatta l’amministratore.',
+  'auth.error.oauthCallback':
+    'Accesso con Google non riuscito. Riprova o usa email e password.',
+  'auth.error.manualLinkingDisabled':
+    'Il collegamento di Google non è abilitato. Contatta l’amministratore.',
   'auth.error.unknown': 'Accesso non riuscito. Riprova.',
   'auth.showPassword': 'Mostra password',
   'auth.hidePassword': 'Nascondi password',
