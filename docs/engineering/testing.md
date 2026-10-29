@@ -146,7 +146,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 29/10/2026: **verde in locale** per `npm run check` (233 unitari, budget 206,6/210 KB iniziali con env cloud e 271,5/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-1; EVO-3a non è ancora distribuita. La CI della PR #24 e di `main` (`51d3fb9`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per entrambi gli account (2 identità su 2).
+Stato al 29/10/2026: **verde in locale** per `npm run check` (233 unitari, budget 206,6/210 KB iniziali con env cloud e 271,5/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-3a; la submission reale dalla pagina `/#/request-access` è arrivata a Formspree senza scritture Supabase. La CI di `main` (`125f0d5`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per entrambi gli account (2 identità su 2).
 
 ## 7. Come aggiungere un test
 

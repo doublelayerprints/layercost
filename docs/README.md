@@ -14,7 +14,7 @@
 - Test: 233 unitari + 51 E2E (39 default incl. accesso + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS; axe 60 scansioni, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e` + `database`).
-- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`), deploy cloud T5.4 (`1bf641e`, build `index-D9pxS7o0.js`) e deploy EVO-1 (`51d3fb9`, build `index-BN8y8TA2.js`) verificati; EVO-3a non è ancora distribuita. Le preview sono protette da SSO.
+- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`), deploy cloud T5.4 (`1bf641e`), deploy EVO-1 (`51d3fb9`) e deploy EVO-3a (`125f0d5`, build `index-B6Cg37Ap.js` / `index-G-eqO2lr.css`) verificati; le preview sono protette da SSO.
 
 ---
 

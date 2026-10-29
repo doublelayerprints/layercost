@@ -198,7 +198,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 ## 3A. EVO-3a — Pagina “Richiedi accesso”
 
 **Obiettivo:** una persona senza account può inviare una richiesta all’amministratore dalla pagina pubblica `/#/request-access`, senza creare utenti o account.
-**Stato:** **implementato e configurato** il 29/10/2026 (ADR-0026) nel branch `feat/evo-3a-request-access`, PR #26 aperta e CI verde; form di produzione e test creati, notifica email verificata, progetti separati e Restrict to Domain impostato. Restano merge, deploy e smoke.
+**Stato:** **implementato, configurato e distribuito** il 29/10/2026 (ADR-0026, PR #26, squash `125f0d5`); submission reale e smoke verdi. Resta la pulizia delle submission di prova.
 **Stima:** 0,5–1 giorno.
 **Dipende da:** account Formspree Free e configurazione della env pubblica.
 **ADR:** `docs/adr/0026-request-access-formspree.md`.
@@ -225,8 +225,7 @@ Fatto:
 
 Resta:
 
-5. Mergiare la PR #26, deployare e inviare una submission di prova in produzione.
-6. Eseguire lo smoke e cancellare le submission di prova.
+5. Cancellare le submission di prova dal dashboard Formspree.
 
 ### 3A.3 Acceptance
 
@@ -236,7 +235,7 @@ Resta:
 - [x] Nessun utente/account/membership creato; endpoint pubblico; nessun secret.
 - [x] IT/EN, axe, 375/1440, focus e label; budget 206,6/210 KB.
 - [x] ADR-0026, runbook, deployment env, STATUS/TASKS/CHANGELOG/testing.
-- [ ] Deploy di produzione e smoke. _(dopo il merge)_
+- [x] Deploy di produzione e smoke.
 
 ---
 
