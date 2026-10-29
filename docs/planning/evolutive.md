@@ -1,10 +1,10 @@
 # Evolutive — Google login, tetti utenti/preventivi e apertura
 
-**Stato:** proposta, non implementata
+**Stato:** EVO-1 implementato il 29/10/2026 (ADR-0025, branch `feat/evo-1-google-login`); EVO-2–EVO-4 proposte
 **Data:** 29 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
 **Piano collegato:** `docs/planning/t5.4-cloud-sync.md`
-**ADR da creare:** 0025 (Google OAuth), 0026 (tetti e signup), 0027 (multi-workspace, solo se serve)
+**ADR:** 0025 (Google OAuth) creato; 0026 (tetti e signup) e 0027 (multi-workspace) solo se si implementano EVO-2/EVO-4
 
 Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a riprendere il lavoro in una nuova sessione senza ricostruire il contesto.
 
@@ -71,26 +71,26 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 | Tema | Proposta | Stato |
 | --- | --- | --- |
-| Google login | Provider aggiuntivo, non sostitutivo | Da confermare |
-| Account esistenti | Prima test auto-link; fallback “Collega Google” con `linkIdentity` | Da testare |
-| Signup | Resta disabilitato nella prima fase; utenti pre-creati | Proposto |
-| Nuovi utenti | Invite-only; niente self-service | Proposto |
-| Tetto utenti | Allowlist + eventuale tetto numerico con Auth Hook | Da decidere |
-| Tetto membri | Trigger su `workspace_members` con `workspace_limits.max_members` | Proposto |
-| Tetto preventivi | Trigger su `quotes` con `workspace_limits.max_quotes` | Proposto |
+| Google login | Provider aggiuntivo, non sostitutivo | **Implementato (ADR-0025)** |
+| Account esistenti | Auto-link; fallback “Collega Google” con `linkIdentity` | **Implementato; verifica reale da fare** |
+| Signup | Resta disabilitato nella prima fase; utenti pre-creati | Confermato |
+| Nuovi utenti | Invite-only; niente self-service | Confermato |
+| Tetto utenti | Allowlist + eventuale tetto numerico con Auth Hook | Da decidere (EVO-2/EVO-3) |
+| Tetto membri | Trigger su `workspace_members` con `workspace_limits.max_members` | Proposto per EVO-2 |
+| Tetto preventivi | Trigger su `quotes` con `workspace_limits.max_quotes` | Proposto per EVO-2 |
 | Multi-workspace | Rinviato; prima decidere stesso archivio o archivio per cliente | Aperto |
 | Custom domain | Non necessario; branding Google opzionale | Rinviato |
 | Piano | Free finché i limiti bastano; Pro solo se serve | Proposto |
 
 ### Domande da chiudere prima di implementare
 
-1. Le due email Google sono le stesse dei due account attuali?
-2. Vogliamo provare l'auto-link o aggiungere subito “Collega Google”?
-3. Il tetto utenti è **globale** (tutti gli account) o **per workspace**?
-4. Il tetto preventivi è per workspace o globale?
+1. Le due email Google sono le stesse dei due account attuali? **Da verificare in produzione**: l'auto-link funziona solo con la stessa email verificata; altrimenti si usa “Collega Google”.
+2. ~~Vogliamo provare l'auto-link o aggiungere subito “Collega Google”?~~ **Entrambi**: auto-link come percorso principale, “Collega Google” come fallback deterministico.
+3. Il tetto utenti è **globale** (tutti gli account) o **per workspace**? Aperto (EVO-2/EVO-3).
+4. Il tetto preventivi è per workspace o globale? Aperto (EVO-2).
 5. Quanti utenti e quanti preventivi come prima soglia? Proposta: 10 utenti, 500 preventivi.
 6. L'apertura futura è “più membri nello stesso archivio” o “un archivio per cliente”?
-7. Vogliamo mantenere email/password per sempre o solo come admin fallback?
+7. Vogliamo mantenere email/password per sempre o solo come admin fallback? **Sì, per sempre**: è il fallback di ADR-0025.
 8. Serve un dominio personalizzato per il consent screen Google? (Pro, $10/mese, non necessario ora).
 
 ---
@@ -98,8 +98,10 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 ## 3. EVO-1 — Google login
 
 **Obiettivo:** i due account esistenti possono accedere con Google; email/password resta disponibile.
+**Stato:** **implementato** il 29/10/2026 (codice, test, docs); la verifica con Google reale richiede Client ID/Secret e la configurazione del dashboard.
 **Stima:** 0,5–1 giorno.
 **Dipende da:** accesso a Google Cloud e Supabase Dashboard.
+**ADR:** `docs/adr/0025-google-oauth.md`.
 
 ### 3.1 Google Cloud
 
@@ -143,52 +145,36 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
    ```
    e mettere il secret in un file locale non committato.
 
-### 3.3 Modifiche all'app
+### 3.3 Modifiche all'app (implementate)
 
-1. **Auth gateway** (`src/data/cloud/auth.ts`):
-   - aggiungere `signInWithOAuth(provider: 'google', redirectTo: string)`;
-   - aggiungere `linkIdentity(provider: 'google')`;
-   - mappare gli errori: `provider_disabled`, `redirect_uri_mismatch`, `access_denied`, `signup_disabled`, `identity_already_exists`, rete.
-2. **Client Supabase** (`src/data/cloud/client.ts`):
-   - oggi `detectSessionInUrl: false`.
-   - Scegliere una delle due strategie:
-     - **A (consigliata):** `redirectTo: window.location.origin` (senza hash), scambio manuale del `code` all'avvio con `exchangeCodeForSession`, pulizia dell'URL e navigazione a `/#/`.
-     - **B:** route `/auth/callback` dedicata, con rewrite Vercel verso `index.html`, e scambio del `code` nella route.
-   - La strategia A evita di modificare il routing hash e non richiede rewrite.
-3. **Login page** (`src/features/auth/LoginPage.tsx`):
-   - pulsante **“Continua con Google”** sopra/sotto il form email/password;
-   - stato di caricamento, errore accessibile, focus;
-   - i18n IT/EN;
-   - nessun link di registrazione.
-4. **Account esistenti:**
-   - testare l'auto-link: Supabase collega automaticamente un'identità Google a un utente con la stessa email **verificata**;
-   - se l'auto-link non funziona o dà conflitti, aggiungere in Impostazioni → Sincronizzazione un pulsante **“Collega Google”** che usa `linkIdentity` mentre l'utente è già autenticato con email/password;
-   - per `linkIdentity` va abilitato **Allow manual linking** in Supabase Auth.
-5. **Dopo il login OAuth:**
-   - l'auth store deve passare a `authenticated`;
-   - SyncController collega il workspace;
-   - logout e sessione scaduta restano invariati;
-   - nessuna modifica a RLS, sync, snapshot o schema.
+1. **Auth gateway** (`src/data/cloud/auth.ts`): `signInWithOAuth`, `linkIdentity` ed `exchangeCodeForSession`; `AuthUser.providers` espone le identità collegate; `mapAuthError` riconosce `provider_disabled`, `redirect_uri_mismatch`, `access_denied`, `signup_disabled`, `identity_already_exists`, `manual_linking_disabled`, gli errori di stato/codice PKCE e la rete.
+2. **Client Supabase** (`src/data/cloud/client.ts`): `flowType: 'pkce'`, `detectSessionInUrl: false`, `redirectTo = origin + '/'`. Il codice arriva nel **query string**, viene scambiato all'avvio con `exchangeCodeForSession`, i parametri OAuth vengono rimossi e il fragment resta libero per `HashRouter`. Nessuna route di callback e nessun rewrite.
+3. **Modulo puro** (`src/data/cloud/oauth.ts`): parsing del callback, mapping degli errori del provider, costruzione del redirect e pulizia dell'URL; testato senza browser.
+4. **Login page** (`src/features/auth/LoginPage.tsx`): pulsante **“Continua con Google”** sopra il form, divisore “oppure”, stato di reindirizzamento, errore accessibile con `role="alert"`, i18n IT/EN, nessun link di registrazione.
+5. **Account esistenti:** auto-link di Supabase per email verificata; in **Impostazioni → Sincronizzazione** il pulsante **“Collega Google”** (`linkIdentity`) è il fallback deterministico. Con l'identità già collegata compare “Google collegato”. “Allow manual linking” è attivo nella config locale e va abilitato nel dashboard di produzione.
+6. **Callback fallito:** `OAuthCallbackRedirect` porta l'utente su `/#/login` con il messaggio mappato, invece di lasciarlo sul calcolatore.
+7. **Dopo il login OAuth:** l'auth store passa a `authenticated`, `SyncController` collega il workspace, logout e sessione scaduta restano invariati. Nessuna modifica a RLS, sync, snapshot o schema.
+8. **Flag di rollout:** il pulsante compare solo con `VITE_AUTH_GOOGLE_ENABLED=true` (pubblico, nessun segreto). Senza flag la UI resta identica a prima.
 
 ### 3.4 Test
 
-- Unit: mapping errori OAuth, `signInWithOAuth` chiama il provider giusto, `linkIdentity`.
-- E2E: il pulsante Google porta all'URL OAuth corretto (mockando il gateway, senza dipendere da Google).
-- Manuale: login reale con un account Google di test su locale/staging.
-- Manuale: login con Google per un account esistente; verifica sync, quote, logout, reload.
-- Axe su login con il nuovo pulsante a 375/1440.
-- Smoke di produzione con un account Google di test solo dopo il deploy; non usare gli account reali per i test distruttivi.
+- Unit: mapping errori OAuth, parsing del callback, `signInWithOAuth`/`linkIdentity` con il provider e il redirect giusti, code exchange, stato dello store, flag pubblico. **Fatto** (`oauth.test.ts`, `auth.test.ts`, `auth-store.test.ts`, `client.test.ts`).
+- E2E: il pulsante Google porta all'URL OAuth corretto e l'annullamento torna al login con il messaggio; axe su login a 375/1440. **Fatto** con il provider mockato (`tests/e2e/auth.spec.ts`), senza dipendere da Google.
+- Manuale: login reale con un account Google di test su locale/staging. **Da fare** con Client ID/Secret.
+- Manuale: login con Google per un account esistente; verifica sync, quote, logout, reload. **Da fare** con i due account reali o di test.
+- Manuale: “Collega Google” su un account email/password. **Da fare** dopo aver abilitato il linking manuale.
+- Smoke di produzione: resta email/password e non usa Google. **Da eseguire dopo il deploy del flag.**
 
 ### 3.5 Acceptance
 
-- [ ] I due account esistenti possono accedere con Google.
-- [ ] Email/password continua a funzionare come fallback.
-- [ ] Un'email Google non presente e signup disabilitato viene rifiutata con messaggio chiaro.
-- [ ] Sessione persistente, reload, logout, sync e RLS invariati.
-- [ ] Nessun Client Secret nel bundle, nel repository o su Vercel.
-- [ ] Errori OAuth mappati e accessibili.
-- [ ] `npm run check`, `db:test`, `test:e2e`, `test:e2e:auth`, `test:e2e:sync` verdi.
-- [ ] Documentazione privacy/auth aggiornata.
+- [ ] I due account esistenti possono accedere con Google. *(richiede la configurazione reale del provider)*
+- [x] Email/password continua a funzionare come fallback (E2E esistente, invariato).
+- [ ] Un'email Google non presente e signup disabilitato viene rifiutata con messaggio chiaro. *(mapping e microcopy pronti; verifica live da fare)*
+- [ ] Sessione persistente, reload, logout, sync e RLS invariati. *(percorso email/password verde; percorso OAuth da verificare live)*
+- [x] Nessun Client Secret nel bundle, nel repository o su Vercel.
+- [x] Errori OAuth mappati e accessibili.
+- [x] `npm run check`, `db:test`, `test:e2e`, `test:e2e:auth`, `test:e2e:sync` verdi.
+- [x] Documentazione privacy/auth aggiornata.
 
 ### 3.6 Rischi e rollback
 
@@ -415,18 +401,18 @@ Copiare e incollare:
 
 ## 9. Checklist di avvio EVO-1
 
-- [ ] Leggere questo documento e i file collegati.
-- [ ] Scrivere ADR-0025 (Google OAuth) e, se si implementano subito, ADR-0026 (tetti).
-- [ ] Creare OAuth client Google Web.
-- [ ] Configurare Google provider in Supabase.
-- [ ] Aggiungere redirect URL produzione/localhost.
-- [ ] Implementare `signInWithOAuth` e il callback.
-- [ ] Aggiungere il pulsante “Continua con Google” e i18n.
-- [ ] Testare auto-link sui due account; se fallisce, implementare “Collega Google”.
-- [ ] Verificare che email/password resti funzionante.
-- [ ] Axe, E2E, build, budget.
-- [ ] Deploy preview, smoke, produzione.
-- [ ] Aggiornare documentazione e stato.
+- [x] Leggere questo documento e i file collegati.
+- [x] Scrivere ADR-0025 (Google OAuth); ADR-0026 rinviato perché EVO-2 non è implementato.
+- [ ] Creare OAuth client Google Web. *(richiede accesso a Google Cloud)*
+- [ ] Configurare Google provider in Supabase. *(richiede Client ID/Secret)*
+- [x] Aggiungere redirect URL produzione/localhost al codice e alla documentazione.
+- [x] Implementare `signInWithOAuth` e il callback PKCE.
+- [x] Aggiungere il pulsante “Continua con Google”, “Collega Google” e i18n.
+- [ ] Testare auto-link sui due account; se fallisce, usare “Collega Google”. *(verifica live)*
+- [x] Verificare che email/password resti funzionante (E2E esistente).
+- [x] Axe, E2E, build, budget.
+- [ ] Deploy preview, smoke, produzione con `VITE_AUTH_GOOGLE_ENABLED=true`. *(dopo la configurazione del provider)*
+- [x] Aggiornare documentazione e stato (con la distinzione tra codice pronto e verifica live).
 
 ---
 
@@ -442,3 +428,4 @@ Copiare e incollare:
 - `docs/engineering/workspace-runbook.md` — utenti, membership, reset, offboarding.
 - `docs/engineering/backup-restore.md` — backup e restore.
 - `docs/adr/0024-supabase-auth-workspace.md` — decisione auth/tenancy attuale.
+- `docs/adr/0025-google-oauth.md` — provider Google, PKCE, linking, segreti e rollback.

@@ -53,7 +53,9 @@ Per provare login e sync in locale:
 
 Le variabili sono pubbliche e opzionali: senza di esse la build resta local-only e la UI cloud è nascosta. La service role key non deve mai entrare in Vercel o nel bundle.
 
-Gli E2E auth si eseguono con `npm run test:e2e:auth`; lo script legge le env locali, builda con le credenziali pubbliche e crea/elimina l'utente di test.
+Gli E2E auth si eseguono con `npm run test:e2e:auth`; lo script legge le env locali, builda con le credenziali pubbliche e crea/elimina l'utente di test. Il build include anche `VITE_AUTH_GOOGLE_ENABLED=true` per coprire il pulsante Google con il provider mockato.
+
+Il login Google (EVO-1, ADR-0025) è opzionale e spento per default. Per mostrarlo serve `VITE_AUTH_GOOGLE_ENABLED=true` (variabile pubblica, nessun segreto) **dopo** aver configurato il provider Google in Supabase. Il client usa PKCE, torna alla root con `?code=...`, scambia il codice manualmente e mantiene `HashRouter`. Il Client Secret sta solo nel dashboard Supabase (produzione) o in `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET` non committato (locale); non va su Vercel. Procedura completa, redirect URI e rollback in `docs/engineering/workspace-runbook.md` §15.
 
 Gli E2E sync si eseguono con `npm run test:e2e:sync`. Lo script **azzera il database locale** (`supabase db reset`), builda con le credenziali pubbliche, crea utenti e workspace temporanei via Admin API, esegue i test a due contesti, offline/conflitto e isolamento, e pulisce con `psql`. Richiede `psql` nel PATH e non va eseguito contro un progetto remoto. Il workspace condiviso di test usa gli ID seed; il workspace separato usa dati propri e ID univoci, perché gli ID delle entità sono globali. L'azzeramento evita collisioni tra esecuzioni.
 
@@ -145,6 +147,7 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - CI GitHub: verde su `main` `1bf641e` (`check`, `e2e`, `database`) in 3m25s.
 - Deploy Vercel: **live su https://layercost.vercel.app**, build cloud `index-D9pxS7o0.js` / `index-BPCFEMKa.css`.
 - Supabase produzione: `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner, signup disabilitato, keep-alive e backup verificati.
+- Google login (EVO-1, ADR-0025): codice, test e documentazione pronti; resta da creare l'OAuth client Google, configurare il provider in Supabase e impostare `VITE_AUTH_GOOGLE_ENABLED=true` su Vercel. Finché il flag non è attivo il pulsante non compare e il login email/password resta identico.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`; deploy di produzione verificato con build `index-C_5bQZYu.js`, gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, bozza protetta, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.
 - Le preview deployment sono protette da SSO Vercel; la produzione è pubblica.
@@ -174,6 +177,6 @@ export PROD_URL='https://layercost.vercel.app'
 npm run smoke:production
 ```
 
-Lo script crea un utente e un workspace temporanei, accede alla produzione, verifica lo stato “Sincronizzato”, crea un preventivo, controlla che sia nell'archivio e pulisce workspace e utente. La service role key resta nella shell locale: non va in Vercel, nel repository o nel bundle.
+Lo script crea un utente e un workspace temporanei, accede alla produzione, verifica lo stato “Sincronizzato”, crea un preventivo, controlla che sia nell'archivio e pulisce workspace e utente. La service role key resta nella shell locale: non va in Vercel, nel repository o nel bundle. Lo smoke usa email/password e **non** copre Google: il login Google reale va verificato manualmente con un account di test dopo aver impostato `VITE_AUTH_GOOGLE_ENABLED=true` (runbook §15).
 
 Il comando è stato verificato il 28/10/2026 sia contro una preview locale con backend di produzione sia contro https://layercost.vercel.app; entrambe le esecuzioni hanno creato e rimosso correttamente utente e workspace temporanei. Se il cleanup fallisce, eliminare workspace e utente con la procedura del `docs/engineering/workspace-runbook.md`.

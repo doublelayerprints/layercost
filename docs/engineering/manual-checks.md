@@ -53,7 +53,23 @@ Ambiente: macOS 27, Safari, VoiceOver attivo con **Cmd+F5**.
 
 ---
 
-## 3. Esito
+## 3. Google OAuth (EVO-1)
+
+Da eseguire solo dopo aver configurato Google in Supabase e impostato `VITE_AUTH_GOOGLE_ENABLED=true`. Usare account di test o i due account reali **solo per un login non distruttivo**.
+
+- [ ] La pagina `/#/login` mostra “Continua con Google” sopra il form email/password.
+- [ ] Il click porta al consenso Google; l'URL di ritorno è `https://layercost.vercel.app/?code=...` (query string, non fragment).
+- [ ] Dopo il consenso si torna all'app, la sessione è attiva e il workspace mostra gli stessi preventivi.
+- [ ] Ricarica: la sessione resta; “Esci” funziona e riporta al login.
+- [ ] Email/password continua a funzionare con lo stesso account.
+- [ ] Impostazioni → Sincronizzazione mostra “Google collegato” se l'identità è presente; altrimenti “Collega Google” funziona.
+- [ ] Un'email Google non pre-creata viene rifiutata con il messaggio “Questo account Google non è autorizzato…” e non crea utenti.
+- [ ] Annullando il consenso si torna al login con “Accesso con Google annullato.”
+- [ ] La console non mostra errori e non ci sono richieste oltre a Supabase e Google.
+
+---
+
+## 4. Esito
 
 Compila e allega alla PR o a una nota in `STATUS.md`:
 
@@ -63,6 +79,9 @@ Compila e allega alla PR o a una nota in `STATUS.md`:
 | Safari: tema scuro            |       |      |
 | Safari: stampa/PDF            |       |      |
 | Safari: link condiviso        |       |      |
+| Google: login e reload        |       |      |
+| Google: fallback email        |       |      |
+| Google: annullamento/errore   |       |      |
 | VoiceOver: titoli e landmark  |       |      |
 | VoiceOver: form e tab order   |       |      |
 | VoiceOver: modale bozza       |       |      |

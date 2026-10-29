@@ -80,7 +80,7 @@ La build senza variabili Supabase resta **local-only**: login, sync e chunk clou
 2. copia i valori `API_URL` e `PUBLISHABLE_KEY` da `npx supabase status -o env` in `.env.local` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
 3. `npm run dev` e apri `#/login`
 
-Gli account sono creati dall'amministratore; la registrazione è disabilitata.
+Gli account sono creati dall'amministratore; la registrazione è disabilitata. Con `VITE_AUTH_GOOGLE_ENABLED=true` compare anche “Continua con Google”; il flag è pubblico e va attivato solo dopo aver configurato il provider Google in Supabase (ADR-0025). Il Client Secret non entra mai nel repository, nel bundle o su Vercel: sta solo nel dashboard Supabase e, per lo sviluppo locale, in una variabile d'ambiente non committata.
 
 Con l'account attivo, configurazione e preventivi vivono nel **workspace condiviso**; bozza, tema e lingua restano locali. Le modifiche offline entrano in una coda persistita e vengono inviate al ritorno della rete; se lo stesso dato è cambiato su un altro dispositivo, l'app mostra un conflitto e chiede come risolverlo. Il primo accesso propone di importare i dati locali dopo aver scaricato un backup JSON. Al logout la copia locale dei dati cloud viene rimossa (o conservata se ci sono modifiche ancora in sospeso). Il database locale viene azzerato da `npm run test:e2e:sync`, non dalla build normale.
 
@@ -97,7 +97,7 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 - Framework preset: Vite
 - Build: `npm run build`
 - Output: `dist`
-- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
+- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, più `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il login Google (pubblico, nessun segreto)
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 

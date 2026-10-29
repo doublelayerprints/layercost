@@ -1,12 +1,12 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.5 — 185 test unitari + 44 E2E (33 default + 6 visual + 2 auth + 3 sync) + 33 pgTAP RLS
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.5 + EVO-1 — 216 test unitari + 45 E2E (33 default + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS
 
 ---
 
 ## 1. Strategia
 
-> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10.
+> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. EVO-1 (ADR-0025) aggiunge 31 test unitari su parsing callback, mapping errori OAuth, gateway, flag pubblico e store auth, più un E2E auth con provider mockato e annullamento. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10 e `docs/planning/evolutive.md` §3.
 
 
 | Livello  | Strumento             | Cosa copre                                                                        |
@@ -50,8 +50,12 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/state/app-store.test.ts` — 9 test: hydration, doppia hydration, errore, scrittura immediata, export, reset, reset fallito, passaggio locale ↔ cache cloud e audit non trascinato nelle copie.
 - `src/state/sync-store.test.ts` — 9 test: import automatico, primo login con backup, cloud che vince, modifica offline, conflitto, duplicazione, logout con/senza pending, workspace diverso e riconnessione dopo sessione scaduta.
 - `supabase/tests/rls.test.sql` — 33 asserzioni pgTAP: isolamento workspace, accesso condiviso, quote condivise e audit `created_by`/`updated_by`, scritture, quote bloccate, settings, membership, ultimo owner (utente e admin), keep-alive.
-- `src/state/auth-store.test.ts` — 11 test: unconfigured, sessione, inizializzazione idempotente, errori, login, logout, sessione scaduta ed eventi esterni.
-- `tests/e2e/auth.spec.ts` — 2 test con Supabase locale: login, reload, impostazioni, logout, credenziali errate; axe a 375/1440.
+- `src/data/cloud/auth.test.ts` — 9 test: provider collegati, `signInWithOAuth`, `linkIdentity`, code exchange e mapping degli errori OAuth.
+- `src/data/cloud/oauth.test.ts` — 11 test: parsing del callback PKCE, annullamento, errori del provider, precedenza errore/codice, mapping e redirect.
+- `src/data/cloud/client.test.ts` — 3 test: il flag Google richiede cloud configurato e il valore esplicito `true`.
+- `src/state/auth-store.test.ts` — 19 test: unconfigured, sessione, inizializzazione idempotente, errori, login, logout, sessione scaduta, eventi esterni, login Google, callback, code exchange, “Collega Google” e linking disabilitato.
+- `tests/e2e/auth.spec.ts` — 3 test con Supabase locale: login, reload, impostazioni, logout, credenziali errate; Google con provider mockato e annullamento; axe a 375/1440.
+- `scripts/smoke-production.mjs` — smoke manuale su produzione: crea utente/workspace temporanei, rinomina gli ID seed nel browser (gli ID sono globali), importa, salva un preventivo e pulisce.
 - `tests/e2e/sync.spec.ts` — 3 test con Supabase locale: primo login con backup JSON e import dei dati locali; due contesti, modifica offline, conflitto e ricarica remota; utente senza membership e workspace separato con dati propri. Il file è seriale perché i workspace di test usano gli ID seed.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
 - `src/lib/cost-details.test.ts` — 4 test: componenti, costo pieno, totali di colonna, prezzo allocato.
@@ -119,7 +123,8 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
 - Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
 - Interfaccia inglese: copertura E2E/axe/visual in T5.6.5.
-- Sync cloud: E2E solo in locale con Supabase e reset del DB; la CI dedicata e il deploy sono in T5.4.6. L’E2E copre un workspace separato con dati e ID propri; due workspace con gli stessi ID seed restano non supportati.
+- Sync cloud: E2E solo in locale con Supabase e reset del DB; la CI dedicata e il deploy sono in T5.4.6. L’E2E copre un workspace separato con dati e ID propri; due workspace con gli stessi ID seed restano non supportati. Lo smoke di produzione rinomina gli ID seed nel browser prima dell'import, così resta isolato anche con `ws-doublelayer` già popolato.
+- Google OAuth: il flusso UI è coperto con il provider mockato; login reale, auto-link e “Collega Google” richiedono Client ID/Secret e verifica manuale (runbook §15).
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
@@ -127,15 +132,15 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 `.github/workflows/ci.yml` esegue tre job:
 
-- **check** — `npm ci`, `npm run check` (typecheck, lint, 185 test, build, budget).
+- **check** — `npm ci`, `npm run check` (typecheck, lint, 216 test, build, budget).
 - **e2e** — build, Playwright Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
-- **database** — Supabase locale, `npm run db:test` (33 pgTAP), `npm run test:e2e:auth` (2 test), `npm run test:e2e:sync` (3 test), stop del database. Non usa segreti di produzione.
+- **database** — Supabase locale, `npm run db:test` (33 pgTAP), `npm run test:e2e:auth` (3 test), `npm run test:e2e:sync` (3 test), stop del database. Non usa segreti di produzione.
 
-`npm run test:e2e:auth` legge le env da Supabase locale, builda con le credenziali pubbliche e crea l'utente via Admin API. `npm run test:e2e:sync` azzera il database locale, builda con le env pubbliche, crea utenti/workspace via Admin API e pulisce con `psql`.
+`npm run test:e2e:auth` legge le env da Supabase locale, builda con le credenziali pubbliche e `VITE_AUTH_GOOGLE_ENABLED=true` (provider mockato, nessun segreto Google), crea l'utente via Admin API. `npm run test:e2e:sync` azzera il database locale, builda con le env pubbliche, crea utenti/workspace via Admin API e pulisce con `psql`.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 28/10/2026: **verde in locale** per `npm run check` (185 unitari), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 11 saltati), `test:e2e:auth` (2) e `test:e2e:sync` (3). La PR #20 e `main` `1bf641e` hanno superato `check`, `e2e` e `database` su GitHub; il job `database` esegue Supabase locale, 33 pgTAP, 2 auth E2E e 3 sync E2E senza segreti di produzione. `npm run smoke:production` è verde su https://layercost.vercel.app.
+Stato al 29/10/2026: **verde in locale** per `npm run check` (216 unitari, budget 204,9/205 KB iniziali con env cloud e 269,8/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 12 saltati), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app con il nuovo harness a ID univoci. La verifica reale di Google resta da fare con Client ID/Secret; la CI della PR va eseguita dopo il push.
 
 ## 7. Come aggiungere un test
 

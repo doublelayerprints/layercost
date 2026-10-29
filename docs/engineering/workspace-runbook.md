@@ -7,7 +7,7 @@
 
 Questo runbook è la procedura amministrativa per il cloud opzionale di LayerCost. Non contiene password, chiavi o UUID reali: i valori tra `<...>` vanno sostituiti al momento dell'esecuzione e non vanno committati.
 
-**Stato produzione (28/10/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello workspace `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. Le email dei membri non sono nel repository.
+**Stato produzione (28/10/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello workspace `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. Le email dei membri non sono nel repository. Dal 29/10/2026 è previsto anche il provider Google (EVO-1, ADR-0025): resta opzionale e si attiva con il flag pubblico `VITE_AUTH_GOOGLE_ENABLED`.
 
 ---
 
@@ -17,6 +17,7 @@ Questo runbook è la procedura amministrativa per il cloud opzionale di LayerCos
 - Creazione dei due account e del workspace condiviso.
 - Aggiunta, rimozione o cambio ruolo di un membro.
 - Reset password amministrativo.
+- Configurazione o troubleshooting del login Google (EVO-1).
 - Verifica dell'isolamento tra workspace.
 - Offboarding di una persona.
 - Diagnosi di errori `noWorkspace`, `last_owner`, `42501` o `quote_locked`.
@@ -365,9 +366,97 @@ Risposta attesa: `"ok"`.
 
 ---
 
-## 15. Riferimenti
+## 15. Google OAuth (EVO-1, ADR-0025)
+
+Il login Google è un provider **aggiuntivo**: email/password resta sempre disponibile. Il signup pubblico resta disabilitato e gli utenti devono esistere già in `auth.users`.
+
+### 15.1 Google Cloud
+
+1. Aprire [Google Cloud Console](https://console.cloud.google.com/) e selezionare o creare un progetto.
+2. In **Google Auth Platform → Audience** scegliere **External**. In fase di test aggiungere i due account come **test users**; pubblicare solo quando l'apertura è decisa.
+3. In **Data Access (Scopes)** verificare `openid` (da aggiungere manualmente), `.../auth/userinfo.email` e `.../auth/userinfo.profile`. Non aggiungere altri scope.
+4. Creare **OAuth Client ID → Web application**.
+5. **Authorized JavaScript origins:**
+   - `https://layercost.vercel.app`
+   - `http://localhost:5173`
+   - `http://127.0.0.1:5173`
+6. **Authorized redirect URIs:**
+   - `https://jcxkfhjgstdgrjazlnpq.supabase.co/auth/v1/callback`
+   - `http://127.0.0.1:54321/auth/v1/callback`
+   - per un eventuale progetto Supabase di staging, la sua callback `/auth/v1/callback`.
+7. Salvare **Client ID** e **Client Secret** nel password manager. Il Client ID è pubblico; il **Client Secret** va solo nel dashboard Supabase e, per lo sviluppo locale, in una variabile d'ambiente non committata. Non va mai nel repository, nel bundle, in `.env.example`, nei log o su Vercel.
+
+> La redirect URI autorizzata su Google è la **callback di Supabase**, non l'URL dell'app. L'app riceve il codice dal query string dopo che Supabase ha completato lo scambio con Google.
+
+### 15.2 Supabase
+
+1. **Authentication → Providers → Google**: abilitare il provider e incollare Client ID e Client Secret.
+2. Lasciare **Skip nonce check** disattivato nel progetto hosted. Nel `supabase/config.toml` locale è `true` perché è richiesto dal flusso locale.
+3. **Authentication → URL Configuration**:
+   - Site URL: `https://layercost.vercel.app`;
+   - redirect: `https://layercost.vercel.app/**`, `http://localhost:5173/**` e, se serve, `http://127.0.0.1:5173/**`.
+4. In **Authentication → Providers** abilitare **Allow manual linking**: serve al fallback “Collega Google” per gli account già esistenti.
+5. Lasciare **Allow new users to sign up** disattivato. Il provider email deve restare abilitato.
+6. Impostare su Vercel, per Production e Preview, la variabile **pubblica** `VITE_AUTH_GOOGLE_ENABLED=true` solo dopo aver verificato il provider. Senza il flag il pulsante Google non compare e la UI resta invariata.
+
+### 15.3 Sviluppo locale
+
+1. Esportare il secret nella shell, senza salvarlo nel repository:
+   ```bash
+   export SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET='<client-secret>'
+   ```
+2. In `supabase/config.toml`, sezione `[auth.external.google]`, impostare `enabled = true` e `client_id = '<web-client-id>'` **solo in locale**; non committare questi valori. Il secret resta `env(...)`.
+3. `npm run db:start` e `npm run dev`.
+4. In `.env.local` aggiungere `VITE_AUTH_GOOGLE_ENABLED=true`.
+5. Aprire `http://localhost:5173/#/login` e provare “Continua con Google” con un utente di test già presente in `auth.users`.
+6. Prima di committare, riportare `enabled = false` e `client_id = ""` in `supabase/config.toml`.
+
+### 15.4 Verifica
+
+Con un account esistente:
+
+1. Accedere con email/password e verificare che **Impostazioni → Sincronizzazione** mostri l'email.
+2. Se l'auto-link non è ancora avvenuto, usare **Collega Google**. Se il collegamento manuale non è abilitato, l'app mostra un errore dedicato.
+3. Uscire e rientrare con **Continua con Google**: la sessione deve essere persistente, il workspace e i preventivi devono essere gli stessi, il logout deve funzionare.
+4. Provare un'email Google **non** presente in `auth.users`: deve comparire “Questo account Google non è autorizzato…”, senza creare utenti.
+5. Verificare che email/password continui a funzionare.
+6. Controllare le identità col SQL editor:
+   ```sql
+   select u.email, i.provider, i.email as identity_email, i.created_at
+   from auth.users u
+   join auth.identities i on i.user_id = u.id
+   where u.email in ('<email-1>', '<email-2>')
+   order by u.email, i.provider;
+   ```
+7. Eseguire `npm run test:e2e:auth` (test OAuth mockato, senza Google) e lo smoke di produzione. Lo smoke usa email/password e non dipende da Google.
+
+### 15.5 Troubleshooting
+
+| Sintomo | Causa probabile | Azione |
+| --- | --- | --- |
+| `provider_disabled` / “L'accesso con Google non è abilitato” | Provider Google spento in Supabase | Abilitarlo in **Authentication → Providers → Google** |
+| `redirect_uri_mismatch` / “Configurazione Google non valida” | La redirect URI su Google non è la callback Supabase | Aggiungere `https://<ref>.supabase.co/auth/v1/callback` |
+| `signup_disabled` / “Questo account Google non è autorizzato” | Email Google senza utente pre-creato | Creare l'utente dall'amministratore; non abilitare il signup |
+| `manual_linking_disabled` | “Allow manual linking” spento | Abilitarlo e riprovare “Collega Google” |
+| `bad_oauth_state`, `bad_code_verifier`, `flow_state_expired` | Codice scaduto, URL aperto in un altro browser o doppio reload | Ripetere l'accesso dalla pagina di login |
+| `access_denied` | L'utente ha annullato il consenso | Nessuna azione; email/password resta disponibile |
+| Consenso Google con dominio Supabase | Custom domain non configurato | Accettabile per due utenti; valutare il custom domain solo per l'apertura |
+| Pulsante Google assente | `VITE_AUTH_GOOGLE_ENABLED` non è `true` o manca la configurazione cloud | Impostare il flag e rifare il deploy |
+| Il client Secret è stato esposto | Errore di configurazione | Ruotarlo su Google Cloud, aggiornare Supabase, non inserirlo altrove |
+
+### 15.6 Rollback
+
+1. **Authentication → Providers → Google**: disabilitare il provider. Email/password continua a funzionare.
+2. Rimuovere `VITE_AUTH_GOOGLE_ENABLED` da Vercel o impostarlo a `false` e rifare il deploy: il pulsante sparisce.
+3. Non serve alcuna migrazione: nessuna tabella, RLS, formula o snapshot cambia. Le identità Google già collegate restano in `auth.identities` e non impediscono l'accesso con password.
+4. Se un'identità va rimossa, usare la dashboard/Admin API di Supabase; non modificare `auth.identities` a mano.
+
+---
+
+## 16. Riferimenti
 
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace e operazioni free.
+- `docs/adr/0025-google-oauth.md` — provider Google, PKCE, link manuale, segreti e rollback.
 - `docs/planning/t5.4-cloud-sync.md` — piano completo, schema, RLS, test e rollback.
 - `docs/engineering/deployment.md` §1.1 — Supabase locale, env e comandi.
 - `docs/engineering/backup-restore.md` — backup settimanale cifrato e restore verificato.
