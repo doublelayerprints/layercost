@@ -1211,11 +1211,12 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-1 — Google login
 
-**Stato:** `[x]` — implementato il 29/10/2026; verifica con Google reale da completare
+**Stato:** `[x]` — implementato il 29/10/2026; login Google verificato per un account, secondo owner da collegare
 **Dipende da:** OAuth client Google e configurazione Supabase (Client ID/Secret non ancora disponibili in questa sessione)
 **ADR:** 0025
 
 - Provider Google affiancato a email/password; signup pubblico invariato e utenti pre-creati.
+- Login Google verificato in locale contro il backend di produzione il 29/10/2026 per un account (1 identità Google su 2); il secondo owner deve fare auto-link o “Collega Google”.
 - PKCE (`flowType: 'pkce'`, `detectSessionInUrl: false`), redirect alla root, scambio manuale del `code`, pulizia del query string; `HashRouter` intatto.
 - Auto-link di Supabase per email verificata; fallback “Collega Google” con `linkIdentity` in Impostazioni → Sincronizzazione; “Google collegato” quando l'identità è presente.
 - Errori mappati (`oauthCancelled`, `oauthProviderDisabled`, `oauthSignupDisabled`, `oauthIdentityExists`, `oauthConfig`, `oauthCallback`, `manualLinkingDisabled`) con microcopy IT/EN e avviso `role="alert"`.

@@ -98,7 +98,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 ## 3. EVO-1 — Google login
 
 **Obiettivo:** i due account esistenti possono accedere con Google; email/password resta disponibile.
-**Stato:** **implementato** il 29/10/2026 (codice, test, docs); la verifica con Google reale richiede Client ID/Secret e la configurazione del dashboard.
+**Stato:** **implementato e verificato** il 29/10/2026 per un account in locale contro il backend di produzione; il secondo owner deve ancora collegare Google.
 **Stima:** 0,5–1 giorno.
 **Dipende da:** accesso a Google Cloud e Supabase Dashboard.
 **ADR:** `docs/adr/0025-google-oauth.md`.
@@ -160,17 +160,17 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 - Unit: mapping errori OAuth, parsing del callback, `signInWithOAuth`/`linkIdentity` con il provider e il redirect giusti, code exchange, stato dello store, flag pubblico. **Fatto** (`oauth.test.ts`, `auth.test.ts`, `auth-store.test.ts`, `client.test.ts`).
 - E2E: il pulsante Google porta all'URL OAuth corretto e l'annullamento torna al login con il messaggio; axe su login a 375/1440. **Fatto** con il provider mockato (`tests/e2e/auth.spec.ts`), senza dipendere da Google.
-- Manuale: login reale con un account Google di test su locale/staging. **Da fare** con Client ID/Secret.
-- Manuale: login con Google per un account esistente; verifica sync, quote, logout, reload. **Da fare** con i due account reali o di test.
+- Manuale: login reale con un account Google di test su locale/staging. **Fatto** il 29/10/2026 per un account, in locale contro il backend di produzione.
+- Manuale: login con Google per un account esistente; verifica sync, quote, logout, reload. **Fatto per un account**; il secondo owner deve ripetere.
 - Manuale: “Collega Google” su un account email/password. **Da fare** dopo aver abilitato il linking manuale.
 - Smoke di produzione: resta email/password e non usa Google. **Da eseguire dopo il deploy del flag.**
 
 ### 3.5 Acceptance
 
-- [ ] I due account esistenti possono accedere con Google. *(richiede la configurazione reale del provider)*
+- [ ] I due account esistenti possono accedere con Google. *(1 account su 2 verificato il 29/10/2026)*
 - [x] Email/password continua a funzionare come fallback (E2E esistente, invariato).
 - [ ] Un'email Google non presente e signup disabilitato viene rifiutata con messaggio chiaro. *(mapping e microcopy pronti; verifica live da fare)*
-- [ ] Sessione persistente, reload, logout, sync e RLS invariati. *(percorso email/password verde; percorso OAuth da verificare live)*
+- [ ] Sessione persistente, reload, logout, sync e RLS invariati. *(percorso OAuth verificato per un account; secondo owner da verificare)*
 - [x] Nessun Client Secret nel bundle, nel repository o su Vercel.
 - [x] Errori OAuth mappati e accessibili.
 - [x] `npm run check`, `db:test`, `test:e2e`, `test:e2e:auth`, `test:e2e:sync` verdi.

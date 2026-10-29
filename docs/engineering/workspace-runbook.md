@@ -413,6 +413,8 @@ Il login Google è un provider **aggiuntivo**: email/password resta sempre dispo
 
 ### 15.4 Verifica
 
+**Stato verifica (29/10/2026):** login Google riuscito per un account in locale contro il backend di produzione; il database riporta 1 identità Google su 2 account. Il secondo owner deve ripetere la procedura.
+
 Con un account esistente:
 
 1. Accedere con email/password e verificare che **Impostazioni → Sincronizzazione** mostri l'email.

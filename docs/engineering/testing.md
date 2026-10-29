@@ -124,7 +124,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
 - Interfaccia inglese: copertura E2E/axe/visual in T5.6.5.
 - Sync cloud: E2E solo in locale con Supabase e reset del DB; la CI dedicata e il deploy sono in T5.4.6. L’E2E copre un workspace separato con dati e ID propri; due workspace con gli stessi ID seed restano non supportati. Lo smoke di produzione rinomina gli ID seed nel browser prima dell'import, così resta isolato anche con `ws-doublelayer` già popolato.
-- Google OAuth: il flusso UI è coperto con il provider mockato; login reale, auto-link e “Collega Google” richiedono Client ID/Secret e verifica manuale (runbook §15).
+- Google OAuth: il flusso UI è coperto con il provider mockato; il login reale è stato verificato il 29/10/2026 per un account in locale contro il backend di produzione. Restano la verifica del secondo owner e la prova di “Collega Google” (runbook §15).
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
