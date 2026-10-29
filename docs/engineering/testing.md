@@ -140,7 +140,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 29/10/2026: **verde in locale** per `npm run check` (216 unitari, budget 204,9/205 KB iniziali con env cloud e 269,8/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 12 saltati), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app con il nuovo harness a ID univoci. La verifica reale di Google resta da fare con Client ID/Secret; la CI della PR va eseguita dopo il push.
+Stato al 29/10/2026: **verde in locale** per `npm run check` (216 unitari, budget 204,9/205 KB iniziali con env cloud e 269,8/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 12 saltati), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app con il nuovo harness a ID univoci. La verifica reale di Google resta da fare con Client ID/Secret; la CI della PR #24 è verde (`check`, `e2e`, `database`).
 
 ## 7. Come aggiungere un test
 
