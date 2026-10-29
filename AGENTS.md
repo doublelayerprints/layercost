@@ -264,6 +264,7 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/engineering/manual-checks.md` — verifiche manuali Safari e VoiceOver.
 - `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese e sync.
 - `docs/planning/t5.4-cloud-sync.md` — piano dettagliato del sync Supabase: schema, RLS, auth, task e operazioni free.
+- `docs/planning/evolutive.md` — evolutive future: Google login, tetti utenti/preventivi e apertura multi-workspace.
 - `docs/engineering/workspace-runbook.md` — runbook del workspace condiviso: utenti, membership, reset password, audit e troubleshooting.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.

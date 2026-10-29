@@ -1200,3 +1200,53 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 7. Nessun altro task di fase 5: T5.1, T5.2, T5.5 e T5.7–T5.11 sono chiusi/non in scope su indicazione del committente.
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.
+
+---
+
+# Evolutive (dopo T5.4)
+
+**Piano:** `docs/planning/evolutive.md`
+**Stato:** proposte, non implementate
+**Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
+
+## EVO-1 — Google login
+
+**Stato:** `[ ]`
+**Dipende da:** OAuth client Google e configurazione Supabase
+**ADR:** 0025
+
+- Provider Google affiancato a email/password.
+- Login per i due account esistenti; auto-link o “Collega Google” con `linkIdentity`.
+- Callback compatibile con `HashRouter` e `detectSessionInUrl: false`.
+- Test locali, axe, smoke di produzione; nessun secret nel bundle o su Vercel.
+
+## EVO-2 — Tetti utenti e preventivi
+
+**Stato:** `[ ]`
+**Dipende da:** decisione sul modello di apertura
+**ADR:** 0026
+
+- `workspace_limits` con `max_members` e `max_quotes`.
+- Trigger su `workspace_members` e `quotes`, advisory lock e codici errore.
+- UI con conteggi e messaggi; modifica limiti via SQL/runbook nella prima iterazione.
+- Test pgTAP, E2E e concorrenza; soft delete e ripristino gestiti.
+
+## EVO-3 — Apertura controllata
+
+**Stato:** `[ ]`
+**Dipende da:** EVO-1, EVO-2
+
+- Invite-only o allowlist con Auth Hook `before-user-created`.
+- Eventuale tetto globale utenti.
+- Google per gli invitati, email/password come fallback admin.
+
+## EVO-4 — Multi-workspace
+
+**Stato:** `[ ]`
+**Dipende da:** decisione esplicita e ADR-0027
+
+- Un workspace per cliente/team, con onboarding, inviti e switcher.
+- Migrazione PK `(workspace_id, id)` o ID globali; sync/cache per workspace.
+- Solo se l'apertura non è più “più membri nello stesso archivio”.
+
+**Prompt di ripresa:** §8 di `docs/planning/evolutive.md`.

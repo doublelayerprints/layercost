@@ -116,6 +116,7 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 | `docs/engineering/`            | Architettura, persistenza, test, release, deploy |
 | `docs/engineering/workspace-runbook.md` | Workspace condiviso: utenti, membership, audit |
 | `docs/planning/phase-5.md`     | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync     |
+| `docs/planning/evolutive.md`   | Google login, tetti utenti/preventivi, multi-workspace |
 | `docs/design/ui-brief.md`      | Requisiti per la fase design                     |
 | `docs/design/directions.md`    | Direzioni e scelta visiva                        |
 | `docs/design/design-system.md` | Token, componenti, accessibilità                 |
