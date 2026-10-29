@@ -129,7 +129,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
 - Interfaccia inglese: copertura E2E/axe/visual in T5.6.5.
 - Sync cloud: E2E solo in locale con Supabase e reset del DB; la CI dedicata e il deploy sono in T5.4.6. L’E2E copre un workspace separato con dati e ID propri; due workspace con gli stessi ID seed restano non supportati. Lo smoke di produzione rinomina gli ID seed nel browser prima dell'import, così resta isolato anche con `ws-doublelayer` già popolato.
-- Google OAuth: il flusso UI è coperto con il provider mockato; il login reale è stato verificato il 29/10/2026 per un account in locale contro il backend di produzione. Restano la verifica del secondo owner e la prova di “Collega Google” (runbook §15).
+- Google OAuth: il flusso UI è coperto con il provider mockato; il login reale è stato verificato il 29/10/2026 in locale contro il backend di produzione e in produzione per entrambi gli account (2 identità Google su 2). La prova esplicita di “Collega Google” resta coperta dagli E2E, ma non è stata necessaria in produzione.
 - Richiesta accesso: il flusso è coperto con Formspree mockato (successo, errore, validazione, honeypot, endpoint mancante). **Non** sono coperti la submission reale, la notifica all’amministratore, la restrizione di dominio e la retention Formspree: richiedono il form reale e si verificano con la checklist di `docs/engineering/access-requests.md`.
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
@@ -146,7 +146,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 29/10/2026: **verde in locale** per `npm run check` (233 unitari, budget 206,6/210 KB iniziali con env cloud e 271,5/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-1; EVO-3a non è ancora distribuita. La CI della PR #24 e di `main` (`51d3fb9`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per un account; resta il secondo owner.
+Stato al 29/10/2026: **verde in locale** per `npm run check` (233 unitari, budget 206,6/210 KB iniziali con env cloud e 271,5/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-1; EVO-3a non è ancora distribuita. La CI della PR #24 e di `main` (`51d3fb9`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per entrambi gli account (2 identità su 2).
 
 ## 7. Come aggiungere un test
 

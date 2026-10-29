@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 29/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; resta il collegamento Google del secondo owner. **EVO-3a — Richiedi accesso** (ADR-0026) è implementato il 29/10/2026: route lazy, Formspree Free, i18n IT/EN, axe e budget 210 KB; restano la creazione del form Formspree reale, la verifica della notifica e il deploy. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026.
+**Stato al 29/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato il 29/10/2026: route lazy, Formspree Free, i18n IT/EN, axe e budget 210 KB; restano la creazione del form Formspree reale, la verifica della notifica e il deploy. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026.
 
 ---
 
@@ -1211,12 +1211,12 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-1 — Google login
 
-**Stato:** `[x]` — implementato e distribuito il 29/10/2026 (PR #24); login Google verificato per un account, secondo owner da collegare
+**Stato:** `[x]` — implementato, distribuito e verificato per entrambi gli account il 29/10/2026 (PR #24); 2 identità Google su 2
 **Dipende da:** OAuth client Google e configurazione Supabase (Client ID/Secret non ancora disponibili in questa sessione)
 **ADR:** 0025
 
 - Provider Google affiancato a email/password; signup pubblico invariato e utenti pre-creati.
-- Login Google verificato in locale contro il backend di produzione e in produzione il 29/10/2026 per un account (1 identità Google su 2); il secondo owner deve fare auto-link o “Collega Google”.
+- Login Google verificato in locale contro il backend di produzione e in produzione il 29/10/2026 per entrambi gli account (2 identità Google su 2); il secondo owner ha completato il collegamento dopo la correzione dell’email.
 - PKCE (`flowType: 'pkce'`, `detectSessionInUrl: false`), redirect alla root, scambio manuale del `code`, pulizia del query string; `HashRouter` intatto.
 - Auto-link di Supabase per email verificata; fallback “Collega Google” con `linkIdentity` in Impostazioni → Sincronizzazione; “Google collegato” quando l'identità è presente.
 - Errori mappati (`oauthCancelled`, `oauthProviderDisabled`, `oauthSignupDisabled`, `oauthIdentityExists`, `oauthConfig`, `oauthCallback`, `manualLinkingDisabled`) con microcopy IT/EN e avviso `role="alert"`.

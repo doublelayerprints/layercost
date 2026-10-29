@@ -71,23 +71,23 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 ## 2. Decisioni proposte e questioni aperte
 
-| Tema              | Proposta                                                                  | Stato                                    |
-| ----------------- | ------------------------------------------------------------------------- | ---------------------------------------- |
-| Google login      | Provider aggiuntivo, non sostitutivo                                      | **Implementato (ADR-0025)**              |
-| Account esistenti | Auto-link; fallback “Collega Google” con `linkIdentity`                   | **Implementato; verifica reale da fare** |
-| Signup            | Resta disabilitato nella prima fase; utenti pre-creati                    | Confermato                               |
-| Nuovi utenti      | Invite-only; niente self-service; pagina “Richiedi accesso” con Formspree | **Pagina implementata (ADR-0026)**       |
-| Richiesta accesso | Formspree Free, endpoint pubblico, nessuna approvazione automatica        | **Implementata (EVO-3a/ADR-0026)**       |
-| Tetto utenti      | Allowlist + eventuale tetto numerico con Auth Hook                        | Da decidere (EVO-2/EVO-3b)               |
-| Tetto membri      | Trigger su `workspace_members` con `workspace_limits.max_members`         | Proposto per EVO-2                       |
-| Tetto preventivi  | Trigger su `quotes` con `workspace_limits.max_quotes`                     | Proposto per EVO-2                       |
-| Multi-workspace   | Rinviato; prima decidere stesso archivio o archivio per cliente           | Aperto                                   |
-| Custom domain     | Non necessario; branding Google opzionale                                 | Rinviato                                 |
-| Piano             | Free finché i limiti bastano; Pro solo se serve                           | Proposto                                 |
+| Tema              | Proposta                                                                  | Stato                                       |
+| ----------------- | ------------------------------------------------------------------------- | ------------------------------------------- |
+| Google login      | Provider aggiuntivo, non sostitutivo                                      | **Implementato (ADR-0025)**                 |
+| Account esistenti | Auto-link; fallback “Collega Google” con `linkIdentity`                   | **Implementato; 2 account su 2 con Google** |
+| Signup            | Resta disabilitato nella prima fase; utenti pre-creati                    | Confermato                                  |
+| Nuovi utenti      | Invite-only; niente self-service; pagina “Richiedi accesso” con Formspree | **Pagina implementata (ADR-0026)**          |
+| Richiesta accesso | Formspree Free, endpoint pubblico, nessuna approvazione automatica        | **Implementata (EVO-3a/ADR-0026)**          |
+| Tetto utenti      | Allowlist + eventuale tetto numerico con Auth Hook                        | Da decidere (EVO-2/EVO-3b)                  |
+| Tetto membri      | Trigger su `workspace_members` con `workspace_limits.max_members`         | Proposto per EVO-2                          |
+| Tetto preventivi  | Trigger su `quotes` con `workspace_limits.max_quotes`                     | Proposto per EVO-2                          |
+| Multi-workspace   | Rinviato; prima decidere stesso archivio o archivio per cliente           | Aperto                                      |
+| Custom domain     | Non necessario; branding Google opzionale                                 | Rinviato                                    |
+| Piano             | Free finché i limiti bastano; Pro solo se serve                           | Proposto                                    |
 
 ### Domande da chiudere prima di implementare
 
-1. Le due email Google sono le stesse dei due account attuali? **Da verificare in produzione**: l'auto-link funziona solo con la stessa email verificata; altrimenti si usa “Collega Google”.
+1. Le due email Google sono le stesse dei due account attuali? **Sì, verificate**: entrambi gli account hanno un’identità Google (2 su 2) dal 29/10/2026.
 2. ~~Vogliamo provare l'auto-link o aggiungere subito “Collega Google”?~~ **Entrambi**: auto-link come percorso principale, “Collega Google” come fallback deterministico.
 3. Il tetto utenti è **globale** (tutti gli account) o **per workspace**? Aperto (EVO-2/EVO-3b).
 4. Il tetto preventivi è per workspace o globale? Aperto (EVO-2).
@@ -101,7 +101,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 ## 3. EVO-1 — Google login
 
 **Obiettivo:** i due account esistenti possono accedere con Google; email/password resta disponibile.
-**Stato:** **implementato, distribuito e verificato** il 29/10/2026 (PR #24) per un account; il secondo owner deve ancora collegare Google.
+**Stato:** **implementato, distribuito e verificato** il 29/10/2026 (PR #24) per entrambi gli account; 2 identità Google su 2.
 **Stima:** 0,5–1 giorno.
 **Dipende da:** accesso a Google Cloud e Supabase Dashboard.
 **ADR:** `docs/adr/0025-google-oauth.md`.
@@ -163,17 +163,17 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 - Unit: mapping errori OAuth, parsing del callback, `signInWithOAuth`/`linkIdentity` con il provider e il redirect giusti, code exchange, stato dello store, flag pubblico. **Fatto** (`oauth.test.ts`, `auth.test.ts`, `auth-store.test.ts`, `client.test.ts`).
 - E2E: il pulsante Google porta all'URL OAuth corretto e l'annullamento torna al login con il messaggio; axe su login a 375/1440. **Fatto** con il provider mockato (`tests/e2e/auth.spec.ts`), senza dipendere da Google.
-- Manuale: login reale con un account Google di test su locale/staging. **Fatto** il 29/10/2026 per un account, in locale contro il backend di produzione.
-- Manuale: login con Google per un account esistente; verifica sync, quote, logout, reload. **Fatto per un account**; il secondo owner deve ripetere.
-- Manuale: “Collega Google” su un account email/password. **Da fare** dopo aver abilitato il linking manuale.
+- Manuale: login reale con un account Google di test su locale/staging. **Fatto** il 29/10/2026 per entrambi gli account, in locale contro il backend di produzione e in produzione.
+- Manuale: login con Google per un account esistente; verifica sync, quote, logout, reload. **Fatto per entrambi gli account**; sync, quota, logout e reload verificati almeno su un account.
+- Manuale: “Collega Google” su un account email/password. **Non necessario in produzione**: il secondo account ha completato l’accesso con Google; il pulsante resta coperto dagli E2E auth.
 - Smoke di produzione: resta email/password e non usa Google. **Da eseguire dopo il deploy del flag.**
 
 ### 3.5 Acceptance
 
-- [ ] I due account esistenti possono accedere con Google. _(1 account su 2 verificato il 29/10/2026)_
+- [x] I due account esistenti possono accedere con Google. _(2 account su 2 con identità Google, verificati il 29/10/2026)_
 - [x] Email/password continua a funzionare come fallback (E2E esistente, invariato).
 - [ ] Un'email Google non presente e signup disabilitato viene rifiutata con messaggio chiaro. _(mapping e microcopy pronti; verifica live da fare)_
-- [ ] Sessione persistente, reload, logout, sync e RLS invariati. _(percorso OAuth verificato per un account; secondo owner da verificare)_
+- [ ] Sessione persistente, reload, logout, sync e RLS invariati. _(percorso OAuth verificato per entrambi; reload/logout/sync coperti dagli E2E auth/sync e verificati almeno su un account)_
 - [x] Nessun Client Secret nel bundle, nel repository o su Vercel.
 - [x] Errori OAuth mappati e accessibili.
 - [x] `npm run check`, `db:test`, `test:e2e`, `test:e2e:auth`, `test:e2e:sync` verdi.
@@ -458,7 +458,7 @@ Copiare e incollare:
 - [x] Aggiungere redirect URL produzione/localhost al codice e alla documentazione.
 - [x] Implementare `signInWithOAuth` e il callback PKCE.
 - [x] Aggiungere il pulsante “Continua con Google”, “Collega Google” e i18n.
-- [ ] Testare auto-link sui due account; se fallisce, usare “Collega Google”. _(verifica live)_
+- [x] Testare auto-link sui due account; se fallisce, usare “Collega Google”. _(2 account su 2 con Google, 29/10/2026)_
 - [x] Verificare che email/password resti funzionante (E2E esistente).
 - [x] Axe, E2E, build, budget.
 - [ ] Deploy preview, smoke, produzione con `VITE_AUTH_GOOGLE_ENABLED=true`. _(dopo la configurazione del provider)_
