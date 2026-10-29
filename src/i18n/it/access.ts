@@ -33,7 +33,8 @@ export const accessIt = {
     'Impossibile raggiungere il servizio. Controlla la connessione e riprova.',
   'access.error.rateLimited': 'Troppe richieste. Riprova tra qualche minuto.',
   'access.error.server': 'Il servizio non è disponibile in questo momento. Riprova più tardi.',
-  'access.error.rejected': 'La richiesta non è stata accettata. Controlla i dati e riprova.',
+  'access.error.rejected':
+    'La richiesta non è stata accettata. Controlla i dati o contatta l’amministratore.',
   'access.error.unknown': 'Invio non riuscito. Riprova.',
   'access.validation.emailRequired': 'Inserisci la tua email.',
   'access.validation.emailInvalid': 'Inserisci un indirizzo email valido.',

@@ -33,7 +33,8 @@ export const accessEn: Record<keyof typeof accessIt, string> = {
   'access.error.network': 'Could not reach the service. Check your connection and try again.',
   'access.error.rateLimited': 'Too many requests. Try again in a few minutes.',
   'access.error.server': 'The service is unavailable right now. Try again later.',
-  'access.error.rejected': 'The request was not accepted. Check the details and try again.',
+  'access.error.rejected':
+    'The request was not accepted. Check the details or contact the administrator.',
   'access.error.unknown': 'Could not send the request. Try again.',
   'access.validation.emailRequired': 'Enter your email.',
   'access.validation.emailInvalid': 'Enter a valid email address.',
