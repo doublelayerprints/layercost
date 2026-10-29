@@ -26,8 +26,8 @@ Questo runbook è la procedura per gestire le richieste che arrivano dalla pagin
 
 1. Accedere a Formspree e creare un form **Free** dedicato alla produzione.
 2. Verificare l’email dell’amministratore e attivare la notifica per ogni submission.
-3. Aprire le impostazioni del form e verificare:
-   - **Restrict to domain**: `layercost.vercel.app`;
+3. Aprire le impostazioni del **progetto** (non del singolo form) e verificare:
+   - **Restrict to Domain**: `layercost.vercel.app` (senza `https://`);
    - notifica all’email dell’amministratore;
    - `_subject` e `_replyto` accettati;
    - filtro spam attivo.
@@ -37,18 +37,23 @@ Questo runbook è la procedura per gestire le richieste che arrivano dalla pagin
    - reply-to uguale all’email inserita;
    - nome e messaggio visibili;
    - nessuna autoresponse al richiedente.
-5. Copiare l’endpoint pubblico (`https://formspree.io/f/<id>`) e impostarlo su Vercel come `VITE_ACCESS_REQUEST_ENDPOINT` per **Production** e **Preview**.
+5. Copiare l’endpoint pubblico (`https://formspree.io/f/<id>`) e impostarlo su Vercel:
+   - **Production**: endpoint di produzione;
+   - **Preview** e **Development**: endpoint di test.
 6. Rideployare o promuovere un deployment che includa la variabile. La variabile è pubblica: non è un segreto.
+
+> **Restrict to Domain è un’impostazione di progetto**, non del singolo form. Se il form di test è nello stesso progetto, la restrizione vale anche per lui e le submission da `localhost` o dalle preview finiscono in spam. Sposta il form di test in un **progetto separato** (Form Settings → Move Form) e applica la restrizione solo al progetto di produzione. La restrizione usa il `Referer`: il header Vercel `strict-origin-when-cross-origin` è compatibile; Brave può ometterlo e finire in spam.
 
 ### 2.2 Locale
 
 1. Creare un **secondo form** Formspree di test, separato da quello di produzione.
-2. Mettere il suo endpoint in `.env.local` (gitignored):
+2. Se il progetto di produzione usa **Restrict to Domain**, mettere il form di test in un **progetto separato** senza restrizione: l’impostazione è di progetto e altrimenti bloccherebbe `localhost` e le preview.
+3. Mettere il suo endpoint in `.env.local` (gitignored):
    ```bash
    VITE_ACCESS_REQUEST_ENDPOINT=https://formspree.io/f/<id-test>
    ```
-3. Non usare il form di produzione per i test locali.
-4. Se l’endpoint manca, la pagina mostra “Il modulo non è disponibile in questa build” e il form è disabilitato: è il comportamento atteso, non un bug.
+4. Non usare il form di produzione per i test locali.
+5. Se l’endpoint manca, la pagina mostra “Il modulo non è disponibile in questa build” e il form è disabilitato: è il comportamento atteso, non un bug.
 
 ### 2.3 Limiti Free
 

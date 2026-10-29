@@ -133,9 +133,9 @@ Questa parte richiede un account Formspree e non può essere eseguita dal codice
 1. Creare un form **Free** per la produzione e uno separato per i test locali.
 2. Verificare l’email dell’amministratore e attivare la notifica a ogni submission.
 3. Verificare che l’oggetto sia `LayerCost — richiesta accesso cloud` e che `_replyto` sia l’email del richiedente.
-4. Impostare **Restrict to domain = `layercost.vercel.app`** sul form di produzione.
+4. Impostare **Restrict to Domain = `layercost.vercel.app`** nelle impostazioni del **progetto** di produzione (non del singolo form). L’impostazione è di progetto: se il form di test è nello stesso progetto, spostalo in un progetto separato senza restrizione, altrimenti bloccherebbe `localhost` e le preview.
 5. Inviare una submission di prova e controllare notifica, reply-to, spam e archivio.
-6. Mettere l’endpoint di produzione in `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel (Production e Preview) e, se serve, in `.env.local` per il form di test.
+6. Mettere l’endpoint di produzione in `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel **Production** e l’endpoint di test su **Preview/Development**; in locale usare il form di test.
 7. Controllare il limite di 50 invii/mese e l’archivio di 30 giorni.
 
 Procedura operativa completa: `docs/engineering/access-requests.md`.

@@ -218,7 +218,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 1. Creare il form Formspree di produzione e quello di test.
 2. Verificare email e notifica all’amministratore, `_subject`, `_replyto`, spam.
-3. Impostare **Restrict to domain = `layercost.vercel.app`**.
+3. Impostare **Restrict to Domain = `layercost.vercel.app`** nelle impostazioni del **progetto** di produzione; il form di test va in un progetto separato senza restrizione.
 4. Impostare `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel Production/Preview.
 5. Inviare una submission di prova e controllare la notifica.
 6. Aggiornare il deploy e lo smoke, se si distribuisce.
