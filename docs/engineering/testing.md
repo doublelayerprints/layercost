@@ -1,13 +1,12 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.5 + EVO-1 — 216 test unitari + 45 E2E (33 default + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.6 + EVO-1 + EVO-3a — 233 test unitari + 51 E2E (39 default incl. accesso + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS
 
 ---
 
 ## 1. Strategia
 
-> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. EVO-1 (ADR-0025) aggiunge 31 test unitari su parsing callback, mapping errori OAuth, gateway, flag pubblico e store auth, più un E2E auth con provider mockato e annullamento. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10 e `docs/planning/evolutive.md` §3.
-
+> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. EVO-1 (ADR-0025) aggiunge 31 test unitari su parsing callback, mapping errori OAuth, gateway, flag pubblico e store auth, più un E2E auth con provider mockato e annullamento. EVO-3a (ADR-0026) aggiunge 17 test unitari su validazione/payload/endpoint/errori, 5 E2E con Formspree mockato, 1 E2E senza endpoint e il doppio build in `scripts/test-e2e.mjs`. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10, `docs/planning/evolutive.md` §3/§3A e `docs/planning/evo-3a-access-request.md` §10.
 
 | Livello  | Strumento             | Cosa copre                                                                        |
 | -------- | --------------------- | --------------------------------------------------------------------------------- |
@@ -25,7 +24,7 @@
 ```bash
 npm run test         # unit + data
 npm run test:watch
-npm run test:e2e     # build + Playwright (Chromium + WebKit; visual saltati su macOS)
+npm run test:e2e     # due build (con/senza endpoint Formspree) + Playwright (Chromium + WebKit; visual saltati su macOS)
 npm run test:visual  # solo test visuali, richiede baseline Linux
 npm run budget       # controllo del peso della build
 npm run check        # typecheck + lint + test + build + budget
@@ -38,6 +37,8 @@ npm run smoke:production # manuale, richiede Supabase di produzione e PROD_URL
 ```
 
 Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in CI usa Chromium bundled. WebKit usa il browser Playwright installato con `npx playwright install webkit`.
+
+`npm run test:e2e` esegue `scripts/test-e2e.mjs`: costruisce con `VITE_ACCESS_REQUEST_ENDPOINT=https://formspree.io/f/layercost-e2e`, esegue la suite con `E2E_ACCESS=1`, poi ricostruisce senza endpoint ed esegue `tests/e2e/access-missing.spec.ts`. Il doppio build copre successo/errore e stato “modulo non disponibile” senza hook di runtime. `E2E_FRESH=1` forza un server di preview nuovo per ogni esecuzione.
 
 ## 3. File
 
@@ -54,7 +55,10 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/data/cloud/oauth.test.ts` — 11 test: parsing del callback PKCE, annullamento, errori del provider, precedenza errore/codice, mapping e redirect.
 - `src/data/cloud/client.test.ts` — 3 test: il flag Google richiede cloud configurato e il valore esplicito `true`.
 - `src/state/auth-store.test.ts` — 19 test: unconfigured, sessione, inizializzazione idempotente, errori, login, logout, sessione scaduta, eventi esterni, login Google, callback, code exchange, “Collega Google” e linking disabilitato.
-- `tests/e2e/auth.spec.ts` — 3 test con Supabase locale: login, reload, impostazioni, logout, credenziali errate; Google con provider mockato e annullamento; axe a 375/1440.
+- `tests/e2e/auth.spec.ts` — 3 test con Supabase locale: login, reload, impostazioni, logout, credenziali errate; link “Richiedi accesso” da login e da SyncSettings; Google con provider mockato e annullamento; axe a 375/1440.
+- `tests/e2e/access.spec.ts` — 5 test con endpoint Formspree di test: invio e payload esatto, conferma con focus, nessuna scrittura auth/rest, errore 500 con campi conservati e riprova, validazione senza rete, honeypot senza invio, axe a 375/1440 in italiano e inglese.
+- `tests/e2e/access-missing.spec.ts` — 1 test senza endpoint: messaggio “modulo non disponibile”, form disabilitato, axe a 375/1440 in italiano e inglese.
+- `scripts/test-e2e.mjs` — doppia build (con e senza endpoint) e due esecuzioni Playwright; `E2E_FRESH=1` evita di riusare un preview con la build precedente.
 - `scripts/smoke-production.mjs` — smoke manuale su produzione: crea utente/workspace temporanei, rinomina gli ID seed nel browser (gli ID sono globali), importa, salva un preventivo e pulisce.
 - `tests/e2e/sync.spec.ts` — 3 test con Supabase locale: primo login con backup JSON e import dei dati locali; due contesti, modifica offline, conflitto e ricarica remota; utente senza membership e workspace separato con dati propri. Il file è seriale perché i workspace di test usano gli ID seed.
 - `src/lib/cost-bands.test.ts` — 6 test: somma esatta delle bande, moltiplicazione per la quantità, ordine, lavoro, zero, accorpamento sotto il 3%.
@@ -69,8 +73,9 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/lib/quote-profit.test.ts` — 4 test: utile positivo, zero, negativo e coerenza con prezzo netto e costo pieno.
 - `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
-- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a 899 chiavi dopo T5.21.
+- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a **1059** chiavi dopo EVO-3a (36 `access.*`).
 - `src/lib/share.test.ts` — 6 test: roundtrip con lingua, migrazione dei vecchi link senza `locale` a italiano, migrazione di `discountBp` alla regola percentuale, conservazione degli sconti di riga/preventivo, rimozione dell’audit cloud, payload non valido rifiutato.
+- `src/features/access/request-access.test.ts` — 17 test: validazione email/nome/messaggio/consenso, limiti dopo trim, payload `_subject`/`_replyto`/`_gotcha`, endpoint Formspree valido/assente/non valido, mapping 429/5xx/4xx/unknown, invio con `Accept`/`Content-Type`/`credentials: 'omit'`, errore di rete, endpoint mancante e honeypot senza rete.
 - `src/lib/xlsx.test.ts` — 5 test: pacchetto OPC, XML ben formato, formati numerici e date Excel, riferimenti oltre la Z, valori non finiti, nomi dei fogli sanificati e univoci.
 - `src/features/quotes/export-xlsx.test.ts` — 3 test: tre fogli con preventivi/righe/materiali, intestazioni inglesi, preventivo senza risultato esportato con valori vuoti.
 - `tests/e2e/import.spec.ts` — 8 test: file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload e overflow a 375 px.
@@ -85,9 +90,9 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/collapsible-cards.spec.ts` — 1 test: comprimi/espandi Preventivo, Stampe, Costi di lavoro, Prezzo e una riga; verifica sintesi, `aria-expanded`, campi nascosti e “Ripristina default” cliccabile senza aprire la card.
 - `tests/e2e/discounts.spec.ts` — 2 test: sconto di riga a importo fisso + sconto percentuale del preventivo, persistenza dopo il salvataggio; sconto fisso oltre il prezzo limitato a zero con avviso.
 - `tests/e2e/xlsx.spec.ts` — 2 test: download reale del workbook con preventivo archiviato e verifica di fogli e contenuto; pulsante disabilitato senza preventivi.
-- `tests/e2e/a11y.spec.ts` — 3 test: 40 scansioni axe (26 italiane, 14 inglesi) su tutte le route, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni.
+- `tests/e2e/a11y.spec.ts` — 3 test: 43 scansioni axe (28 italiane, 15 inglesi) su tutte le route, inclusa `/#/request-access`, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni. Le altre 17 scansioni sono in `access.spec.ts` (4) e `access-missing.spec.ts` (4), più auth (4) e sync (5).
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
-- `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con foglio chiaro e margini bianchi partendo dal tema scuro; nessuna richiesta esterna.
+- `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con foglio chiaro e margini bianchi partendo dal tema scuro; nessuna richiesta esterna, inclusa la pagina “Richiedi accesso” al caricamento.
 - `tests/e2e/visual.spec.ts` — 6 test, 36 screenshot: 18 italiani e 18 inglesi (calcolatore, modale import `.3mf`, dettaglio, preventivi, materiali e impostazioni) a 1440/768/390 px. Saltati fuori dalla CI; le baseline del calcolatore sono state rigenerate dopo T5.21.
 - `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser sono in `parse.test.ts`.
 
@@ -124,7 +129,8 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 - Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
 - Interfaccia inglese: copertura E2E/axe/visual in T5.6.5.
 - Sync cloud: E2E solo in locale con Supabase e reset del DB; la CI dedicata e il deploy sono in T5.4.6. L’E2E copre un workspace separato con dati e ID propri; due workspace con gli stessi ID seed restano non supportati. Lo smoke di produzione rinomina gli ID seed nel browser prima dell'import, così resta isolato anche con `ws-doublelayer` già popolato.
-- Google OAuth: il flusso UI è coperto con il provider mockato; il login reale è stato verificato il 29/10/2026 per un account in locale contro il backend di produzione. Restano la verifica del secondo owner e la prova di “Collega Google” (runbook §15).
+- Google OAuth: il flusso UI è coperto con il provider mockato; il login reale è stato verificato il 29/10/2026 in locale contro il backend di produzione e in produzione per entrambi gli account (2 identità Google su 2). La prova esplicita di “Collega Google” resta coperta dagli E2E, ma non è stata necessaria in produzione.
+- Richiesta accesso: il flusso è coperto con Formspree mockato (successo, errore, validazione, honeypot, endpoint mancante). **Non** sono coperti la submission reale, la notifica all’amministratore, la restrizione di dominio e la retention Formspree: richiedono il form reale e si verificano con la checklist di `docs/engineering/access-requests.md`.
 - Deploy Vercel (verifica manuale).
 - Carico con centinaia di preventivi.
 
@@ -132,15 +138,15 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 `.github/workflows/ci.yml` esegue tre job:
 
-- **check** — `npm ci`, `npm run check` (typecheck, lint, 216 test, build, budget).
-- **e2e** — build, Playwright Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
+- **check** — `npm ci`, `npm run check` (typecheck, lint, 233 test, build, budget).
+- **e2e** — `npm run test:e2e`: due build (con e senza `VITE_ACCESS_REQUEST_ENDPOINT`), Playwright Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
 - **database** — Supabase locale, `npm run db:test` (33 pgTAP), `npm run test:e2e:auth` (3 test), `npm run test:e2e:sync` (3 test), stop del database. Non usa segreti di produzione.
 
 `npm run test:e2e:auth` legge le env da Supabase locale, builda con le credenziali pubbliche e `VITE_AUTH_GOOGLE_ENABLED=true` (provider mockato, nessun segreto Google), crea l'utente via Admin API. `npm run test:e2e:sync` azzera il database locale, builda con le env pubbliche, crea utenti/workspace via Admin API e pulisce con `psql`.
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 29/10/2026: **verde in locale** per `npm run check` (216 unitari, budget 204,9/205 KB iniziali con env cloud e 269,8/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (33 default + 12 saltati), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-1. La CI della PR #24 e di `main` (`51d3fb9`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per un account; resta il secondo owner.
+Stato al 29/10/2026: **verde in locale** per `npm run check` (233 unitari, budget 206,6/210 KB iniziali con env cloud e 271,5/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-1; EVO-3a non è ancora distribuita. La CI della PR #24 e di `main` (`51d3fb9`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per entrambi gli account (2 identità su 2).
 
 ## 7. Come aggiungere un test
 
@@ -150,6 +156,7 @@ Stato al 29/10/2026: **verde in locale** per `npm run check` (216 unitari, budge
 - Per il mapping `.3mf`: aggiungi un caso in `src/domain/three-mf-mapping.test.ts`; per le invarianti usa `fast-check`.
 - Per l'import `.3mf` lato UI: aggiungi un caso in `tests/e2e/import.spec.ts`, usando una fixture di `tests/fixtures/3mf/`.
 - Per un flusso UI: aggiungi un E2E in `tests/e2e`.
+- Per la pagina “Richiedi accesso”: usa `tests/e2e/access.spec.ts` per una build con `VITE_ACCESS_REQUEST_ENDPOINT` e `tests/e2e/access-missing.spec.ts` per una build senza; mocka sempre `https://formspree.io/f/**` e rispondi al preflight CORS, altrimenti il browser blocca la richiesta. Non chiamare il form di produzione.
 - Per un token o un componente: aggiungi un test in `tests/e2e/design-system.spec.ts` (font, token, focus, touch, overflow).
 - Per una schermata: aggiungi la route in `tests/e2e/a11y.spec.ts` e, se è stabile, in `tests/e2e/visual.spec.ts`.
 - Per una modifica intenzionale dell'interfaccia: rigenera le baseline con `gh workflow run visual-baselines.yml --ref main`, scarica l'artifact e committa gli screenshot.

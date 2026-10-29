@@ -133,9 +133,7 @@ export function LoginPage() {
               onClick={() => void signInWithGoogle()}
             >
               <GoogleIcon />
-              {oauth === 'redirecting'
-                ? t('auth.google.redirecting')
-                : t('auth.google.continue')}
+              {oauth === 'redirecting' ? t('auth.google.redirecting') : t('auth.google.continue')}
             </Button>
             <div className="flex items-center gap-3 text-xs text-muted">
               <span className="h-px flex-1 bg-line" aria-hidden="true" />
@@ -191,6 +189,15 @@ export function LoginPage() {
 
           <div className="space-y-1 border-t border-line pt-4 text-xs leading-relaxed text-muted">
             <p>{t('auth.noSignup')}</p>
+            <p>
+              {t('access.noAccount')}{' '}
+              <Link
+                to="/request-access"
+                className="font-medium text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
+              >
+                {t('access.requestAccess')}
+              </Link>
+            </p>
             <p>{t('auth.forgotPassword')}</p>
           </div>
         </form>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { Alert, Badge, Button, Modal } from '@/components/ui'
@@ -9,10 +9,7 @@ import { useAuthStore } from '@/state/auth-store'
 import { useSyncStore, type SyncStatus } from '@/state/sync-store'
 import { syncErrorKeys, syncStatusKeys } from '@/features/sync/messages'
 
-const statusTones: Record<
-  SyncStatus,
-  'neutral' | 'success' | 'warning' | 'info' | 'danger'
-> = {
+const statusTones: Record<SyncStatus, 'neutral' | 'success' | 'warning' | 'info' | 'danger'> = {
   disabled: 'neutral',
   idle: 'neutral',
   connecting: 'info',
@@ -126,7 +123,18 @@ export function SyncSettings() {
               <div className="flex items-center gap-2">
                 <Badge tone="neutral">{t('sync.status.idle')}</Badge>
               </div>
-              <Button onClick={() => navigate('/login')}>{t('sync.login')}</Button>
+              <div className="space-y-2">
+                <Button onClick={() => navigate('/login')}>{t('sync.login')}</Button>
+                <p className="text-xs leading-relaxed text-muted">
+                  {t('access.noAccount')}{' '}
+                  <Link
+                    to="/request-access"
+                    className="font-medium text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
+                  >
+                    {t('access.requestAccess')}
+                  </Link>
+                </p>
+              </div>
             </>
           ) : null}
 
@@ -154,9 +162,7 @@ export function SyncSettings() {
 
               {googleEnabled ? (
                 <div className="space-y-2 rounded-control border border-line bg-raised/40 p-3">
-                  <p className="text-xs font-medium text-muted">
-                    {t('auth.google.accountTitle')}
-                  </p>
+                  <p className="text-xs font-medium text-muted">{t('auth.google.accountTitle')}</p>
                   {googleLinked ? (
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone="success">{t('auth.google.linked')}</Badge>
@@ -169,9 +175,7 @@ export function SyncSettings() {
                         disabled={oauth !== 'idle'}
                         onClick={() => void linkGoogle()}
                       >
-                        {oauth === 'linking'
-                          ? t('auth.google.linking')
-                          : t('auth.google.link')}
+                        {oauth === 'linking' ? t('auth.google.linking') : t('auth.google.link')}
                       </Button>
                       <p className="text-xs leading-relaxed text-muted">
                         {t('auth.google.linkHint')}
@@ -252,9 +256,7 @@ export function SyncSettings() {
       <Modal
         open={logoutOpen}
         onClose={() => setLogoutOpen(false)}
-        title={
-          pending > 0 ? t('sync.logoutPendingTitle') : t('sync.logoutTitle')
-        }
+        title={pending > 0 ? t('sync.logoutPendingTitle') : t('sync.logoutTitle')}
         footer={
           <>
             <Button variant="secondary" onClick={() => setLogoutOpen(false)}>
@@ -267,9 +269,7 @@ export function SyncSettings() {
         }
       >
         <p className="text-sm text-muted">
-          {pending > 0
-            ? t('sync.logoutPendingDescription')
-            : t('sync.logoutDescription')}
+          {pending > 0 ? t('sync.logoutPendingDescription') : t('sync.logoutDescription')}
         </p>
         {pending > 0 ? (
           <p className="mt-3 text-xs font-medium text-warning">

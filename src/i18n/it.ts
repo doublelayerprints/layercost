@@ -1,4 +1,5 @@
 import { authIt } from './it/auth'
+import { accessIt } from './it/access'
 import { calculatorIt } from './it/calculator'
 import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
@@ -120,6 +121,7 @@ export const it = {
   ...miscIt,
   ...xlsxIt,
   ...authIt,
+  ...accessIt,
 } as const
 
 export type BaseMessageKey = keyof typeof baseIt

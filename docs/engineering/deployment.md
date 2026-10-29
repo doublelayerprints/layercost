@@ -16,7 +16,7 @@ Repo GitHub: **https://github.com/doublelayerprints/layercost** (privata).
 4. Build command: `npm run build`.
 5. Output directory: `dist`.
 6. Node: 22.x.
-7. Nessuna variabile d'ambiente obbligatoria. Il cloud opzionale usa `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` (o `VITE_SUPABASE_ANON_KEY`); se mancano, l'app resta local-only. Vedi `.env.example`.
+7. Nessuna variabile d'ambiente obbligatoria. Il cloud opzionale usa `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` (o `VITE_SUPABASE_ANON_KEY`); se mancano, l'app resta local-only. La pagina “Richiedi accesso” usa `VITE_ACCESS_REQUEST_ENDPOINT` (pubblica, Formspree). Vedi `.env.example`.
 8. Deploy.
 
 In alternativa, dal repository:
@@ -56,6 +56,8 @@ Le variabili sono pubbliche e opzionali: senza di esse la build resta local-only
 Gli E2E auth si eseguono con `npm run test:e2e:auth`; lo script legge le env locali, builda con le credenziali pubbliche e crea/elimina l'utente di test. Il build include anche `VITE_AUTH_GOOGLE_ENABLED=true` per coprire il pulsante Google con il provider mockato.
 
 Il login Google (EVO-1, ADR-0025) è opzionale e spento per default. Per mostrarlo serve `VITE_AUTH_GOOGLE_ENABLED=true` (variabile pubblica, nessun segreto) **dopo** aver configurato il provider Google in Supabase. Il client usa PKCE, torna alla root con `?code=...`, scambia il codice manualmente e mantiene `HashRouter`. Il Client Secret sta solo nel dashboard Supabase (produzione) o in `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET` non committato (locale); non va su Vercel. Procedura completa, redirect URI e rollback in `docs/engineering/workspace-runbook.md` §15.
+
+La pagina “Richiedi accesso” (EVO-3a, ADR-0026) usa un form **Formspree Free**. L’endpoint è pubblico e si configura con `VITE_ACCESS_REQUEST_ENDPOINT=https://formspree.io/f/<id>`: **Production** usa il form reale, **Preview/Development** e `.env.local` usano il form di test. Non è un segreto e non va trattato come tale. Se la variabile manca o non è un URL Formspree valido, la route `/#/request-access` mostra “Il modulo non è disponibile in questa build” e disabilita il form. Il form reale va ristretto al dominio `layercost.vercel.app` tramite **Restrict to Domain** nelle impostazioni del **progetto**; il form di test va in un progetto separato senza restrizione, altrimenti `localhost` e le preview finiscono in spam. Il piano Free include 50 invii/mese, archivio 30 giorni e nessun export; non ci sono autoresponse al richiedente. La notifica arriva solo all’amministratore, con `_replyto` impostato all’email del richiedente. Procedura completa, retention e cancellazione in `docs/engineering/access-requests.md`.
 
 Gli E2E sync si eseguono con `npm run test:e2e:sync`. Lo script **azzera il database locale** (`supabase db reset`), builda con le credenziali pubbliche, crea utenti e workspace temporanei via Admin API, esegue i test a due contesti, offline/conflitto e isolamento, e pulisce con `psql`. Richiede `psql` nel PATH e non va eseguito contro un progetto remoto. Il workspace condiviso di test usa gli ID seed; il workspace separato usa dati propri e ID univoci, perché gli ID delle entità sono globali. L'azzeramento evita collisioni tra esecuzioni.
 
@@ -147,7 +149,8 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - CI GitHub: verde su `main` `1bf641e` (`check`, `e2e`, `database`) in 3m25s.
 - Deploy Vercel: **live su https://layercost.vercel.app**, build `index-BN8y8TA2.js` / `index-B2c8cUBY.css` con cloud e Google attivi (EVO-1, PR #24).
 - Supabase produzione: `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner, signup disabilitato, keep-alive e backup verificati.
-- Google login (EVO-1, ADR-0025): distribuito il 29/10/2026 con `VITE_AUTH_GOOGLE_ENABLED=true` su Production e Preview. OAuth client e provider Supabase configurati; login verificato per un account, il secondo owner deve completare il collegamento. Il rollback è documentato nel runbook §15.
+- Google login (EVO-1, ADR-0025): distribuito il 29/10/2026 con `VITE_AUTH_GOOGLE_ENABLED=true` su Production e Preview. OAuth client e provider Supabase configurati; login verificato per **entrambi gli account** (2 identità Google su 2); il secondo owner ha completato il collegamento il 29/10/2026. Il rollback è documentato nel runbook §15.
+- Richiesta accesso (EVO-3a, ADR-0026): implementata e configurata il 29/10/2026, **non ancora distribuita**. Formspree è configurato con form di produzione e test, endpoint in locale/Vercel, notifica email verificata, progetti separati e Restrict to Domain sul progetto di produzione. Restano merge, deploy e smoke. Runbook in `docs/engineering/access-requests.md`.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`; deploy di produzione verificato con build `index-C_5bQZYu.js`, gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, bozza protetta, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.
 - Le preview deployment sono protette da SSO Vercel; la produzione è pubblica.

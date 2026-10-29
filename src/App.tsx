@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/app/Layout'
 import { I18nProvider } from '@/app/I18nProvider'
+import { useI18n } from '@/app/i18n-context'
 import { HydrationGate } from '@/app/HydrationGate'
 import { ThemeController } from '@/app/ThemeController'
 import { useAppStore } from '@/state/app-store'
@@ -23,6 +24,21 @@ import { SyncController } from '@/features/sync/SyncController'
 import { FirstLoginDialog } from '@/features/sync/FirstLoginDialog'
 import { SyncConflictDialog } from '@/features/sync/SyncConflictDialog'
 import { NotFoundPage } from '@/features/NotFoundPage'
+
+const RequestAccessPage = lazy(() =>
+  import('@/features/access/RequestAccessPage').then((module) => ({
+    default: module.RequestAccessPage,
+  })),
+)
+
+function RouteLoading() {
+  const { t } = useI18n()
+  return (
+    <p role="status" className="text-sm text-muted">
+      {t('common.loading')}
+    </p>
+  )
+}
 
 export default function App() {
   const hydrate = useAppStore((state) => state.hydrate)
@@ -74,6 +90,14 @@ export default function App() {
               <Route path="settings" element={<SettingsPage />} />
               <Route path="compare" element={<ComparePage />} />
               <Route path="login" element={<LoginPage />} />
+              <Route
+                path="request-access"
+                element={
+                  <Suspense fallback={<RouteLoading />}>
+                    <RequestAccessPage />
+                  </Suspense>
+                }
+              />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>

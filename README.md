@@ -25,7 +25,7 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Divide il prezzo netto in costo pieno e guadagno con due barre, e apre un preventivo cliccando tutta la riga nella lista.
 - Comprime le card del calcolatore e le singole stampe in righe compatte con drop down, con una sintesi sempre leggibile.
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
-- Funziona interamente nel browser: nessun backend, nessun account, nessun analytics.
+- Funziona interamente nel browser: nessun backend, nessun account, nessun analytics. La pagina “Richiedi accesso” invia a Formspree solo su azione esplicita (ADR-0026).
 
 ## Stack
 
@@ -82,6 +82,8 @@ La build senza variabili Supabase resta **local-only**: login, sync e chunk clou
 
 Gli account sono creati dall'amministratore; la registrazione è disabilitata. Con `VITE_AUTH_GOOGLE_ENABLED=true` compare anche “Continua con Google”; il flag è pubblico e va attivato solo dopo aver configurato il provider Google in Supabase (ADR-0025). Il Client Secret non entra mai nel repository, nel bundle o su Vercel: sta solo nel dashboard Supabase e, per lo sviluppo locale, in una variabile d'ambiente non committata.
 
+Chi non ha un account può aprire `#/request-access` e inviare una richiesta all'amministratore. Il form usa **Formspree Free** con `VITE_ACCESS_REQUEST_ENDPOINT` (endpoint pubblico, non un segreto) e non crea utenti o account: l'amministratore legge la richiesta e crea l'utente manualmente. Il richiedente non riceve un'email automatica: la conferma è nella pagina; la notifica arriva solo all'amministratore con `_replyto` impostato all'email indicata. Formspree conserva le submission per 30 giorni; l'email dell'amministratore viene cancellata dopo la decisione o entro 12 mesi. Nessun analytics, cookie first-party o newsletter. Dettagli in `docs/engineering/access-requests.md` e ADR-0026.
+
 Con l'account attivo, configurazione e preventivi vivono nel **workspace condiviso**; bozza, tema e lingua restano locali. Le modifiche offline entrano in una coda persistita e vengono inviate al ritorno della rete; se lo stesso dato è cambiato su un altro dispositivo, l'app mostra un conflitto e chiede come risolverlo. Il primo accesso propone di importare i dati locali dopo aver scaricato un backup JSON. Al logout la copia locale dei dati cloud viene rimossa (o conservata se ci sono modifiche ancora in sospeso). Il database locale viene azzerato da `npm run test:e2e:sync`, non dalla build normale.
 
 ## Deploy
@@ -97,30 +99,30 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 - Framework preset: Vite
 - Build: `npm run build`
 - Output: `dist`
-- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, più `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il login Google (pubblico, nessun segreto)
+- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, più `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il login Google (pubblico, nessun segreto) e `VITE_ACCESS_REQUEST_ENDPOINT` per il form Formspree della pagina “Richiedi accesso” (pubblico, nessun segreto)
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 
 ## Documentazione
 
-| File                           | Contenuto                                        |
-| ------------------------------ | ------------------------------------------------ |
-| `STATUS.md`                    | Stato attuale, test, deploy e limiti             |
-| `PLAN.md`                      | Visione, scope, architettura, roadmap            |
-| `TASKS.md`                     | Task e stato di avanzamento                      |
-| `AGENTS.md`                    | Regole per il coding agent                       |
-| `docs/domain/cost-model.md`    | Specifica normativa del calcolo                  |
-| `docs/domain/data-model.md`    | Schema e invarianti                              |
-| `docs/domain/golden-cases.md`  | Esempi numerici e test                           |
-| `docs/domain/sources.md`       | Fonti su stampanti e potenze                     |
-| `docs/engineering/`            | Architettura, persistenza, test, release, deploy |
-| `docs/engineering/workspace-runbook.md` | Workspace condiviso: utenti, membership, audit |
-| `docs/planning/phase-5.md`     | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync     |
-| `docs/planning/evolutive.md`   | Google login, tetti utenti/preventivi, multi-workspace |
-| `docs/design/ui-brief.md`      | Requisiti per la fase design                     |
-| `docs/design/directions.md`    | Direzioni e scelta visiva                        |
-| `docs/design/design-system.md` | Token, componenti, accessibilità                 |
-| `docs/adr/`                    | 24 decisioni architetturali                      |
+| File                                    | Contenuto                                              |
+| --------------------------------------- | ------------------------------------------------------ |
+| `STATUS.md`                             | Stato attuale, test, deploy e limiti                   |
+| `PLAN.md`                               | Visione, scope, architettura, roadmap                  |
+| `TASKS.md`                              | Task e stato di avanzamento                            |
+| `AGENTS.md`                             | Regole per il coding agent                             |
+| `docs/domain/cost-model.md`             | Specifica normativa del calcolo                        |
+| `docs/domain/data-model.md`             | Schema e invarianti                                    |
+| `docs/domain/golden-cases.md`           | Esempi numerici e test                                 |
+| `docs/domain/sources.md`                | Fonti su stampanti e potenze                           |
+| `docs/engineering/`                     | Architettura, persistenza, test, release, deploy       |
+| `docs/engineering/workspace-runbook.md` | Workspace condiviso: utenti, membership, audit         |
+| `docs/planning/phase-5.md`              | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync           |
+| `docs/planning/evolutive.md`            | Google login, tetti utenti/preventivi, multi-workspace |
+| `docs/design/ui-brief.md`               | Requisiti per la fase design                           |
+| `docs/design/directions.md`             | Direzioni e scelta visiva                              |
+| `docs/design/design-system.md`          | Token, componenti, accessibilità                       |
+| `docs/adr/`                             | 26 decisioni architetturali                            |
 
 ## Stato
 

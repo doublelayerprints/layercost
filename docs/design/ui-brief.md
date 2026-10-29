@@ -38,6 +38,7 @@ Rendere LayerCost veloce da usare mentre si è davanti allo slicer: inserire tem
 | Tariffe              | Storico e tariffa corrente                                                       |
 | Extra                | Per pezzo / per lavoro                                                           |
 | Impostazioni         | Manodopera, rischio, prezzo, backup, tema                                        |
+| Richiesta accesso    | Email, nome, messaggio, nota privacy, consenso, invio, conferma, errore          |
 | Confronto            | Due colonne e delta                                                              |
 
 ## 5. Stati obbligatori
@@ -52,6 +53,7 @@ Rendere LayerCost veloce da usare mentre si è davanti allo slicer: inserire tem
 - Import in corso / riuscito / fallito.
 - Link condiviso invalido.
 - Unsaved changes (quando si cambia preventivo).
+- Richiesta accesso: idle, invio, conferma, errore, endpoint mancante.
 
 ## 6. Dati e gerarchia
 

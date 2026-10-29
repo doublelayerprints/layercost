@@ -26,9 +26,7 @@ if (initialFiles.size === 0) {
 
 const jsFiles = files.filter((file) => file.endsWith('.js'))
 const workerFiles = jsFiles.filter((file) => file.includes('worker'))
-const lazyFiles = jsFiles.filter(
-  (file) => !initialFiles.has(file) && !workerFiles.includes(file),
-)
+const lazyFiles = jsFiles.filter((file) => !initialFiles.has(file) && !workerFiles.includes(file))
 const initialJsFiles = jsFiles.filter((file) => initialFiles.has(file))
 
 const initialJsBytes = gzipFiles(initialJsFiles)
@@ -42,10 +40,14 @@ const checks = [
   {
     label: 'JS iniziale',
     bytes: initialJsBytes,
-    limit: 205 * KB,
+    // EVO-3a (ADR-0026): the request-access page is lazy, but its IT/EN
+    // strings live in the central dictionaries. The initial chunk grew from
+    // 204.9 KB to 206.6 KB gzip; the limit is raised to 210 KB with the
+    // motivation recorded in STATUS.md and ADR-0026.
+    limit: 210 * KB,
   },
   {
-    label: 'Chunk lazy (cloud)',
+    label: 'Chunk lazy',
     bytes: lazyBytes,
     limit: 80 * KB,
   },
