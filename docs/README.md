@@ -8,7 +8,7 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud implementato e **live in produzione** (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`, T5.4.0–T5.4.6 chiusi.
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud implementato e **live in produzione** (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`, T5.4.0–T5.4.6 chiusi; evolutive future in `planning/evolutive.md`.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
 - Test: 185 unitari + 44 E2E (33 default + 6 visual + 2 auth + 3 sync) + 33 pgTAP RLS; axe 49 scansioni, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi.
@@ -80,6 +80,7 @@
 │   ├── planning/
 │   │   ├── phase-5.md
 │   │   ├── t5.4-cloud-sync.md
+│   │   ├── evolutive.md
 │   │   └── i18n-inventory.md
 │   └── adr/
 │       ├── README.md
@@ -598,6 +599,22 @@ Sezioni:
 - restore testato e limiti di sicurezza.
 
 **Aggiornare quando:** cambiano schema, workflow di backup, secret o procedura di restore.
+
+---
+
+### 5.26 `docs/planning/evolutive.md`
+
+**Scopo:** piano delle evolutive future: Google login, tetti utenti/preventivi e apertura multi-workspace.
+
+Sezioni:
+
+- stato di partenza e file rilevanti;
+- Google OAuth: Google Cloud, Supabase, app, account esistenti, test e rollback;
+- tetti: `workspace_limits`, trigger membri/preventivi, Auth Hook, UI e test;
+- decisione multi-workspace con impatto su PK, sync, cache e onboarding;
+- roadmap EVO-1–EVO-4, domande aperte e prompt di handoff.
+
+**Aggiornare quando:** si decide o si implementa una evolutiva, o cambiano i limiti del piano.
 
 ---
 
