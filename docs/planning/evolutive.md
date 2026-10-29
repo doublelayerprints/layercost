@@ -20,9 +20,9 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 - **Membri:** due account `owner`; le email non sono nel repository.
 - **Dati attuali:** 2 stampanti, 8 materiali, 5 extra, 2 preventivi (29/10/2026).
 - **Auth:** email + password, signup pubblico disabilitato, nessun SMTP; reset amministrativo.
-- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; dal 29/10/2026 build `index-BN8y8TA2.js` / `index-B2c8cUBY.css` con cloud e Google attivi. EVO-3a è pronta nel branch `feat/evo-3a-request-access` (PR #26, CI verde) e richiede `VITE_ACCESS_REQUEST_ENDPOINT` per essere attivata in produzione.
+- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; il 29/10/2026 EVO-1 porta a `index-BN8y8TA2.js` / `index-B2c8cUBY.css`, EVO-3a a `index-B6Cg37Ap.js` / `index-G-eqO2lr.css` e il limite `.3mf` a `index-BR5hKjFi.js` / `index-G-eqO2lr.css`. Cloud, Google, richiesta accesso e import `.3mf` fino a 250 MiB sono attivi in produzione.
 - **Operazioni:** keep-alive giornaliero e backup settimanale cifrato attivi e verificati.
-- **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e i flag pubblici (`VITE_AUTH_GOOGLE_ENABLED`). Per EVO-3a va aggiunto `VITE_ACCESS_REQUEST_ENDPOINT` (endpoint Formspree pubblico).
+- **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e i flag pubblici (`VITE_AUTH_GOOGLE_ENABLED`, `VITE_ACCESS_REQUEST_ENDPOINT`; Production = form reale, Preview/Development = form di test).
 
 ### Codice rilevante
 
