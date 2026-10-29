@@ -81,8 +81,8 @@ Fixture ridotte in `tests/fixtures/3mf/`, con README e valori attesi:
 
 ### 2.3 Pipeline
 
-1. **Selezione file** — input `accept=".3mf,application/zip"` e drag & drop; massimo 100 MB compressi.
-2. **Validazione ZIP** — leggere l'indice senza estrarre tutto; rifiutare archive cifrati, troppi entry (limite 10.000) e dimensioni decompresse eccessive (limite 500 MB).
+1. **Selezione file** — input `accept=".3mf,application/zip"` e drag & drop; massimo 250 MiB compressi.
+2. **Validazione ZIP** — leggere l'indice senza estrarre tutto; rifiutare archive cifrati, troppi entry (limite 10.000) e dimensioni decompresse eccessive (limite 1 GiB).
 3. **Riconoscimento slicer** — cercare `Metadata/slice_info.config`; in alternativa leggere l'header del G-code. Leggere `Application` da `3D/3dmodel.model` per il messaggio di errore.
 4. **Estrazione piatti** — per ogni `<plate>`: `index`, `prediction`, `weight`, `<filament>`. Se manca `slice_info.config`, provare il footer del G-code (`; estimated printing time`, `; filament used [g]`).
 5. **Normalizzazione** — creare un `ThreeMfSummary` puro: nome file, slicer, piatti con secondi, grammi per tipo, stampante dichiarata, avvisi.
@@ -95,7 +95,7 @@ Fixture ridotte in `tests/fixtures/3mf/`, con README e valori attesi:
 
 Parser implementato in `src/data/three-mf/`; il tipo normalizzato è in `src/domain/three-mf.ts`.
 
-- **ZIP:** `fflate` 0.8.3 (runtime), indice centrale letto prima di estrarre; limiti 100 MB compressi, 500 MB decompressi, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per fallback G-code. Rifiutati cifratura, path traversal, ZIP64, duplicati e compressioni non supportate.
+- **ZIP:** `fflate` 0.8.3 (runtime), indice centrale letto prima di estrarre; limiti 250 MiB compressi, 1 GiB decompresso, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per fallback G-code. Rifiutati cifratura, path traversal, ZIP64, duplicati e compressioni non supportate.
 - **XML:** `DOMParser` nativo nel thread principale; `@xmldom/xmldom` nel Web Worker, dove `DOMParser` non esiste. `<!DOCTYPE`/`<!ENTITY` rifiutati in entrambi i percorsi.
 - **Worker:** `three-mf.worker.ts` + `worker-client.ts`; il buffer viene trasferito, la UI non viene bloccata. Il chunk worker è separato nel build Vite.
 - **Fallback G-code:** se manca `slice_info.config` si leggono tempo e grammi dal footer del G-code, entro 64 MB. I materiali restano sconosciuti e vanno mappati; il fallback non sostituisce `slice_info` come percorso principale.
@@ -153,7 +153,7 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
   - “Questo file non è un .3mf valido.” → “Scegli un file esportato dallo slicer.”
   - “Il file non contiene un preventivo slicato.” → “Apri il progetto nello slicer, slica e esporta come .gcode.3mf.”
   - “Nessun materiale corrisponde a PLA-CF.” → “Mappa il materiale o aggiungilo in Materiali.”
-  - “Il file supera 100 MB.” → “Esporta un solo piatto o riduci il progetto.”
+  - “Il file supera 250 MB.” → “Esporta un solo piatto o riduci il progetto.”
 
 ### 2.6.1 Esito T5.3.4 (26/10/2026)
 
@@ -171,7 +171,7 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 - Parsing **solo locale**, nessuna chiamata di rete.
 - ZIP: limiti su entry, dimensione compressa e decompressa; rifiuto di path traversal e archive cifrati.
 - XML: niente DTD/entità esterne; `DOMParser` non risolve entità esterne, ma il parser deve rifiutare `<!DOCTYPE`.
-- File grandi: parsing in **Web Worker** per non bloccare la UI; limite 100 MB compressi.
+- File grandi: parsing in **Web Worker** per non bloccare la UI; limite 250 MiB compressi.
 - Nessun `eval`, nessun `dangerouslySetInnerHTML`.
 - Messaggi di errore senza dettagli interni del parser.
 
@@ -183,7 +183,7 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 - **Fixture**: file reali ridotti, con permesso d'uso; niente dati personali. Salvarli in `tests/fixtures/3mf/` con README che indica slicer e versione. Il fixture Bambu reale è ancora da autorizzare.
 - **Performance**: un file da 50 MB viene letto senza bloccare la UI; target < 3 s su MacBook recente.
 
-**Stato T5.3.2:** 18 test in `src/data/three-mf/parse.test.ts`. Coperti Anycubic reale, Bambu sintetico, multi-piatto, XML/DOCTYPE, `project_settings`, pesi, materiali, fallback G-code e limiti ZIP. Orca reale, file da 50–100 MB e worker in browser restano da verificare in T5.3.5.
+**Stato T5.3.2:** 18 test in `src/data/three-mf/parse.test.ts`. Coperti Anycubic reale, Bambu sintetico, multi-piatto, XML/DOCTYPE, `project_settings`, pesi, materiali, fallback G-code e limiti ZIP. Orca reale, file da 50–250 MB e worker in browser restano da verificare in T5.3.5.
 
 **Stato T5.3.3:** 15 test in `src/domain/three-mf-mapping.test.ts` (unitari + property), 75 unitari totali. Coperti mapping, aggregazione per materiale, zero grammi, errori di mapping, proposte exact/contains/family/ambiguous/missing e filtro archiviati.
 
@@ -209,7 +209,7 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 4. **Materiali multipli dello stesso tipo:** **risolto in T5.3.3.** Ogni filamento viene mappato a un materiale scelto; i grammi si sommano solo quando due filamenti finiscono sullo stesso materiale. La proposta automatica è per famiglia e, se ci sono più materiali della stessa famiglia, chiede conferma.
 5. **Dipendenza ZIP:** **risolto in T5.3.2:** `fflate` 0.8.3 come dipendenza runtime; nota tecnica in `docs/engineering/architecture.md` §9.
 6. **XML:** **risolto in T5.3.2/T5.3.4:** `DOMParser` nativo nel thread principale, `@xmldom/xmldom` nel Web Worker (dove `DOMParser` non esiste) e nei test Node; DOCTYPE/ENTITY rifiutati.
-7. **Limite dimensione:** **aperto.** Limiti di sicurezza impostati; vanno misurati con file reali da 50–100 MB in T5.3.5.
+7. **Limite dimensione:** **aperto.** Limiti di sicurezza impostati a 250 MiB compressi e 1 GiB decompressi; vanno misurati con file reali da 50–250 MB in T5.3.5.
 8. **Tracciabilità:** **rimandato.** `PrintLine.source` non serve al costo; valutare dopo il prototipo.
 9. **Import UI — aggiungere o sostituire:** **risolto in T5.3.4.** Se la bozza ha contenuto, il dialogo offre “Aggiungi alla bozza”, “Sostituisci le righe” e “Indietro”; nome, cliente, costi di lavoro e prezzo restano invariati.
 10. **Fixture Bambu committabile:** **aperto.** Il percorso Bambu è coperto da test sintetico; il fixture reale attende il permesso del modello o un modello neutro.

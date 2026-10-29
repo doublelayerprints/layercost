@@ -1,9 +1,17 @@
 import type { MessageKey } from '@/i18n'
 import { ThreeMfImportError, type ThreeMfImportErrorCode } from '@/data/three-mf/errors'
+import { DEFAULT_THREE_MF_LIMITS } from '@/data/three-mf/limits'
 import type { ThreeMfWarning, ThreeMfWarningCode } from '@/domain/three-mf'
 import { DomainError } from '@/domain/units'
 
 type Translate = (key: MessageKey, params?: Record<string, string | number>) => string
+
+function formatLimit(bytes: number): string {
+  const mebibytes = bytes / (1024 * 1024)
+  return mebibytes >= 1024 && mebibytes % 1024 === 0
+    ? `${mebibytes / 1024} GB`
+    : `${Math.round(mebibytes)} MB`
+}
 
 const ERROR_KEYS: Record<ThreeMfImportErrorCode, MessageKey> = {
   NOT_A_ZIP: 'import.error.NOT_A_ZIP',
@@ -57,6 +65,12 @@ const MAPPING_KEYS: Record<string, MessageKey> = {
 
 export function threeMfErrorMessage(error: unknown, t: Translate): string {
   if (error instanceof ThreeMfImportError) {
+    if (error.code === 'ARCHIVE_TOO_LARGE') {
+      return t('import.error.ARCHIVE_TOO_LARGE', {
+        compressed: formatLimit(DEFAULT_THREE_MF_LIMITS.maxCompressedBytes),
+        uncompressed: formatLimit(DEFAULT_THREE_MF_LIMITS.maxTotalUncompressedBytes),
+      })
+    }
     return t(ERROR_KEYS[error.code])
   }
   return t('import.fileError')

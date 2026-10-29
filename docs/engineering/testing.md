@@ -1,12 +1,12 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.6 + EVO-1 + EVO-3a — 233 test unitari + 51 E2E (39 default incl. accesso + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.6 + EVO-1 + EVO-3a — 237 test unitari + 51 E2E (39 default incl. accesso + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS
 
 ---
 
 ## 1. Strategia
 
-> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. EVO-1 (ADR-0025) aggiunge 31 test unitari su parsing callback, mapping errori OAuth, gateway, flag pubblico e store auth, più un E2E auth con provider mockato e annullamento. EVO-3a (ADR-0026) aggiunge 17 test unitari su validazione/payload/endpoint/errori, 5 E2E con Formspree mockato, 1 E2E senza endpoint e il doppio build in `scripts/test-e2e.mjs`. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10, `docs/planning/evolutive.md` §3/§3A e `docs/planning/evo-3a-access-request.md` §10.
+> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. EVO-1 (ADR-0025) aggiunge 31 test unitari su parsing callback, mapping errori OAuth, gateway, flag pubblico e store auth, più un E2E auth con provider mockato e annullamento. EVO-3a (ADR-0026) aggiunge 17 test unitari su validazione/payload/endpoint/errori, 5 E2E con Formspree mockato, 1 E2E senza endpoint e il doppio build in `scripts/test-e2e.mjs`. Il limite `.3mf` è stato portato a 250 MiB compressi e 1 GiB decompressi con 3 test sui limiti e 1 sul messaggio localizzato. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10, `docs/planning/evolutive.md` §3/§3A e `docs/planning/evo-3a-access-request.md` §10.
 
 | Livello  | Strumento             | Cosa copre                                                                        |
 | -------- | --------------------- | --------------------------------------------------------------------------------- |
@@ -72,6 +72,8 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/lib/quote-status.test.ts` — 3 test: modificabilità per stato/archivio, blocco inviato/completato, transizioni solo in avanti.
 - `src/lib/quote-profit.test.ts` — 4 test: utile positivo, zero, negativo e coerenza con prezzo netto e costo pieno.
 - `src/data/three-mf/parse.test.ts` — 18 test: fixture Kobra 3/Kobra X/multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti ZIP, path traversal e cifratura.
+- `src/data/three-mf/limits.test.ts` — 3 test: limiti predefiniti a 250 MiB compressi e 1 GiB decompressi, rifiuto oltre il limite senza leggere il file, accettazione del confine esatto.
+- `src/features/calculator/three-mf-messages.test.ts` — 1 test: `ARCHIVE_TOO_LARGE` mostra le soglie correnti in italiano e inglese.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
 - `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a **1059** chiavi dopo EVO-3a (36 `access.*`).
 - `src/lib/share.test.ts` — 6 test: roundtrip con lingua, migrazione dei vecchi link senza `locale` a italiano, migrazione di `discountBp` alla regola percentuale, conservazione degli sconti di riga/preventivo, rimozione dell’audit cloud, payload non valido rifiutato.
@@ -111,7 +113,7 @@ Misura locale con Chrome, build Vite e parser nel worker:
 - **Archivio sintetico da 50 MB** (fixture Kobra 3 + `Metadata/plate_1.gcode` da 50 MB non decompresso): dialogo di anteprima visibile in **95–107 ms** su 3 esecuzioni. Target < 3 s.
 - **Progetto non slicato `rayquaza+230.3mf`** (15 MB, 14 piatti, nessun G-code): errore azionabile in **100–102 ms** su 3 esecuzioni, senza crash.
 - Il file `rayquaza+230.3mf` e il file reale della volpe non sono committati: il primo è non slicato, il secondo è troppo grande. Il file sintetico da 50 MB è generato localmente dalla fixture Kobra 3 e non entra nel repository.
-- Il parser non decomprime il G-code quando `slice_info.config` è presente; il limite di 100 MB compressi resta invalicabile.
+- Il parser non decomprime il G-code quando `slice_info.config` è presente; il limite di 250 MiB compressi resta invalicabile.
 
 ## 4. Golden case
 
@@ -126,7 +128,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 - Prova con screen reader reale (VoiceOver/NVDA) e su una stampante fisica.
 - Regressione visiva su macOS: le baseline sono generate su Linux e i test visuali sono saltati localmente.
-- Performance dell'import su un file reale da 50–100 MB: misurata con un archivio sintetico; resta una prova con file reale.
+- Performance dell'import su un file reale da 50–250 MB: misurata con un archivio sintetico; resta una prova con file reale.
 - Interfaccia inglese: copertura E2E/axe/visual in T5.6.5.
 - Sync cloud: E2E solo in locale con Supabase e reset del DB; la CI dedicata e il deploy sono in T5.4.6. L’E2E copre un workspace separato con dati e ID propri; due workspace con gli stessi ID seed restano non supportati. Lo smoke di produzione rinomina gli ID seed nel browser prima dell'import, così resta isolato anche con `ws-doublelayer` già popolato.
 - Google OAuth: il flusso UI è coperto con il provider mockato; il login reale è stato verificato il 29/10/2026 in locale contro il backend di produzione e in produzione per entrambi gli account (2 identità Google su 2). La prova esplicita di “Collega Google” resta coperta dagli E2E, ma non è stata necessaria in produzione.
@@ -138,7 +140,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 `.github/workflows/ci.yml` esegue tre job:
 
-- **check** — `npm ci`, `npm run check` (typecheck, lint, 233 test, build, budget).
+- **check** — `npm ci`, `npm run check` (typecheck, lint, 237 test, build, budget).
 - **e2e** — `npm run test:e2e`: due build (con e senza `VITE_ACCESS_REQUEST_ENDPOINT`), Playwright Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
 - **database** — Supabase locale, `npm run db:test` (33 pgTAP), `npm run test:e2e:auth` (3 test), `npm run test:e2e:sync` (3 test), stop del database. Non usa segreti di produzione.
 
@@ -146,7 +148,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 29/10/2026: **verde in locale** per `npm run check` (233 unitari, budget 206,6/210 KB iniziali con env cloud e 271,5/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-3a; la submission reale dalla pagina `/#/request-access` è arrivata a Formspree senza scritture Supabase. La CI di `main` (`125f0d5`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per entrambi gli account (2 identità su 2).
+Stato al 29/10/2026: **verde in locale** per `npm run check` (237 unitari, budget 206,8/210 KB iniziali con env cloud e 271,7/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-3a; la submission reale dalla pagina `/#/request-access` è arrivata a Formspree senza scritture Supabase. La CI di `main` (`125f0d5`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per entrambi gli account (2 identità su 2).
 
 ## 7. Come aggiungere un test
 

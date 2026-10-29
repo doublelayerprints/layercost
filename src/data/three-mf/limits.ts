@@ -14,8 +14,8 @@ export interface ThreeMfLimits {
 }
 
 export const DEFAULT_THREE_MF_LIMITS: ThreeMfLimits = {
-  maxCompressedBytes: 100 * 1024 * 1024,
-  maxTotalUncompressedBytes: 500 * 1024 * 1024,
+  maxCompressedBytes: 250 * 1024 * 1024,
+  maxTotalUncompressedBytes: 1024 * 1024 * 1024,
   maxEntries: 10_000,
   maxPlates: 100,
   maxMetadataBytes: 10 * 1024 * 1024,

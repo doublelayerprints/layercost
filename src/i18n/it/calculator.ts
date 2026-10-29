@@ -210,7 +210,7 @@ export const calculatorIt = {
   'import.error.NOT_A_3MF':
     'Questo file non sembra un .3mf valido. Scegli un file esportato dallo slicer.',
   'import.error.ARCHIVE_TOO_LARGE':
-    'Il file supera i limiti di dimensione. Esporta un solo piatto o riduci il progetto.',
+    'Il file supera i limiti di dimensione ({compressed} compressi, {uncompressed} decompressi). Esporta un solo piatto o riduci il progetto.',
   'import.error.TOO_MANY_ENTRIES': 'L’archivio contiene troppi file. Esporta un solo piatto.',
   'import.error.UNSAFE_PATH': 'L’archivio contiene percorsi non sicuri e non può essere importato.',
   'import.error.ENCRYPTED_ENTRY': 'L’archivio è protetto da password. Esporta un .3mf non cifrato.',
