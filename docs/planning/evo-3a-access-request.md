@@ -1,6 +1,6 @@
 # EVO-3a — Pagina “Richiedi accesso” con Formspree Free
 
-**Stato:** implementazione completata il 29/10/2026 (PR #26, CI verde); form Formspree di produzione e test configurati, notifica verificata; restano merge, deploy e smoke
+**Stato:** implementazione completata e distribuita il 29/10/2026 (PR #26, squash `125f0d5`); submission reale e smoke verdi; resta la pulizia delle submission di prova
 **Data:** 29 ottobre 2026
 **ADR:** `docs/adr/0026-request-access-formspree.md`
 **Runbook:** `docs/engineering/access-requests.md`
@@ -246,7 +246,7 @@ docs/planning/evo-3a-access-request.md        questo piano
 - [x] Route lazy; budget verde (JS iniziale 206,6/210 KB).
 - [x] ADR-0026, runbook, deployment env, STATUS/TASKS/CHANGELOG/testing.
 - [x] `npm run check`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run db:test` verdi.
-- [ ] Deploy di produzione e smoke, dopo il merge della PR #26.
+- [x] Deploy di produzione e smoke.
 
 ---
 
