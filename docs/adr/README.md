@@ -28,6 +28,7 @@ Le decisioni architetturali di LayerCost. Un ADR accettato non si riscrive: se c
 | 0022 | [Vista interna e vista cliente del preventivo](0022-internal-customer-quote-views.md)    |
 | 0023 | [Sconti di riga e di preventivo, percentuali o a importo fisso](0023-line-and-quote-discounts.md) |
 | 0024 | [Cloud opzionale con Supabase, account email/password e workspace condiviso](0024-supabase-auth-workspace.md) |
+| 0025 | [Google OAuth come provider aggiuntivo](0025-google-oauth.md)                                      |
 
 ---
 
