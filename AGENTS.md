@@ -70,7 +70,7 @@ src/
   domain/         tipi, motore di costo, prezzi — puro
   data/           repository, localStorage, migrazioni, seed
   state/          stato UI e casi d'uso (application layer attuale)
-  features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding
+  features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding, auth, sync, access
   components/     primitivi minimi
   lib/            utility senza dominio
 ```
@@ -98,7 +98,7 @@ Regole di dipendenza:
 8. **Cambio formula = docs + test + `engineVersion`.** Nello stesso commit.
 9. **Nessun backend, account o sync in v1.** Solo architettura predisposta. La fase 5 aggiunge il sync opzionale con Supabase (ADR-0024): la v1 resta local-only, il cloud non è obbligatorio.
 10. **Nessuna libreria di componenti prima della fase 4.** HTML semantico + Tailwind + primitivi interni.
-11. **Nessun analytics, cookie o chiamata di rete** oltre agli asset statici.
+11. **Nessun analytics, cookie o chiamata di rete** oltre agli asset statici. Unica eccezione: l’invio esplicito della richiesta di accesso a Formspree (ADR-0026), con i soli dati del modulo e nessun dato dell’app.
 12. **Nessun `eval`, `dangerouslySetInnerHTML`, `any`.**
 
 ---
@@ -268,6 +268,10 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/engineering/workspace-runbook.md` — runbook del workspace condiviso: utenti, membership, reset password, audit e troubleshooting.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.
+- `docs/adr/0025-google-oauth.md` — Google OAuth, PKCE, auto-link, “Collega Google”, segreti e rollback.
+- `docs/adr/0026-request-access-formspree.md` — pagina pubblica “Richiedi accesso”, Formspree Free, privacy e retention.
+- `docs/planning/evo-3a-access-request.md` — piano di EVO-3a.
+- `docs/engineering/access-requests.md` — runbook amministratore per richieste, approvazione manuale, retention e cancellazione.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

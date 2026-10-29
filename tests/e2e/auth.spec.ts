@@ -50,9 +50,17 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
     await page.setViewportSize({ width: 375, height: 844 })
     await page.goto('/#/login')
     await expect(page.getByRole('heading', { name: 'Accedi' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Richiedi accesso' })).toHaveAttribute(
+      'href',
+      '#/request-access',
+    )
     await audit(page)
     await page.setViewportSize({ width: 1440, height: 900 })
     await audit(page)
+
+    await page.getByRole('link', { name: 'Richiedi accesso' }).click()
+    await expect(page.getByRole('heading', { name: 'Richiedi accesso' })).toBeVisible()
+    await page.goto('/#/login')
 
     await page.getByLabel('Email').fill(account.email)
     await page.getByLabel('Password').fill(account.password)
@@ -78,6 +86,7 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
       await logoutDialog.getByRole('button', { name: 'Esci' }).click()
     }
     await expect(page.getByRole('button', { name: 'Accedi' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Richiedi accesso' })).toBeVisible()
   } finally {
     await deleteUser(account.id)
   }

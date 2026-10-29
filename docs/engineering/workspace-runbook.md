@@ -135,6 +135,8 @@ on conflict (workspace_id, user_id) do update set role = 'editor';
 
 Il ruolo può essere `owner` o `editor`. Nella prima iterazione entrambi i membri sono `owner`; usare `editor` solo se in futuro si vuole limitare la gestione delle membership. Il nuovo utente deve esistere in `auth.users` ed essere già confermato.
 
+Le richieste che arrivano dalla pagina pubblica `/#/request-access` **non** creano utenti, account o membership: vanno lette con `docs/engineering/access-requests.md`, valutate manualmente e, solo se accolte, seguono questa procedura. La notifica Formspree contiene l’email del richiedente in `_replyto`; non copiare dati del workspace nella richiesta.
+
 ### 6.2 Rimuovere un membro
 
 ```sql
@@ -256,13 +258,13 @@ Automatico: `npm run smoke:production` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROL
 
 ## 9. Risultati attesi della RLS
 
-| Soggetto | Workspace visibili | Preventivi visibili | Scrittura |
-| --- | --- | --- | --- |
-| Owner A del workspace condiviso | `ws-doublelayer` | Tutti quelli del workspace | Consentita |
-| Owner B dello stesso workspace | `ws-doublelayer` | Gli stessi di A | Consentita |
-| Owner C di un altro workspace | Solo il proprio | Solo i propri | Consentita solo nel proprio |
-| Utente senza membership | Nessuno | Nessuno | Negata (`42501`) |
-| `anon` | Nessuno | Nessuno | Negata, salvo `keepalive()` |
+| Soggetto                        | Workspace visibili | Preventivi visibili        | Scrittura                   |
+| ------------------------------- | ------------------ | -------------------------- | --------------------------- |
+| Owner A del workspace condiviso | `ws-doublelayer`   | Tutti quelli del workspace | Consentita                  |
+| Owner B dello stesso workspace  | `ws-doublelayer`   | Gli stessi di A            | Consentita                  |
+| Owner C di un altro workspace   | Solo il proprio    | Solo i propri              | Consentita solo nel proprio |
+| Utente senza membership         | Nessuno            | Nessuno                    | Negata (`42501`)            |
+| `anon`                          | Nessuno            | Nessuno                    | Negata, salvo `keepalive()` |
 
 La verifica automatica è `npm run db:test`: 33 asserzioni pgTAP, incluse le quote condivise, l'audit, l'isolamento per workspace, l'utente senza membership, l'ultimo owner e il keep-alive.
 
@@ -298,18 +300,18 @@ npm run test:e2e:sync    # due contesti, offline, conflitto, isolamento
 
 ## 11. Troubleshooting
 
-| Sintomo | Causa probabile | Azione |
-| --- | --- | --- |
-| `email_provider_disabled` | Provider email disattivato | Nel cloud abilitare Email; in locale `[auth.email].enable_signup = true` |
-| `noWorkspace` | Utente senza membership | Inserire la membership con il §4 o §6.1 |
-| `last_owner` | Rimozione dell'ultimo owner | Aggiungere un altro owner o usare la pulizia admin |
-| `42501` su insert/update | RLS: workspace diverso o membership assente | Verificare `workspace_id` e `workspace_members` |
-| `quote_locked` | Preventivo `sent` o `completed` | Duplicare il preventivo, non modificarlo |
-| `quote_metadata_locked` | Tentativo di cambiare `created_at`/`created_by` | Non inviare questi campi nelle update |
-| Sync “Errore di connessione” | Rete, progetto in pausa o chiave errata | Verificare connessione, progetto e env |
-| Sync “Troppe richieste” | Rate limit Supabase | Attendere e riprovare |
-| Il secondo utente non vede i dati | Membership assente o workspace diverso | Eseguire le query del §5 |
-| Il progetto è in pausa | Nessuna attività per 7 giorni | Riattivarlo dal dashboard; il keep-alive è in T5.4.6 |
+| Sintomo                           | Causa probabile                                 | Azione                                                                   |
+| --------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------ |
+| `email_provider_disabled`         | Provider email disattivato                      | Nel cloud abilitare Email; in locale `[auth.email].enable_signup = true` |
+| `noWorkspace`                     | Utente senza membership                         | Inserire la membership con il §4 o §6.1                                  |
+| `last_owner`                      | Rimozione dell'ultimo owner                     | Aggiungere un altro owner o usare la pulizia admin                       |
+| `42501` su insert/update          | RLS: workspace diverso o membership assente     | Verificare `workspace_id` e `workspace_members`                          |
+| `quote_locked`                    | Preventivo `sent` o `completed`                 | Duplicare il preventivo, non modificarlo                                 |
+| `quote_metadata_locked`           | Tentativo di cambiare `created_at`/`created_by` | Non inviare questi campi nelle update                                    |
+| Sync “Errore di connessione”      | Rete, progetto in pausa o chiave errata         | Verificare connessione, progetto e env                                   |
+| Sync “Troppe richieste”           | Rate limit Supabase                             | Attendere e riprovare                                                    |
+| Il secondo utente non vede i dati | Membership assente o workspace diverso          | Eseguire le query del §5                                                 |
+| Il progetto è in pausa            | Nessuna attività per 7 giorni                   | Riattivarlo dal dashboard; il keep-alive è in T5.4.6                     |
 
 ---
 
@@ -434,17 +436,17 @@ Con un account esistente:
 
 ### 15.5 Troubleshooting
 
-| Sintomo | Causa probabile | Azione |
-| --- | --- | --- |
-| `provider_disabled` / “L'accesso con Google non è abilitato” | Provider Google spento in Supabase | Abilitarlo in **Authentication → Providers → Google** |
-| `redirect_uri_mismatch` / “Configurazione Google non valida” | La redirect URI su Google non è la callback Supabase | Aggiungere `https://<ref>.supabase.co/auth/v1/callback` |
-| `signup_disabled` / “Questo account Google non è autorizzato” | Email Google senza utente pre-creato | Creare l'utente dall'amministratore; non abilitare il signup |
-| `manual_linking_disabled` | “Allow manual linking” spento | Abilitarlo e riprovare “Collega Google” |
-| `bad_oauth_state`, `bad_code_verifier`, `flow_state_expired` | Codice scaduto, URL aperto in un altro browser o doppio reload | Ripetere l'accesso dalla pagina di login |
-| `access_denied` | L'utente ha annullato il consenso | Nessuna azione; email/password resta disponibile |
-| Consenso Google con dominio Supabase | Custom domain non configurato | Accettabile per due utenti; valutare il custom domain solo per l'apertura |
-| Pulsante Google assente | `VITE_AUTH_GOOGLE_ENABLED` non è `true` o manca la configurazione cloud | Impostare il flag e rifare il deploy |
-| Il client Secret è stato esposto | Errore di configurazione | Ruotarlo su Google Cloud, aggiornare Supabase, non inserirlo altrove |
+| Sintomo                                                       | Causa probabile                                                         | Azione                                                                    |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `provider_disabled` / “L'accesso con Google non è abilitato”  | Provider Google spento in Supabase                                      | Abilitarlo in **Authentication → Providers → Google**                     |
+| `redirect_uri_mismatch` / “Configurazione Google non valida”  | La redirect URI su Google non è la callback Supabase                    | Aggiungere `https://<ref>.supabase.co/auth/v1/callback`                   |
+| `signup_disabled` / “Questo account Google non è autorizzato” | Email Google senza utente pre-creato                                    | Creare l'utente dall'amministratore; non abilitare il signup              |
+| `manual_linking_disabled`                                     | “Allow manual linking” spento                                           | Abilitarlo e riprovare “Collega Google”                                   |
+| `bad_oauth_state`, `bad_code_verifier`, `flow_state_expired`  | Codice scaduto, URL aperto in un altro browser o doppio reload          | Ripetere l'accesso dalla pagina di login                                  |
+| `access_denied`                                               | L'utente ha annullato il consenso                                       | Nessuna azione; email/password resta disponibile                          |
+| Consenso Google con dominio Supabase                          | Custom domain non configurato                                           | Accettabile per due utenti; valutare il custom domain solo per l'apertura |
+| Pulsante Google assente                                       | `VITE_AUTH_GOOGLE_ENABLED` non è `true` o manca la configurazione cloud | Impostare il flag e rifare il deploy                                      |
+| Il client Secret è stato esposto                              | Errore di configurazione                                                | Ruotarlo su Google Cloud, aggiornare Supabase, non inserirlo altrove      |
 
 ### 15.6 Rollback
 

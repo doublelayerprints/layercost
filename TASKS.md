@@ -2,12 +2,12 @@
 
 **Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 in corso; CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
-**Data:** 28 ottobre 2026
+**Data:** 29 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 28/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 in corso: **T5.3 chiuso** (import `.3mf`), **T5.6 chiuso** (interfaccia inglese), **T5.12 chiuso** (export `.xlsx`), **T5.13–T5.14 chiusi** (preventivi modificabili con stato e card del calcolatore) e **T5.15–T5.19 chiusi** (preferenze rapide, azioni del preventivo in alto, colore filamento per riga, utile in euro e vista cliente separata, composizione del prezzo e righe cliccabili). **T5.20 chiuso** il 28/10/2026: sconti percentuali o a importo fisso su riga e preventivo, schema v4 e motore 1.0.0. **T5.21 chiuso** il 28/10/2026: card comprimibili nel calcolatore con riepilogo compatto e drop down, senza modifiche a dati o formule. Il **28/10/2026** è stato adottato l'**accento viola** (T4.8, ADR-0021). Prossimo **T5.4 sync**: piano e ADR-0024 pronti, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password), **T5.4.4 chiuso** (repository cloud, outbox, conflitti) e **T5.4.5 chiuso** (workspace condiviso, runbook e audit) il 28/10/2026; prossimo **T5.4.6** (operazioni, test e deploy). Ordine **T5.3 import `.3mf` → T5.6 inglese → T5.12 export `.xlsx` → T5.13–T5.21 rifiniture → T5.4 sync**. ADR-0017, ADR-0018, ADR-0019, ADR-0020, ADR-0021, ADR-0022, ADR-0023 e ADR-0024 registrano la direzione. Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026 per includere accento viola, sidebar, calcolatore, dettaglio, impostazioni, preventivi, card degli sconti (T5.20) e card comprimibili (T5.21).
+**Stato al 29/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; resta il collegamento Google del secondo owner. **EVO-3a — Richiedi accesso** (ADR-0026) è implementato il 29/10/2026: route lazy, Formspree Free, i18n IT/EN, axe e budget 210 KB; restano la creazione del form Formspree reale, la verifica della notifica e il deploy. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026.
 
 ---
 
@@ -1206,7 +1206,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-2–EVO-4 proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login
@@ -1221,25 +1221,43 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - Auto-link di Supabase per email verificata; fallback “Collega Google” con `linkIdentity` in Impostazioni → Sincronizzazione; “Google collegato” quando l'identità è presente.
 - Errori mappati (`oauthCancelled`, `oauthProviderDisabled`, `oauthSignupDisabled`, `oauthIdentityExists`, `oauthConfig`, `oauthCallback`, `manualLinkingDisabled`) con microcopy IT/EN e avviso `role="alert"`.
 - Flag pubblico `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il pulsante e per il rollback; nessun secret nel repository, nel bundle o su Vercel.
-- Test: `oauth.test.ts`, `auth.test.ts`, `client.test.ts`, `auth-store.test.ts` (216 unitari totali); E2E auth con provider mockato e annullamento; axe su login a 375/1440. Verdi in locale il 29/10/2026: `npm run check`, `db:test` (33 pgTAP), `test:e2e` (33 + 12 saltati), `test:e2e:auth` (3) e `test:e2e:sync` (3); `smoke:production` verde con il nuovo harness. CI della PR #24 verde (`check`, `e2e`, `database`).
+- Test: `oauth.test.ts`, `auth.test.ts`, `client.test.ts`, `auth-store.test.ts` (216 unitari al momento di EVO-1); E2E auth con provider mockato e annullamento; axe su login a 375/1440. Verdi in locale il 29/10/2026: `npm run check`, `db:test` (33 pgTAP), `test:e2e` (33 + 12 saltati), `test:e2e:auth` (3) e `test:e2e:sync` (3); `smoke:production` verde con il nuovo harness. CI della PR #24 verde (`check`, `e2e`, `database`).
 - Runbook: `docs/engineering/workspace-runbook.md` §15 (Google Cloud, Supabase, locale, verifica, troubleshooting, rollback).
 - Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, RLS o sync.
+
+## EVO-3a — Pagina “Richiedi accesso”
+
+**Stato:** `[~]` — codice, test e documentazione chiusi il 29/10/2026; configurazione Formspree reale, notifica live e deploy ancora manuali
+**Dipende da:** account Formspree Free e env pubblica
+**ADR:** 0026
+**Piano e runbook:** `docs/planning/evo-3a-access-request.md`, `docs/engineering/access-requests.md`
+
+- Route lazy `/#/request-access`, raggiungibile senza login; link da login e da SyncSettings non connesso.
+- Form con email obbligatoria (max 254), nome opzionale (max 80), messaggio opzionale (max 500), consenso obbligatorio e honeypot `_gotcha`.
+- Invio `fetch` nativo a Formspree con `Accept: application/json`, `_subject` e `_replyto`; nessuna nuova dipendenza.
+- Stati idle/submitting/success/error/endpoint mancante; conferma `role="status"` con focus sul titolo, errore `role="alert"` con campi conservati e riprova.
+- Nessuna autoresponse su Free: il richiedente non riceve email, la conferma è in pagina; l’amministratore risponde manualmente.
+- Nessun utente/account/membership creato; nessuna modifica a formule, `engineVersion`, snapshot, schema locale, auth, RLS o sync.
+- Privacy: Formspree processore USA, archivio 30 giorni, email admin cancellata dopo la decisione o entro 12 mesi; nessun analytics/cookie first-party/newsletter.
+- i18n IT/EN (36 chiavi `access.*`), axe a 375/1440, budget JS iniziale 206,6/210 KB (limite alzato con motivazione in ADR-0026).
+- Test: 17 unitari, 5 E2E con Formspree mockato, 1 E2E senza endpoint, parità i18n; `npm run test:e2e` costruisce con e senza endpoint.
+- Resta: creare il form Formspree di produzione e quello di test, verificare notifica e `_replyto`, impostare `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel, submission di prova, deploy e smoke.
 
 ## EVO-2 — Tetti utenti e preventivi
 
 **Stato:** `[ ]`
 **Dipende da:** decisione sul modello di apertura
-**ADR:** 0026
+**ADR:** 0027
 
 - `workspace_limits` con `max_members` e `max_quotes`.
 - Trigger su `workspace_members` e `quotes`, advisory lock e codici errore.
 - UI con conteggi e messaggi; modifica limiti via SQL/runbook nella prima iterazione.
 - Test pgTAP, E2E e concorrenza; soft delete e ripristino gestiti.
 
-## EVO-3 — Apertura controllata
+## EVO-3b — Apertura controllata (allowlist)
 
 **Stato:** `[ ]`
-**Dipende da:** EVO-1, EVO-2
+**Dipende da:** EVO-1, EVO-2, EVO-3a
 
 - Invite-only o allowlist con Auth Hook `before-user-created`.
 - Eventuale tetto globale utenti.
@@ -1248,7 +1266,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 ## EVO-4 — Multi-workspace
 
 **Stato:** `[ ]`
-**Dipende da:** decisione esplicita e ADR-0027
+**Dipende da:** decisione esplicita e ADR-0028
 
 - Un workspace per cliente/team, con onboarding, inviti e switcher.
 - Migrazione PK `(workspace_id, id)` o ID globali; sync/cache per workspace.

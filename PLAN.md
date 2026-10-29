@@ -132,7 +132,7 @@ La fase 5 riprende alcune di queste voci: import `.3mf` e interfaccia inglese (c
 | FR-08 | Override per riga: kWh misurati, potenza media, tasso guasti                                                                                                |
 | FR-09 | Breakdown: materiale, energia, ammortamento, manutenzione, manodopera, extra, riserva guasti                                                                |
 | FR-10 | Costo diretto unitario, costo diretto riga, costo pieno unitario, costo totale                                                                              |
-| FR-11 | Prezzo con ricarico o margine, sconti di riga e preventivo (percentuali o importo fisso), arrotondamento, IVA inclusa/esclusa                                  |
+| FR-11 | Prezzo con ricarico o margine, sconti di riga e preventivo (percentuali o importo fisso), arrotondamento, IVA inclusa/esclusa                               |
 | FR-12 | Lotto: più righe, quantità, costi fissi di lavoro, ripartizione                                                                                             |
 | FR-13 | Confronto tra stampanti: duplica una riga su un'altra stampante e mostra il delta                                                                           |
 | FR-14 | Salvataggio preventivo con snapshot delle tariffe e versione del motore                                                                                     |
@@ -155,7 +155,7 @@ La fase 5 riprende alcune di queste voci: import `.3mf` e interfaccia inglese (c
 
 - **Prestazioni:** calcolo di 50 righe in meno di 100 ms; caricamento iniziale inferiore a 2 s su rete 3G ragionevole.
 - **Affidabilità:** nessuna perdita di dati al reload; export/import con roundtrip esatto; migrazioni testate.
-- **Privacy:** in modalità ospite nessuna chiamata di rete oltre agli asset statici; con account, solo Supabase (regione EU). Nessun analytics, nessun cookie, nessun tracciamento.
+- **Privacy:** in modalità ospite nessuna chiamata di rete oltre agli asset statici; con account, solo Supabase (regione EU). Unica eccezione: la pagina “Richiedi accesso” invia a Formspree (USA) solo su azione esplicita dell’utente e solo i campi del modulo, senza dati dell’app. Nessun analytics, nessun cookie, nessun tracciamento.
 - **Accessibilità:** obiettivo WCAG 2.1 AA.
 - **Browser:** ultime versioni di Chrome, Safari, Firefox ed Edge; Safari iOS.
 - **Manutenibilità:** dominio senza dipendenze da React, browser o storage; ogni formula documentata e testata.
@@ -365,6 +365,7 @@ L'utente può "aggiornare ai prezzi correnti" solo creando una copia. L'original
 - Svuotare i dati del browser cancella anche i preventivi locali. L'export JSON è un pulsante visibile, con un promemoria periodico; con account esiste anche il backup lato database.
 - Prima di una migrazione dello schema, l'app conserva un backup raw dei dati.
 - Nessun analytics, nessun cookie, nessun tracciamento. La sessione Supabase è un token tecnico nel browser, non un cookie di profilazione.
+- La pagina “Richiedi accesso” invia a Formspree (USA) solo i campi del modulo, solo dopo un invio esplicito. Formspree conserva le submission per 30 giorni; l’email dell’amministratore viene cancellata dopo la decisione o entro 12 mesi. Nessun dato dell’app viene inviato.
 
 ---
 
@@ -405,13 +406,13 @@ La specifica operativa è in `docs/README.md`; le regole per il coding agent son
 
 ## 12. Roadmap
 
-| Fase                  | Contenuto                                                                  | Gate                                                  | Stima indicativa |
-| --------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- | ---------------- |
-| **0 — Fondamenta**    | Repo, tooling, CI, docs, unità e tipi                                      | Build e test verdi; docs approvati                    | 0,5–1 giorno     |
-| **1 — Motore**        | Materiale, energia, usura, manodopera, extra, guasti, prezzi, lotti        | Esempi documentati = test al µ€                       | 1,5–3 giorni     |
-| **2 — Config e dati** | Seed, CRUD, tariffe, storage, migrazioni, export/import                    | Reload e roundtrip ok; vecchi preventivi invariati    | 1,5–3 giorni     |
-| **3 — UI funzionale** | Calcolatore, risultati, storico, PDF, link, confronto                      | Scenario end-to-end completo su Vercel                | 2–4 giorni       |
-| **4 — UI design**     | Skill design, design system, responsive, accessibilità                     | Review UX + nessuna regressione                       | 2–5 giorni       |
+| Fase                  | Contenuto                                                                                  | Gate                                                  | Stima indicativa |
+| --------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------- | ---------------- |
+| **0 — Fondamenta**    | Repo, tooling, CI, docs, unità e tipi                                                      | Build e test verdi; docs approvati                    | 0,5–1 giorno     |
+| **1 — Motore**        | Materiale, energia, usura, manodopera, extra, guasti, prezzi, lotti                        | Esempi documentati = test al µ€                       | 1,5–3 giorni     |
+| **2 — Config e dati** | Seed, CRUD, tariffe, storage, migrazioni, export/import                                    | Reload e roundtrip ok; vecchi preventivi invariati    | 1,5–3 giorni     |
+| **3 — UI funzionale** | Calcolatore, risultati, storico, PDF, link, confronto                                      | Scenario end-to-end completo su Vercel                | 2–4 giorni       |
+| **4 — UI design**     | Skill design, design system, responsive, accessibilità                                     | Review UX + nessuna regressione                       | 2–5 giorni       |
 | **5 — Extra**         | Import `.3mf`, inglese, export `.xlsx`, sync gratuito (richiesto), inventory, actuals, PWA | `npm run check` verde, fixture reali, piano approvato | —                |
 
 **MVP:** fasi 0–3 implementate. Deploy Vercel live su https://layercost.vercel.app.

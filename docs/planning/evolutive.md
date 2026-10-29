@@ -1,10 +1,10 @@
-# Evolutive — Google login, tetti utenti/preventivi e apertura
+# Evolutive — Google login, richiesta accesso, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-2–EVO-4 proposte
 **Data:** 29 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
 **Piano collegato:** `docs/planning/t5.4-cloud-sync.md`
-**ADR:** 0025 (Google OAuth) creato; 0026 (tetti e signup) e 0027 (multi-workspace) solo se si implementano EVO-2/EVO-4
+**ADR:** 0025 (Google OAuth), **0026 (pagina Richiedi accesso)**; **0027** (tetti e signup) e **0028** (multi-workspace) solo se si implementano EVO-2/EVO-4
 
 Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a riprendere il lavoro in una nuova sessione senza ricostruire il contesto.
 
@@ -20,24 +20,26 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 - **Membri:** due account `owner`; le email non sono nel repository.
 - **Dati attuali:** 2 stampanti, 8 materiali, 5 extra, 2 preventivi (29/10/2026).
 - **Auth:** email + password, signup pubblico disabilitato, nessun SMTP; reset amministrativo.
-- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; dal 29/10/2026 build `index-BN8y8TA2.js` / `index-B2c8cUBY.css` con cloud e Google attivi.
+- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; dal 29/10/2026 build `index-BN8y8TA2.js` / `index-B2c8cUBY.css` con cloud e Google attivi. EVO-3a è pronta nel branch `feat/evo-3a-request-access` e richiede `VITE_ACCESS_REQUEST_ENDPOINT` per essere attivata in produzione.
 - **Operazioni:** keep-alive giornaliero e backup settimanale cifrato attivi e verificati.
-- **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e i flag pubblici (`VITE_AUTH_GOOGLE_ENABLED`). Per EVO-3a va aggiunto `VITE_ACCESS_REQUEST_ENDPOINT` (endpoint Formspree pubblico).
 
 ### Codice rilevante
 
-| Area | File |
-| --- | --- |
-| Client Supabase lazy | `src/data/cloud/client.ts` |
-| Auth gateway | `src/data/cloud/auth.ts` |
-| Auth store | `src/state/auth-store.ts` |
-| Login UI | `src/features/auth/LoginPage.tsx` |
-| Sync settings | `src/features/settings/SyncSettings.tsx` |
-| i18n auth | `src/i18n/it/auth.ts`, `src/i18n/en/auth.ts` |
-| Test auth | `tests/e2e/auth.spec.ts` |
-| Schema cloud | `supabase/migrations/20261028120000_init.sql` |
-| Runbook | `docs/engineering/workspace-runbook.md` |
-| Backup | `docs/engineering/backup-restore.md` |
+| Area                 | File                                                 |
+| -------------------- | ---------------------------------------------------- |
+| Client Supabase lazy | `src/data/cloud/client.ts`                           |
+| Auth gateway         | `src/data/cloud/auth.ts`                             |
+| Auth store           | `src/state/auth-store.ts`                            |
+| Login UI             | `src/features/auth/LoginPage.tsx`                    |
+| Sync settings        | `src/features/settings/SyncSettings.tsx`             |
+| i18n auth            | `src/i18n/it/auth.ts`, `src/i18n/en/auth.ts`         |
+| Test auth            | `tests/e2e/auth.spec.ts`                             |
+| Schema cloud         | `supabase/migrations/20261028120000_init.sql`        |
+| Runbook              | `docs/engineering/workspace-runbook.md`              |
+| Backup               | `docs/engineering/backup-restore.md`                 |
+| Richiesta accesso    | `src/features/access/`, `src/i18n/{it,en}/access.ts` |
+| Runbook richieste    | `docs/engineering/access-requests.md`                |
 
 ### Vincoli attuali
 
@@ -69,24 +71,25 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 ## 2. Decisioni proposte e questioni aperte
 
-| Tema | Proposta | Stato |
-| --- | --- | --- |
-| Google login | Provider aggiuntivo, non sostitutivo | **Implementato (ADR-0025)** |
-| Account esistenti | Auto-link; fallback “Collega Google” con `linkIdentity` | **Implementato; verifica reale da fare** |
-| Signup | Resta disabilitato nella prima fase; utenti pre-creati | Confermato |
-| Nuovi utenti | Invite-only; niente self-service | Confermato |
-| Tetto utenti | Allowlist + eventuale tetto numerico con Auth Hook | Da decidere (EVO-2/EVO-3) |
-| Tetto membri | Trigger su `workspace_members` con `workspace_limits.max_members` | Proposto per EVO-2 |
-| Tetto preventivi | Trigger su `quotes` con `workspace_limits.max_quotes` | Proposto per EVO-2 |
-| Multi-workspace | Rinviato; prima decidere stesso archivio o archivio per cliente | Aperto |
-| Custom domain | Non necessario; branding Google opzionale | Rinviato |
-| Piano | Free finché i limiti bastano; Pro solo se serve | Proposto |
+| Tema              | Proposta                                                                  | Stato                                    |
+| ----------------- | ------------------------------------------------------------------------- | ---------------------------------------- |
+| Google login      | Provider aggiuntivo, non sostitutivo                                      | **Implementato (ADR-0025)**              |
+| Account esistenti | Auto-link; fallback “Collega Google” con `linkIdentity`                   | **Implementato; verifica reale da fare** |
+| Signup            | Resta disabilitato nella prima fase; utenti pre-creati                    | Confermato                               |
+| Nuovi utenti      | Invite-only; niente self-service; pagina “Richiedi accesso” con Formspree | **Pagina implementata (ADR-0026)**       |
+| Richiesta accesso | Formspree Free, endpoint pubblico, nessuna approvazione automatica        | **Implementata (EVO-3a/ADR-0026)**       |
+| Tetto utenti      | Allowlist + eventuale tetto numerico con Auth Hook                        | Da decidere (EVO-2/EVO-3b)               |
+| Tetto membri      | Trigger su `workspace_members` con `workspace_limits.max_members`         | Proposto per EVO-2                       |
+| Tetto preventivi  | Trigger su `quotes` con `workspace_limits.max_quotes`                     | Proposto per EVO-2                       |
+| Multi-workspace   | Rinviato; prima decidere stesso archivio o archivio per cliente           | Aperto                                   |
+| Custom domain     | Non necessario; branding Google opzionale                                 | Rinviato                                 |
+| Piano             | Free finché i limiti bastano; Pro solo se serve                           | Proposto                                 |
 
 ### Domande da chiudere prima di implementare
 
 1. Le due email Google sono le stesse dei due account attuali? **Da verificare in produzione**: l'auto-link funziona solo con la stessa email verificata; altrimenti si usa “Collega Google”.
 2. ~~Vogliamo provare l'auto-link o aggiungere subito “Collega Google”?~~ **Entrambi**: auto-link come percorso principale, “Collega Google” come fallback deterministico.
-3. Il tetto utenti è **globale** (tutti gli account) o **per workspace**? Aperto (EVO-2/EVO-3).
+3. Il tetto utenti è **globale** (tutti gli account) o **per workspace**? Aperto (EVO-2/EVO-3b).
 4. Il tetto preventivi è per workspace o globale? Aperto (EVO-2).
 5. Quanti utenti e quanti preventivi come prima soglia? Proposta: 10 utenti, 500 preventivi.
 6. L'apertura futura è “più membri nello stesso archivio” o “un archivio per cliente”?
@@ -167,10 +170,10 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 ### 3.5 Acceptance
 
-- [ ] I due account esistenti possono accedere con Google. *(1 account su 2 verificato il 29/10/2026)*
+- [ ] I due account esistenti possono accedere con Google. _(1 account su 2 verificato il 29/10/2026)_
 - [x] Email/password continua a funzionare come fallback (E2E esistente, invariato).
-- [ ] Un'email Google non presente e signup disabilitato viene rifiutata con messaggio chiaro. *(mapping e microcopy pronti; verifica live da fare)*
-- [ ] Sessione persistente, reload, logout, sync e RLS invariati. *(percorso OAuth verificato per un account; secondo owner da verificare)*
+- [ ] Un'email Google non presente e signup disabilitato viene rifiutata con messaggio chiaro. _(mapping e microcopy pronti; verifica live da fare)_
+- [ ] Sessione persistente, reload, logout, sync e RLS invariati. _(percorso OAuth verificato per un account; secondo owner da verificare)_
 - [x] Nessun Client Secret nel bundle, nel repository o su Vercel.
 - [x] Errori OAuth mappati e accessibili.
 - [x] `npm run check`, `db:test`, `test:e2e`, `test:e2e:auth`, `test:e2e:sync` verdi.
@@ -178,17 +181,57 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 
 ### 3.6 Rischi e rollback
 
-| Rischio | Mitigazione |
-| --- | --- |
-| Auto-link non funziona | Usare `linkIdentity` dopo login email/password |
-| Redirect URI errato | Controllare callback Supabase e URL Google |
-| HashRouter interferisce | Strategia A: redirect alla root e scambio manuale |
-| Consent screen poco familiare | Branding Google; custom domain solo se serve |
-| Google Account perso | Mantenere email/password e reset admin |
-| Provider Google down | Fallback email/password |
-| Signup disabilitato blocca nuovi utenti | Invite-only: pre-creare gli utenti |
+| Rischio                                 | Mitigazione                                       |
+| --------------------------------------- | ------------------------------------------------- |
+| Auto-link non funziona                  | Usare `linkIdentity` dopo login email/password    |
+| Redirect URI errato                     | Controllare callback Supabase e URL Google        |
+| HashRouter interferisce                 | Strategia A: redirect alla root e scambio manuale |
+| Consent screen poco familiare           | Branding Google; custom domain solo se serve      |
+| Google Account perso                    | Mantenere email/password e reset admin            |
+| Provider Google down                    | Fallback email/password                           |
+| Signup disabilitato blocca nuovi utenti | Invite-only: pre-creare gli utenti                |
 
 **Rollback:** disabilitare Google nel dashboard Supabase; il login email/password resta operativo. Lato app, nascondere il pulsante con una env o un flag.
+
+---
+
+## 3A. EVO-3a — Pagina “Richiedi accesso”
+
+**Obiettivo:** una persona senza account può inviare una richiesta all’amministratore dalla pagina pubblica `/#/request-access`, senza creare utenti o account.
+**Stato:** **implementato** il 29/10/2026 (ADR-0026) nel branch `feat/evo-3a-request-access`; il form Formspree reale e la verifica live sono manuali.
+**Stima:** 0,5–1 giorno.
+**Dipende da:** account Formspree Free e configurazione della env pubblica.
+**ADR:** `docs/adr/0026-request-access-formspree.md`.
+**Piano e runbook:** `docs/planning/evo-3a-access-request.md`, `docs/engineering/access-requests.md`.
+
+### 3A.1 Decisione
+
+- Formspree Free, endpoint pubblico via `VITE_ACCESS_REQUEST_ENDPOINT`; nessun secret.
+- Route lazy, raggiungibile senza login; link da login e da SyncSettings non connesso.
+- Nessuna approvazione automatica, nessun utente/account/membership creato.
+- Nessuna autoresponse su Free: conferma in pagina; `_replyto` per la risposta manuale.
+- Email obbligatoria, nome e messaggio opzionali, consenso obbligatorio; Formspree processore USA, archivio 30 giorni, email admin cancellata dopo la decisione o entro 12 mesi.
+- Honeypot `_gotcha`; nessun analytics, cookie first-party o newsletter.
+- Nessuna modifica a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
+
+### 3A.2 Cosa resta manuale
+
+1. Creare il form Formspree di produzione e quello di test.
+2. Verificare email e notifica all’amministratore, `_subject`, `_replyto`, spam.
+3. Impostare **Restrict to domain = `layercost.vercel.app`**.
+4. Impostare `VITE_ACCESS_REQUEST_ENDPOINT` su Vercel Production/Preview.
+5. Inviare una submission di prova e controllare la notifica.
+6. Aggiornare il deploy e lo smoke, se si distribuisce.
+
+### 3A.3 Acceptance
+
+- [x] Route pubblica e lazy; link da login e sync.
+- [x] Form valido, invio mockato, stati success/error/endpoint mancante.
+- [ ] Notifica reale Formspree e submission di prova. _(manuale)_
+- [x] Nessun utente/account/membership creato; endpoint pubblico; nessun secret.
+- [x] IT/EN, axe, 375/1440, focus e label; budget 206,6/210 KB.
+- [x] ADR-0026, runbook, deployment env, STATUS/TASKS/CHANGELOG/testing.
+- [ ] Deploy di produzione e smoke. _(dopo la env Formspree)_
 
 ---
 
@@ -197,10 +240,12 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 **Obiettivo:** aprire a più utenti con limiti configurabili, senza dipendere solo dai limiti del piano.
 **Stima:** 1–2 giorni.
 **Dipende da:** decisione sul modello (stesso workspace o workspace separati).
+**ADR:** `docs/adr/0027-*` (da creare; EVO-2 passa ad ADR-0027 dopo EVO-3a/ADR-0026).
 
 ### 4.1 Perché non basta Supabase
 
 Supabase Free offre:
+
 - utenti totali illimitati;
 - 50.000 MAU;
 - 500 MB DB per progetto;
@@ -303,32 +348,34 @@ L'app deve mostrare “Hai raggiunto il limite di N preventivi. Esporta o elimin
 
 ### 4.8 Rischi
 
-| Rischio | Mitigazione |
-| --- | --- |
-| Race condition sul conteggio | Advisory lock per workspace |
-| Tombstone/ripristino non contato | Trigger anche su update |
-| Client aggiornato ma DB no | Migrazione + test pgTAP |
-| UI mostra conteggi vecchi | Refresh dopo ogni scrittura; il trigger decide |
-| Limite troppo basso blocca lavoro | Valori configurabili; avviso prima del limite |
-| Service role bypassa | Solo admin; non nel client |
+| Rischio                           | Mitigazione                                    |
+| --------------------------------- | ---------------------------------------------- |
+| Race condition sul conteggio      | Advisory lock per workspace                    |
+| Tombstone/ripristino non contato  | Trigger anche su update                        |
+| Client aggiornato ma DB no        | Migrazione + test pgTAP                        |
+| UI mostra conteggi vecchi         | Refresh dopo ogni scrittura; il trigger decide |
+| Limite troppo basso blocca lavoro | Valori configurabili; avviso prima del limite  |
+| Service role bypassa              | Solo admin; non nel client                     |
 
 ---
 
-## 5. EVO-3/EVO-4 — Apertura e multi-workspace
+## 5. EVO-3b/EVO-4 — Apertura e multi-workspace
 
-**Stato:** decisione non presa. Da affrontare solo quando l'apertura non è più “due persone”.
+**Stato:** decisione non presa. Da affrontare solo quando l’apertura non è più “due persone”.
 
-EVO-3 (invite-only/allowlist) è descritto in §4.3; questa sezione riguarda soprattutto EVO-4, il modello multi-workspace.
+EVO-3b (invite-only/allowlist) è descritto in §4.3; questa sezione riguarda soprattutto EVO-4, il modello multi-workspace.
 
 ### 5.1 Due modelli
 
 **A — Stesso archivio con più membri**
+
 - Tutti vedono gli stessi preventivi e la stessa configurazione.
 - Basta aggiungere membership e un tetto `max_members`.
 - Nessuna migrazione di schema.
 - Adatto a un team/famiglia.
 
 **B — Un workspace per cliente/team**
+
 - Ogni cliente vede solo i propri dati.
 - Richiede onboarding, inviti, workspace switcher e RLS per workspace (le policy esistono già).
 - È una evoluzione multi-tenant vera.
@@ -336,6 +383,7 @@ EVO-3 (invite-only/allowlist) è descritto in §4.3; questa sezione riguarda sop
 ### 5.2 Impatto tecnico del modello B
 
 Oggi:
+
 - `workspaces` e `workspace_members` esistono;
 - ogni tabella dati ha `workspace_id`;
 - ma le primary key sono `id text` globali;
@@ -345,6 +393,7 @@ Oggi:
 - i link condivisi contengono il preventivo, non il workspace.
 
 Per il modello B serve:
+
 1. PK `(workspace_id, id)` o ID globalmente unici per tutte le entità.
 2. Aggiornamento di foreign key, tipi generati, mapper e test.
 3. Chiavi di sync e cache che includano il workspace.
@@ -353,7 +402,7 @@ Per il modello B serve:
 6. Admin per limiti e membership.
 7. Test di isolamento con due workspace e gli stessi ID seed.
 8. Migrazione dei dati esistenti e backup prima della migrazione.
-9. ADR dedicato (0027) e piano di rollback.
+9. ADR dedicato (0028) e piano di rollback.
 
 ### 5.3 Raccomandazione
 
@@ -365,14 +414,15 @@ Per il modello B serve:
 
 ## 6. Roadmap consigliata
 
-| Fase | Contenuto | Stima | Dipendenze |
-| --- | --- | --- | --- |
-| **EVO-1** | Google login per i due account; fallback email/password | 0,5–1 giorno | Google Cloud + Supabase |
-| **EVO-2** | `workspace_limits`, trigger membri/preventivi, UI quota | 1–2 giorni | EVO-1 o indipendente |
-| **EVO-3** | Invite-only/allowlist, eventuale tetto globale | 1–2 giorni | EVO-2 |
-| **EVO-4** | Multi-workspace (solo se serve) | 3–5 giorni | ADR-0027, migrazione |
+| Fase       | Contenuto                                               | Stima        | Dipendenze               |
+| ---------- | ------------------------------------------------------- | ------------ | ------------------------ |
+| **EVO-1**  | Google login per i due account; fallback email/password | 0,5–1 giorno | Google Cloud + Supabase  |
+| **EVO-3a** | Pagina “Richiedi accesso” con Formspree Free            | 0,5–1 giorno | Formspree + env pubblica |
+| **EVO-2**  | `workspace_limits`, trigger membri/preventivi, UI quota | 1–2 giorni   | EVO-1 o indipendente     |
+| **EVO-3b** | Invite-only/allowlist, eventuale tetto globale          | 1–2 giorni   | EVO-2, EVO-3a            |
+| **EVO-4**  | Multi-workspace (solo se serve)                         | 3–5 giorni   | ADR-0028, migrazione     |
 
-Ordine consigliato: **EVO-1 → EVO-2 → EVO-3**. EVO-4 solo dopo una decisione esplicita.
+Ordine consigliato: **EVO-1 → EVO-3a → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
 
 ---
 
@@ -395,23 +445,23 @@ Ordine consigliato: **EVO-1 → EVO-2 → EVO-3**. EVO-4 solo dopo una decisione
 
 Copiare e incollare:
 
-> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/t5.4-cloud-sync.md` §0, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/deployment.md` §1.1 e §13, ADR-0024 e i file `src/data/cloud/{client,auth}.ts`, `src/state/auth-store.ts`, `src/features/auth/LoginPage.tsx`, `src/features/settings/SyncSettings.tsx`, `tests/e2e/auth.spec.ts`. Il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), workspace `ws-doublelayer`, due account owner e signup disabilitato. Parti da **EVO-1 — Google login** per i due account esistenti, poi EVO-2 (tetti utenti/preventivi). Crea **ADR-0025** per Google OAuth e **ADR-0026** per i tetti prima di implementare. Servono il Client ID e il Client Secret di un OAuth client Google Web; il secret va solo nel dashboard Supabase, mai nel repository, nel bundle o su Vercel. Testa prima in locale/staging, poi produzione. Mantieni email/password come fallback. Non cambiare formule, `engineVersion`, snapshot o schema locale; non committare `.env.local`; non eseguire `test:e2e:sync` contro la produzione. Usa un branch e una PR, non push diretto su `main`. Gate: `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production`. Aggiorna STATUS, TASKS, docs, CHANGELOG e la documentazione privacy/auth.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/evo-3a-access-request.md`, `docs/engineering/access-requests.md`, `docs/planning/t5.4-cloud-sync.md` §0, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/deployment.md` §1.1 e §13, ADR-0024, ADR-0025, ADR-0026 e i file `src/data/cloud/{client,auth}.ts`, `src/state/auth-store.ts`, `src/features/auth/LoginPage.tsx`, `src/features/settings/SyncSettings.tsx`, `src/features/access/`, `tests/e2e/auth.spec.ts`. Il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), workspace `ws-doublelayer`, due account owner e signup disabilitato. EVO-1 e EVO-3a sono implementati; il form Formspree reale e la verifica live di EVO-3a restano manuali. Il prossimo task è **EVO-2 — tetti utenti/preventivi** con **ADR-0027**; EVO-4 userà **ADR-0028**. Non riaprire EVO-3a se non per configurare il form o correggere un bug. Servono accesso a Formspree, Vercel e Supabase; non mettere secret nel repository, nel bundle o su Vercel. Testa prima in locale/staging, poi produzione. Mantieni email/password come fallback. Non cambiare formule, `engineVersion`, snapshot o schema locale; non committare `.env.local`; non eseguire `test:e2e:sync` contro la produzione. Usa un branch e una PR, non push diretto su `main`. Gate: `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` solo dopo un deploy. Aggiorna STATUS, TASKS, docs, CHANGELOG e la documentazione privacy/auth.
 
 ---
 
 ## 9. Checklist di avvio EVO-1
 
 - [x] Leggere questo documento e i file collegati.
-- [x] Scrivere ADR-0025 (Google OAuth); ADR-0026 rinviato perché EVO-2 non è implementato.
-- [ ] Creare OAuth client Google Web. *(richiede accesso a Google Cloud)*
-- [ ] Configurare Google provider in Supabase. *(richiede Client ID/Secret)*
+- [x] Scrivere ADR-0025 (Google OAuth); ADR-0026 riservato a EVO-3a (pagina Richiedi accesso), ADR-0027 a EVO-2 e ADR-0028 a EVO-4.
+- [ ] Creare OAuth client Google Web. _(richiede accesso a Google Cloud)_
+- [ ] Configurare Google provider in Supabase. _(richiede Client ID/Secret)_
 - [x] Aggiungere redirect URL produzione/localhost al codice e alla documentazione.
 - [x] Implementare `signInWithOAuth` e il callback PKCE.
 - [x] Aggiungere il pulsante “Continua con Google”, “Collega Google” e i18n.
-- [ ] Testare auto-link sui due account; se fallisce, usare “Collega Google”. *(verifica live)*
+- [ ] Testare auto-link sui due account; se fallisce, usare “Collega Google”. _(verifica live)_
 - [x] Verificare che email/password resti funzionante (E2E esistente).
 - [x] Axe, E2E, build, budget.
-- [ ] Deploy preview, smoke, produzione con `VITE_AUTH_GOOGLE_ENABLED=true`. *(dopo la configurazione del provider)*
+- [ ] Deploy preview, smoke, produzione con `VITE_AUTH_GOOGLE_ENABLED=true`. _(dopo la configurazione del provider)_
 - [x] Aggiornare documentazione e stato (con la distinzione tra codice pronto e verifica live).
 
 ---
@@ -429,3 +479,6 @@ Copiare e incollare:
 - `docs/engineering/backup-restore.md` — backup e restore.
 - `docs/adr/0024-supabase-auth-workspace.md` — decisione auth/tenancy attuale.
 - `docs/adr/0025-google-oauth.md` — provider Google, PKCE, linking, segreti e rollback.
+- `docs/adr/0026-request-access-formspree.md` — pagina pubblica “Richiedi accesso”, Formspree Free, privacy e retention.
+- `docs/planning/evo-3a-access-request.md` — piano operativo di EVO-3a.
+- `docs/engineering/access-requests.md` — runbook amministratore per lettura, approvazione manuale, retention e cancellazione.

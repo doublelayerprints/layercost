@@ -4,13 +4,12 @@ import {
   useRef,
   useState,
   type ButtonHTMLAttributes,
+  type ComponentPropsWithRef,
   type HTMLAttributes,
-  type InputHTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
   type SelectHTMLAttributes,
   type TableHTMLAttributes,
-  type TextareaHTMLAttributes,
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '@/app/i18n-context'
@@ -158,7 +157,7 @@ function describedBy(ariaDescribedBy: string | undefined, ids: FieldIds): string
 const controlClasses =
   'w-full rounded-control border border-control bg-surface px-3 text-sm text-ink transition-feedback placeholder:text-muted disabled:bg-raised disabled:text-muted'
 
-export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+export function Input({ className, ...props }: ComponentPropsWithRef<'input'>) {
   const ids = useFieldIds()
   return (
     <input
@@ -184,7 +183,7 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
   )
 }
 
-export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function Textarea({ className, ...props }: ComponentPropsWithRef<'textarea'>) {
   const ids = useFieldIds()
   return (
     <textarea

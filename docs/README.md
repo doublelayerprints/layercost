@@ -1,20 +1,20 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 + T5.3/T5.6.5/T5.12/T5.20 — fase 5 in corso
-**Data:** 28 ottobre 2026
+**Stato:** v1.0.0 + T5.3/T5.6.5/T5.12/T5.20 + EVO-1/EVO-3a — fase 5 in corso
+**Data:** 29 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud implementato e **live in produzione** (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`, T5.4.0–T5.4.6 chiusi; evolutive future in `planning/evolutive.md`.
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud implementato e **live in produzione** (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`, T5.4.0–T5.4.6 chiusi; evolutive in `planning/evolutive.md`. **EVO-1** Google login (ADR-0025) è distribuito; **EVO-3a** pagina “Richiedi accesso” (ADR-0026) è implementata e attende la configurazione Formspree e il deploy: piano in `planning/evo-3a-access-request.md`, runbook in `engineering/access-requests.md`.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 185 unitari + 44 E2E (33 default + 6 visual + 2 auth + 3 sync) + 33 pgTAP RLS; axe 49 scansioni, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi.
+- Test: 233 unitari + 51 E2E (39 default incl. accesso + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS; axe 60 scansioni, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
-- CI: verde su GitHub (`check` + `e2e`).
-- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`) e deploy cloud T5.4 (`1bf641e`, build `index-D9pxS7o0.js`) verificati; le preview sono protette da SSO.
+- CI: verde su GitHub (`check` + `e2e` + `database`).
+- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`), deploy cloud T5.4 (`1bf641e`, build `index-D9pxS7o0.js`) e deploy EVO-1 (`51d3fb9`, build `index-BN8y8TA2.js`) verificati; EVO-3a non è ancora distribuita. Le preview sono protette da SSO.
 
 ---
 
@@ -69,6 +69,7 @@
 │   │   ├── testing.md
 │   │   ├── deployment.md
 │   │   ├── workspace-runbook.md
+│   │   ├── access-requests.md
 │   │   ├── backup-restore.md
 │   │   ├── release.md
 │   │   ├── manual-checks.md
@@ -81,6 +82,7 @@
 │   │   ├── phase-5.md
 │   │   ├── t5.4-cloud-sync.md
 │   │   ├── evolutive.md
+│   │   ├── evo-3a-access-request.md
 │   │   └── i18n-inventory.md
 │   └── adr/
 │       ├── README.md
@@ -615,6 +617,39 @@ Sezioni:
 - roadmap EVO-1–EVO-4, domande aperte e prompt di handoff.
 
 **Aggiornare quando:** si decide o si implementa una evolutiva, o cambiano i limiti del piano.
+
+---
+
+### 5.27 `docs/engineering/access-requests.md`
+
+**Scopo:** runbook amministratore della pagina “Richiedi accesso” e del form Formspree.
+
+Sezioni:
+
+- funzionamento della pagina e limiti Free;
+- setup del form di produzione e di test, Restrict to domain e notifica;
+- lettura delle richieste e creazione manuale dell’utente;
+- retention, cancellazione e privacy;
+- troubleshooting e checklist.
+
+**Aggiornare quando:** cambia il form, la retention, la procedura di approvazione o il piano Formspree.
+
+---
+
+### 5.28 `docs/planning/evo-3a-access-request.md`
+
+**Scopo:** piano operativo di EVO-3a: route, payload, privacy, setup Formspree, test e acceptance.
+
+Sezioni:
+
+- decisioni e scope;
+- route e stati UI;
+- dati, payload ed errori;
+- privacy e retention;
+- setup manuale ed env;
+- accessibilità, test, file, rischi e gate.
+
+**Aggiornare quando:** cambia la pagina, il payload, la retention o la procedura di configurazione.
 
 ---
 

@@ -7,6 +7,9 @@ afterEach(() => {
 
 describe('Google button flag', () => {
   it('resta spento senza configurazione cloud', () => {
+    vi.stubEnv('VITE_SUPABASE_URL', '')
+    vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', '')
+    vi.stubEnv('VITE_SUPABASE_ANON_KEY', '')
     vi.stubEnv('VITE_AUTH_GOOGLE_ENABLED', 'true')
     expect(isGoogleAuthEnabled()).toBe(false)
   })
