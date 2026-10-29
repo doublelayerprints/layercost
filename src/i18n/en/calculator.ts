@@ -209,7 +209,7 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'import.error.NOT_A_3MF':
     'This file does not look like a valid .3mf. Choose a file exported by the slicer.',
   'import.error.ARCHIVE_TOO_LARGE':
-    'The file exceeds the size limits. Export a single plate or reduce the project.',
+    'The file exceeds the size limits ({compressed} compressed, {uncompressed} uncompressed). Export a single plate or reduce the project.',
   'import.error.TOO_MANY_ENTRIES': 'The archive contains too many files. Export a single plate.',
   'import.error.UNSAFE_PATH': 'The archive contains unsafe paths and cannot be imported.',
   'import.error.ENCRYPTED_ENTRY': 'The archive is password protected. Export an unencrypted .3mf.',

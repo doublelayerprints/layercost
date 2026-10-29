@@ -145,7 +145,7 @@ Il parser sta in `src/data/three-mf/` ed è collegato al calcolatore tramite `sr
 - `three-mf-mapping.ts` — `proposeThreeMfMapping` propone stampante/materiali senza creare entità; `mapThreeMfToLines` converte i piatti selezionati in `PrintLine[]` con ID iniettati. I grammi si sommano per materiale scelto, senza supplementi AMS/ACE.
 - **`fflate` 0.8.3** — dipendenza runtime per ZIP/DEFLATE, scelta per peso e API sincrona, senza dipendenze native. Nota tecnica richiesta da ADR-0017.
 
-Limiti predefiniti: 100 MB compressi, 500 MB decompressi totali, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per il fallback G-code. Il file non viene mai caricato e nessun dato esce dal browser.
+Limiti predefiniti: 250 MiB compressi, 1 GiB decompresso totale, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per il fallback G-code. Il file non viene mai caricato e nessun dato esce dal browser.
 
 Il parser non cambia `schemaVersion`, `engineVersion`, snapshot o `AppData`.
 

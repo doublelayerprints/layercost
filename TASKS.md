@@ -827,7 +827,9 @@ Sottotask:
 
 **Nota:** chiuso il 26/10/2026. Implementati `src/data/three-mf/` (indice ZIP, estrazione sicura, XML, fallback G-code, worker) e `src/domain/three-mf.ts` (`ThreeMfSummary`, piatti, filamenti, avvisi). Dipendenze runtime: `fflate` 0.8.3 per ZIP/DEFLATE e `@xmldom/xmldom` nel Web Worker, dove `DOMParser` non è disponibile; nel thread principale resta il `DOMParser` nativo.
 
-**Sicurezza:** 100 MB compressi, 500 MB decompressi totali, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per fallback G-code; rifiutati cifratura, path traversal, ZIP64, duplicati e compressioni non supportate. DOCTYPE/ENTITY rifiutati. Nessun upload o chiamata di rete.
+**Sicurezza:** 250 MiB compressi, 1 GiB decompresso totale, 10.000 entry, 100 piatti, 10 MB per metadato, 64 MB per fallback G-code; rifiutati cifratura, path traversal, ZIP64, duplicati e compressioni non supportate. DOCTYPE/ENTITY rifiutati. Nessun upload o chiamata di rete.
+
+**Aggiornamento 29/10/2026:** limite compresso portato da 100 MiB a **250 MiB** e decompresso da 500 MiB a **1 GiB** per accettare un `.gcode.3mf` reale da 153 MB. Il messaggio `ARCHIVE_TOO_LARGE` mostra le soglie correnti. Test in `limits.test.ts` e `three-mf-messages.test.ts`; `npm run check` e gli 8 E2E di import verdi.
 
 **Test:** 18 nuovi test in `src/data/three-mf/parse.test.ts` (60 unitari totali): fixture Kobra 3, Kobra X e multi-piatto, Bambu sintetico, progetto non slicato, XML/DOCTYPE, project_settings, pesi, materiali, fallback G-code, limiti, path traversal e cifratura. Il worker viene costruito da Vite in un chunk separato; il test browser arriva con l'E2E di T5.3.4.
 
