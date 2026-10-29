@@ -62,6 +62,7 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
     await page.goto('/#/settings')
     await expect(page.getByRole('heading', { name: 'Sincronizzazione' })).toBeVisible()
     await expect(page.getByText(account.email)).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Collega Google' })).toBeVisible()
     await audit(page)
 
     await page.reload()
@@ -94,4 +95,30 @@ test('mostra un errore con credenziali errate', async ({ page }) => {
   } finally {
     await deleteUser(account.id)
   }
+})
+
+test('Google: apre il provider e gestisce l’annullamento', async ({ page }) => {
+  let authorizeUrl = ''
+
+  await page.goto('/#/login')
+  const appOrigin = new URL(page.url()).origin
+
+  await page.route('**/auth/v1/authorize**', async (route) => {
+    authorizeUrl = route.request().url()
+    await route.fulfill({
+      status: 302,
+      headers: { location: `${appOrigin}/?error=access_denied` },
+    })
+  })
+
+  const googleButton = page.getByRole('button', { name: 'Continua con Google' })
+  await expect(googleButton).toBeVisible()
+  await googleButton.click()
+
+  await page.waitForURL(/#\/login$/)
+  await expect(page.getByRole('alert')).toContainText('Accesso con Google annullato.')
+
+  const url = new URL(authorizeUrl)
+  expect(url.searchParams.get('provider')).toBe('google')
+  expect(url.searchParams.get('redirect_to')).toBe(`${appOrigin}/`)
 })

@@ -18,6 +18,7 @@ import { ExtrasPage } from '@/features/extras/ExtrasPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { ComparePage } from '@/features/compare/ComparePage'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { OAuthCallbackRedirect } from '@/features/auth/OAuthCallbackRedirect'
 import { SyncController } from '@/features/sync/SyncController'
 import { FirstLoginDialog } from '@/features/sync/FirstLoginDialog'
 import { SyncConflictDialog } from '@/features/sync/SyncConflictDialog'
@@ -28,6 +29,7 @@ export default function App() {
   const hydrated = useAppStore((state) => state.hydrated)
   const adoptLocale = useAppStore((state) => state.adoptLocale)
   const initializeAuth = useAuthStore((state) => state.initialize)
+  const resetOAuth = useAuthStore((state) => state.resetOAuth)
   const locale = useLocaleStore((state) => state.locale)
 
   useEffect(() => {
@@ -37,6 +39,14 @@ export default function App() {
   useEffect(() => {
     void initializeAuth()
   }, [initializeAuth])
+
+  // If the user comes back from Google with the browser back button, the
+  // redirect state can survive in the bfcache; re-enable the buttons.
+  useEffect(() => {
+    const handlePageShow = () => resetOAuth()
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [resetOAuth])
 
   useEffect(() => {
     if (hydrated) adoptLocale(locale)
@@ -50,6 +60,7 @@ export default function App() {
         <FirstLoginDialog />
         <SyncConflictDialog />
         <HashRouter>
+          <OAuthCallbackRedirect />
           <Routes>
             <Route element={<Layout />}>
               <Route index element={<CalculatorPage />} />

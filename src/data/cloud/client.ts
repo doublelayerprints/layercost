@@ -20,6 +20,15 @@ export function isCloudConfigured(): boolean {
   return readCloudConfig() !== undefined
 }
 
+/**
+ * Public build-time flag for the Google button. It stays off by default so a
+ * deploy made before the Supabase provider is configured never shows a broken
+ * login option. Set `VITE_AUTH_GOOGLE_ENABLED=true` after the provider works.
+ */
+export function isGoogleAuthEnabled(): boolean {
+  return isCloudConfigured() && import.meta.env.VITE_AUTH_GOOGLE_ENABLED === 'true'
+}
+
 let clientPromise: Promise<SupabaseClient<Database>> | undefined
 
 /**
@@ -37,6 +46,9 @@ export function loadSupabaseClient(): Promise<SupabaseClient<Database>> {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
+        // PKCE keeps the OAuth response in the query string, so HashRouter
+        // can keep owning the fragment. The code is exchanged in auth-store.
+        flowType: 'pkce',
       },
     }),
   )
