@@ -1,6 +1,6 @@
 # Evolutive — Google login, richiesta accesso, landing pubblica, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato in locale il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato, configurato e distribuito il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-2–EVO-4 proposte
 **Data:** 30 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
 **Piano collegato:** `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-5-landing-page.md`, `docs/planning/evo-6-docs-feedback.md`
@@ -452,7 +452,7 @@ Per il modello B serve:
 ## 5B. EVO-6 — Documentazione in-app e Suggerimenti
 
 **Obiettivo:** rendere LayerCost consultabile dentro l’app e dare un canale semplice per inviare miglioramenti o segnalazioni, senza backend e senza dati dell’app.
-**Stato:** implementato in locale il 30/10/2026 (ADR-0030); deploy e configurazione Formspree di produzione da fare.
+**Stato:** implementato, configurato e distribuito in produzione il 30/10/2026 (ADR-0030, PR #36, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`); form Formspree e env pronti, Restrict to Domain attivo, submission di test verificata; restano submission di produzione e pulizia della submission di test.
 **Stima:** 1–2 giorni.
 **Dipende da:** un nuovo form Formspree Free e una env pubblica.
 **Piano:** `docs/planning/evo-6-docs-feedback.md`.

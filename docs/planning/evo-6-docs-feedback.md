@@ -1,6 +1,6 @@
 # EVO-6 — Documentazione in-app e pagina “Suggerimenti”
 
-**Stato:** implementato e configurato in locale il 30/10/2026; form Formspree di produzione e test creati, env impostata in `.env.local` e su Vercel, submission di test verificata; deploy da fare
+**Stato:** implementato, configurato e distribuito in produzione il 30/10/2026 (PR #36, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`); form Formspree e env pronti, Restrict to Domain attivo, submission di test verificata; restano submission di produzione e pulizia di quella di test
 **ADR:** `docs/adr/0030-docs-and-feedback.md`
 **Relazione:** estende il pattern Formspree di EVO-3a/ADR-0026; non cambia formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync
 
@@ -89,7 +89,7 @@ La pagina Suggerimenti deve inviare solo i campi del modulo, senza creare accoun
 - [x] Testo privacy: Formspree, USA, 30 giorni, soli campi del modulo.
 - [x] Endpoint mancante → modulo disabilitato con messaggio esplicito.
 - [x] Creare il form Formspree di produzione e test, impostare la env su Vercel e verificare una submission sul form di test.
-- [ ] Applicare **Restrict to Domain = `layercost.vercel.app`** al form di produzione.
+- [x] Applicare **Restrict to Domain = `layercost.vercel.app`** al form di produzione.
 - [ ] Verificare una submission reale sul form di produzione dopo il deploy.
 
 ### EVO-6.5 — Test e budget
@@ -109,7 +109,7 @@ La pagina Suggerimenti deve inviare solo i campi del modulo, senza creare accoun
 - [x] ADR-0030 e questo piano.
 - [x] README, TASKS, STATUS, CHANGELOG, deployment, testing e i18n inventory.
 - [x] `.env.example`.
-- [ ] Deploy Vercel e verifica produzione (docs, feedback, smoke).
+- [x] Deploy Vercel e verifica produzione (docs, feedback, smoke).
 - [ ] Pulizia delle submission di prova dal form Formspree.
 
 ## 5. Accettazione
@@ -124,7 +124,7 @@ La pagina Suggerimenti deve inviare solo i campi del modulo, senza creare accoun
 - [ ] Deploy Vercel e verifica produzione (docs, feedback, smoke).
 - [x] Configurazione Formspree di produzione/test e env Vercel.
 - [x] Submission reale sul form di test.
-- [ ] Submission reale sul form di produzione e deploy.
+- [ ] Submission reale sul form di produzione.
 
 ## 6. Comandi
 

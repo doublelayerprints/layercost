@@ -1,6 +1,6 @@
 # Suggerimenti — configurazione e gestione
 
-**Stato:** form Formspree di produzione e test creati, `VITE_FEEDBACK_ENDPOINT` configurata in `.env.local` e su Vercel (Production/Preview/Development), submission reale sul form di test verificata il 30/10/2026; deploy dell'app da fare
+**Stato:** distribuito in produzione il 30/10/2026 (PR #36, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`); form Formspree di produzione e test creati, `VITE_FEEDBACK_ENDPOINT` configurata in `.env.local` e su Vercel (Production/Preview/Development), Restrict to Domain attivo e submission reale sul form di test verificata; submission di produzione da fare
 **ADR:** `docs/adr/0030-docs-and-feedback.md`
 **Piano:** `docs/planning/evo-6-docs-feedback.md`
 **Pagina:** `/#/feedback`
@@ -32,7 +32,7 @@ Servono **due progetti/form separati**:
 1. **Produzione** — form reale, con **Restrict to Domain = `layercost.vercel.app`**.
 2. **Test** — form separato, senza restrizione, usato da `localhost` e dalle preview. Non usare il form di produzione in locale: finirebbe spam e mescolerebbe le submission.
 
-I due form sono già stati creati il 30/10/2026. Gli endpoint sono configurati in `.env.local` (test) e su Vercel: **Production** usa il form reale, **Preview/Development** il form di test. La submission reale sul form di test è stata verificata dall'app; resta da verificare quella di produzione dopo il deploy e da cancellare la submission di test.
+I due form sono già stati creati il 30/10/2026. Gli endpoint sono configurati in `.env.local` (test) e su Vercel: **Production** usa il form reale, **Preview/Development** il form di test. Restrict to Domain è attivo sul form di produzione. La submission reale sul form di test è stata verificata dall'app; resta da verificare quella di produzione dopo il deploy e da cancellare la submission di test.
 
 Per ogni form:
 
@@ -83,7 +83,7 @@ Verifica manuale dopo il deploy:
 4. Controlla che non ci siano scritture Supabase.
 5. Cancella la submission di prova.
 
-La submission sul form di test è già stata verificata: la pagina ha mostrato “Suggerimento inviato” e la notifica è arrivata. La submission di test va cancellata dal dashboard Formspree. La submission sul form di produzione va fatta solo dopo il deploy, quando Vercel userà l’endpoint di produzione.
+La submission sul form di test è già stata verificata: la pagina ha mostrato “Suggerimento inviato” e la notifica è arrivata. La submission di test va cancellata dal dashboard Formspree. La submission sul form di produzione va fatta dopo il deploy (ora attivo), quando Vercel usa l’endpoint di produzione.
 
 ## 6. Rollback
 
