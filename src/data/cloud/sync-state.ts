@@ -71,29 +71,56 @@ function parseState(raw: string): SyncLocalState | undefined {
   }
 }
 
-export function loadSyncState(): SyncLocalState {
+/** One outbox and one metadata map per workspace. */
+export function syncStateKey(workspaceId: string): string {
+  return `${SYNC_STATE_KEY}:${workspaceId}`
+}
+
+export function loadSyncState(workspaceId: string): SyncLocalState {
   const storage = getStorage()
   if (!storage) return emptySyncState()
-  const raw = storage.getItem(SYNC_STATE_KEY)
+  const key = syncStateKey(workspaceId)
+  const raw = storage.getItem(key)
   if (!raw) return emptySyncState()
   const state = parseState(raw)
   if (!state) {
-    storage.removeItem(SYNC_STATE_KEY)
+    storage.removeItem(key)
     return emptySyncState()
   }
-  return state
+  return { ...state, workspaceId }
 }
 
-export function saveSyncState(state: SyncLocalState): void {
+export function saveSyncState(workspaceId: string, state: SyncLocalState): void {
   const storage = getStorage()
   if (!storage) return
   try {
-    storage.setItem(SYNC_STATE_KEY, JSON.stringify(state))
+    storage.setItem(syncStateKey(workspaceId), JSON.stringify({ ...state, workspaceId }))
   } catch {
     // The app keeps working in local mode; the next successful write retries.
   }
 }
 
-export function clearSyncState(): void {
-  getStorage()?.removeItem(SYNC_STATE_KEY)
+export function clearSyncState(workspaceId: string): void {
+  getStorage()?.removeItem(syncStateKey(workspaceId))
+}
+
+/**
+ * Moves the pre-multi-workspace outbox to the first workspace it belonged to.
+ * The legacy state carries its own `workspaceId`, so it is never replayed by
+ * an unrelated workspace.
+ */
+export function migrateLegacySyncState(workspaceId: string): void {
+  const storage = getStorage()
+  if (!storage) return
+  const legacy = storage.getItem(SYNC_STATE_KEY)
+  if (!legacy) return
+
+  const state = parseState(legacy)
+  if (!state || (state.workspaceId !== undefined && state.workspaceId !== workspaceId)) return
+
+  const key = syncStateKey(workspaceId)
+  if (!storage.getItem(key)) {
+    storage.setItem(key, JSON.stringify({ ...state, workspaceId }))
+  }
+  storage.removeItem(SYNC_STATE_KEY)
 }

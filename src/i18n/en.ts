@@ -7,6 +7,7 @@ import { catalogsEn } from './en/catalogs'
 import { miscEn } from './en/misc'
 import { quotesEn } from './en/quotes'
 import { settingsEn } from './en/settings'
+import { workspaceEn } from './en/workspace'
 import { xlsxEn } from './en/xlsx'
 import type { BaseMessageKey, Messages } from './it'
 
@@ -127,4 +128,5 @@ export const en: Messages = {
   ...accessEn,
   ...landingEn,
   ...feedbackEn,
+  ...workspaceEn,
 }

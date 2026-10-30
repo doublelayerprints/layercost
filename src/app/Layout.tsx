@@ -6,6 +6,7 @@ import { QuickPreferences } from '@/app/QuickPreferences'
 import { useAppStore, type AppWarning } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
 import { SyncIndicator } from '@/features/sync/SyncIndicator'
+import { WorkspaceSwitcher } from '@/features/workspace/WorkspaceSwitcher'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
@@ -120,6 +121,7 @@ function MobileHeader() {
           aria-label={t('nav.main')}
         >
           <NavItems mobile onNavigate={() => setMenuOpen(false)} />
+          <WorkspaceSwitcher mobile />
           <div className="mt-3 border-t border-line pt-2">
             <SyncIndicator mobile />
           </div>
@@ -173,6 +175,7 @@ export function Layout() {
         <div className="px-2">
           <Logo />
         </div>
+        <WorkspaceSwitcher />
         <nav className="mt-2 flex-1 overflow-y-auto" aria-label={t('nav.main')}>
           <NavItems />
         </nav>

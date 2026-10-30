@@ -61,15 +61,17 @@ La pagina “Richiedi accesso” (EVO-3a, ADR-0026) usa un form **Formspree Free
 
 La pagina “Suggerimenti” (EVO-6, ADR-0030) usa un secondo form **Formspree Free**, separato da quello delle richieste di accesso. L’endpoint pubblico si configura con `VITE_FEEDBACK_ENDPOINT=https://formspree.io/f/<id>`: **Production** usa il form reale, **Preview/Development** e `.env.local` il form di test. Se la variabile manca o non è un URL Formspree valido, `/#/feedback` mostra “Modulo non disponibile” e disabilita il form. Il form di produzione va ristretto a `layercost.vercel.app`; il piano Free ha 50 invii/mese, archivio 30 giorni e nessuna autoresponse. Il payload contiene solo tipo, area, titolo, descrizione, email opzionale, consenso e `_gotcha`; nessun dato dell’app. Rollback: rimuovere la env o svuotarla. Dettagli in `docs/planning/evo-6-docs-feedback.md` e ADR-0030.
 
-Gli E2E sync si eseguono con `npm run test:e2e:sync`. Lo script **azzera il database locale** (`supabase db reset`), builda con le credenziali pubbliche, crea utenti e workspace temporanei via Admin API, esegue i test a due contesti, offline/conflitto e isolamento, e pulisce con `psql`. Richiede `psql` nel PATH e non va eseguito contro un progetto remoto. Il workspace condiviso di test usa gli ID seed; il workspace separato usa dati propri e ID univoci, perché gli ID delle entità sono globali. L'azzeramento evita collisioni tra esecuzioni.
+Gli E2E sync si eseguono con `npm run test:e2e:sync`. Lo script **azzera il database locale** (`supabase db reset`), builda con le credenziali pubbliche, crea utenti e workspace temporanei via Admin API, esegue i test su spazi separati, inviti, due contesti, offline/conflitto e isolamento, e pulisce con `psql`. Richiede `psql` nel PATH e non va eseguito contro un progetto remoto. Con le PK `(workspace_id, id)` ogni spazio di test può riusare gli stessi ID di seed; l'azzeramento evita comunque collisioni tra esecuzioni.
 
-Le migrazioni `20261028130000_service_role_grants.sql` e `20261028140000_admin_last_owner.sql` servono solo agli script amministrativi: il service role non è mai usato dal client e `protect_last_owner` continua a bloccare gli utenti autenticati. La creazione di workspace e membership resta amministrativa: SQL, verifica RLS, reset password e offboarding sono in `docs/engineering/workspace-runbook.md` (T5.4.5).
+Le migrazioni `20261028130000_service_role_grants.sql` e `20261028140000_admin_last_owner.sql` servono solo agli script amministrativi: il service role non è mai usato dal client e `protect_last_owner` continua a bloccare gli utenti autenticati. La creazione di workspace condivisi e membership resta amministrativa o passa dal codice invito: SQL, verifica RLS, reset password e offboarding sono in `docs/engineering/workspace-runbook.md`.
+
+La migrazione `20261030120000_multi_workspace.sql` (ADR-0028) introduce le PK `(workspace_id, id)`, `workspaces.kind`, `workspace_invites` e le RPC degli spazi. **Va applicata in produzione prima del client**: il deploy precedente continua a funzionare su `ws-doublelayer`, mentre il client nuovo richiede le RPC. Backup `pg_dump` obbligatorio prima dell'applicazione. La migrazione è **one-way**: dopo la creazione di nuovi spazi non si ricostruiscono le vecchie PK globali senza deduplica; il rollback è applicativo (deployment precedente) e i dati si ripristinano solo dal backup.
 
 Operazioni automatiche (T5.4.6):
 
 - `.github/workflows/keepalive.yml` chiama ogni giorno la RPC `keepalive()` con la chiave pubblicabile e apre un issue se fallisce.
 - `.github/workflows/backup.yml` esegue un `pg_dump` settimanale data-only via session pooler, cifra gli archivi con `BACKUP_ENCRYPTION_KEY` e li conserva come artifact per 30 giorni. Procedura e restore verificato in `docs/engineering/backup-restore.md`.
-- La CI GitHub esegue anche il job `database`: Supabase locale, 33 test pgTAP/RLS, E2E auth e E2E sync. Non usa segreti di produzione.
+- La CI GitHub esegue anche il job `database`: Supabase locale, 74 test pgTAP/RLS, E2E auth e E2E sync. Non usa segreti di produzione.
 - Secret GitHub richiesti per le operazioni: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_DB_URL`, `BACKUP_ENCRYPTION_KEY`.
 
 ## 2. Header
@@ -157,6 +159,7 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - Vercel: “Promote to Production” su un deployment precedente.
 - GitHub Pages: rieseguire il workflow su un commit precedente.
 - Dati: importare il backup JSON scaricato prima della release.
+- Multi-workspace (ADR-0028): la migrazione `20261030120000_multi_workspace.sql` è one-way. Il client precedente resta compatibile con lo schema nuovo su `ws-doublelayer`; per tornare indietro si promuove il deployment precedente, non si annulla la migrazione. Un ripristino del database usa il `pg_dump` e perde gli spazi creati dopo il backup.
 
 ## 11. Stato attuale
 

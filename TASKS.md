@@ -1224,7 +1224,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e distribuito il 30/10/2026; EVO-6 implementato, configurato e distribuito il 30/10/2026; EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e distribuito il 30/10/2026; EVO-6 implementato, configurato e distribuito il 30/10/2026; EVO-4 implementato e verificato in locale il 30/10/2026 (deploy da fare); EVO-2–EVO-3b proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login
@@ -1281,14 +1281,18 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - Eventuale tetto globale utenti.
 - Google per gli invitati, email/password come fallback admin.
 
-## EVO-4 — Multi-workspace
+## EVO-4 — Spazi separati (multi-workspace)
 
-**Stato:** `[ ]`
-**Dipende da:** decisione esplicita e ADR-0028
+**Stato:** `[x]` — implementato e verificato in locale il 30/10/2026; deploy in produzione da fare
+**Dipende da:** —
+**ADR:** 0028
+**Piano:** `docs/planning/evo-4-multi-workspace.md`
 
-- Un workspace per cliente/team, con onboarding, inviti e switcher.
-- Migrazione PK `(workspace_id, id)` o ID globali; sync/cache per workspace.
-- Solo se l'apertura non è più “più membri nello stesso archivio”.
+- **Risultato:** PK `(workspace_id, id)` su tariffe, stampanti, materiali, extra e preventivi; `workspaces.kind` (`personal`/`shared`), `workspace_invites`, RPC `create_workspace`, `ensure_personal_workspace`, `create_invite`, `revoke_invite`, `redeem_invite`, `list_my_workspaces`, `list_workspace_members`, `list_workspace_invites`, `leave_workspace`; tetti 10 spazi condivisi e 20 membri.
+- **Client:** gateway con filtri `workspace_id`, cache/outbox per spazio (`layercost:cloud-cache:<id>`, `layercost:sync-state:<id>`), spazio attivo in `layercost:active-workspace`, `pending-seed` per i nuovi spazi, switch con flush e guardia di generazione, nessun dialogo di primo accesso quando si cambia spazio.
+- **UI:** selettore in sidebar e menu mobile, sezione **Spazio** in Impostazioni con nome, membri, inviti e uscita, dialogo codice invito, i18n IT/EN.
+- **Verifiche:** `npm run check` verde; 289 unitari; 74 asserzioni `db:test` (33 + 41); 61 E2E default; 3 E2E auth; 5 E2E sync (spazi, inviti, offline, conflitto, isolamento); budget JS iniziale 226,6/230 KB.
+- **Da fare:** backup di produzione, applicare la migrazione prima del client, deploy, `smoke:production`, verifica manuale dei due account e aggiornamento di `CHANGELOG.md`/STATUS alla release.
 
 ## EVO-5 — Landing page pubblica
 

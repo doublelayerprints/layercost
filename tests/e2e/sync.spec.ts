@@ -289,6 +289,100 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
   }
 })
 
+test('crea un secondo spazio e isola i preventivi', async ({ page }) => {
+  const account = await createUser('multi')
+  const workspaceId = await createWorkspace([account])
+
+  try {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await login(page, account)
+    await page.goto('/#/settings')
+    await waitForSynced(page)
+
+    await page.getByRole('button', { name: 'Nuovo spazio' }).click()
+    const createDialog = page.getByRole('dialog', { name: 'Crea uno spazio' })
+    await createDialog.getByLabel('Nome dello spazio').fill('Secondo spazio')
+    await createDialog.getByRole('button', { name: 'Crea spazio' }).click()
+    await expect(page.getByLabel('Spazio attivo').first()).toHaveValue(/.+/)
+    await waitForSynced(page)
+    await expect(
+      page.getByRole('main').getByText('Secondo spazio', { exact: true }).first(),
+    ).toBeVisible()
+
+    await page.goto('/#/calculator')
+    await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
+    await page.getByLabel('Nome preventivo').fill('Solo secondo spazio')
+    await page.keyboard.press('Enter')
+    await page.locator('input[aria-label="Ore"]').first().fill('1')
+    await page.locator('input[aria-label="Grammi materiale 1"]').fill('10')
+    await page.getByRole('button', { name: 'Salva preventivo' }).click()
+    await page.waitForURL(/#\/quotes\/.+/)
+
+    await page.goto('/#/settings')
+    await page.getByLabel('Spazio attivo').first().selectOption({ label: 'E2E workspace' })
+    await waitForSynced(page)
+    await page.goto('/#/quotes')
+    await expect(page.getByText('Solo secondo spazio')).toHaveCount(0)
+
+    await page.goto('/#/settings')
+    await page.getByLabel('Spazio attivo').first().selectOption({ label: 'Secondo spazio' })
+    await waitForSynced(page)
+    await page.goto('/#/quotes')
+    await expect(page.getByText('Solo secondo spazio').first()).toBeVisible()
+  } finally {
+    deleteWorkspace(workspaceId)
+    await deleteUser(account.id)
+  }
+})
+
+test('un invito aggiunge un utente allo spazio condiviso', async ({ browser, page }) => {
+  const owner = await createUser('invite-owner')
+  const guest = await createUser('invite-guest')
+  const workspaceId = await createWorkspace([owner])
+  const guestContext = await (browser as Browser).newContext()
+  const guestPage = await guestContext.newPage()
+
+  try {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await login(page, owner)
+    await page.goto('/#/settings')
+    await waitForSynced(page)
+
+    await page.goto('/#/calculator')
+    await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
+    await page.getByLabel('Nome preventivo').fill('Visibile agli invitati')
+    await page.keyboard.press('Enter')
+    await page.locator('input[aria-label="Ore"]').first().fill('1')
+    await page.locator('input[aria-label="Grammi materiale 1"]').fill('10')
+    await page.getByRole('button', { name: 'Salva preventivo' }).click()
+    await page.waitForURL(/#\/quotes\/.+/)
+
+    await page.goto('/#/settings')
+    await waitForSynced(page)
+    await page.getByRole('button', { name: 'Crea invito' }).click()
+    const token = (await page.locator('code').first().textContent())?.trim()
+    expect(token).toBeTruthy()
+
+    await guestPage.setViewportSize({ width: 1440, height: 900 })
+    await login(guestPage, guest)
+    await guestPage.goto('/#/settings')
+    await waitForSynced(guestPage)
+
+    await guestPage.getByRole('button', { name: 'Hai un codice invito?' }).click()
+    const redeemDialog = guestPage.getByRole('dialog', { name: 'Usa un codice invito' })
+    await redeemDialog.getByLabel('Codice invito').fill(token ?? '')
+    await redeemDialog.getByRole('button', { name: 'Entra nello spazio' }).click()
+    await waitForSynced(guestPage)
+
+    await guestPage.goto('/#/quotes')
+    await expect(guestPage.getByText('Visibile agli invitati').first()).toBeVisible()
+  } finally {
+    await guestContext.close()
+    deleteWorkspace(workspaceId)
+    await Promise.all([deleteUser(owner.id), deleteUser(guest.id)])
+  }
+})
+
 test('un utente senza membership o di un altro workspace non vede i dati condivisi', async ({
   browser,
   page,
@@ -322,13 +416,12 @@ test('un utente senza membership o di un altro workspace non vede i dati condivi
     await page.goto('/#/settings')
     await waitForSynced(page)
 
-    // Authenticated but not a member: the app stays local and explains why.
+    // Authenticated without an admin workspace: the app creates a personal one.
     await outsiderPage.setViewportSize({ width: 1440, height: 900 })
     await login(outsiderPage, outsider)
     await outsiderPage.goto('/#/settings')
-    await expect(outsiderPage.getByText(/non è associato a un workspace/)).toBeVisible({
-      timeout: 20_000,
-    })
+    await waitForSynced(outsiderPage)
+    await expect(outsiderPage.getByLabel('Spazio attivo').first()).toBeVisible()
     await audit(outsiderPage)
     await outsiderPage.goto('/#/quotes')
     await expect(outsiderPage.getByText('Solo workspace condiviso')).toHaveCount(0)

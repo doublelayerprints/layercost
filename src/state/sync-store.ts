@@ -1,11 +1,12 @@
 import { create } from 'zustand'
 import type { Quote } from '@/domain/types'
 import type { AppData } from '@/data/storage'
-import { SCHEMA_VERSION } from '@/data/storage'
+import { createInitialData, SCHEMA_VERSION } from '@/data/storage'
 import { createEmptyDraft } from '@/data/seed'
 import {
   hasCloudCache,
   loadCloudCache,
+  migrateLegacyCloudCache,
   removeCloudCache,
 } from '@/data/cloud-cache'
 import { isCloudConfigured } from '@/data/cloud/client'
@@ -34,7 +35,13 @@ import {
   type SyncLocalState,
   type SyncOperation,
 } from '@/data/cloud/sync'
-import { clearSyncState, loadSyncState, saveSyncState } from '@/data/cloud/sync-state'
+import {
+  clearSyncState,
+  loadSyncState,
+  migrateLegacySyncState,
+  saveSyncState,
+} from '@/data/cloud/sync-state'
+import { consumeWorkspaceSeed, hasPendingWorkspaceSeed } from '@/data/workspace-preference'
 import { newId } from '@/lib/id'
 import { nowIso } from '@/lib/date'
 import { useAppStore, type AppMode } from './app-store'
@@ -83,7 +90,7 @@ export interface SyncState {
   firstLogin?: { kind: Exclude<FirstLoginChoice, 'cancel'> }
   error?: SyncErrorCode
 
-  connect: () => Promise<void>
+  connect: (workspaceId: string) => Promise<void>
   disconnect: () => Promise<void>
   syncNow: () => Promise<void>
   resolveFirstLogin: (choice: FirstLoginChoice) => Promise<void>
@@ -102,7 +109,7 @@ export interface SyncStoreDeps {
     getData: () => AppData
     getDraft: () => Quote
     getMode: () => AppMode
-    enterCloudMode: (data: AppData) => Promise<AppData>
+    enterCloudMode: (data: AppData, workspaceId: string) => Promise<AppData>
     applyCloudData: (data: AppData) => Promise<AppData>
     exitCloudMode: () => Promise<AppData>
     flushPersistence: () => Promise<void>
@@ -111,14 +118,20 @@ export interface SyncStoreDeps {
     subscribe: (listener: () => void) => () => void
   }
   local: {
-    hasCache: () => boolean
-    loadCache: () => AppData | undefined
-    removeCache: () => void
+    hasCache: (workspaceId: string) => boolean
+    loadCache: (workspaceId: string) => AppData | undefined
+    removeCache: (workspaceId: string) => void
+    migrateLegacy: (workspaceId: string) => void
   }
   syncState: {
-    load: () => SyncLocalState
-    save: (state: SyncLocalState) => void
-    clear: () => void
+    load: (workspaceId: string) => SyncLocalState
+    save: (workspaceId: string, state: SyncLocalState) => void
+    clear: (workspaceId: string) => void
+    migrateLegacy: (workspaceId: string) => void
+  }
+  seed: {
+    pending: (workspaceId: string) => boolean
+    consume: (workspaceId: string) => void
   }
   now: () => string
   newId: () => string
@@ -192,8 +205,9 @@ export function createSyncStore(deps: SyncStoreDeps) {
   let gatewayPromise: Promise<CloudGateway> | undefined
   let workspaceId: string | undefined
   let connectedUserId: string | undefined
-  let connecting: Promise<void> | undefined
-  let syncing: Promise<void> | undefined
+  let connectChain: Promise<void> = Promise.resolve()
+  let connectGeneration = 0
+  let syncing: { workspaceId: string; promise: Promise<void> } | undefined
   let unsubscribe: (() => void) | undefined
   let lastSeen: AppData | undefined
   let suppress = false
@@ -218,10 +232,12 @@ export function createSyncStore(deps: SyncStoreDeps) {
       return gatewayPromise
     }
 
-    const persistLocalState = (state: SyncLocalState): SyncLocalState => {
-      const next = workspaceId ? { ...state, workspaceId } : state
-      deps.syncState.save(next)
-      set({ pending: next.operations.length, lastSyncedAt: next.lastSyncedAt })
+    const persistLocalState = (target: string, state: SyncLocalState): SyncLocalState => {
+      const next: SyncLocalState = { ...state, workspaceId: target }
+      deps.syncState.save(target, next)
+      if (workspaceId === target) {
+        set({ pending: next.operations.length, lastSyncedAt: next.lastSyncedAt })
+      }
       return next
     }
 
@@ -247,7 +263,8 @@ export function createSyncStore(deps: SyncStoreDeps) {
           lastSeen = next
           return
         }
-        if (!workspaceId) return
+        const target = workspaceId
+        if (!target) return
         if (!lastSeen) {
           lastSeen = next
           return
@@ -256,13 +273,13 @@ export function createSyncStore(deps: SyncStoreDeps) {
         lastSeen = next
         if (changes.length === 0) return
 
-        const current = deps.syncState.load()
+        const current = deps.syncState.load(target)
         const updated = enqueueChanges(current, changes, {
-          workspaceId,
+          workspaceId: target,
           now: deps.now(),
           newId: deps.newId,
         })
-        persistLocalState(updated)
+        persistLocalState(target, updated)
         const status = get().status
         set({
           pending: updated.operations.length,
@@ -287,10 +304,10 @@ export function createSyncStore(deps: SyncStoreDeps) {
       }
     }
 
-    const enterCloud = async (data: AppData): Promise<AppData> => {
+    const enterCloud = async (data: AppData, target: string): Promise<AppData> => {
       suppress = true
       try {
-        const applied = await deps.app.enterCloudMode(data)
+        const applied = await deps.app.enterCloudMode(data, target)
         lastSeen = applied
         return applied
       } finally {
@@ -319,11 +336,12 @@ export function createSyncStore(deps: SyncStoreDeps) {
       }
     }
 
-    const pushQueue = async (): Promise<boolean> => {
-      if (!workspaceId || !gateway) return true
-      let operation = nextPendingOperation(deps.syncState.load())
+    const pushQueue = async (target: string): Promise<boolean> => {
+      if (!gateway) return true
+      let operation = nextPendingOperation(deps.syncState.load(target))
       while (operation) {
-        const result = await gateway.push(workspaceId, operation)
+        const result = await gateway.push(target, operation)
+        if (workspaceId !== target) return false
         if (!result.ok) {
           const conflict = buildConflict(operation, result)
           if (conflict) set({ status: 'conflict', conflict, conflictOpen: true })
@@ -331,23 +349,24 @@ export function createSyncStore(deps: SyncStoreDeps) {
         }
         // Reload after the request: the subscription may have queued a newer
         // change for the same entity while the push was in flight.
-        const state = ackPushedOperation(deps.syncState.load(), operation, result.updatedAt)
-        persistLocalState(state)
+        const state = ackPushedOperation(deps.syncState.load(target), operation, result.updatedAt)
+        persistLocalState(target, state)
         operation = nextPendingOperation(state)
       }
       return true
     }
 
-    const pullAndApply = async (): Promise<boolean> => {
-      if (!workspaceId || !gateway) return false
-      const snapshot = await gateway.pull(workspaceId)
-      const state = deps.syncState.load()
+    const pullAndApply = async (target: string): Promise<boolean> => {
+      if (!gateway) return false
+      const snapshot = await gateway.pull(target)
+      if (workspaceId !== target) return false
+      const state = deps.syncState.load(target)
       const remoteMetadata = metadataFromSnapshot(snapshot)
       const merged: SyncLocalState = {
         ...state,
         metadata: { ...state.metadata, ...remoteMetadata },
       }
-      deps.syncState.save(merged)
+      deps.syncState.save(target, merged)
 
       if (state.operations.length > 0) {
         set({ pending: state.operations.length, status: 'pending' })
@@ -367,27 +386,28 @@ export function createSyncStore(deps: SyncStoreDeps) {
       return true
     }
 
-    const runSync = async (): Promise<void> => {
-      if (syncing) return syncing
+    const runSyncFor = async (target: string): Promise<void> => {
+      if (syncing) return syncing.promise
       if (get().conflict || get().firstLogin) return
-      if (!workspaceId) return
+      if (!workspaceId || workspaceId !== target) return
       const auth = deps.auth()
       if (auth.status !== 'authenticated') {
         set({ status: 'idle' })
         return
       }
 
-      syncing = (async () => {
+      const promise = (async () => {
         set({ status: 'syncing', error: undefined })
         try {
           await deps.app.flushPersistence()
-          const pushed = await pushQueue()
-          if (!pushed) return
-          const applied = await pullAndApply()
-          if (!applied) return
+          if (workspaceId !== target) return
+          const pushed = await pushQueue(target)
+          if (!pushed || workspaceId !== target) return
+          const applied = await pullAndApply(target)
+          if (!applied || workspaceId !== target) return
           const now = deps.now()
-          const state = deps.syncState.load()
-          deps.syncState.save({ ...state, lastSyncedAt: now })
+          const state = deps.syncState.load(target)
+          deps.syncState.save(target, { ...state, lastSyncedAt: now })
           set({
             status: 'synced',
             lastSyncedAt: now,
@@ -395,16 +415,19 @@ export function createSyncStore(deps: SyncStoreDeps) {
             error: undefined,
           })
         } catch (error) {
-          handleError(error)
+          if (workspaceId === target) handleError(error)
         }
-      })().finally(() => {
-        syncing = undefined
-      })
+      })()
 
-      return syncing
+      syncing = { workspaceId: target, promise }
+      try {
+        await promise
+      } finally {
+        if (syncing?.promise === promise) syncing = undefined
+      }
     }
 
-    const connect = async (): Promise<void> => {
+    const doConnect = async (target: string): Promise<void> => {
       if (!deps.isConfigured()) {
         set({ status: 'disabled' })
         return
@@ -414,128 +437,156 @@ export function createSyncStore(deps: SyncStoreDeps) {
         set({ status: 'idle' })
         return
       }
-      if (workspaceId && connectedUserId === auth.userId) return
-      if (connecting) return connecting
+      if (workspaceId === target && connectedUserId === auth.userId) return
 
-      connecting = (async () => {
-        set({ status: 'connecting', error: undefined })
-        try {
-          const client = await ensureGateway()
-          const workspace = await client.resolveWorkspace()
-          const snapshot = await client.pull(workspace)
-
-          const previousState = deps.syncState.load()
-          const sameWorkspace =
-            previousState.workspaceId === undefined || previousState.workspaceId === workspace
-          if (!sameWorkspace) {
-            // Never replay another workspace's cache or outbox after an account switch.
-            deps.syncState.clear()
-            deps.local.removeCache()
-          }
-
-          const cache = deps.local.hasCache() ? deps.local.loadCache() : undefined
-          const decision = decideFirstLogin({
-            cloudEmpty: isCloudEmpty(snapshot),
-            hasCache: cache !== undefined,
-            localHasData: hasMeaningfulData(deps.app.getData()),
-          })
-
-          workspaceId = workspace
-          connectedUserId = auth.userId
-          const localState = deps.syncState.load()
-          persistLocalState(localState)
-
-          if (decision === 'promptImport' || decision === 'promptCloudWins') {
-            pendingFirstLogin = { workspaceId: workspace, snapshot }
-            set({
-              status: 'firstLogin',
-              workspaceId: workspace,
-              firstLogin: {
-                kind: decision === 'promptImport' ? 'importLocal' : 'cloudWins',
-              },
-            })
-            return
-          }
-
-          let data: AppData
-          if (decision === 'useCache' || decision === 'importCache') {
-            data = cache ?? deps.app.getData()
-          } else if (decision === 'importCurrent') {
-            data = deps.app.getData()
-          } else {
-            data = buildCloudData(snapshot, 'empty')
-          }
-
-          if (decision === 'importCache' || decision === 'importCurrent') {
-            const imported = await client.importAll(workspace, data)
-            await enterCloud(data)
-            startSubscription()
-            const now = deps.now()
-            persistLocalState({
-              ...emptySyncState(),
-              metadata: metadataFromSnapshot(imported),
-              lastSyncedAt: now,
-            })
-            set({
-              status: 'synced',
-              workspaceId: workspace,
-              pending: 0,
-              lastSyncedAt: now,
-              firstLogin: undefined,
-              error: undefined,
-            })
-            return
-          }
-
-          await enterCloud(data)
-          startSubscription()
-          set({
-            workspaceId: workspace,
-            pending: localState.operations.length,
-            firstLogin: undefined,
-          })
-          await runSync()
-        } catch (error) {
-          if (deps.app.getMode() !== 'cloud') {
-            workspaceId = undefined
-            connectedUserId = undefined
-          }
-          handleError(error)
-        } finally {
-          connecting = undefined
-        }
-      })()
-
-      return connecting
-    }
-
-    const disconnect = async (): Promise<void> => {
-      stopSubscription()
-      const wasCloud = deps.app.getMode() === 'cloud'
-      const state = deps.syncState.load()
-      workspaceId = undefined
-      connectedUserId = undefined
-      pendingFirstLogin = undefined
-      gateway = undefined
-      gatewayPromise = undefined
-
-      if (wasCloud) {
-        if (state.operations.length === 0) {
-          deps.syncState.clear()
-          deps.local.removeCache()
-        }
-        await deps.app.exitCloudMode()
+      const generation = ++connectGeneration
+      const guard = () => generation === connectGeneration
+      const activate = () => {
+        workspaceId = target
+        connectedUserId = auth.userId
       }
 
-      set({
-        status: 'idle',
-        workspaceId: undefined,
-        pending: 0,
-        conflict: undefined,
-        conflictOpen: false,
-        firstLogin: undefined,
-        error: undefined,
-      })
+      set({ status: 'connecting', error: undefined })
+
+      const previous = workspaceId
+      const previousUser = connectedUserId
+      const switching = deps.app.getMode() === 'cloud' && previous !== undefined && previous !== target
+      if (previous && previous !== target) {
+        // Best effort: the outbox is per workspace, so an offline switch is safe.
+        await runSyncFor(previous).catch(() => undefined)
+        if (!guard()) return
+        stopSubscription()
+        pendingFirstLogin = undefined
+        set({ conflict: undefined, conflictOpen: false, firstLogin: undefined })
+      }
+
+      deps.local.migrateLegacy(target)
+      deps.syncState.migrateLegacy(target)
+
+      try {
+        const client = await ensureGateway()
+        if (!guard()) return
+
+        const snapshot = await client.pull(target)
+        if (!guard()) return
+
+        const wantsSeed = deps.seed.pending(target)
+        const needsSeed = wantsSeed || (switching && isCloudEmpty(snapshot))
+
+        if (isCloudEmpty(snapshot) && needsSeed) {
+          const initial = createInitialData()
+          const imported = await client.importAll(target, initial)
+          if (!guard()) return
+          if (wantsSeed) deps.seed.consume(target)
+          activate()
+          await enterCloud(initial, target)
+          startSubscription()
+          const now = deps.now()
+          persistLocalState(target, {
+            ...emptySyncState(),
+            metadata: metadataFromSnapshot(imported),
+            lastSyncedAt: now,
+          })
+          set({
+            status: 'synced',
+            workspaceId: target,
+            pending: 0,
+            lastSyncedAt: now,
+            firstLogin: undefined,
+            error: undefined,
+          })
+          return
+        }
+
+        if (wantsSeed) deps.seed.consume(target)
+
+        const cache = deps.local.hasCache(target) ? deps.local.loadCache(target) : undefined
+        const decision = decideFirstLogin({
+          cloudEmpty: isCloudEmpty(snapshot),
+          hasCache: cache !== undefined,
+          localHasData: hasMeaningfulData(deps.app.getData()),
+        })
+
+        // A workspace switch is not a first login: the data in memory belongs
+        // to the previous workspace and must never be offered as "local data".
+        if (
+          !switching &&
+          (decision === 'promptImport' || decision === 'promptCloudWins')
+        ) {
+          activate()
+          pendingFirstLogin = { workspaceId: target, snapshot }
+          set({
+            status: 'firstLogin',
+            workspaceId: target,
+            firstLogin: {
+              kind: decision === 'promptImport' ? 'importLocal' : 'cloudWins',
+            },
+          })
+          return
+        }
+
+        let data: AppData
+        if (decision === 'useCache' || decision === 'importCache') {
+          data = cache ?? deps.app.getData()
+        } else if (decision === 'importCurrent') {
+          data = deps.app.getData()
+        } else {
+          data = buildCloudData(snapshot, 'empty')
+        }
+
+        if (decision === 'importCache' || decision === 'importCurrent') {
+          const imported = await client.importAll(target, data)
+          if (!guard()) return
+          activate()
+          await enterCloud(data, target)
+          startSubscription()
+          const now = deps.now()
+          persistLocalState(target, {
+            ...emptySyncState(),
+            metadata: metadataFromSnapshot(imported),
+            lastSyncedAt: now,
+          })
+          set({
+            status: 'synced',
+            workspaceId: target,
+            pending: 0,
+            lastSyncedAt: now,
+            firstLogin: undefined,
+            error: undefined,
+          })
+          return
+        }
+
+        activate()
+        await enterCloud(data, target)
+        startSubscription()
+        const localState = deps.syncState.load(target)
+        set({
+          workspaceId: target,
+          pending: localState.operations.length,
+          firstLogin: undefined,
+        })
+        await runSyncFor(target)
+      } catch (error) {
+        if (!guard()) return
+        // Never keep the target active if its data was not applied: queued
+        // changes would otherwise be pushed to the wrong workspace.
+        if (deps.app.getMode() !== 'cloud' || workspaceId !== target) {
+          workspaceId = previous
+          connectedUserId = previousUser
+        }
+        if (deps.app.getMode() !== 'cloud' && workspaceId !== previous) {
+          workspaceId = undefined
+          connectedUserId = undefined
+        }
+        handleError(error)
+      }
+    }
+
+    const connect = (target: string): Promise<void> => {
+      const run = connectChain.then(() => doConnect(target))
+      connectChain = run.catch(() => undefined)
+      return run
     }
 
     return {
@@ -550,13 +601,46 @@ export function createSyncStore(deps: SyncStoreDeps) {
 
       connect,
 
-      disconnect,
+      disconnect: async () => {
+        connectGeneration += 1
+        const active = workspaceId
+        stopSubscription()
+        const wasCloud = deps.app.getMode() === 'cloud'
+        const state = active ? deps.syncState.load(active) : emptySyncState()
+        workspaceId = undefined
+        connectedUserId = undefined
+        pendingFirstLogin = undefined
+        gateway = undefined
+        gatewayPromise = undefined
 
-      syncNow: runSync,
+        if (wasCloud) {
+          if (active && state.operations.length === 0) {
+            deps.syncState.clear(active)
+            deps.local.removeCache(active)
+          }
+          await deps.app.exitCloudMode()
+        }
+
+        set({
+          status: 'idle',
+          workspaceId: undefined,
+          pending: 0,
+          conflict: undefined,
+          conflictOpen: false,
+          firstLogin: undefined,
+          error: undefined,
+        })
+      },
+
+      syncNow: async () => {
+        if (!workspaceId) return
+        await runSyncFor(workspaceId)
+      },
 
       resolveFirstLogin: async (choice) => {
         const pending = pendingFirstLogin
         if (!pending) return
+        const target = pending.workspaceId
 
         if (choice === 'cancel') {
           pendingFirstLogin = undefined
@@ -574,20 +658,20 @@ export function createSyncStore(deps: SyncStoreDeps) {
         set({ status: 'syncing', error: undefined })
         try {
           const client = await ensureGateway()
+          const now = deps.now()
           if (choice === 'importLocal') {
             const current = deps.app.getData()
-            const imported = await client.importAll(pending.workspaceId, current)
-            await enterCloud(current)
+            const imported = await client.importAll(target, current)
+            await enterCloud(current, target)
             startSubscription()
-            const now = deps.now()
-            persistLocalState({
+            persistLocalState(target, {
               ...emptySyncState(),
               metadata: metadataFromSnapshot(imported),
               lastSyncedAt: now,
             })
             set({
               status: 'synced',
-              workspaceId: pending.workspaceId,
+              workspaceId: target,
               pending: 0,
               lastSyncedAt: now,
               firstLogin: undefined,
@@ -595,17 +679,16 @@ export function createSyncStore(deps: SyncStoreDeps) {
             })
           } else {
             const data = buildCloudData(pending.snapshot, 'empty')
-            await enterCloud(data)
+            await enterCloud(data, target)
             startSubscription()
-            const now = deps.now()
-            persistLocalState({
+            persistLocalState(target, {
               ...emptySyncState(),
               metadata: metadataFromSnapshot(pending.snapshot),
               lastSyncedAt: now,
             })
             set({
               status: 'synced',
-              workspaceId: pending.workspaceId,
+              workspaceId: target,
               pending: 0,
               lastSyncedAt: now,
               firstLogin: undefined,
@@ -620,31 +703,32 @@ export function createSyncStore(deps: SyncStoreDeps) {
 
       resolveConflict: async (choice) => {
         const conflict = get().conflict
-        if (!conflict) return
+        const target = workspaceId
+        if (!conflict || !target) return
         const latest = deps.syncState
-          .load()
+          .load(target)
           .operations.find((operation) => operation.id === conflict.operation.id)
         const operation = latest ?? conflict.operation
         set({ status: 'syncing', conflict: undefined, conflictOpen: false })
 
         try {
           if (choice === 'keepLocal') {
-            if (!workspaceId) return
             const client = await ensureGateway()
             const forced: SyncOperation = {
               ...operation,
               expectedUpdatedAt: conflict.remoteUpdatedAt,
               resurrect: remoteDeleted(conflict.remote) || operation.resurrect,
             }
-            const result = await client.push(workspaceId, forced)
+            const result = await client.push(target, forced)
+            if (workspaceId !== target) return
             if (!result.ok) {
               const next = buildConflict(operation, result)
               if (next) set({ status: 'conflict', conflict: next, conflictOpen: true })
               return
             }
-            const state = ackOperation(deps.syncState.load(), operation.id, result.updatedAt)
-            persistLocalState(state)
-            await runSync()
+            const state = ackOperation(deps.syncState.load(target), operation.id, result.updatedAt)
+            persistLocalState(target, state)
+            await runSyncFor(target)
             return
           }
 
@@ -652,9 +736,9 @@ export function createSyncStore(deps: SyncStoreDeps) {
             deps.app.duplicateQuote(operation.entityId)
           }
 
-          const state = dropOperation(deps.syncState.load(), operation.id)
-          persistLocalState(state)
-          await runSync()
+          const state = dropOperation(deps.syncState.load(target), operation.id)
+          persistLocalState(target, state)
+          await runSyncFor(target)
         } catch (error) {
           handleError(error)
         }
@@ -695,7 +779,8 @@ export const useSyncStore = createSyncStore({
     getData: () => dataFromState(useAppStore.getState()),
     getDraft: () => useAppStore.getState().draft,
     getMode: () => useAppStore.getState().mode,
-    enterCloudMode: (data) => useAppStore.getState().enterCloudMode(data),
+    enterCloudMode: (data, workspaceId) =>
+      useAppStore.getState().enterCloudMode(data, workspaceId),
     applyCloudData: (data) => useAppStore.getState().applyCloudData(data),
     exitCloudMode: () => useAppStore.getState().exitCloudMode(),
     flushPersistence: () => useAppStore.getState().flushPersistence(),
@@ -707,11 +792,17 @@ export const useSyncStore = createSyncStore({
     hasCache: hasCloudCache,
     loadCache: loadCloudCache,
     removeCache: removeCloudCache,
+    migrateLegacy: migrateLegacyCloudCache,
   },
   syncState: {
     load: loadSyncState,
     save: saveSyncState,
     clear: clearSyncState,
+    migrateLegacy: migrateLegacySyncState,
+  },
+  seed: {
+    pending: hasPendingWorkspaceSeed,
+    consume: consumeWorkspaceSeed,
   },
   now: nowIso,
   newId,

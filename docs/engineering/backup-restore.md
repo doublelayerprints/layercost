@@ -156,7 +156,7 @@ Il test conferma che l'ordine auth → public e l'assenza di `--disable-triggers
 - **Retention 30 giorni:** scarica periodicamente un artifact se vuoi conservarlo più a lungo.
 - **Chiave di cifratura:** se perdi `BACKUP_ENCRYPTION_KEY`, gli archivi sono irrecuperabili. Conservala nel password manager aziendale, fuori dal repository.
 - **Dati sensibili:** gli archivi contengono password hash, email e dati economici. Non caricarli su servizi pubblici e non committarli.
-- **Un solo workspace:** il backup contiene tutte le righe del database; il deployment previsto ha un solo workspace condiviso.
+- **Più workspace:** il backup contiene tutte le righe del database, spazi personali compresi. Con ADR-0028 gli ID delle entità sono univoci solo all'interno dello spazio; un restore completo conserva i workspace, mentre un import parziale deve rispettare `(workspace_id, id)`.
 - **Service role:** non viene usata dal workflow di backup e non deve entrare nel repository o nel bundle.
 
 ---

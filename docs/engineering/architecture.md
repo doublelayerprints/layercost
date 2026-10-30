@@ -94,22 +94,23 @@ src/
   features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding, auth, sync, access, landing, docs, feedback
   i18n/           it.ts, en.ts, index.ts
   lib/            format, date, id, share, labels, cn, theme, draft, xlsx
-  state/          app-store, auth-store, sync-store, persist-queue, theme-store, locale-store
+  state/          app-store, auth-store, sync-store, workspace-store, persist-queue, theme-store, locale-store
 ```
 
-Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts`, `auth.ts`, `oauth.ts`, `gateway.ts`, `sync.ts` e `sync-state.ts`; `data/cloud-cache.ts` implementa la cache connessa. `features/auth/LoginPage.tsx`, `features/auth/OAuthCallbackRedirect.tsx`, `features/settings/SyncSettings.tsx`, `features/sync/SyncController.tsx`, i dialoghi di primo login/conflitto, `state/auth-store.ts` e `state/sync-store.ts` sono implementati. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`. EVO-5 introduce `app/PublicLayout.tsx`, `app/AppShell.tsx`, `app/meta.ts`, `features/landing/` (componenti, contenuti, demo dal vivo, pre-render statico e test) e `data/visit.ts`. EVO-6 aggiunge `features/docs/` (contenuti, i18n locale, pagina e test) e `features/feedback/` (pagina, validazione/trasporto e test), più `public/docs/` e `scripts/capture-docs.mjs`.
+Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts`, `auth.ts`, `oauth.ts`, `gateway.ts`, `sync.ts` e `sync-state.ts`; `data/cloud-cache.ts` implementa la cache connessa. `features/auth/LoginPage.tsx`, `features/auth/OAuthCallbackRedirect.tsx`, `features/settings/SyncSettings.tsx`, `features/sync/SyncController.tsx`, i dialoghi di primo login/conflitto, `state/auth-store.ts` e `state/sync-store.ts` sono implementati. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`. EVO-5 introduce `app/PublicLayout.tsx`, `app/AppShell.tsx`, `app/meta.ts`, `features/landing/` (componenti, contenuti, demo dal vivo, pre-render statico e test) e `data/visit.ts`. EVO-6 aggiunge `features/docs/` (contenuti, i18n locale, pagina e test) e `features/feedback/` (pagina, validazione/trasporto e test), più `public/docs/` e `scripts/capture-docs.mjs`. EVO-4 aggiunge `features/workspace/` (selettore, pagina Spazio, messaggi), `state/workspace-store.ts` e `data/workspace-preference.ts`.
 
 Flusso connesso:
 
 ```text
 Supabase (RLS) ⇄ CloudGateway ⇄ SyncStore ⇄ AppStore ⇄ UI
                       │             │
-                      │             └── outbox + metadata (layercost:sync-state)
-                      └── cache cloud (layercost:cloud-cache)
+                      │             └── outbox + metadata per spazio (layercost:sync-state:<id>)
+                      └── cache cloud per spazio (layercost:cloud-cache:<id>)
 ```
 
-- Il pull completo è accettabile per due utenti; non c'è realtime.
+- Il pull completo è accettabile per pochi utenti; non c'è realtime.
 - Il push usa `updated_at` come controllo ottimistico; un conflitto ferma la coda e apre un dialogo esplicito.
+- Cache e outbox sono per workspace; il cambio spazio esegue il flush della coda attiva e non mescola le modifiche.
 - La cache cloud non sovrascrive `layercost:data`; al logout l'app torna ai dati ospite.
 - Gli script amministrativi usano il service role solo fuori dal browser (E2E, bootstrap, backup).
 

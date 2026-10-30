@@ -1,13 +1,13 @@
 # Workspace condiviso — runbook operativo
 
-**Stato:** T5.4.5 chiuso il 28/10/2026
-**Ambito:** creazione e manutenzione del workspace Supabase condiviso, utenti, membership, audit e isolamento
-**Decisione:** ADR-0024
-**Piano:** `docs/planning/t5.4-cloud-sync.md` §11
+**Stato:** T5.4.5 chiuso il 28/10/2026; spazi separati (EVO-4/ADR-0028) dal 30/10/2026
+**Ambito:** creazione e manutenzione degli spazi Supabase, utenti, membership, inviti, audit e isolamento
+**Decisione:** ADR-0024, ADR-0028
+**Piano:** `docs/planning/t5.4-cloud-sync.md` §11, `docs/planning/evo-4-multi-workspace.md`
 
 Questo runbook è la procedura amministrativa per il cloud opzionale di LayerCost. Non contiene password, chiavi o UUID reali: i valori tra `<...>` vanno sostituiti al momento dell'esecuzione e non vanno committati.
 
-**Stato produzione (28/10/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello workspace `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. Le email dei membri non sono nel repository. Dal 29/10/2026 è previsto anche il provider Google (EVO-1, ADR-0025): resta opzionale e si attiva con il flag pubblico `VITE_AUTH_GOOGLE_ENABLED`.
+**Stato produzione (30/10/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello spazio condiviso `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. Con ADR-0028 ogni utente ha anche uno spazio personale automatico e può appartenere a più spazi condivisi. Le email dei membri non sono nel repository. Dal 29/10/2026 è previsto anche il provider Google (EVO-1, ADR-0025): resta opzionale e si attiva con il flag pubblico `VITE_AUTH_GOOGLE_ENABLED`.
 
 ---
 
@@ -77,8 +77,9 @@ on conflict (workspace_id, user_id) do update set role = 'owner';
 Regole:
 
 - Entrambi gli utenti sono `owner`: possono leggere e modificare tutto l'archivio del workspace e gestire le membership.
-- La creazione di workspace e membership è **solo amministrativa**. Non esiste una UI di inviti o di registrazione.
-- Il workspace è uno solo. Gli ID delle entità sono primary key globali: due workspace nello stesso database con gli stessi ID seed colliderebbero (vedi `docs/domain/data-model.md` §7).
+- La creazione di workspace condivisi e membership è **solo amministrativa o via codice invito**. Non esiste una registrazione pubblica.
+- Il workspace condiviso ha `kind = 'shared'`; ogni utente riceve inoltre uno spazio personale `kind = 'personal'` al primo accesso autenticato.
+- Gli ID delle entità sono **PK `(workspace_id, id)`**: ogni spazio può riusare gli stessi ID di seed senza collisioni.
 - Non inserire password, token o service role key nel repository, in un issue o in un messaggio.
 
 ---
@@ -127,13 +128,23 @@ Ripetere con l'UUID dell'altro owner, con un utente di un altro workspace e con 
 
 ### 6.1 Aggiungere un membro
 
+Procedura normale, dalla UI:
+
+1. L'admin crea l'utente in `auth.users` (vedi §4.4 di `docs/engineering/access-requests.md`).
+2. Un `owner` apre **Impostazioni → Spazio → Inviti**, sceglie ruolo e durata, genera il codice.
+3. Consegna il codice a voce o con un canale sicuro: è monouso e scade.
+4. La persona accede con l'account creato e inserisce il codice da **Spazio attivo → Hai un codice invito?**.
+5. La RPC `redeem_invite` crea la membership. Se l'utente era già membro, il riscatto è idempotente e non consuma il codice.
+
+Fallback SQL, se la UI non è disponibile:
+
 ```sql
 insert into public.workspace_members (workspace_id, user_id, role)
 values ('ws-doublelayer', '<uuid-nuovo-utente>', 'editor')
 on conflict (workspace_id, user_id) do update set role = 'editor';
 ```
 
-Il ruolo può essere `owner` o `editor`. Nella prima iterazione entrambi i membri sono `owner`; usare `editor` solo se in futuro si vuole limitare la gestione delle membership. Il nuovo utente deve esistere in `auth.users` ed essere già confermato.
+Il ruolo può essere `owner` o `editor`. Il nuovo utente deve esistere in `auth.users` ed essere già confermato. Il tetto è 20 membri per spazio; il codice invito si revoca dalla stessa pagina o con `select public.revoke_invite('<id-invito>');`.
 
 Le richieste che arrivano dalla pagina pubblica `/#/request-access` **non** creano utenti, account o membership: vanno lette con `docs/engineering/access-requests.md`, valutate manualmente e, solo se accolte, seguono questa procedura. La notifica Formspree contiene l’email del richiedente in `_replyto`; non copiare dati del workspace nella richiesta.
 
@@ -194,8 +205,9 @@ Il nome è visibile solo agli amministratori e all'app; non entra nei preventivi
 
 1. Rimuovere la membership con il §6.2.
 2. Esportare un backup JSON dall'app o con `pg_dump` (T5.4.6).
-3. Se serve eliminare l'account, usare **Authentication → Users → Delete user**. I riferimenti `created_by`/`updated_by` diventano `null` per effetto di `on delete set null`; i preventivi restano.
-4. Non cancellare il workspace di produzione: archiviare o esportare i dati. La cancellazione fisica è riservata ai workspace di test.
+3. Se serve eliminare l'account, usare **Authentication → Users → Delete user**. I riferimenti `created_by`/`updated_by` diventano `null` per effetto di `on delete set null`; i preventivi degli spazi condivisi restano.
+4. Lo spazio personale dell'utente non si cancella con l'account: dopo il backup, eliminarlo dal SQL editor se non serve più. Non cancellare lo spazio condiviso di produzione: archiviare o esportare i dati.
+5. La cancellazione fisica di uno spazio è riservata ai workspace di test o allo spazio personale di un account rimosso.
 
 Per un workspace di test, dal SQL editor (richiesta senza subject JWT) è possibile:
 
@@ -258,15 +270,16 @@ Automatico: `npm run smoke:production` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROL
 
 ## 9. Risultati attesi della RLS
 
-| Soggetto                        | Workspace visibili | Preventivi visibili        | Scrittura                   |
-| ------------------------------- | ------------------ | -------------------------- | --------------------------- |
-| Owner A del workspace condiviso | `ws-doublelayer`   | Tutti quelli del workspace | Consentita                  |
-| Owner B dello stesso workspace  | `ws-doublelayer`   | Gli stessi di A            | Consentita                  |
-| Owner C di un altro workspace   | Solo il proprio    | Solo i propri              | Consentita solo nel proprio |
-| Utente senza membership         | Nessuno            | Nessuno                    | Negata (`42501`)            |
-| `anon`                          | Nessuno            | Nessuno                    | Negata, salvo `keepalive()` |
+| Soggetto                         | Workspace visibili                 | Preventivi visibili        | Scrittura                   |
+| -------------------------------- | ---------------------------------- | -------------------------- | --------------------------- |
+| Owner A del workspace condiviso  | `ws-doublelayer` + personale       | Tutti quelli del workspace | Consentita                  |
+| Owner B dello stesso workspace   | `ws-doublelayer` + personale       | Gli stessi di A            | Consentita                  |
+| Utente con solo spazio personale | Solo il proprio personale          | Solo i propri              | Consentita solo nel proprio |
+| Owner C di un altro workspace    | Solo i propri                      | Solo i propri              | Consentita solo nel proprio |
+| Utente senza membership          | Nessuno (la RPC crea il personale) | Nessuno                    | Negata (`42501`)            |
+| `anon`                           | Nessuno                            | Nessuno                    | Negata, salvo `keepalive()` |
 
-La verifica automatica è `npm run db:test`: 33 asserzioni pgTAP, incluse le quote condivise, l'audit, l'isolamento per workspace, l'utente senza membership, l'ultimo owner e il keep-alive.
+La verifica automatica è `npm run db:test`: 33 asserzioni su quote condivise, audit, isolamento e ultimo owner, più 41 asserzioni su PK composte, spazio personale, inviti, tetti ed email dei membri.
 
 ---
 
@@ -289,9 +302,9 @@ npm run db:test
 Comandi di verifica:
 
 ```bash
-npm run db:test          # 33 asserzioni pgTAP/RLS
+npm run db:test          # 74 asserzioni pgTAP/RLS
 npm run test:e2e:auth    # login, reload, impostazioni, logout
-npm run test:e2e:sync    # due contesti, offline, conflitto, isolamento
+npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 ```
 
 `npm run test:e2e:sync` **azzera il database Supabase locale** e richiede `psql` nel PATH. Non va eseguito contro un progetto remoto.
@@ -303,8 +316,12 @@ npm run test:e2e:sync    # due contesti, offline, conflitto, isolamento
 | Sintomo                           | Causa probabile                                 | Azione                                                                   |
 | --------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------ |
 | `email_provider_disabled`         | Provider email disattivato                      | Nel cloud abilitare Email; in locale `[auth.email].enable_signup = true` |
-| `noWorkspace`                     | Utente senza membership                         | Inserire la membership con il §4 o §6.1                                  |
-| `last_owner`                      | Rimozione dell'ultimo owner                     | Aggiungere un altro owner o usare la pulizia admin                       |
+| `noWorkspace`                     | RPC `ensure_personal_workspace` non applicata   | Applicare la migrazione `20261030120000_multi_workspace`                 |
+| `workspace_limit`                 | 10 spazi condivisi posseduti                    | Archiviare o eliminare uno spazio condiviso                              |
+| `member_limit`                    | 20 membri nello spazio                          | Rimuovere un membro o creare un nuovo spazio                             |
+| `invite_invalid` / `invite_expired` | Codice errato, scaduto o mai esistito         | Generare un nuovo codice dalla pagina Spazio                             |
+| `invite_revoked` / `invite_exhausted` | Codice revocato o già usato                  | Generare un nuovo codice                                                 |
+| `last_owner`                      | Rimozione o uscita dell'ultimo owner            | Aggiungere un altro owner o usare la pulizia admin                       |
 | `42501` su insert/update          | RLS: workspace diverso o membership assente     | Verificare `workspace_id` e `workspace_members`                          |
 | `quote_locked`                    | Preventivo `sent` o `completed`                 | Duplicare il preventivo, non modificarlo                                 |
 | `quote_metadata_locked`           | Tentativo di cambiare `created_at`/`created_by` | Non inviare questi campi nelle update                                    |
@@ -333,13 +350,15 @@ npm run test:e2e:sync    # due contesti, offline, conflitto, isolamento
 - [ ] Progetto Free in regione EU, senza carta.
 - [ ] Signup pubblico disattivato; provider email attivo.
 - [ ] Due utenti creati con auto-confirm e password nel password manager.
-- [ ] Workspace `ws-doublelayer` e due membership `owner`.
+- [ ] Workspace `ws-doublelayer` (`kind = 'shared'`) e due membership `owner`.
+- [ ] Ogni account ha uno spazio personale automatico, creato al primo accesso.
 - [ ] Entrambi gli utenti vedono e modificano lo stesso preventivo.
-- [ ] Un utente senza membership non vede nulla.
+- [ ] Un utente senza membership riceve il personale e non vede i dati condivisi.
+- [ ] Un invito valido aggiunge un membro; uno scaduto o revocato no.
 - [ ] Un utente di un altro workspace non vede i dati condivisi.
 - [ ] `created_by`/`updated_by` popolati; dettaglio con “Workspace condiviso”.
-- [ ] `npm run db:test` verde (33 asserzioni).
-- [ ] `npm run test:e2e:sync` verde (3 test).
+- [ ] `npm run db:test` verde (74 asserzioni).
+- [ ] `npm run test:e2e:sync` verde (5 test).
 - [ ] Nessun segreto nel repository o nelle env Vercel.
 - [ ] Backup e keep-alive pianificati in T5.4.6.
 

@@ -7,6 +7,7 @@ import { isCloudConfigured, isGoogleAuthEnabled } from '@/data/cloud/client'
 import { useAppStore } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
 import { useSyncStore, type SyncStatus } from '@/state/sync-store'
+import { useWorkspaceStore } from '@/state/workspace-store'
 import { syncErrorKeys, syncStatusKeys } from '@/features/sync/messages'
 
 const statusTones: Record<SyncStatus, 'neutral' | 'success' | 'warning' | 'info' | 'danger'> = {
@@ -42,6 +43,7 @@ export function SyncSettings() {
   const disconnect = useSyncStore((state) => state.disconnect)
   const syncNow = useSyncStore((state) => state.syncNow)
   const openConflict = useSyncStore((state) => state.openConflict)
+  const activeWorkspaceId = useWorkspaceStore((state) => state.activeId)
   const exportData = useAppStore((state) => state.exportData)
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -76,7 +78,7 @@ export function SyncSettings() {
 
   const retrySync = async () => {
     await syncNow()
-    if (!useSyncStore.getState().workspaceId) await connect()
+    if (!useSyncStore.getState().workspaceId && activeWorkspaceId) await connect(activeWorkspaceId)
   }
 
   return (

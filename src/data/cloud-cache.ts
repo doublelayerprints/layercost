@@ -22,8 +22,30 @@ function getStorage(): Storage | null {
   }
 }
 
-export function hasCloudCache(): boolean {
-  return Boolean(getStorage()?.getItem(CLOUD_CACHE_KEY))
+/** One cache per workspace: switching spaces never overwrites another one. */
+export function cloudCacheKey(workspaceId: string): string {
+  return `${CLOUD_CACHE_KEY}:${workspaceId}`
+}
+
+/**
+ * Moves the single-workspace cache to the workspace the user is connecting to.
+ * It runs once: after the first successful connect every cache is namespaced.
+ */
+export function migrateLegacyCloudCache(workspaceId: string): void {
+  const storage = getStorage()
+  if (!storage) return
+  const legacy = storage.getItem(CLOUD_CACHE_KEY)
+  if (!legacy) return
+
+  const key = cloudCacheKey(workspaceId)
+  if (!storage.getItem(key)) {
+    storage.setItem(key, legacy)
+  }
+  storage.removeItem(CLOUD_CACHE_KEY)
+}
+
+export function hasCloudCache(workspaceId: string): boolean {
+  return Boolean(getStorage()?.getItem(cloudCacheKey(workspaceId)))
 }
 
 /**
@@ -31,10 +53,11 @@ export function hasCloudCache(): boolean {
  * corrupted payload is dropped instead of blocking the app; the next pull
  * rebuilds it. It never overwrites `layercost:data`.
  */
-export function loadCloudCache(): AppData | undefined {
+export function loadCloudCache(workspaceId: string): AppData | undefined {
   const storage = getStorage()
   if (!storage) return undefined
-  const raw = storage.getItem(CLOUD_CACHE_KEY)
+  const key = cloudCacheKey(workspaceId)
+  const raw = storage.getItem(key)
   if (!raw) return undefined
 
   try {
@@ -42,16 +65,16 @@ export function loadCloudCache(): AppData | undefined {
     if (!data.draft) data.draft = createEmptyDraft(data.config)
     return data
   } catch {
-    storage.removeItem(CLOUD_CACHE_KEY)
+    storage.removeItem(key)
     return undefined
   }
 }
 
-export function saveCloudCache(data: AppData): void {
+export function saveCloudCache(workspaceId: string, data: AppData): void {
   const storage = getStorage()
   if (!storage) return
   try {
-    storage.setItem(CLOUD_CACHE_KEY, JSON.stringify(data))
+    storage.setItem(cloudCacheKey(workspaceId), JSON.stringify(data))
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Impossibile salvare la cache cloud nel browser.'
@@ -59,17 +82,20 @@ export function saveCloudCache(data: AppData): void {
   }
 }
 
-export function removeCloudCache(): void {
-  getStorage()?.removeItem(CLOUD_CACHE_KEY)
+export function removeCloudCache(workspaceId: string): void {
+  getStorage()?.removeItem(cloudCacheKey(workspaceId))
 }
 
-export const cloudCacheRepository: DataRepository = {
-  load: async () => ({ data: loadCloudCache() ?? createInitialData() }),
-  save: async (data) => saveCloudCache(data),
-  export: async (data) => downloadAppData(data),
-  import: parseImportFile,
-  reset: async () => {
-    removeCloudCache()
-    return { ...createInitialData(), schemaVersion: SCHEMA_VERSION }
-  },
+/** The repository writes to the active workspace only. */
+export function createCloudCacheRepository(workspaceId: string): DataRepository {
+  return {
+    load: async () => ({ data: loadCloudCache(workspaceId) ?? createInitialData() }),
+    save: async (data) => saveCloudCache(workspaceId, data),
+    export: async (data) => downloadAppData(data),
+    import: parseImportFile,
+    reset: async () => {
+      removeCloudCache(workspaceId)
+      return { ...createInitialData(), schemaVersion: SCHEMA_VERSION }
+    },
+  }
 }
