@@ -215,7 +215,7 @@ In modalità cloud la topbar desktop contiene un unico segmented control, lo ste
 
 - **Lingua**: IT / EN.
 - **Tema**: Sistema / Chiaro / Scuro, con icone monitor, sole e luna.
-- **Sync**: un quadratino di stato alla fine del gruppo, separato da una hairline. La forma dell'icona porta l'informazione (spunta = sincronizzato, orologio = in attesa, nuvoletta barrata = offline, triangolo = errore/conflitto), il colore è solo un accento e `title`/`aria-label` riportano lo stato esteso. Cliccandolo si apre Impostazioni → Sincronizzazione.
+- **Sync**: un quadratino di stato alla fine del gruppo, separato da una hairline, con il pallino colorato dello stato (positivo, warning, data, negativo). `title`/`aria-label` riportano lo stato esteso; cliccandolo si apre Impostazioni → Sincronizzazione.
 
 Il contenitore è `--color-raised` con outline interno `--color-line`; il thumb dell'opzione attiva è `--color-surface`. Le opzioni inattive sono muted e passano a ink all'hover; il focus ring è sull'opzione. I radio sono nativi, quindi le frecce funzionano. Il cambio tema non anima i colori.
 
@@ -538,7 +538,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 | `src/app/TopBarControls.tsx`                      | segmented control della topbar connessa: lingua, tema e stato sync                                                                                                 |
 | `src/app/TopBar.tsx`                              | barra contestuale della modalità cloud, nascosta in modalità ospite                                                                                                |
 | `src/features/workspace/WorkspaceMenu.tsx`        | pill dello spazio con menu, creazione e riscatto invito                                                                                                            |
-| `src/features/sync/SyncStatusButton.tsx`          | quadratino di stato sync con icona, tooltip e link a Impostazioni                                                                                                  |
+| `src/features/sync/SyncStatusButton.tsx`          | quadratino di stato sync con pallino, tooltip e link a Impostazioni                                                                                                |
 | `src/features/settings/SettingsPage.tsx`          | sezione Aspetto con le tre radio                                                                                                                                   |
 | `src/components/line-color.tsx`                   | swatch di lettura e color picker del filamento                                                                                                                     |
 | `src/lib/color.ts`                                | validazione `#rrggbb` condivisa da schema e UI                                                                                                                     |
