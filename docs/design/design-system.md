@@ -514,7 +514,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Card Preventivo.** Il campo “Nome preventivo” è stato rimosso dalla card, che ora contiene solo data e cliente; la descrizione spiega che il nome si modifica dal titolo. Nessun campo duplicato.
 - **Primitiva.** `PageHeader` accetta `title: ReactNode`, un `titleEdit` opzionale (label, click e ref del pulsante trasparente) e `titleClassName`; l'azione non è un bottone visibile e l'heading conserva il nome del preventivo come testo accessibile.
 - **i18n e dati.** Due chiavi nuove (`calculator.renameQuote`, `calculator.renameHint`), parità it/en a 1235. Nessun cambio a formule, schema, snapshot o `engineVersion`.
-- **Verifiche.** 267 unitari, 63 E2E eseguiti su Chromium/WebKit, axe 0 violazioni; `npm run check` verde, budget 220,9/230 KB JS e 287,7/350 KB totali. Le sei baseline visive del calcolatore e le sei del modale import sono state rigenerate su Linux e committate; la PR #39 è distribuita in produzione il 30/10/2026 (build `index-B43SUpOJ.js` / `index-CfPGRLn4.css`), con smoke e verifica reale della rinomina verdi.
+- **Verifiche.** 267 unitari, 63 E2E eseguiti su Chromium/WebKit, axe 0 violazioni; `npm run check` verde, budget 220,9/230 KB JS e 287,7/350 KB totali. Le sei baseline visive del calcolatore e le sei del modale import sono state rigenerate su Linux e committate; la PR #42 è distribuita in produzione il 30/10/2026 (build `index-CSbdD5ZH.js` / `index-BLecjq64.css`), con smoke e verifica reale della rinomina verdi. La sottolineatura a riposo è 1 px `data`, in modifica 2 px, senza focus ring.
 
 ## 9. Mappa dei file
 
