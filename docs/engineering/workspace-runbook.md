@@ -7,7 +7,7 @@
 
 Questo runbook è la procedura amministrativa per il cloud opzionale di LayerCost. Non contiene password, chiavi o UUID reali: i valori tra `<...>` vanno sostituiti al momento dell'esecuzione e non vanno committati.
 
-**Stato produzione (30/10/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello spazio condiviso `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. Con ADR-0028 ogni utente ha anche uno spazio personale automatico e può appartenere a più spazi condivisi. Le email dei membri non sono nel repository. Dal 29/10/2026 è previsto anche il provider Google (EVO-1, ADR-0025): resta opzionale e si attiva con il flag pubblico `VITE_AUTH_GOOGLE_ENABLED`.
+**Stato produzione (30/10/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello spazio condiviso `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. **EVO-4 distribuito il 30/10/2026** (build `index-eT8g6H47.js`): ogni utente ha anche uno spazio personale automatico e può appartenere a più spazi condivisi. Le email dei membri non sono nel repository. Dal 29/10/2026 è previsto anche il provider Google (EVO-1, ADR-0025): resta opzionale e si attiva con il flag pubblico `VITE_AUTH_GOOGLE_ENABLED`.
 
 ---
 

@@ -365,7 +365,7 @@ L'app deve mostrare “Hai raggiunto il limite di N preventivi. Esporta o elimin
 
 ## 5. EVO-3b/EVO-4 — Apertura e multi-workspace
 
-**Stato:** decisione presa il 30/10/2026: modello **B** (un workspace per utente/team, con spazi condivisi). Vedi ADR-0028 e `docs/planning/evo-4-multi-workspace.md`; implementato e verificato in locale il 30/10/2026, deploy in produzione da fare. L'analisi che segue resta come motivazione storica.
+**Stato:** decisione presa il 30/10/2026: modello **B** (un workspace per utente/team, con spazi condivisi). Vedi ADR-0028 e `docs/planning/evo-4-multi-workspace.md`; implementato, distribuito e verificato in produzione il 30/10/2026. L'analisi che segue resta come motivazione storica.
 
 EVO-3b (invite-only/allowlist) è descritto in §4.3; questa sezione riguarda soprattutto EVO-4, il modello multi-workspace.
 
