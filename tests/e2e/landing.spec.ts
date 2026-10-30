@@ -3,6 +3,8 @@ import { expect, test, type Page } from '@playwright/test'
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
+test.use({ colorScheme: 'light' })
+
 async function audit(page: Page, label: string) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze()
   const violations = results.violations.map((violation) => ({
@@ -118,8 +120,7 @@ test('login e richiesta accesso sono raggiungibili dalla landing', async ({ page
 
 test('la lingua cambia, si persiste e aggiorna titolo e lang', async ({ page }) => {
   await openLanding(page)
-  const language = page.getByRole('group', { name: 'Lingua dell’interfaccia' })
-  await language.getByRole('radio', { name: 'English' }).check()
+  await page.getByRole('button', { name: /Passa a English/ }).click()
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' })).toBeVisible()
@@ -129,15 +130,15 @@ test('la lingua cambia, si persiste e aggiorna titolo e lang', async ({ page }) 
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Switch to Italiano/ })).toBeVisible()
 })
 
 test('il tema si può cambiare dalla landing', async ({ page }) => {
   await openLanding(page)
-  const theme = page.getByRole('group', { name: 'Tema dell’interfaccia' })
-  await theme.getByRole('radio', { name: 'Scuro' }).check()
+  await page.getByRole('button', { name: 'Passa al tema scuro' }).click()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
-  await theme.getByRole('radio', { name: 'Chiaro' }).check()
+  await page.getByRole('button', { name: 'Passa al tema chiaro' }).click()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
 })
 

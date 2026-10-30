@@ -437,7 +437,7 @@ Per il modello B serve:
 ### 5A.2 Verifiche
 
 - 249 unitari (+12), 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync), 42 screenshot (+6), 68 scansioni axe (+8).
-- `npm run check` verde; budget JS 217,9/230 KB e HTML 6,0/10 KB; totale iniziale 284,2/350 KB.
+- `npm run check` verde; budget JS 218,2/230 KB e HTML 6,0/10 KB; totale iniziale 284,5/350 KB.
 - `inspect.mjs` sulla landing: 0 FAIL, 1 WARN `no-footage` motivato (prodotto software, demo interattiva e screenshot reali al posto di un video).
 - Baseline visuali Linux verificate con il container Playwright; 12 test visuali verdi.
 

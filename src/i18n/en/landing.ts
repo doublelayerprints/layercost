@@ -167,4 +167,8 @@ export const landingEn: Record<keyof typeof landingIt, string> = {
   'landing.footer.dataTitle': 'Data and privacy',
   'landing.footer.dataNote': 'No analytics, no cookies. Only the data you enter.',
   'landing.footer.description': 'Calculator for 3D prints. Everything free, cloud included.',
+
+  'landing.topbar.themeToDark': 'Switch to dark theme',
+  'landing.topbar.themeToLight': 'Switch to light theme',
+  'landing.topbar.languageTo': 'Switch to {language}',
 }

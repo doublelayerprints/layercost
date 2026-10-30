@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { landingButtonClassName } from './button'
 import { Logo } from '@/components/logo'
+import { PublicTopBarControls } from './PublicTopBarControls'
 import { LANDING_SECTIONS } from './content'
 import { scrollToSection } from './scroll'
 import { cn } from '@/lib/cn'
@@ -47,6 +48,7 @@ export function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <PublicTopBarControls />
           <Link
             to="/calculator"
             className={landingButtonClassName({ size: 'md', className: 'max-sm:hidden' })}

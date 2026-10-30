@@ -490,13 +490,13 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 
 ### 8.13 Landing pubblica — esito (EVO-5, 29/10/2026)
 
-- **Layout.** `PublicLayout` con skip link, header sticky senza chrome, `main` e footer; nessuna sidebar. `AppShell` resta l'unico punto che monta `HydrationGate`, sync e dialoghi cloud.
+- **Layout.** `PublicLayout` con skip link, header sticky senza chrome, `main` e footer; nessuna sidebar. La top bar contiene gli interruttori compatti tema chiaro/scuro e lingua IT/EN; il footer chiude con dati e privacy. `AppShell` resta l'unico punto che monta `HydrationGate`, sync e dialoghi cloud.
 - **Scala display.** La landing aggiunge solo `.landing-display` (52/36 px), `.landing-h2` (44/28 px), `.landing-h3` (18 px) e `.landing-wordmark` (88/69/48 px); il resto usa i passi dell'app (13/16/18). La hero headline resta su due righe a 1440/768/390.
 - **Colore.** Ground pietra, ink, surface/raised alternati; l'accent viola resta il colore del dato (barra costo/guadagno, focus) e non diventa un campo decorativo. La sezione privacy inverte ink/ground per un unico campo di colore.
 - **Contenuti.** Tabella di confronto a 6 righe, showcase con screenshot reale, tre passi con demo dal vivo del motore, privacy, cloud, FAQ native, CTA e footer a colonne. Le immagini sono screenshot reali dell'app in `public/landing/`, non mockup.
 - **Movimento.** Reveal progressivo, drift della hero, hover/focus, FAQ e demo; `prefers-reduced-motion` e no-JS mostrano tutto. `inspect.mjs` sulla landing: **0 FAIL, 1 WARN** (`no-footage`), motivato dal fatto che il prodotto è software e la demo è interattiva.
 - **Accessibilità.** 375/768/1440, chiaro/scuro, axe WCAG 2.2 AA (8 scansioni landing, 68 totali), target 44 px su mobile, tabelle responsive, focus visibile, FAQ `<details name>`.
-- **Budget.** JS iniziale 217,9/230 KB, HTML 6,0/10 KB, CSS 9,5/20 KB, totale 284,2/350 KB. Motivazione in ADR-0029.
+- **Budget.** JS iniziale 218,2/230 KB, HTML 6,0/10 KB, CSS 9,6/20 KB, totale 284,5/350 KB. Motivazione in ADR-0029.
 - **Test.** 249 unitari (+12), 68 E2E (+11 landing, +6 visual), 42 screenshot (+6), 68 scansioni axe (+8).
 
 ## 9. Mappa dei file
