@@ -8,6 +8,7 @@ import {
   type HTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
+  type Ref,
   type SelectHTMLAttributes,
   type TableHTMLAttributes,
 } from 'react'
@@ -442,29 +443,53 @@ export function Price({
 
 export function PageHeader({
   title,
-  titleAction,
+  titleEdit,
   titleClassName,
   description,
   actions,
   meta,
 }: {
   title: ReactNode
-  titleAction?: ReactNode
+  titleEdit?: {
+    label: string
+    onClick: () => void
+    buttonRef?: Ref<HTMLButtonElement>
+  }
   titleClassName?: string
   description?: ReactNode
   actions?: ReactNode
   meta?: ReactNode
 }) {
+  const {
+    label: editLabel,
+    onClick: onEditClick,
+    buttonRef: editButtonRef,
+  } = titleEdit ?? {}
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <div className="flex min-w-0 items-start gap-1">
+        <div
+          className={cn('relative min-w-0', titleEdit && 'inline-flex max-w-full')}
+        >
           <h1
-            className={cn('min-w-0 text-2xl font-semibold tracking-title text-ink', titleClassName)}
+            className={cn(
+              'min-w-0 text-2xl font-semibold tracking-title text-ink transition-feedback',
+              titleEdit && 'border-b border-data pb-1',
+              titleClassName,
+            )}
           >
             {title}
           </h1>
-          {titleAction ? <div className="shrink-0">{titleAction}</div> : null}
+          {titleEdit ? (
+            <button
+              ref={editButtonRef}
+              type="button"
+              onClick={onEditClick}
+              aria-label={editLabel}
+              title={editLabel}
+              className="absolute inset-0 cursor-text rounded-control"
+            />
+          ) : null}
         </div>
         {description ? <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p> : null}
         {meta ? (

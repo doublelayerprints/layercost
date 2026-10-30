@@ -510,8 +510,8 @@ Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 gi
 ### 5.7 T5.22 — Rinomina del preventivo dal titolo
 
 - **Obiettivo:** rendere modificabile il nome del preventivo dove l'utente lo legge, cioè nel titolo della pagina, invece che nella card Preventivo.
-- **UI:** una matita “Rinomina preventivo” accanto all'`h1` sostituisce il titolo con un input 24/600 a tutta larghezza; Invio o blur confermano, Esc ripristina il nome precedente e il focus torna alla matita. Un nome vuoto non viene confermato. Il campo nella card Preventivo è stato rimosso: restano data e cliente.
-- **Primitiva:** `PageHeader` accetta `title: ReactNode`, `titleAction` e `titleClassName`; l'azione resta fuori dall'heading.
+- **UI:** il titolo del calcolatore ha una sottolineatura di 1 px in `--color-data` ed è coperto da un pulsante trasparente, con cursore da testo. Al click diventa un input 24/600 con sola sottolineatura di 2 px, senza focus ring né selezione automatica; Invio o blur confermano, Esc ripristina il nome precedente e il focus torna al titolo. Un nome vuoto non viene confermato. Il campo nella card Preventivo è stato rimosso: restano data e cliente.
+- **Primitiva:** `PageHeader` accetta `title: ReactNode`, `titleEdit` (label, click e ref del pulsante trasparente) e `titleClassName`; l'heading resta testo pulito.
 - **Dati:** nessun cambio a formule, schema, snapshot o `engineVersion`; la bozza continua a salvarsi a ogni modifica.
 - **Esito:** chiuso il 30/10/2026. 2 chiavi i18n (1235 totali), 1 E2E dedicato; `npm run check` verde e budget 220,9 KB JS / 230 KB. Baseline visive del calcolatore e del modale import rigenerate su Linux; PR #39 (squash `36303b4`) distribuita in produzione con build `index-B43SUpOJ.js` / `index-CfPGRLn4.css`, smoke e verifica reale verdi.
 

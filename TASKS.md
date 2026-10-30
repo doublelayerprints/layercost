@@ -1195,11 +1195,11 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 
 **Nota:** il nome della bozza si modifica dal titolo della pagina, non più dalla card Preventivo.
 
-- `PageHeader` accetta `title: ReactNode`, `titleAction` e `titleClassName`; l'azione resta fuori dall'`h1`, che conserva il nome del preventivo come testo accessibile.
-- Nel calcolatore la matita “Rinomina preventivo” accanto al titolo sostituisce il testo con un input 24/600 a tutta larghezza. Invio o blur confermano, Esc ripristina il nome precedente; il focus torna alla matita. Un nome vuoto non viene confermato. La bozza continua a salvarsi a ogni modifica.
+- `PageHeader` accetta `title: ReactNode`, un `titleEdit` opzionale e `titleClassName`; il titolo è coperto da un pulsante trasparente con nome accessibile “Rinomina preventivo”, quindi l'heading resta testo pulito.
+- Nel calcolatore il titolo ha una sottolineatura di 1 px in `--color-data`; al click diventa un input 24/600 con sola sottolineatura di 2 px, senza focus ring né selezione automatica. Invio o blur confermano, Esc ripristina il nome precedente; il focus torna al titolo. Un nome vuoto non viene confermato. La bozza continua a salvarsi a ogni modifica.
 - Il campo “Nome preventivo” è stato rimosso dalla card Preventivo, che ora contiene solo data e cliente; la descrizione rimanda al titolo. Nessun campo duplicato.
 - Nuove chiavi i18n `calculator.renameQuote` e `calculator.renameHint` (parità it/en a 1235). Nessun cambio a formule, schema, snapshot o `engineVersion`.
-- Aggiornati `scripts/smoke-production.mjs` e `scripts/capture-landing.mjs` per aprire la matita prima di compilare il nome.
+- Aggiornati `scripts/smoke-production.mjs` e `scripts/capture-landing.mjs` per attivare il titolo prima di compilare il nome.
 - Test: 1 E2E dedicato su rinomina, persistenza, Esc e nome vuoto; aggiornati gli E2E esistenti che usavano il campo nella card. `npm run check` verde: 267 unitari; 63 E2E eseguiti su Chromium/WebKit (12 visual, 3 auth e 3 sync saltati); budget 220,9 KB JS / 230 KB e 287,7 KB totali / 350 KB. Baseline visive del calcolatore e del modale import rigenerate su Linux e committate.
 - Deploy: PR #39, squash `36303b4`, produzione con build `index-B43SUpOJ.js` / `index-CfPGRLn4.css`; CI `main` verde (check, e2e, database), smoke di produzione e verifica reale della rinomina verdi il 30/10/2026.
 
