@@ -10,7 +10,7 @@ const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 test.use({ colorScheme: 'light' })
 
 test('importa un .3mf, compila la riga, la salva e la ricarica', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
 
   await page.locator('input[type="file"]').setInputFiles(KOBRA3)
   const dialog = page.getByRole('dialog', { name: 'Importa .3mf' })
@@ -46,7 +46,7 @@ test('importa un .3mf, compila la riga, la salva e la ricarica', async ({ page }
 })
 
 test('importa più piatti come righe separate', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[type="file"]').setInputFiles(KOBRAX_2PLATES)
   const dialog = page.getByRole('dialog', { name: 'Importa .3mf' })
   await expect(dialog.getByRole('checkbox')).toHaveCount(2)
@@ -58,7 +58,7 @@ test('importa più piatti come righe separate', async ({ page }) => {
 })
 
 test('richiede la scelta quando più materiali corrispondono', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.getByRole('button', { name: 'Ho capito, inizia' }).click()
   await page.evaluate(() => {
     const raw = localStorage.getItem('layercost:data')
@@ -91,7 +91,7 @@ test('richiede la scelta quando più materiali corrispondono', async ({ page }) 
 })
 
 test('chiede conferma e aggiunge alla bozza esistente', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   const grams = page.locator('input[aria-label="Grammi materiale 1"]')
   await grams.fill('100')
 
@@ -113,7 +113,7 @@ test('chiede conferma e aggiunge alla bozza esistente', async ({ page }) => {
 })
 
 test('sostituisce le righe della bozza su richiesta', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
 
   await page.locator('input[type="file"]').setInputFiles(KOBRA3)
@@ -131,7 +131,7 @@ test('sostituisce le righe della bozza su richiesta', async ({ page }) => {
 })
 
 test('rifiuta un progetto non slicato senza aprire il dialogo', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[type="file"]').setInputFiles(UNSLICED)
 
   await expect(page.getByRole('alert')).toContainText('Il file non contiene un preventivo slicato')
@@ -140,7 +140,7 @@ test('rifiuta un progetto non slicato senza aprire il dialogo', async ({ page })
 
 test('accetta il drag & drop di un .3mf', async ({ page }) => {
   const bytes = readFileSync(KOBRA3)
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.evaluate(
     ({ data, name }) => {
       const binary = atob(data)
@@ -173,7 +173,7 @@ test('accetta il drag & drop di un .3mf', async ({ page }) => {
 
 test('il dialogo non crea overflow orizzontale a 375 px', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[type="file"]').setInputFiles(KOBRA3)
   await expect(page.getByRole('dialog', { name: 'Importa .3mf' })).toBeVisible()
 

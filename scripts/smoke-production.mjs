@@ -137,7 +137,7 @@ try {
   await page.getByLabel('Email').fill(user.email)
   await page.getByLabel('Password').fill(user.password)
   await page.getByRole('button', { name: 'Accedi' }).click()
-  await page.waitForURL(/#\/$/)
+  await page.waitForURL(/#\/calculator$/)
 
   const importDialog = page.getByRole('dialog', { name: 'Carica i dati locali nel cloud' })
   const needsImport = await importDialog
@@ -156,7 +156,7 @@ try {
   })
 
   const quoteName = `Smoke ${Date.now()}`
-  await page.goto(`${appUrl}/#/`)
+  await page.goto(`${appUrl}/#/calculator`)
   await page.getByLabel('Nome preventivo').fill(quoteName)
   await page.locator('input[aria-label="Ore"]').first().fill('1')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('10')

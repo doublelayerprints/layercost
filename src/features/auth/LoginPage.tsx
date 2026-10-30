@@ -63,7 +63,7 @@ export function LoginPage() {
 
   const googleEnabled = isGoogleAuthEnabled()
 
-  if (status === 'authenticated' && user) return <Navigate to="/" replace />
+  if (status === 'authenticated' && user) return <Navigate to="/calculator" replace />
 
   if (status === 'unconfigured') {
     return (
@@ -73,7 +73,7 @@ export function LoginPage() {
           <EmptyState
             title={t('auth.unconfigured.title')}
             description={t('auth.unconfigured.body')}
-            action={<Button onClick={() => navigate('/')}>{t('auth.backToApp')}</Button>}
+            action={<Button onClick={() => navigate('/calculator')}>{t('auth.backToApp')}</Button>}
           />
         </Card>
       </div>
@@ -89,7 +89,7 @@ export function LoginPage() {
     setSubmitting(true)
     const ok = await signIn(email, password)
     setSubmitting(false)
-    if (ok) navigate('/', { replace: true })
+    if (ok) navigate('/calculator', { replace: true })
   }
 
   return (
@@ -180,7 +180,7 @@ export function LoginPage() {
               {emailBusy ? t('auth.submitting') : t('auth.submit')}
             </Button>
             <Link
-              to="/"
+              to="/calculator"
               className="text-sm text-muted underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
             >
               {t('auth.backToApp')}

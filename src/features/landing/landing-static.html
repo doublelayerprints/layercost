@@ -1,0 +1,352 @@
+<div class="bg-ground text-ink">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-surface focus:px-3 focus:py-2 focus:text-base focus:text-ink">Vai al contenuto</a>
+    <header class="sticky top-0 z-40 bg-ground">
+      <div class="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <a href="#/welcome" class="flex items-center gap-2.5 rounded-control" aria-label="LayerCost">
+          <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true" class="shrink-0 text-ink" fill="currentColor"><rect x="2" y="5" width="20" height="6" rx="2"></rect><rect x="6" y="13" width="20" height="6" rx="2"></rect><rect x="10" y="21" width="20" height="6" rx="2"></rect></svg>
+          <span class="text-base font-semibold tracking-title text-ink">LayerCost</span>
+        </a>
+        <nav class="hidden items-center gap-7 lg:flex" aria-label="Navigazione principale">
+          <a href="#features" class="rounded-control text-base text-muted transition-feedback hover:text-ink">Funzionalità</a>
+          <a href="#how-it-works" class="rounded-control text-base text-muted transition-feedback hover:text-ink">Come funziona</a>
+          <a href="#privacy" class="rounded-control text-base text-muted transition-feedback hover:text-ink">Privacy</a>
+          <a href="#faq" class="rounded-control text-base text-muted transition-feedback hover:text-ink">FAQ</a>
+        </nav>
+        <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-9 px-4 text-sm max-sm:h-11 max-sm:hidden landing-button">Apri il calcolatore</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="bg-ground">
+        <div class="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-4 pb-16 pt-10 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:pb-24 lg:pt-16">
+          <div class="lg:col-span-5 lg:pt-8">
+            <h1 class="landing-display max-w-[17ch] text-ink">Il costo vero delle stampe 3D.</h1>
+            <p class="landing-lead mt-6 max-w-[46ch] text-muted">LayerCost mette insieme materiali, energia, usura e manodopera, poi aggiunge ricarico, sconti e IVA. Tutto nel browser, con i tuoi numeri.</p>
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-10 px-5 text-sm max-sm:h-11 landing-button">Apri il calcolatore</a>
+              <a href="#/request-access" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-10 px-5 text-sm max-sm:h-11 landing-button">Richiedi accesso</a>
+            </div>
+            <p class="landing-small mt-4 text-muted">Nessun account richiesto. I dati restano nel browser.</p>
+          </div>
+          <div class="lg:col-span-7">
+            <figure>
+              <div class="overflow-hidden rounded-card bg-ground">
+                <img src="landing/calculator.jpg" width="1440" height="1000" alt="Il calcolatore LayerCost con una stampa da 100 grammi: a sinistra le righe, a destra il riepilogo con costo pieno, guadagno e prezzo netto." fetchpriority="high" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain">
+              </div>
+              <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">Interfaccia reale di LayerCost, con i valori di partenza.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="landing-section bg-ground">
+        <div class="mx-auto max-w-[1200px] px-4 pb-20 pt-4 sm:px-6 lg:px-8 lg:pb-28 lg:pt-8">
+          <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-4">
+              <h2 class="landing-h2 text-ink">Tutto quello che serve al prezzo.</h2>
+              <p class="landing-body mt-5 max-w-[38ch] text-muted">Sei cose che un foglio di calcolo non fa da solo. Ognuna parte da un numero che hai già: grammi, ore, prezzo del filamento.</p>
+            </div>
+            <div class="lg:col-span-8"><div class="overflow-hidden rounded-card bg-surface">
+    <table class="landing-feature-table w-full">
+      <caption class="sr-only">Confronto tra LayerCost e un foglio di calcolo</caption>
+      <thead class="hidden md:table-header-group">
+        <tr>
+          <th scope="col" class="w-[46%] px-5 py-5 text-base font-semibold text-ink">Funzione</th>
+          <th scope="col" class="w-[27%] bg-ink px-5 py-5 text-base font-semibold text-surface">LayerCost</th>
+          <th scope="col" class="w-[27%] px-5 py-5 text-base font-semibold text-ink">Un foglio di calcolo</th>
+        </tr>
+      </thead>
+      <tbody><tr class="bg-surface">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Motore di costo</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Materiale, energia, usura, manodopera e rischio entrano nello stesso costo pieno.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Sì, con la formula documentata.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">Un foglio di calcolo</span>
+        Formule da ricostruire a mano.
+      </td>
+    </tr><tr class="bg-raised">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Multi-materiale</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Più filamenti nella stessa riga, con grammi e prezzo per materiale.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Sì, più materiali per riga.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">Un foglio di calcolo</span>
+        Una riga per materiale, da sommare.
+      </td>
+    </tr><tr class="bg-surface">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Preventivi</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Snapshot dei prezzi, modifica fino all’invio, duplicazione e archiviazione.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Sì, con i prezzi congelati.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">Un foglio di calcolo</span>
+        Copie che cambiano prezzo.
+      </td>
+    </tr><tr class="bg-raised">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Import .3mf</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Piatti, tempi e grammi già letti dallo slicer entrano nel preventivo.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Sì, con anteprima dei piatti.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">Un foglio di calcolo</span>
+        Numeri da ridigitare.
+      </td>
+    </tr><tr class="bg-surface">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Export .xlsx e PDF</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Tre fogli Excel per l’analisi esterna e un PDF A4 per il cliente.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Sì, tutto in locale.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">Un foglio di calcolo</span>
+        Copia, incolla, impagina.
+      </td>
+    </tr><tr class="bg-raised">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Confronto stampanti</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Kobra 3 e Kobra X sullo stesso lavoro, con il delta in euro.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Sì, senza toccare la bozza.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">Un foglio di calcolo</span>
+        Due fogli separati.
+      </td>
+    </tr></tbody>
+    </table>
+  </div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-surface">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-6 lg:grid-cols-12 lg:gap-8">
+            <h2 class="landing-h2 text-ink lg:col-span-6">Dal calcolo al cliente.</h2>
+            <p class="landing-body max-w-[50ch] text-muted lg:col-span-5 lg:col-start-8">Un preventivo salvato conserva i prezzi con cui è nato. La vista cliente mostra solo prezzi, IVA e note. La stampa interna tiene per te costi, guadagno e composizione.</p>
+          </div>
+          <figure class="mt-10 lg:mt-14">
+            <div class="overflow-hidden rounded-card bg-ground">
+              <img src="landing/quote-detail.jpg" width="1440" height="1000" alt="Il dettaglio di un preventivo LayerCost con prezzo netto, composizione del costo e righe di stampa." loading="lazy" decoding="async" class="aspect-[16/9] w-full bg-ground object-cover object-top">
+            </div>
+            <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">Preventivo salvato: prezzi congelati, righe e composizione del costo.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="landing-section bg-ground">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="max-w-[46ch]">
+            <h2 class="landing-h2 text-ink">Tre passi, nessun foglio di calcolo.</h2>
+            <p class="landing-body mt-5 text-muted">Dal file già slicato al prezzo da mandare al cliente.</p>
+          </div>
+          <div class="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-5"><div class="lg:sticky lg:top-24"><div data-ui class="rounded-card border border-line bg-surface p-5 sm:p-6">
+    <h3 class="landing-h3 text-ink">Prova con i tuoi numeri.</h3>
+    <p class="mt-2 text-base leading-relaxed text-muted">Un esempio con Kobra 3 e PLA, 30% di ricarico e nessuna IVA. Cambia grammi e ore: costo e prezzo si aggiornano.</p>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-card bg-ground px-4 py-3">
+        <span class="block text-[13px] font-medium text-muted">Grammi</span>
+        <span class="mt-1 block text-lg font-semibold tabular-nums text-ink">100 g</span>
+      </div>
+      <div class="rounded-card bg-ground px-4 py-3">
+        <span class="block text-[13px] font-medium text-muted">Ore di stampa</span>
+        <span class="mt-1 block text-lg font-semibold tabular-nums text-ink">10 h</span>
+      </div>
+    </div>
+    <div class="mt-5 rounded-card bg-ground p-4">
+      <div class="flex items-baseline justify-between gap-4">
+        <span class="text-base text-muted">Prezzo netto</span>
+        <span class="font-serif text-price-sm tabular-nums text-ink">3,70 €</span>
+      </div>
+      <div class="mt-1 flex items-baseline justify-between gap-4">
+        <span class="text-base text-muted">Costo pieno</span>
+        <span class="font-serif text-2xl tabular-nums text-ink">2,78 €</span>
+      </div>
+      <div role="img" aria-label="Prezzo netto diviso in costo pieno e guadagno." class="mt-4 flex h-2 overflow-hidden rounded-full bg-raised">
+        <span class="h-full bg-control" style="width:75.1%"></span>
+        <span class="h-full bg-data" style="width:24.9%"></span>
+      </div>
+      <dl class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-muted">
+        <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-control" aria-hidden="true"></span><dt class="text-ink">Costo pieno</dt><dd class="tabular-nums text-ink">2,78 €</dd></div>
+        <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-data" aria-hidden="true"></span><dt class="text-ink">Guadagno</dt><dd class="tabular-nums text-ink">0,92 €</dd></div>
+      </dl>
+    </div>
+    <p class="mt-3 text-[13px] leading-relaxed text-muted">Esempio con i valori di partenza. I tuoi numeri cambiano tutto.</p>
+    <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-8 px-3 text-xs max-sm:h-10 mt-4 landing-button">Apri il calcolatore</a>
+  </div></div></div>
+            <ol class="list-none space-y-14 lg:col-span-7">
+              <li>
+                <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">Scegli.</strong> Kobra 3 o Kobra X, PLA o PETG. I valori di partenza sono già pronti e restano modificabili in ogni momento.</p>
+                <figure class="mt-5">
+                  <div class="overflow-hidden rounded-card bg-ground"><img src="landing/import.jpg" width="1440" height="1000" alt="La finestra di importazione .3mf con i piatti, i tempi e i grammi letti dallo slicer." loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
+                  <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">Import .3mf: piatti, tempi e grammi.</figcaption>
+                </figure>
+              </li>
+              <li>
+                <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">Inserisci.</strong> Usa i grammi totali dello slicer e il tempo di stampa. Supporti, purge e prime tower sono già inclusi: non aggiungere supplementi.</p>
+              </li>
+              <li>
+                <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">Leggi.</strong> Vedi il costo pieno, il guadagno e la composizione. Salva il preventivo, esporta in Excel o condividi la vista cliente.</p>
+                <figure class="mt-5">
+                  <div class="overflow-hidden rounded-card bg-ground"><img src="landing/share.jpg" width="1440" height="1000" alt="La vista condivisa di un preventivo LayerCost con prezzi, IVA e note, senza i costi interni." loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
+                  <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">Vista cliente: prezzi, IVA e note.</figcaption>
+                </figure>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="privacy" class="landing-section bg-ink text-ground">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-12 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-5">
+              <h2 class="landing-h2 max-w-[16ch] text-ground">I tuoi numeri restano tuoi.</h2>
+              <p class="landing-lead mt-5 max-w-[42ch] text-ground/80">LayerCost non ha un backend obbligatorio. Il calcolatore e i preventivi vivono nel browser; il cloud è un extra per chi lo chiede.</p>
+            </div>
+            <div class="lg:col-span-7">
+              <ul class="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+                <li><p class="text-base font-semibold text-ground">Nessun account per iniziare</p><p class="mt-2 text-base leading-relaxed text-ground/80">Apri il calcolatore e lavora. L’account serve solo per la sincronizzazione opzionale.</p></li><li><p class="text-base font-semibold text-ground">Dati nel browser</p><p class="mt-2 text-base leading-relaxed text-ground/80">Configurazione e preventivi stanno in localStorage. Svuotare i dati del browser li cancella: il backup è la copia esterna.</p></li><li><p class="text-base font-semibold text-ground">Backup quando vuoi</p><p class="mt-2 text-base leading-relaxed text-ground/80">Esporta un JSON completo, importalo su un altro browser o conservalo fuori dall’app.</p></li><li><p class="text-base font-semibold text-ground">Nessun analytics</p><p class="mt-2 text-base leading-relaxed text-ground/80">Niente cookie di tracciamento, niente pubblicità. L’unica chiamata esterna è la richiesta di accesso, solo se la invii.</p></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-surface">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-6 lg:grid-cols-12 lg:gap-8">
+            <h2 class="landing-h2 text-ink lg:col-span-5">Se vuoi, anche altrove.</h2>
+            <p class="landing-lead text-muted lg:col-span-6 lg:col-start-7">Il cloud è gratuito, richiesto e approvato a mano. Non c’è registrazione automatica e non è necessario per usare il calcolatore.</p>
+          </div>
+          <ol class="mt-12 grid list-decimal gap-8 pl-5 marker:font-semibold marker:text-muted sm:grid-cols-2 lg:grid-cols-4">
+            <li class="pl-1"><h3 class="landing-h3 text-ink">Richiedi l’accesso</h3><p class="mt-2 text-base leading-relaxed text-muted">Compila il modulo con la tua email. La richiesta non crea un account.</p></li><li class="pl-1"><h3 class="landing-h3 text-ink">Attendi l’approvazione</h3><p class="mt-2 text-base leading-relaxed text-muted">L’amministratore legge la richiesta e crea l’utente manualmente.</p></li><li class="pl-1"><h3 class="landing-h3 text-ink">Accedi con Google o email</h3><p class="mt-2 text-base leading-relaxed text-muted">Google è il percorso più rapido; email e password restano disponibili.</p></li><li class="pl-1"><h3 class="landing-h3 text-ink">Ritrova tutto</h3><p class="mt-2 text-base leading-relaxed text-muted">Configurazione e preventivi vivono nel workspace condiviso, con backup e conflitti espliciti.</p></li>
+          </ol>
+          <div class="mt-10 flex flex-wrap items-center gap-3">
+            <a href="#/request-access" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-9 px-4 text-sm max-sm:h-11 landing-button">Richiedi accesso</a>
+            <a href="#/login" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-9 px-4 text-sm max-sm:h-11 landing-button">Accedi</a>
+            <p class="text-[13px] text-muted">Piano gratuito Supabase, regione EU. Il cloud non è obbligatorio.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="landing-section bg-ground">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-4"><div class="lg:sticky lg:top-24"><h2 class="landing-h2 text-ink">Domande prima di iniziare.</h2></div></div>
+            <div class="lg:col-span-8"><div class="landing-faq space-y-2"><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Serve un account?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">No. Il calcolatore, i preventivi e gli export funzionano senza account. L’account serve solo per la sincronizzazione cloud opzionale.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Quanto costa?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">Il calcolatore è gratuito. Il cloud usa il piano gratuito di Supabase e viene attivato solo dopo l’approvazione della richiesta. Non ci sono abbonamenti.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Dove sono i dati?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">Senza account, nel browser (localStorage). Con l’account, nel workspace condiviso su Supabase in regione EU. Puoi esportare un backup JSON in ogni momento.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Si può usare da più dispositivi?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">Sì, con l’account cloud: configurazione e preventivi si allineano nel workspace. Senza account, esporta il backup JSON e importalo sull’altro dispositivo.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Come si richiede l’accesso?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">Apri la pagina Richiedi accesso, inserisci email e consenso. L’amministratore crea l’account manualmente: non c’è registrazione automatica né email di conferma automatica.</p>
+    </details></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-raised">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+          <div class="grid gap-8 md:grid-cols-12 md:items-end">
+            <div class="md:col-span-7">
+              <h2 class="landing-h2 text-ink">Metti i tuoi numeri.</h2>
+              <p class="landing-lead mt-5 max-w-[46ch] text-muted">Apri il calcolatore con i valori di partenza, poi sostituisci prezzi, potenze e vita utile con i tuoi.</p>
+            </div>
+            <div class="md:col-span-5">
+              <div class="flex flex-wrap gap-3 md:justify-end">
+                <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-10 px-5 text-sm max-sm:h-11 landing-button">Apri il calcolatore</a>
+                <a href="#/request-access" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-10 px-5 text-sm max-sm:h-11 landing-button">Richiedi accesso</a>
+              </div>
+              <p class="mt-4 text-[13px] text-muted md:text-right">Nessun account richiesto.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-ground">
+      <div class="mx-auto max-w-[1200px] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+          <div class="sm:col-span-2 lg:col-span-5">
+            <h2 class="landing-wordmark text-ink"><a href="#/welcome" aria-label="LayerCost" class="rounded-control transition-feedback hover:text-data">LayerCost</a></h2>
+            <p class="mt-4 max-w-[34ch] text-base leading-relaxed text-muted">Calcolatore local-first per stampe 3D.</p>
+          </div>
+          <nav class="lg:col-span-2" aria-label="Prodotto">
+            <h3 class="text-[13px] font-semibold text-ink">Prodotto</h3>
+            <ul class="mt-3 space-y-1">
+              <li><a href="#features" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Funzionalità</a></li>
+              <li><a href="#how-it-works" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Come funziona</a></li>
+              <li><a href="#privacy" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Privacy</a></li>
+              <li><a href="#faq" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">FAQ</a></li>
+            </ul>
+          </nav>
+          <nav class="lg:col-span-2" aria-label="App">
+            <h3 class="text-[13px] font-semibold text-ink">App</h3>
+            <ul class="mt-3 space-y-1">
+              <li><a href="#/calculator" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Apri il calcolatore</a></li>
+              <li><a href="#/login" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Accedi</a></li>
+              <li><a href="#/request-access" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Richiedi accesso</a></li>
+            </ul>
+          </nav>
+          <div class="lg:col-span-3">
+            <h3 class="text-[13px] font-semibold text-ink">Dati e privacy</h3>
+            <p class="mt-3 text-[13px] leading-relaxed text-muted">Nessun analytics, nessun cookie. Solo i dati che inserisci.</p>
+          </div>
+        </div>
+        <div class="mt-14 flex flex-col gap-3 bg-ground text-[13px] leading-relaxed text-ink sm:flex-row sm:items-end sm:justify-between">
+          <p class="max-w-[58ch]">Nessun analytics e nessun cookie. I dati dell’app restano nel browser; il cloud è opzionale.</p>
+          <div class="flex flex-wrap items-center gap-x-5 gap-y-1 sm:justify-end">
+            <span class="text-ink">Motore v1.0.0</span>
+            <span class="text-ink">© LayerCost</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>

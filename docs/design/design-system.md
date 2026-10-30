@@ -1,6 +1,6 @@
 # Design system — Strato
 
-**Stato:** T4.3, T4.4, T4.5, T4.7 e T4.6 completati; v1.0.0 rilasciata; accent viola da ADR-0021
+**Stato:** T4.3, T4.4, T4.5, T4.7 e T4.6 completati; v1.0.0 rilasciata; accent viola da ADR-0021; landing pubblica EVO-5 (ADR-0029)
 **Data:** 28 ottobre 2026
 **Direzione:** A — Strato (`achromatic-ledger`), ADR-0015 · tema scuro ADR-0016 · accent ADR-0021
 **Ambito:** token, tipografia, componenti, accessibilità e stampa. La composizione delle schermate è stata applicata in T4.4.
@@ -14,7 +14,7 @@
 3. **Un solo viola di dato.** Il chrome è ink e grigio; `--color-data` segna la banda più grande dello stack e il focus.
 4. **Una scala tipografica di cinque passi.** 34 / 24 / 16 / 14 / 12 px. Source Serif 4 solo per il denaro e il documento.
 5. **Focus immediato.** Anello 2 px `--color-data`, offset 2 px, nessuna transizione sull'outline.
-6. **Due temi, movimento minimo.** Tema chiaro e scuro (ADR-0016), con preferenza Sistema/Chiaro/Scuro; la stampa resta sempre chiara. Solo feedback; nessuna animazione d'ingresso; `prefers-reduced-motion` rispettato.
+6. **Due temi, movimento minimo.** Tema chiaro e scuro (ADR-0016), con preferenza Sistema/Chiaro/Scuro; la stampa resta sempre chiara. Solo feedback; nessuna animazione d'ingresso nelle schermate dell'app. La landing pubblica (EVO-5) ha un reveal progressivo e un drift della hero, sempre con `prefers-reduced-motion` e senza nascondere contenuto se lo script non parte.
 7. **La stampa è un output di prima classe.** A4, niente chrome, testi e bordi leggibili in bianco e nero.
 8. **Semantica e accessibilità.** HTML semantico, label associate, errori con `aria-describedby`, target 44 px su touch.
 
@@ -313,9 +313,10 @@ Card con header comprimibile per le sezioni del calcolatore. Il titolo resta un 
 
 ## 6. Movimento
 
-- Solo feedback: hover, focus, pressione, apertura di menu/dialogo.
+- Solo feedback nelle schermate dell'app: hover, focus, pressione, apertura di menu/dialogo.
 - `transition-feedback` 150 ms su colori e bordi; l'outline non è animato.
-- Nessuna animazione d'ingresso o decorativa.
+- Nessuna animazione d'ingresso o decorativa nell'app.
+- La landing pubblica usa reveal progressivo (opacity/translate), un drift leggero della hero immagine, hover/focus e FAQ native; il contenuto è visibile senza JavaScript e con `prefers-reduced-motion`.
 - `prefers-reduced-motion` porta le transizioni a 0,01 ms e disattiva lo scroll smooth.
 
 ---
@@ -486,6 +487,17 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Verifiche.** `npm run check` verde (124 unitari, 39 E2E, budget 224,6 KB JS / 225 KB); axe invariato; baseline visive del calcolatore rigenerate in CI.
 
 ---
+
+### 8.13 Landing pubblica — esito (EVO-5, 29/10/2026)
+
+- **Layout.** `PublicLayout` con skip link, header sticky senza chrome, `main` e footer; nessuna sidebar. `AppShell` resta l'unico punto che monta `HydrationGate`, sync e dialoghi cloud.
+- **Scala display.** La landing aggiunge solo `.landing-display` (52/36 px), `.landing-h2` (44/28 px), `.landing-h3` (18 px) e `.landing-wordmark` (88/69/48 px); il resto usa i passi dell'app (13/16/18). La hero headline resta su due righe a 1440/768/390.
+- **Colore.** Ground pietra, ink, surface/raised alternati; l'accent viola resta il colore del dato (barra costo/guadagno, focus) e non diventa un campo decorativo. La sezione privacy inverte ink/ground per un unico campo di colore.
+- **Contenuti.** Tabella di confronto a 6 righe, showcase con screenshot reale, tre passi con demo dal vivo del motore, privacy, cloud, FAQ native, CTA e footer a colonne. Le immagini sono screenshot reali dell'app in `public/landing/`, non mockup.
+- **Movimento.** Reveal progressivo, drift della hero, hover/focus, FAQ e demo; `prefers-reduced-motion` e no-JS mostrano tutto. `inspect.mjs` sulla landing: **0 FAIL, 1 WARN** (`no-footage`), motivato dal fatto che il prodotto è software e la demo è interattiva.
+- **Accessibilità.** 375/768/1440, chiaro/scuro, axe WCAG 2.2 AA (8 scansioni landing, 68 totali), target 44 px su mobile, tabelle responsive, focus visibile, FAQ `<details name>`.
+- **Budget.** JS iniziale 218,0/230 KB, HTML 6,2/10 KB, CSS 9,5/20 KB, totale 284,4/350 KB. Motivazione in ADR-0029.
+- **Test.** 249 unitari (+12), 68 E2E (+11 landing, +6 visual), 42 screenshot (+6), 68 scansioni axe (+8).
 
 ## 9. Mappa dei file
 

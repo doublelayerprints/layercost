@@ -303,7 +303,7 @@ docs/
 - Hash routing: nessun rewrite necessario.
 - Preview deployment su ogni pull request.
 - Header consigliati: CSP, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` minimale.
-- `noindex` per un'app privata.
+- `noindex` rimosso con EVO-5/ADR-0029: la root è la landing pubblica e deve essere indicizzabile. Le route dell’app condividono la root ma l’HTML iniziale contiene solo la landing e gli asset, nessun dato privato. L’inglese è disponibile nell’interfaccia; l’indicizzazione inglese separata è una decisione futura.
 
 ### 9.2 Portabilità
 

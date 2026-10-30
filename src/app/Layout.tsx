@@ -17,7 +17,8 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
     {
       label: t('nav.work'),
       items: [
-        { to: '/', label: t('nav.calculator') },
+        { to: '/welcome', label: t('nav.overview') },
+        { to: '/calculator', label: t('nav.calculator') },
         { to: '/quotes', label: t('nav.quotes') },
         { to: '/compare', label: t('nav.compare') },
       ],
@@ -44,7 +45,7 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/'}
+                end={item.to === '/calculator' || item.to === '/welcome'}
                 onClick={onNavigate}
                 className={({ isActive }) =>
                   cn(

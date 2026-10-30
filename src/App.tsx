@@ -1,13 +1,11 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
-import { Layout } from '@/app/Layout'
+import { AppShell } from '@/app/AppShell'
 import { I18nProvider } from '@/app/I18nProvider'
 import { useI18n } from '@/app/i18n-context'
-import { HydrationGate } from '@/app/HydrationGate'
+import { PublicLayout } from '@/app/PublicLayout'
 import { ThemeController } from '@/app/ThemeController'
-import { useAppStore } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
-import { useLocaleStore } from '@/state/locale-store'
 import { CalculatorPage } from '@/features/calculator/CalculatorPage'
 import { QuotesPage } from '@/features/quotes/QuotesPage'
 import { QuoteDetailPage } from '@/features/quotes/QuoteDetailPage'
@@ -20,10 +18,8 @@ import { SettingsPage } from '@/features/settings/SettingsPage'
 import { ComparePage } from '@/features/compare/ComparePage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { OAuthCallbackRedirect } from '@/features/auth/OAuthCallbackRedirect'
-import { SyncController } from '@/features/sync/SyncController'
-import { FirstLoginDialog } from '@/features/sync/FirstLoginDialog'
-import { SyncConflictDialog } from '@/features/sync/SyncConflictDialog'
 import { NotFoundPage } from '@/features/NotFoundPage'
+import { LandingRoute } from '@/features/landing/LandingRoute'
 
 const RequestAccessPage = lazy(() =>
   import('@/features/access/RequestAccessPage').then((module) => ({
@@ -41,16 +37,8 @@ function RouteLoading() {
 }
 
 export default function App() {
-  const hydrate = useAppStore((state) => state.hydrate)
-  const hydrated = useAppStore((state) => state.hydrated)
-  const adoptLocale = useAppStore((state) => state.adoptLocale)
   const initializeAuth = useAuthStore((state) => state.initialize)
   const resetOAuth = useAuthStore((state) => state.resetOAuth)
-  const locale = useLocaleStore((state) => state.locale)
-
-  useEffect(() => {
-    void hydrate()
-  }, [hydrate])
 
   useEffect(() => {
     void initializeAuth()
@@ -64,45 +52,41 @@ export default function App() {
     return () => window.removeEventListener('pageshow', handlePageShow)
   }, [resetOAuth])
 
-  useEffect(() => {
-    if (hydrated) adoptLocale(locale)
-  }, [adoptLocale, hydrated, locale])
-
   return (
     <I18nProvider>
       <ThemeController />
-      <HydrationGate>
-        <SyncController />
-        <FirstLoginDialog />
-        <SyncConflictDialog />
-        <HashRouter>
-          <OAuthCallbackRedirect />
-          <Routes>
-            <Route element={<Layout />}>
-              <Route index element={<CalculatorPage />} />
-              <Route path="quotes" element={<QuotesPage />} />
-              <Route path="quotes/:id" element={<QuoteDetailPage />} />
-              <Route path="share" element={<SharePage />} />
-              <Route path="printers" element={<PrintersPage />} />
-              <Route path="materials" element={<MaterialsPage />} />
-              <Route path="tariffs" element={<TariffsPage />} />
-              <Route path="extras" element={<ExtrasPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="compare" element={<ComparePage />} />
-              <Route path="login" element={<LoginPage />} />
-              <Route
-                path="request-access"
-                element={
-                  <Suspense fallback={<RouteLoading />}>
-                    <RequestAccessPage />
-                  </Suspense>
-                }
-              />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
-        </HashRouter>
-      </HydrationGate>
+      <HashRouter>
+        <OAuthCallbackRedirect />
+        <Routes>
+          <Route element={<PublicLayout />}>
+            <Route index element={<LandingRoute />} />
+            <Route path="welcome" element={<LandingRoute />} />
+          </Route>
+
+          <Route element={<AppShell />}>
+            <Route path="calculator" element={<CalculatorPage />} />
+            <Route path="quotes" element={<QuotesPage />} />
+            <Route path="quotes/:id" element={<QuoteDetailPage />} />
+            <Route path="share" element={<SharePage />} />
+            <Route path="printers" element={<PrintersPage />} />
+            <Route path="materials" element={<MaterialsPage />} />
+            <Route path="tariffs" element={<TariffsPage />} />
+            <Route path="extras" element={<ExtrasPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="compare" element={<ComparePage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route
+              path="request-access"
+              element={
+                <Suspense fallback={<RouteLoading />}>
+                  <RequestAccessPage />
+                </Suspense>
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </HashRouter>
     </I18nProvider>
   )
 }

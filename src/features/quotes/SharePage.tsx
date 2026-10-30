@@ -44,7 +44,7 @@ export function SharePage() {
           <EmptyState
             title={t('share.invalid.heading')}
             description={decoded.error ?? t('share.invalid.description')}
-            action={<Button onClick={() => navigate('/')}>{t('share.invalid.action')}</Button>}
+            action={<Button onClick={() => navigate('/calculator')}>{t('share.invalid.action')}</Button>}
           />
         </div>
       </div>

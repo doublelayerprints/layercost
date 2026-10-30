@@ -1,6 +1,6 @@
 # Inventario stringhe i18n
 
-**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1 ed EVO-3a incluse
+**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1, EVO-3a ed EVO-5 incluse
 **Data:** 29 ottobre 2026
 **Riferimenti:** ADR-0019, ADR-0025, ADR-0026, `docs/planning/phase-5.md` §3
 
@@ -41,6 +41,7 @@
 | Impostazioni         | `SettingsPage`, `SyncSettings`                                                                                     | manodopera, rischio, prezzo, arrotondamento, IVA, backup, reset, tema, lingua, sync                     | Sezione Lingua in T5.6.4; sync in T5.4.3                                         |
 | Auth e sync          | `LoginPage`, `auth-store`, `sync-store`, `SyncSettings`, `SyncIndicator`, dialoghi primo login/conflitto           | login, errori auth, sessione scaduta, stato sync, primo login, conflitti, logout                        | Area `auth` aggiunta in T5.4.3; dialoghi sync in T5.4.4                          |
 | Richiesta accesso    | `RequestAccessPage`, `request-access.ts`, `LoginPage`, `SyncSettings`                                              | titolo, intro, campi, limiti, privacy, invio, stati, errori, conferma, link                             | Area `access` aggiunta in EVO-3a; 36 chiavi IT/EN                                |
+| Landing pubblica     | `src/features/landing/`, `PublicLayout`, `PublicHeader`, `PublicFooter`, `LivePriceDemo`                            | meta, nav, hero, funzionalità, demo, privacy, cloud, FAQ, CTA, footer, preferenze                       | Area `landing` aggiunta in EVO-5; 113 chiavi IT/EN                               |
 | Confronto            | `ComparePage`                                                                                                      | colonne, delta, vuoto, stampante più conveniente                                                        |                                                                                  |
 | Guida iniziale       | `OnboardingCard`                                                                                                   | quattro passi, “Ho capito, inizia”, valori stimati, skip                                                |                                                                                  |
 | Etichette di dominio | `src/lib/labels.ts`                                                                                                | famiglie materiale, fonte potenza, modalità prezzo, arrotondamento, IVA, allocazione, unità extra       | Diventano funzioni locale-aware o chiavi                                         |
@@ -77,6 +78,8 @@
 
 **Stato EVO-3a:** aggiunte 36 chiavi nell’area `access` per titolo/descrizione, campi e limiti, privacy, invio, stati success/error/endpoint mancante, validazione, link da login e sync. Parità it/en a **1059** chiavi; il test delle aree include `accessIt` e l’E2E copre IT/EN e axe.
 
+**Stato EVO-5:** aggiunte **113 chiavi** nell’area `landing` per meta, navigazione, hero, tabella delle funzionalità, passi e demo, privacy, cloud, FAQ, CTA, footer e preferenze pubbliche, più `nav.overview` per la voce **Panoramica** della sidebar. Parità it/en a **1173** chiavi; il test delle aree include `landingIt`. La landing usa gli stessi dizionari tipizzati e cambia lingua senza ricaricare la pagina.
+
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 
 1. Shell e componenti comuni (chiude subito le stringhe condivise).
@@ -94,4 +97,4 @@
 - Typecheck: una chiave mancante in `en.ts` è un errore.
 - Dopo l'estrazione: E2E in inglese, persistenza, `<html lang>`, stampa/link nella lingua del preventivo, axe e visual.
 - La migrazione `Quote.locale`, la formattazione locale, il selettore, la persistenza e le verifiche in inglese sono implementati in T5.6.3–T5.6.5.
-- EVO-3a: `access.spec.ts` verifica IT/EN a 375/1440, inclusi errori e conferma; `access-missing.spec.ts` verifica lo stato senza endpoint in entrambe le lingue. La parità è a 1059 chiavi.
+- EVO-3a: `access.spec.ts` verifica IT/EN a 375/1440, inclusi errori e conferma; `access-missing.spec.ts` verifica lo stato senza endpoint in entrambe le lingue. La parità è a 1173 chiavi dopo EVO-5.

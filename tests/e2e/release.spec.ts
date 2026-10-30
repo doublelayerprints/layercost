@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test'
 test.use({ colorScheme: 'light' })
 
 test('esporta e reimporta un backup completo', async ({ page }) => {
-  await page.goto('/#/')
+  await page.goto('/#/calculator')
   await page.locator('input[aria-label="Ore"]').first().fill('10')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
   await page.getByRole('button', { name: 'Salva preventivo' }).click()
@@ -35,7 +35,7 @@ test('esporta e reimporta un backup completo', async ({ page }) => {
 })
 
 test('la stampa produce un PDF A4 chiaro anche con tema scuro', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.evaluate(() => localStorage.setItem('layercost:theme', 'dark'))
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
@@ -76,7 +76,7 @@ test('l’app non chiama servizi esterni', async ({ page }) => {
   })
 
   for (const path of [
-    '/#/',
+    '/#/calculator',
     '/#/quotes',
     '/#/compare',
     '/#/printers',

@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 29/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 36 baseline visive sono state rigenerate in CI il 28/10/2026.
+**Stato al 29/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). **EVO-5 — Landing page pubblica** (ADR-0029) è implementata e verificata in locale il 29/10/2026: route `/#/`, `/#/calculator` e `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot e budget JS 218,0/230 KB, HTML 6,2/10 KB; il deploy di produzione è da fare. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 42 baseline visive (36 app + 6 landing) sono state verificate su Linux con EVO-5.
 
 ---
 
@@ -1208,7 +1208,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e verificato in locale il 29/10/2026 (landing pubblica, deploy da fare); EVO-2–EVO-4 proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login
@@ -1273,5 +1273,20 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - Un workspace per cliente/team, con onboarding, inviti e switcher.
 - Migrazione PK `(workspace_id, id)` o ID globali; sync/cache per workspace.
 - Solo se l'apertura non è più “più membri nello stesso archivio”.
+
+## EVO-5 — Landing page pubblica
+
+**Stato:** `[x]` — implementata e verificata in locale il 29/10/2026; deploy di produzione da fare
+**Dipende da:** —
+**ADR:** 0029
+**Piano:** `docs/planning/evo-5-landing-page.md`
+
+- **EVO-5.1 Routing:** `/#/` landing, `/#/calculator` app, `/#/welcome` forzata; `PublicLayout` fuori da `HydrationGate`, `SyncController` e dialoghi cloud; marker `layercost:hasVisited`; **Panoramica** in sidebar.
+- **EVO-5.2 Contenuti:** header pubblico, hero, 6 funzionalità, 3 passi con demo dal vivo del motore reale, privacy/local-first, cloud, 5 FAQ, CTA e footer IT/EN; screenshot reali dell’app.
+- **EVO-5.3 SEO:** pre-render italiano in `index.html` via plugin Vite, canonical, Open Graph, Twitter, JSON-LD, `robots.txt` con `Allow: /`, sitemap, rimozione `X-Robots-Tag: noindex`.
+- **EVO-5.4 Design e a11y:** Strato, `PublicLayout`, 375/768/1440, chiaro/scuro, `prefers-reduced-motion`, axe WCAG 2.2 AA.
+- **EVO-5.5 Test e budget:** 249 unitari (+12), 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync), 42 screenshot (+6), 68 scansioni axe (+8); JS 218,0/230 KB, HTML 6,2/10 KB, totale 284,4/350 KB.
+- **EVO-5.6 Docs e deploy:** ADR-0029, piano, README, STATUS, deployment, testing, i18n inventory e design system; deploy Vercel da fare.
+- Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
 
 **Prompt di ripresa:** §8 di `docs/planning/evolutive.md`.

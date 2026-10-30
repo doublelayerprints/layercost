@@ -95,7 +95,7 @@ export function QuoteDetailPage() {
       refreshQuote(quote.id)
     }
     setPendingDraftAction(undefined)
-    navigate('/')
+    navigate('/calculator')
   }
 
   const requestDraftAction = (action: 'duplicate' | 'refresh' | 'edit') => {

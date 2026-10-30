@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test.use({ colorScheme: 'light' })
 
 test('comprime ed espande le card del calcolatore', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
 
   const printsCard = page.locator('[data-dropzone="3mf"]')
   await expect(printsCard.getByRole('heading', { name: 'Stampe' })).toBeVisible()

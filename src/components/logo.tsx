@@ -5,16 +5,21 @@ import { cn } from '@/lib/cn'
 export function Logo({
   compact = false,
   tagline = true,
+  to = '/calculator',
   className,
+  onClick,
 }: {
   compact?: boolean
   tagline?: boolean
+  to?: string
   className?: string
+  onClick?: () => void
 }) {
   const { t } = useI18n()
   return (
     <Link
-      to="/"
+      to={to}
+      onClick={onClick}
       className={cn('flex items-center gap-2.5 rounded-control', className)}
       aria-label={compact ? t('app.name') : undefined}
     >

@@ -1,10 +1,10 @@
-# Evolutive — Google login, richiesta accesso, tetti utenti/preventivi e apertura
+# Evolutive — Google login, richiesta accesso, landing pubblica, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 implementato e verificato in locale il 29/10/2026 (ADR-0029, landing pubblica); EVO-2–EVO-4 proposte
 **Data:** 29 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
-**Piano collegato:** `docs/planning/t5.4-cloud-sync.md`
-**ADR:** 0025 (Google OAuth), **0026 (pagina Richiedi accesso)**; **0027** (tetti e signup) e **0028** (multi-workspace) solo se si implementano EVO-2/EVO-4
+**Piano collegato:** `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-5-landing-page.md`
+**ADR:** 0025 (Google OAuth), **0026 (pagina Richiedi accesso)**, **0029 (landing pubblica)**; **0027** (tetti e signup) e **0028** (multi-workspace) solo se si implementano EVO-2/EVO-4
 
 Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a riprendere il lavoro in una nuova sessione senza ricostruire il contesto.
 
@@ -416,17 +416,51 @@ Per il modello B serve:
 
 ---
 
+## 5A. EVO-5 — Landing page pubblica
+
+**Obiettivo:** dare a chi non conosce LayerCost una pagina pubblica completa, in italiano e inglese, indicizzabile, che spieghi il prodotto e porti al calcolatore senza creare dati locali.
+**Stato:** implementata e verificata in locale il 29/10/2026 (ADR-0029); deploy di produzione da fare.
+**Stima:** 1–2 giorni.
+**Dipende da:** nessuna nuova infrastruttura.
+**Piano:** `docs/planning/evo-5-landing-page.md`.
+
+### 5A.1 Decisioni
+
+- `/#/` landing pubblica; `/#/calculator` app; `/#/welcome` landing forzata.
+- Dati locali, marker `layercost:hasVisited` o sessione autenticata portano a `/#/calculator`.
+- `PublicLayout` fuori da `HydrationGate`, `SyncController` e dialoghi cloud; la landing non crea `layercost:data`.
+- **Panoramica** in sidebar verso `/#/welcome`.
+- Pre-render italiano in `index.html` a build time; canonical, Open Graph, Twitter, robots, sitemap; `X-Robots-Tag: noindex` rimosso.
+- Screenshot reali dell’app e demo dal vivo con il motore reale; nessuna nuova dipendenza.
+- Contenuti IT/EN nell’area i18n `landing`; axe, 375/768/1440, chiaro/scuro e `prefers-reduced-motion`.
+
+### 5A.2 Verifiche
+
+- 249 unitari (+12), 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync), 42 screenshot (+6), 68 scansioni axe (+8).
+- `npm run check` verde; budget JS 218,0/230 KB e HTML 6,2/10 KB; totale iniziale 284,4/350 KB.
+- `inspect.mjs` sulla landing: 0 FAIL, 1 WARN `no-footage` motivato (prodotto software, demo interattiva e screenshot reali al posto di un video).
+- Baseline visuali Linux verificate con il container Playwright; 12 test visuali verdi.
+
+### 5A.3 Deploy
+
+- La landing non cambia formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
+- Al deploy: verificare che `/` serva l’HTML pre-renderizzato, che `robots.txt` e `sitemap.xml` siano raggiungibili, che la produzione non abbia più `X-Robots-Tag`, che le immagini in `public/landing/` e `og-image.jpg` rispondano e che lo smoke di produzione aggiornato sia verde.
+- Rollback: ripristinare l’header `X-Robots-Tag`, `robots.txt` e la root sul calcolatore; la landing può restare su `/#/welcome`.
+
+---
+
 ## 6. Roadmap consigliata
 
 | Fase       | Contenuto                                               | Stima        | Dipendenze               |
 | ---------- | ------------------------------------------------------- | ------------ | ------------------------ |
 | **EVO-1**  | Google login per i due account; fallback email/password | 0,5–1 giorno | Google Cloud + Supabase  |
 | **EVO-3a** | Pagina “Richiedi accesso” con Formspree Free            | 0,5–1 giorno | Formspree + env pubblica |
+| **EVO-5**  | Landing pubblica, pre-render SEO e routing `/calculator` | 1–2 giorni   | —                        |
 | **EVO-2**  | `workspace_limits`, trigger membri/preventivi, UI quota | 1–2 giorni   | EVO-1 o indipendente     |
 | **EVO-3b** | Invite-only/allowlist, eventuale tetto globale          | 1–2 giorni   | EVO-2, EVO-3a            |
 | **EVO-4**  | Multi-workspace (solo se serve)                         | 3–5 giorni   | ADR-0028, migrazione     |
 
-Ordine consigliato: **EVO-1 → EVO-3a → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
+Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
 
 ---
 
@@ -449,7 +483,7 @@ Ordine consigliato: **EVO-1 → EVO-3a → EVO-2 → EVO-3b**. EVO-4 solo dopo u
 
 Copiare e incollare:
 
-> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/evo-3a-access-request.md`, `docs/engineering/access-requests.md`, `docs/planning/t5.4-cloud-sync.md` §0, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/deployment.md` §1.1 e §13, ADR-0024, ADR-0025, ADR-0026 e i file `src/data/cloud/{client,auth}.ts`, `src/state/auth-store.ts`, `src/features/auth/LoginPage.tsx`, `src/features/settings/SyncSettings.tsx`, `src/features/access/`, `tests/e2e/auth.spec.ts`. Il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), workspace `ws-doublelayer`, due account owner e signup disabilitato. EVO-1 e EVO-3a sono implementati; il form Formspree reale e la verifica live di EVO-3a restano manuali. Il prossimo task è **EVO-2 — tetti utenti/preventivi** con **ADR-0027**; EVO-4 userà **ADR-0028**. Non riaprire EVO-3a se non per configurare il form o correggere un bug. Servono accesso a Formspree, Vercel e Supabase; non mettere secret nel repository, nel bundle o su Vercel. Testa prima in locale/staging, poi produzione. Mantieni email/password come fallback. Non cambiare formule, `engineVersion`, snapshot o schema locale; non committare `.env.local`; non eseguire `test:e2e:sync` contro la produzione. Usa un branch e una PR, non push diretto su `main`. Gate: `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` solo dopo un deploy. Aggiorna STATUS, TASKS, docs, CHANGELOG e la documentazione privacy/auth.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/evo-3a-access-request.md`, `docs/planning/evo-5-landing-page.md`, `docs/engineering/access-requests.md`, `docs/planning/t5.4-cloud-sync.md` §0, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/deployment.md` §1.1 e §13, ADR-0024, ADR-0025, ADR-0026, ADR-0029 e i file `src/data/cloud/{client,auth}.ts`, `src/state/auth-store.ts`, `src/features/auth/LoginPage.tsx`, `src/features/settings/SyncSettings.tsx`, `src/features/access/`, `src/features/landing/`, `src/app/PublicLayout.tsx`, `src/app/AppShell.tsx`, `tests/e2e/auth.spec.ts`, `tests/e2e/landing.spec.ts`. Il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), workspace `ws-doublelayer`, due account owner e signup disabilitato. EVO-1, EVO-3a ed EVO-5 sono implementati; la landing è verificata in locale e il deploy di produzione resta da fare. Il prossimo task è **EVO-2 — tetti utenti/preventivi** con **ADR-0027**; EVO-4 userà **ADR-0028**. Non riaprire EVO-3a se non per configurare il form o correggere un bug. Servono accesso a Formspree, Vercel e Supabase; non mettere secret nel repository, nel bundle o su Vercel. Testa prima in locale/staging, poi produzione. Mantieni email/password come fallback. Non cambiare formule, `engineVersion`, snapshot o schema locale; non committare `.env.local`; non eseguire `test:e2e:sync` contro la produzione. Usa un branch e una PR, non push diretto su `main`. Gate: `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` solo dopo un deploy. Aggiorna STATUS, TASKS, docs, CHANGELOG e la documentazione privacy/auth.
 
 ---
 

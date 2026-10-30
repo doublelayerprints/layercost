@@ -27,7 +27,7 @@ export function NewDraftButton({
   const startNewDraft = () => {
     newDraft(locale)
     setConfirmOpen(false)
-    navigate('/')
+    navigate('/calculator')
   }
 
   const handleClick = () => {

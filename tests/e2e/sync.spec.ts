@@ -143,7 +143,7 @@ async function login(page: Page, account: Account): Promise<void> {
   await page.getByLabel('Email').fill(account.email)
   await page.getByLabel('Password').fill(account.password)
   await page.getByRole('button', { name: 'Accedi' }).click()
-  await page.waitForURL(/#\/$/)
+  await page.waitForURL(/#\/calculator$/)
 }
 
 async function waitForSynced(page: Page): Promise<void> {
@@ -162,7 +162,7 @@ test('primo login: importa i dati locali dopo aver scaricato un backup', async (
   const workspaceId = await createWorkspace([account])
 
   try {
-    await page.goto('/')
+    await page.goto('/#/calculator')
     await page.locator('input[aria-label="Ore"]').first().fill('10')
     await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
     await page.getByRole('button', { name: 'Salva preventivo' }).click()
@@ -210,7 +210,7 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
     await waitForSynced(page)
     await audit(page)
 
-    await page.goto('/#/')
+    await page.goto('/#/calculator')
     await page.locator('input[aria-label="Ore"]').first().fill('10')
     await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
     await page.getByRole('button', { name: 'Salva preventivo' }).click()
@@ -246,13 +246,13 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
     // A edits offline; B edits and saves while A is still offline.
     await page.context().setOffline(true)
     await page.getByRole('button', { name: 'Modifica preventivo' }).click()
-    await page.waitForURL(/#\/$/)
+    await page.waitForURL(/#\/calculator$/)
     await page.getByLabel('Nome preventivo').fill('Versione A offline')
     await page.getByRole('button', { name: 'Salva modifiche' }).click()
     await page.waitForURL(/#\/quotes\/.+/)
 
     await secondPage.getByRole('button', { name: 'Modifica preventivo' }).click()
-    await secondPage.waitForURL(/#\/$/)
+    await secondPage.waitForURL(/#\/calculator$/)
     await secondPage.getByLabel('Nome preventivo').fill('Versione B online')
     await secondPage.getByRole('button', { name: 'Salva modifiche' }).click()
     await secondPage.waitForURL(/#\/quotes\/.+/)
@@ -307,7 +307,7 @@ test('un utente senza membership o di un altro workspace non vede i dati condivi
     await page.goto('/#/settings')
     await waitForSynced(page)
 
-    await page.goto('/#/')
+    await page.goto('/#/calculator')
     await page.getByLabel('Nome preventivo').fill('Solo workspace condiviso')
     await page.locator('input[aria-label="Ore"]').first().fill('10')
     await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')

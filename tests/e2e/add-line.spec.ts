@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test.use({ colorScheme: 'light' })
 
 test('aggiunge una riga dal pulsante largo sotto la card', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
 
   const cards = page.locator('fieldset[id^="line-"]')
   await expect(cards).toHaveCount(1)

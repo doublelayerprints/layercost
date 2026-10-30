@@ -11,7 +11,7 @@ export function NotFoundPage() {
       <EmptyState
         title={t('notFound.emptyTitle')}
         description={t('notFound.description')}
-        action={<Button onClick={() => navigate('/')}>{t('notFound.back')}</Button>}
+        action={<Button onClick={() => navigate('/calculator')}>{t('notFound.back')}</Button>}
       />
     </div>
   )
