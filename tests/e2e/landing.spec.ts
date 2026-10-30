@@ -108,7 +108,8 @@ test('login e richiesta accesso sono raggiungibili dalla landing', async ({ page
   await openLanding(page)
 
   await page.getByRole('link', { name: 'Accedi' }).first().click()
-  await expect(page.getByRole('heading', { name: 'Accedi' })).toBeVisible()
+  await page.waitForURL(/#\/login$/)
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
   await page.goto('/#/welcome')
   await page.getByRole('link', { name: 'Richiedi accesso' }).first().click()
