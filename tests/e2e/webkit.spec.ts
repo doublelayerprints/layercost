@@ -6,7 +6,7 @@ test('WebKit calcola, salva, ricarica e stampa', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[aria-label="Ore"]').first().fill('10')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
   await expect(page.getByText(/3,70/).first()).toBeVisible({ timeout: 10_000 })
@@ -35,7 +35,7 @@ test('WebKit calcola, salva, ricarica e stampa', async ({ page }) => {
 })
 
 test('WebKit apre un link condiviso in un contesto pulito', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[aria-label="Ore"]').first().fill('10')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
   await page.getByRole('button', { name: 'Salva preventivo' }).click()

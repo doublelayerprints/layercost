@@ -40,11 +40,11 @@ const checks = [
   {
     label: 'JS iniziale',
     bytes: initialJsBytes,
-    // EVO-3a (ADR-0026): the request-access page is lazy, but its IT/EN
-    // strings live in the central dictionaries. The initial chunk grew from
-    // 204.9 KB to 206.6 KB gzip; the limit is raised to 210 KB with the
-    // motivation recorded in STATUS.md and ADR-0026.
-    limit: 210 * KB,
+    // EVO-5 (ADR-0029): the public landing is the first screen and lives in the
+    // initial chunk, together with its IT/EN copy. The measured size is 218.0 KB
+    // gzip; the limit is raised from 210 KB to 230 KB with the motivation in
+    // ADR-0029 and STATUS.md. EVO-3a (ADR-0026) had raised it to 210 KB.
+    limit: 230 * KB,
   },
   {
     label: 'Chunk lazy',
@@ -58,7 +58,14 @@ const checks = [
   },
   { label: 'CSS', bytes: cssBytes, limit: 20 * KB },
   { label: 'Font WOFF2', bytes: fontBytes, limit: 120 * KB },
-  { label: 'HTML', bytes: htmlBytes, limit: 4 * KB },
+  {
+    label: 'HTML',
+    bytes: htmlBytes,
+    // EVO-5 (ADR-0029): the Italian landing is pre-rendered into index.html for
+    // crawlers and no-JS visitors. The gzip size is 6.1 KB; the limit is raised
+    // from 4 KB to 10 KB with the motivation in ADR-0029.
+    limit: 10 * KB,
+  },
   {
     label: 'Totale iniziale',
     bytes: initialJsBytes + cssBytes + fontBytes,

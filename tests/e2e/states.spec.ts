@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test.use({ colorScheme: 'light' })
 
 test('la bozza chiede conferma prima di essere sostituita', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
 
   const grams = page.locator('input[aria-label="Grammi materiale 1"]')
   await grams.fill('100')
@@ -30,7 +30,7 @@ test('la bozza chiede conferma prima di essere sostituita', async ({ page }) => 
 })
 
 test('un preventivo salvato offre di aprire la copia senza perdere la bozza', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[aria-label="Ore"]').first().fill('10')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
   await page.getByRole('button', { name: 'Salva preventivo' }).click()

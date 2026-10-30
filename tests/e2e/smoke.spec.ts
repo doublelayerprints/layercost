@@ -4,7 +4,7 @@ test('calcola, salva e ricarica un preventivo', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await expect(page.getByRole('heading', { name: 'Configura LayerCost' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
 
@@ -61,7 +61,7 @@ test('calcola, salva e ricarica un preventivo', async ({ page }) => {
 })
 
 test('condivide e importa un preventivo in un contesto pulito', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[aria-label="Ore"]').first().fill('10')
   await page.locator('input[aria-label="Minuti"]').first().fill('0')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
@@ -100,7 +100,7 @@ test('condivide e importa un preventivo in un contesto pulito', async ({ page })
 })
 
 test('naviga le sezioni principali', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   for (const label of [
     'Preventivi',
     'Stampanti',

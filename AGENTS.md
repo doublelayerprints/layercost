@@ -24,7 +24,7 @@ Prima di toccare il codice:
 3. `AGENTS.md` (questo file)
 4. `PLAN.md`
 5. `TASKS.md`
-6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/engineering/workspace-runbook.md` per utenti, membership e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
+6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/planning/evo-5-landing-page.md` per la landing pubblica, `docs/engineering/workspace-runbook.md` per utenti, membership e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
 7. `docs/domain/cost-model.md`
 8. `docs/domain/data-model.md`
 9. gli ADR rilevanti in `docs/adr/`
@@ -66,7 +66,7 @@ npm run test:e2e:sync # build + due contesti, offline e conflitto (azzera il DB 
 
 ```text
 src/
-  app/            routing, layout, provider
+  app/            routing, layout pubblico/app, provider
   domain/         tipi, motore di costo, prezzi — puro
   data/           repository, localStorage, migrazioni, seed
   state/          stato UI e casi d'uso (application layer attuale)
@@ -81,7 +81,7 @@ Regole di dipendenza:
 - `domain` non importa React, Zustand, Zod, `localStorage`, `window`, `Date.now()`, `crypto.randomUUID()`.
 - `state` orchestra dominio e repository; se i casi d'uso crescono, si estrae `application/`.
 - `data` implementa il repository; è l'unico posto che tocca `localStorage`.
-- `features` usa dominio, store e componenti.
+- `features` usa dominio, store e componenti. La landing pubblica (`features/landing/`) non usa `HydrationGate`, sync o dialoghi cloud e non crea `layercost:data`.
 - Nessun accesso diretto allo storage fuori da `data/`.
 
 ---
@@ -264,12 +264,14 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/engineering/manual-checks.md` — verifiche manuali Safari e VoiceOver.
 - `docs/planning/phase-5.md` — piano operativo di import `.3mf`, inglese e sync.
 - `docs/planning/t5.4-cloud-sync.md` — piano dettagliato del sync Supabase: schema, RLS, auth, task e operazioni free.
-- `docs/planning/evolutive.md` — evolutive future: Google login, tetti utenti/preventivi e apertura multi-workspace.
+- `docs/planning/evolutive.md` — evolutive future: Google login, tetti utenti/preventivi, landing e apertura multi-workspace.
+- `docs/planning/evo-5-landing-page.md` — piano operativo e acceptance della landing pubblica.
 - `docs/engineering/workspace-runbook.md` — runbook del workspace condiviso: utenti, membership, reset password, audit e troubleshooting.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.
 - `docs/adr/0025-google-oauth.md` — Google OAuth, PKCE, auto-link, “Collega Google”, segreti e rollback.
 - `docs/adr/0026-request-access-formspree.md` — pagina pubblica “Richiedi accesso”, Formspree Free, privacy e retention.
+- `docs/adr/0029-public-landing-page.md` — landing pubblica, routing `/#/calculator`, pre-render SEO e budget.
 - `docs/planning/evo-3a-access-request.md` — piano di EVO-3a.
 - `docs/engineering/access-requests.md` — runbook amministratore per richieste, approvazione manuale, retention e cancellazione.
 - `docs/design/ui-brief.md` — requisiti per la fase design.

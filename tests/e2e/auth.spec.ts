@@ -65,7 +65,7 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
     await page.getByLabel('Email').fill(account.email)
     await page.getByLabel('Password').fill(account.password)
     await page.getByRole('button', { name: 'Accedi' }).click()
-    await page.waitForURL(/#\/$/)
+    await page.waitForURL(/#\/calculator$/)
 
     await page.goto('/#/settings')
     await expect(page.getByRole('heading', { name: 'Sincronizzazione' })).toBeVisible()

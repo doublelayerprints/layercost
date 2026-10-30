@@ -1,0 +1,196 @@
+/*
+ * Public landing surface. The app keeps its five-step scale; the landing adds a
+ * display step for the h1 and h2 only. Everything else uses the Strato tokens.
+ */
+
+.landing-display {
+  font-size: clamp(2.25rem, 3.6vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.landing-h2 {
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+.landing-h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.landing-lead {
+  font-size: clamp(1.0625rem, 1.25vw, 1.25rem);
+  line-height: 1.55;
+}
+
+.landing-body {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.landing-small {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.landing-wordmark {
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.88;
+}
+
+.landing-button {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+/* The live demo is a real interface fragment: keep the app borders and controls. */
+[data-ui] label,
+[data-ui] input {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+[data-ui] .text-xs {
+  font-size: 0.8125rem;
+}
+
+.landing-section {
+  scroll-margin-top: 5.5rem;
+}
+
+/* The feature comparison is a real table on desktop and a stack of blocks on a phone. */
+.landing-feature-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.landing-feature-table th,
+.landing-feature-table td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.landing-feature-table tbody tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-card);
+}
+
+.landing-feature-table tbody tr:first-child td:last-child {
+  border-top-right-radius: var(--radius-card);
+}
+
+.landing-feature-table tbody tr:last-child th:first-child {
+  border-bottom-left-radius: var(--radius-card);
+}
+
+.landing-feature-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-card);
+}
+
+@media (max-width: 767px) {
+  .landing-feature-table,
+  .landing-feature-table tbody,
+  .landing-feature-table tr,
+  .landing-feature-table th,
+  .landing-feature-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .landing-feature-table thead {
+    display: none;
+  }
+
+  .landing-feature-table tbody tr {
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+  }
+
+  .landing-feature-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .landing-feature-table th,
+  .landing-feature-table td {
+    padding: 1rem 1.25rem;
+  }
+
+  .landing-feature-table tbody tr th:first-child {
+    border-radius: 0;
+  }
+
+  .landing-feature-table tbody tr td:last-child {
+    border-radius: 0;
+  }
+}
+
+/* The FAQ is a native details accordion: no custom ARIA, no script. */
+.landing-faq summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.landing-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-icon {
+  position: relative;
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+.faq-icon::before,
+.faq-icon::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1rem;
+  height: 2px;
+  content: '';
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  transition: transform 180ms ease;
+}
+
+.faq-icon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.landing-faq details[open] .faq-icon::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* Entrance motion is progressive: the static HTML and the no-JS page are visible. */
+[data-reveal] {
+  transition:
+    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+html[data-reveal-ready] [data-reveal]:not([data-reveal='in']) {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    transition: none !important;
+  }
+
+  html[data-reveal-ready] [data-reveal]:not([data-reveal='in']) {
+    opacity: 1;
+    transform: none;
+  }
+}

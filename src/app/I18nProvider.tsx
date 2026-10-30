@@ -10,10 +10,6 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale
     document.documentElement.dir = 'ltr'
-    document.title = translate(locale, 'meta.title')
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute('content', translate(locale, 'meta.description'))
   }, [locale])
 
   const value = useMemo<I18nContextValue>(

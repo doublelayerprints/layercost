@@ -36,7 +36,7 @@ export function QuotesPage() {
 
   const emptyAction =
     quotes.length === 0 ? (
-      <Button onClick={() => navigate('/')}>{t('quotes.goToCalculator')}</Button>
+      <Button onClick={() => navigate('/calculator')}>{t('quotes.goToCalculator')}</Button>
     ) : hasSearch ? (
       <Button variant="secondary" onClick={() => setSearch('')}>
         {t('quotes.resetSearch')}

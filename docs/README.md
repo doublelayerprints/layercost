@@ -1,6 +1,6 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 + T5.3/T5.6.5/T5.12/T5.20 + EVO-1/EVO-3a — fase 5 in corso
+**Stato:** v1.0.0 + T5.3/T5.6.5/T5.12/T5.20 + EVO-1/EVO-3a/EVO-5 — fase 5 in corso
 **Data:** 29 ottobre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
@@ -8,10 +8,10 @@
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud implementato e **live in produzione** (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`, T5.4.0–T5.4.6 chiusi; evolutive in `planning/evolutive.md`. **EVO-1** Google login (ADR-0025) è distribuito; **EVO-3a** pagina “Richiedi accesso” (ADR-0026) è implementata, configurata con Formspree e distribuita: piano in `planning/evo-3a-access-request.md`, runbook in `engineering/access-requests.md`. Il limite dell’import `.3mf` è a **250 MiB compressi / 1 GiB decompressi**.
+- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud implementato e **live in produzione** (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`, T5.4.0–T5.4.6 chiusi; evolutive in `planning/evolutive.md`. **EVO-1** Google login (ADR-0025) è distribuito; **EVO-3a** pagina “Richiedi accesso” (ADR-0026) è implementata, configurata con Formspree e distribuita: piano in `planning/evo-3a-access-request.md`, runbook in `engineering/access-requests.md`. Il limite dell’import `.3mf` è a **250 MiB compressi / 1 GiB decompressi**. **EVO-5** landing pubblica (ADR-0029) è implementata e verificata in locale: piano in `planning/evo-5-landing-page.md`, route `/#/`, `/#/calculator`, `/#/welcome`, pre-render SEO e deploy di produzione da fare.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 237 unitari + 51 E2E (39 default incl. accesso + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS; axe 60 scansioni, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi.
+- Test: 249 unitari + 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync) + 33 pgTAP RLS; axe 68 scansioni, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e` + `database`).
 - Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`), deploy cloud T5.4 (`1bf641e`), deploy EVO-1 (`51d3fb9`), deploy EVO-3a (`125f0d5`) e limite `.3mf` (`338d693`, build `index-BR5hKjFi.js` / `index-G-eqO2lr.css`) verificati; le preview sono protette da SSO.
@@ -83,6 +83,7 @@
 │   │   ├── t5.4-cloud-sync.md
 │   │   ├── evolutive.md
 │   │   ├── evo-3a-access-request.md
+│   │   ├── evo-5-landing-page.md
 │   │   └── i18n-inventory.md
 │   └── adr/
 │       ├── README.md

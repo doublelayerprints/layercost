@@ -13,7 +13,7 @@ const viewports = [
 ]
 
 async function seedQuote(page: Page, english = false) {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page
     .locator(`input[aria-label="${english ? 'Hours' : 'Ore'}"]`)
     .first()
@@ -40,14 +40,40 @@ async function screenshot(page: Page, name: string) {
   await expect(page).toHaveScreenshot(name, { animations: 'disabled' })
 }
 
+async function screenshotLanding(page: Page, name: string) {
+  await page.evaluate(() => {
+    for (const element of document.querySelectorAll<HTMLElement>('[data-reveal]')) {
+      element.setAttribute('data-reveal', 'in')
+    }
+    for (const image of document.images) image.loading = 'eager'
+  })
+  await page.evaluate(() => document.fonts.ready)
+  await page.evaluate(async () => {
+    const pending = [...document.images].map((image) => {
+      if (image.complete && image.naturalWidth > 0) return Promise.resolve()
+      return new Promise<void>((resolve) => {
+        image.addEventListener('load', () => resolve(), { once: true })
+        image.addEventListener('error', () => resolve(), { once: true })
+      })
+    })
+    await Promise.race([
+      Promise.all(pending),
+      new Promise<void>((resolve) => setTimeout(resolve, 5000)),
+    ])
+  })
+  await page.mouse.move(0, 0)
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+  await expect(page).toHaveScreenshot(name, { animations: 'disabled' })
+}
+
 for (const viewport of viewports) {
   test(`regressione visiva a ${viewport.width} px`, async ({ page }) => {
     await page.clock.setFixedTime(FIXED_TIME)
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
-    await page.goto('/')
+    await page.goto('/#/calculator')
     const quotePath = await seedQuote(page)
 
-    await page.goto('/')
+    await page.goto('/#/calculator')
     await screenshot(page, `${viewport.name}-calcolatore.png`)
 
     await page
@@ -74,10 +100,10 @@ for (const viewport of viewports) {
     await page.clock.setFixedTime(FIXED_TIME)
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
     await page.addInitScript(() => localStorage.setItem('layercost:locale', 'en'))
-    await page.goto('/')
+    await page.goto('/#/calculator')
     const quotePath = await seedQuote(page, true)
 
-    await page.goto('/')
+    await page.goto('/#/calculator')
     await screenshot(page, `en-${viewport.name}-calcolatore.png`)
 
     await page
@@ -98,5 +124,31 @@ for (const viewport of viewports) {
 
     await page.goto('/#/settings')
     await screenshot(page, `en-${viewport.name}-impostazioni.png`)
+  })
+
+  test(`landing a ${viewport.width} px`, async ({ page }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    await page.addInitScript(() => {
+      localStorage.clear()
+      localStorage.setItem('layercost:locale', 'it')
+    })
+    await page.goto('/')
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Il costo vero delle stampe 3D.' }),
+    ).toBeVisible()
+    await screenshotLanding(page, `landing-${viewport.name}.png`)
+  })
+
+  test(`landing inglese a ${viewport.width} px`, async ({ page }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    await page.addInitScript(() => {
+      localStorage.clear()
+      localStorage.setItem('layercost:locale', 'en')
+    })
+    await page.goto('/')
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' }),
+    ).toBeVisible()
+    await screenshotLanding(page, `landing-en-${viewport.name}.png`)
   })
 }

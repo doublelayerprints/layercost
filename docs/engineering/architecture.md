@@ -1,6 +1,6 @@
 # Architettura
 
-**Stato:** v1.0.0 — MVP funzionale
+**Stato:** v1.0.0 — MVP funzionale; landing pubblica EVO-5 (ADR-0029)
 
 ---
 
@@ -25,7 +25,7 @@ Dati (data/: repository, storage, schemi, seed)
 - **`features/`** — schermate e componenti di dominio UI.
 - **`components/`** — primitivi riutilizzabili, senza logica di costo.
 - **`lib/`** — formattazione, date, ID, condivisione, preferenza del tema, contenuto della bozza.
-- **`app/`** — routing, layout, provider, applicazione del tema.
+- **`app/`** — routing, layout pubblico e dell’app, provider, applicazione del tema.
 
 Se i casi d'uso cresceranno, le azioni dello store potranno essere estratte in `application/` senza cambiare il dominio.
 
@@ -67,7 +67,7 @@ DataRepository ──► Zustand store ──► UI
    └────────────────────┘
 ```
 
-L'interfaccia `DataRepository` è in `src/data/repository.ts` ed è asincrona dalla T5.4.1. In modalità ospite l'adapter è `localRepository` (`layercost:data`); in modalità connessa è `cloudCacheRepository` (`layercost:cloud-cache`). Le scritture passano da una coda serializzata in `src/state/persist-queue.ts`. Il sync cloud opzionale segue `docs/planning/t5.4-cloud-sync.md` (ADR-0024): T5.4.2 ha aggiunto schema, RLS, trigger e mapper in `src/data/cloud/`; T5.4.3 ha aggiunto client Supabase lazy, gateway auth (`src/data/cloud/auth.ts`), store (`src/state/auth-store.ts`), login e SyncSettings; T5.4.4 ha aggiunto il gateway dati (`src/data/cloud/gateway.ts`), diff/outbox/metadati (`src/data/cloud/sync.ts`, `sync-state.ts`), lo store di sync e le schermate di primo login/conflitto. T5.4.5 chiude il workspace condiviso: runbook amministrativo in `docs/engineering/workspace-runbook.md`, audit `created_by`/`updated_by` nel dettaglio (solo cloud) e test di isolamento con due owner, un utente senza membership e un workspace separato. T5.4.6 completa le operazioni (keep-alive, backup cifrato, CI database, deploy) e porta il cloud in produzione dal 28/10/2026. EVO-1 (ADR-0025) aggiunge Google come provider opzionale: PKCE con redirect alla root, scambio manuale del `code` in `src/data/cloud/oauth.ts` e `auth-store`, fallback “Collega Google” e flag pubblico `VITE_AUTH_GOOGLE_ENABLED`. EVO-3a (ADR-0026) aggiunge la pagina pubblica “Richiedi accesso”: route lazy in `src/App.tsx`, logica pura in `src/features/access/request-access.ts` e invio esplicito a Formspree con `VITE_ACCESS_REQUEST_ENDPOINT`. È l’unica chiamata di rete oltre a Supabase e agli asset statici: non legge né scrive `AppData`, non crea utenti e non tocca auth, RLS o sync. La modalità ospite resta completa: il cloud non è obbligatorio.
+L'interfaccia `DataRepository` è in `src/data/repository.ts` ed è asincrona dalla T5.4.1. In modalità ospite l'adapter è `localRepository` (`layercost:data`); in modalità connessa è `cloudCacheRepository` (`layercost:cloud-cache`). Le scritture passano da una coda serializzata in `src/state/persist-queue.ts`. Il sync cloud opzionale segue `docs/planning/t5.4-cloud-sync.md` (ADR-0024): T5.4.2 ha aggiunto schema, RLS, trigger e mapper in `src/data/cloud/`; T5.4.3 ha aggiunto client Supabase lazy, gateway auth (`src/data/cloud/auth.ts`), store (`src/state/auth-store.ts`), login e SyncSettings; T5.4.4 ha aggiunto il gateway dati (`src/data/cloud/gateway.ts`), diff/outbox/metadati (`src/data/cloud/sync.ts`, `sync-state.ts`), lo store di sync e le schermate di primo login/conflitto. T5.4.5 chiude il workspace condiviso: runbook amministrativo in `docs/engineering/workspace-runbook.md`, audit `created_by`/`updated_by` nel dettaglio (solo cloud) e test di isolamento con due owner, un utente senza membership e un workspace separato. T5.4.6 completa le operazioni (keep-alive, backup cifrato, CI database, deploy) e porta il cloud in produzione dal 28/10/2026. EVO-1 (ADR-0025) aggiunge Google come provider opzionale: PKCE con redirect alla root, scambio manuale del `code` in `src/data/cloud/oauth.ts` e `auth-store`, fallback “Collega Google” e flag pubblico `VITE_AUTH_GOOGLE_ENABLED`. EVO-3a (ADR-0026) aggiunge la pagina pubblica “Richiedi accesso”: route lazy in `src/App.tsx`, logica pura in `src/features/access/request-access.ts` e invio esplicito a Formspree con `VITE_ACCESS_REQUEST_ENDPOINT`. È l’unica chiamata di rete oltre a Supabase e agli asset statici: non legge né scrive `AppData`, non crea utenti e non tocca auth, RLS o sync. EVO-5 (ADR-0029) separa la landing pubblica dall’app: `PublicLayout` e `LandingRoute` vivono fuori da `HydrationGate`, `SyncController` e dialoghi cloud; `AppShell` monta idratazione, sync, dialoghi e `Layout` solo per `/#/calculator` e le altre route dell’app. La landing non chiama `hydrate()` e non crea `layercost:data`; il marker `layercost:hasVisited` è separato e serve solo al redirect. La modalità ospite resta completa: il cloud non è obbligatorio.
 
 ---
 
@@ -87,17 +87,17 @@ Il risultato è memorizzato in `Quote.result`. Il ricalcolo usa lo snapshot; “
 
 ```text
 src/
-  app/            Layout, HydrationGate, routing, theme
+  app/            Layout, PublicLayout, AppShell, HydrationGate, routing, theme
   components/     ui.tsx, number-fields.tsx
-  data/           repository, storage, cloud-cache, schemas, seed, theme, three-mf, cloud/
+  data/           repository, storage, cloud-cache, schemas, seed, theme, visit, three-mf, cloud/
   domain/         units, money, types, version, cost/, three-mf
-  features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding, auth, sync, access
+  features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding, auth, sync, access, landing
   i18n/           it.ts, en.ts, index.ts
   lib/            format, date, id, share, labels, cn, theme, draft, xlsx
   state/          app-store, auth-store, sync-store, persist-queue, theme-store, locale-store
 ```
 
-Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts`, `auth.ts`, `oauth.ts`, `gateway.ts`, `sync.ts` e `sync-state.ts`; `data/cloud-cache.ts` implementa la cache connessa. `features/auth/LoginPage.tsx`, `features/auth/OAuthCallbackRedirect.tsx`, `features/settings/SyncSettings.tsx`, `features/sync/SyncController.tsx`, i dialoghi di primo login/conflitto, `state/auth-store.ts` e `state/sync-store.ts` sono implementati. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`.
+Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts`, `auth.ts`, `oauth.ts`, `gateway.ts`, `sync.ts` e `sync-state.ts`; `data/cloud-cache.ts` implementa la cache connessa. `features/auth/LoginPage.tsx`, `features/auth/OAuthCallbackRedirect.tsx`, `features/settings/SyncSettings.tsx`, `features/sync/SyncController.tsx`, i dialoghi di primo login/conflitto, `state/auth-store.ts` e `state/sync-store.ts` sono implementati. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`. EVO-5 introduce `app/PublicLayout.tsx`, `app/AppShell.tsx`, `app/meta.ts`, `features/landing/` (componenti, contenuti, demo dal vivo, pre-render statico e test) e `data/visit.ts`.
 
 Flusso connesso:
 

@@ -4,7 +4,7 @@ test('imposta, conserva e rimuove il colore del filamento', async ({ page }) => 
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
+  await page.goto('/#/calculator')
   const colorInput = page.getByLabel('Colore filamento della stampa 1')
   await colorInput.fill('#ff0000')
   await expect(page.locator('[data-line-color="#ff0000"]').first()).toBeVisible()
@@ -26,7 +26,7 @@ test('imposta, conserva e rimuove il colore del filamento', async ({ page }) => 
   expect(stored).toBe('#ff0000')
 
   await page.getByRole('button', { name: 'Modifica preventivo' }).click()
-  await page.waitForURL(/#\/$/)
+  await page.waitForURL(/#\/calculator$/)
   await expect(page.getByLabel('Colore filamento della stampa 1')).toHaveValue('#ff0000')
 
   await page.getByRole('button', { name: 'Rimuovi colore filamento' }).click()

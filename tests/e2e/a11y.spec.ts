@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test'
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
 async function seedQuote(page: Page, english = false) {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page
     .locator(`input[aria-label="${english ? 'Hours' : 'Ore'}"]`)
     .first()
@@ -35,7 +35,7 @@ async function audit(page: Page, label: string) {
 
 async function auditRoutes(page: Page, quotePath: string, label: string) {
   const routes = [
-    ['calcolatore', '/#/'],
+    ['calcolatore', '/#/calculator'],
     ['preventivi', '/#/quotes'],
     ['dettaglio', quotePath],
     ['condivisione non valida', '/#/share'],
@@ -72,7 +72,7 @@ test.describe('accessibilità WCAG 2.2 AA', () => {
       const quotePath = await seedQuote(page)
       await auditRoutes(page, quotePath, 'mobile scuro')
 
-      await page.goto('/')
+      await page.goto('/#/calculator')
       await page.getByRole('button', { name: 'Menu' }).click()
       await expect(page.locator('#mobile-navigation')).toBeVisible()
       await audit(page, 'mobile scuro · menu aperto')
@@ -94,7 +94,7 @@ test.describe('accessibilità WCAG 2.2 AA', () => {
       await audit(page, 'mobile scuro · modale reset')
       await page.keyboard.press('Escape')
 
-      await page.goto('/')
+      await page.goto('/#/calculator')
       await page
         .locator('input[type="file"]')
         .setInputFiles('tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf')
@@ -113,7 +113,7 @@ test.describe('accessibilità WCAG 2.2 AA', () => {
       const quotePath = await seedQuote(page, true)
       await auditRoutes(page, quotePath, 'inglese chiaro')
 
-      await page.goto('/')
+      await page.goto('/#/calculator')
       await page.locator('input[aria-label="Material grams 1"]').fill('50')
       await page.getByRole('button', { name: 'New', exact: true }).click()
       await expect(page.getByRole('dialog', { name: 'Start a new quote?' })).toBeVisible()
@@ -126,7 +126,7 @@ test.describe('accessibilità WCAG 2.2 AA', () => {
       await audit(page, 'inglese chiaro · modale reset')
       await page.keyboard.press('Escape')
 
-      await page.goto('/')
+      await page.goto('/#/calculator')
       await page
         .locator('input[type="file"]')
         .setInputFiles('tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf')

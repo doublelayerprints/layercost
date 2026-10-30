@@ -124,7 +124,7 @@ export function RequestAccessPage() {
           <p className="mt-2 text-sm leading-relaxed text-ink">{t('access.success.body')}</p>
           <p className="mt-2 text-sm leading-relaxed text-muted">{t('access.success.noEmail')}</p>
           <Link
-            to="/"
+            to="/calculator"
             className="mt-5 inline-block text-sm font-medium text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
           >
             {t('access.success.back')}
@@ -286,7 +286,7 @@ export function RequestAccessPage() {
               {busy ? t('access.submitting') : t('access.submit')}
             </Button>
             <Link
-              to="/"
+              to="/calculator"
               className="text-sm text-muted underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
             >
               {t('access.success.back')}

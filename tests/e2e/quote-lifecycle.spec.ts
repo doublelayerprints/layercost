@@ -4,7 +4,7 @@ test('modifica un preventivo salvato e lo blocca dopo invio e completamento', as
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.locator('input[aria-label="Ore"]').first().fill('10')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
   await page.getByRole('button', { name: 'Salva preventivo' }).click()
@@ -23,7 +23,7 @@ test('modifica un preventivo salvato e lo blocca dopo invio e completamento', as
   expect(manageBox?.y).toBeLessThan(priceBox?.y ?? Number.POSITIVE_INFINITY)
 
   await page.getByRole('button', { name: 'Modifica preventivo' }).click()
-  await page.waitForURL(/#\/$/)
+  await page.waitForURL(/#\/calculator$/)
   await expect(page.getByText(/Stai modificando/)).toBeVisible()
   await page.getByLabel('Quantità').fill('2')
   await page.getByRole('button', { name: 'Salva modifiche' }).click()

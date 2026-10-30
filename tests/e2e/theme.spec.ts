@@ -55,7 +55,7 @@ test('il tema è esplicito, persistente e segue il sistema', async ({ page }) =>
   await expect(html).toHaveAttribute('data-theme', 'light')
 
   await page.emulateMedia({ colorScheme: 'dark' })
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await expect(html).toHaveAttribute('data-theme', 'dark')
   await expect(page.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
 

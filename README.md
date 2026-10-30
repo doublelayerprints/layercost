@@ -26,6 +26,7 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Comprime le card del calcolatore e le singole stampe in righe compatte con drop down, con una sintesi sempre leggibile.
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
 - Funziona interamente nel browser: nessun backend, nessun account, nessun analytics. La pagina “Richiedi accesso” invia a Formspree solo su azione esplicita (ADR-0026).
+- La root è una landing pubblica in italiano e inglese, pre-renderizzata in `index.html` per i crawler e per chi non ha JavaScript; il calcolatore vive su `/#/calculator` e `/#/welcome` riapre la landing anche da utenti esistenti (ADR-0029).
 
 ## Stack
 
@@ -38,7 +39,7 @@ npm install
 npm run dev
 ```
 
-Apri `http://localhost:5173`.
+Apri `http://localhost:5173` per la landing pubblica, `http://localhost:5173/#/calculator` per il calcolatore e `http://localhost:5173/#/welcome` per rivedere la landing anche da utenti esistenti.
 
 ## Comandi
 
@@ -46,6 +47,7 @@ Apri `http://localhost:5173`.
 npm run dev          # sviluppo
 npm run build        # build di produzione
 npm run preview      # anteprima build
+npm run capture:landing # screenshot reali della landing (richiede Chrome)
 npm run typecheck    # TypeScript
 npm run lint         # oxlint
 npm run test         # unit + dati
@@ -103,6 +105,8 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 
+La root è indicizzabile: `index.html` contiene la landing italiana pre-renderizzata, canonical, Open Graph e Twitter; `public/robots.txt` usa `Allow: /` e `public/sitemap.xml` elenca la root. Non c’è più `X-Robots-Tag: noindex`. L’inglese è disponibile nell’interfaccia, ma l’indicizzazione inglese separata è una decisione futura.
+
 ## Documentazione
 
 | File                                    | Contenuto                                              |
@@ -118,18 +122,20 @@ Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engine
 | `docs/engineering/`                     | Architettura, persistenza, test, release, deploy       |
 | `docs/engineering/workspace-runbook.md` | Workspace condiviso: utenti, membership, audit         |
 | `docs/planning/phase-5.md`              | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync           |
-| `docs/planning/evolutive.md`            | Google login, tetti utenti/preventivi, multi-workspace |
+| `docs/planning/evolutive.md`            | Google login, tetti utenti/preventivi, landing, multi-workspace |
+| `docs/planning/evo-5-landing-page.md`   | Piano e acceptance della landing pubblica              |
 | `docs/design/ui-brief.md`               | Requisiti per la fase design                           |
 | `docs/design/directions.md`             | Direzioni e scelta visiva                              |
 | `docs/design/design-system.md`          | Token, componenti, accessibilità                       |
-| `docs/adr/`                             | 26 decisioni architetturali                            |
+| `docs/adr/`                             | 29 decisioni architetturali                            |
 
 ## Stato
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 185 unitari, 44 E2E (33 default + 6 visual + 2 auth + 3 sync), 33 test pgTAP RLS, 36 screenshot di regressione, 49 scansioni axe con 0 violazioni, smoke test di produzione, keep-alive, backup cifrato e budget.
+- **Verifiche:** 249 unitari, 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync), 33 test pgTAP RLS, 42 screenshot di regressione, 68 scansioni axe con 0 violazioni, smoke test di produzione, keep-alive, backup cifrato e budget.
 - **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
+- **Landing:** EVO-5 implementata e verificata in locale il 29/10/2026 (ADR-0029): route `/#/`, `/#/calculator`, `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot; deploy di produzione da fare.
 - **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password), **T5.4.4 chiuso** (sync, outbox e conflitti), **T5.4.5 chiuso** (workspace condiviso, runbook e audit) e **T5.4.6 chiuso** (keep-alive, backup, CI database, budget e deploy). Il cloud è **live** su https://layercost.vercel.app con Supabase Free EU e due account owner. Piano in `docs/planning/t5.4-cloud-sync.md`, runbook in `docs/engineering/workspace-runbook.md`, backup in `docs/engineering/backup-restore.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
 - **CI:** verde su GitHub (`check` + `e2e`).

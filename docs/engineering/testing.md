@@ -1,12 +1,12 @@
 # Testing
 
-**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.6 + EVO-1 + EVO-3a — 237 test unitari + 51 E2E (39 default incl. accesso + 6 visual + 3 auth + 3 sync) + 33 pgTAP RLS
+**Stato:** v1.0.0 + T5.3.5 + T5.12 + T5.13–T5.21 + T5.4.1–T5.4.6 + EVO-1 + EVO-3a + EVO-5 — 249 test unitari + 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync) + 33 pgTAP RLS
 
 ---
 
 ## 1. Strategia
 
-> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. EVO-1 (ADR-0025) aggiunge 31 test unitari su parsing callback, mapping errori OAuth, gateway, flag pubblico e store auth, più un E2E auth con provider mockato e annullamento. EVO-3a (ADR-0026) aggiunge 17 test unitari su validazione/payload/endpoint/errori, 5 E2E con Formspree mockato, 1 E2E senza endpoint e il doppio build in `scripts/test-e2e.mjs`. Il limite `.3mf` è stato portato a 250 MiB compressi e 1 GiB decompressi con 3 test sui limiti e 1 sul messaggio localizzato. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10, `docs/planning/evolutive.md` §3/§3A e `docs/planning/evo-3a-access-request.md` §10.
+> Fase 5 (in corso): T5.4.1 ha aggiunto i test di contratto del repository e della coda di scrittura; T5.4.2 ha aggiunto 7 test sui mapper e i test pgTAP RLS; T5.4.4 ha aggiunto 13 test su diff/outbox/metadati/primo login, 9 sullo store sync, 8 sullo store app con cache cloud e 2 E2E a due contesti con offline e conflitto; T5.4.5 ha aggiunto 3 test unitari su audit, link condivisi e copie, 11 asserzioni pgTAP su quote condivise/isolamento e 1 E2E su utente senza membership e workspace separato. EVO-1 (ADR-0025) aggiunge 31 test unitari su parsing callback, mapping errori OAuth, gateway, flag pubblico e store auth, più un E2E auth con provider mockato e annullamento. EVO-3a (ADR-0026) aggiunge 17 test unitari su validazione/payload/endpoint/errori, 5 E2E con Formspree mockato, 1 E2E senza endpoint e il doppio build in `scripts/test-e2e.mjs`. EVO-5 (ADR-0029) aggiunge 12 test unitari su routing, anteprima, SEO e snapshot statico, 11 E2E sulla landing e 6 screenshot visuali IT/EN a 1440/768/390. Il limite `.3mf` è stato portato a 250 MiB compressi e 1 GiB decompressi con 3 test sui limiti e 1 sul messaggio localizzato. Dettagli in `docs/planning/t5.4-cloud-sync.md` §10, `docs/planning/evolutive.md` §3/§3A/§5A, `docs/planning/evo-3a-access-request.md` §10 e `docs/planning/evo-5-landing-page.md` §6.
 
 | Livello  | Strumento             | Cosa copre                                                                        |
 | -------- | --------------------- | --------------------------------------------------------------------------------- |
@@ -75,7 +75,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/data/three-mf/limits.test.ts` — 3 test: limiti predefiniti a 250 MiB compressi e 1 GiB decompressi, rifiuto oltre il limite senza leggere il file, accettazione del confine esatto.
 - `src/features/calculator/three-mf-messages.test.ts` — 1 test: `ARCHIVE_TOO_LARGE` mostra le soglie correnti in italiano e inglese.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
-- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a **1059** chiavi dopo EVO-3a (36 `access.*`).
+- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a **1173** chiavi dopo EVO-5 (36 `access.*` + 113 `landing.*` + `nav.overview`).
 - `src/lib/share.test.ts` — 6 test: roundtrip con lingua, migrazione dei vecchi link senza `locale` a italiano, migrazione di `discountBp` alla regola percentuale, conservazione degli sconti di riga/preventivo, rimozione dell’audit cloud, payload non valido rifiutato.
 - `src/features/access/request-access.test.ts` — 17 test: validazione email/nome/messaggio/consenso, limiti dopo trim, payload `_subject`/`_replyto`/`_gotcha`, endpoint Formspree valido/assente/non valido, mapping 429/5xx/4xx/unknown, invio con `Accept`/`Content-Type`/`credentials: 'omit'`, errore di rete, endpoint mancante e honeypot senza rete.
 - `src/lib/xlsx.test.ts` — 5 test: pacchetto OPC, XML ben formato, formati numerici e date Excel, riferimenti oltre la Z, valori non finiti, nomi dei fogli sanificati e univoci.
@@ -92,10 +92,15 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/collapsible-cards.spec.ts` — 1 test: comprimi/espandi Preventivo, Stampe, Costi di lavoro, Prezzo e una riga; verifica sintesi, `aria-expanded`, campi nascosti e “Ripristina default” cliccabile senza aprire la card.
 - `tests/e2e/discounts.spec.ts` — 2 test: sconto di riga a importo fisso + sconto percentuale del preventivo, persistenza dopo il salvataggio; sconto fisso oltre il prezzo limitato a zero con avviso.
 - `tests/e2e/xlsx.spec.ts` — 2 test: download reale del workbook con preventivo archiviato e verifica di fogli e contenuto; pulsante disabilitato senza preventivi.
-- `tests/e2e/a11y.spec.ts` — 3 test: 43 scansioni axe (28 italiane, 15 inglesi) su tutte le route, inclusa `/#/request-access`, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni. Le altre 17 scansioni sono in `access.spec.ts` (4) e `access-missing.spec.ts` (4), più auth (4) e sync (5).
+- `tests/e2e/a11y.spec.ts` — 3 test: 43 scansioni axe (28 italiane, 15 inglesi) su tutte le route, inclusa `/#/request-access`, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni. Le altre 25 scansioni sono in `landing.spec.ts` (8), `access.spec.ts` (4), `access-missing.spec.ts` (4), auth (4) e sync (5): **68 totali**.
+- `tests/e2e/landing.spec.ts` — 11 test: prima visita senza dati locali, CTA e marker, redirect per marker e dati, `/#/welcome`, Panoramica in sidebar, login/richiesta accesso, lingua, tema, axe 375/1440 IT/EN chiaro/scuro (8 scansioni), nessuna richiesta esterna, pre-render statico.
+- `src/features/landing/routing.test.ts` — 4 test sulla decisione landing/calcolatore.
+- `src/features/landing/preview.test.ts` — 3 test su costo/prezzo, monotonia e input non validi.
+- `src/features/landing/seo.test.ts` — 4 test su canonical, Open Graph, robots, sitemap e landing statica.
+- `src/features/landing/static-render.test.ts` — 1 test di allineamento dello snapshot `landing-static.html`.
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
 - `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con foglio chiaro e margini bianchi partendo dal tema scuro; nessuna richiesta esterna, inclusa la pagina “Richiedi accesso” al caricamento.
-- `tests/e2e/visual.spec.ts` — 6 test, 36 screenshot: 18 italiani e 18 inglesi (calcolatore, modale import `.3mf`, dettaglio, preventivi, materiali e impostazioni) a 1440/768/390 px. Saltati fuori dalla CI; le baseline del calcolatore sono state rigenerate dopo T5.21.
+- `tests/e2e/visual.spec.ts` — 12 test, 42 screenshot: 21 italiani e 21 inglesi (calcolatore, modale import `.3mf`, dettaglio, preventivi, materiali, impostazioni e landing) a 1440/768/390 px. Saltati fuori dalla CI; le baseline del calcolatore e della landing sono state rigenerate su Linux dopo EVO-5. Le 6 baseline della landing sono PNG a viewport (non full page).
 - `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser sono in `parse.test.ts`.
 
 ### 3.1 Fixture `.3mf`
@@ -140,7 +145,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 `.github/workflows/ci.yml` esegue tre job:
 
-- **check** — `npm ci`, `npm run check` (typecheck, lint, 237 test, build, budget).
+- **check** — `npm ci`, `npm run check` (typecheck, lint, 249 test, build, budget).
 - **e2e** — `npm run test:e2e`: due build (con e senza `VITE_ACCESS_REQUEST_ENDPOINT`), Playwright Chromium e WebKit; auth e sync test sono saltati senza `E2E_AUTH`/`E2E_SYNC`.
 - **database** — Supabase locale, `npm run db:test` (33 pgTAP), `npm run test:e2e:auth` (3 test), `npm run test:e2e:sync` (3 test), stop del database. Non usa segreti di produzione.
 
@@ -148,7 +153,7 @@ I numeri di riferimento sono in `docs/domain/golden-cases.md` e devono coincider
 
 Le baseline visive si generano con `.github/workflows/visual-baselines.yml` (workflow manuale) e si committano in `tests/e2e/visual.spec.ts-snapshots/`.
 
-Stato al 29/10/2026: **verde in locale** per `npm run check` (237 unitari, budget 206,8/210 KB iniziali con env cloud e 271,7/350 KB totali), `db:test` (33 asserzioni pgTAP), `test:e2e` (51 test: 39 default incl. accesso + 6 visual + 3 auth + 3 sync; prima esecuzione 38 passati + 13 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-3a; la submission reale dalla pagina `/#/request-access` è arrivata a Formspree senza scritture Supabase. La CI di `main` (`125f0d5`) è verde (`check`, `e2e`, `database`). Il login Google reale è verificato per entrambi gli account (2 identità su 2).
+Stato al 29/10/2026: **verde in locale** per `npm run check` (249 unitari, budget 218,0/230 KB iniziali e 284,4/350 KB totali, HTML 6,2/10 KB), `db:test` (33 asserzioni pgTAP), `test:e2e` (68 test: 50 default incl. 11 landing + 12 visual + 3 auth + 3 sync; prima esecuzione 49 passati + 19 saltati, seconda 1 passato per l’endpoint mancante), `test:e2e:auth` (3) e `test:e2e:sync` (3). I 12 test visuali sono stati verificati su Linux con il container Playwright (`--update-snapshots` e poi run di confronto): 42 screenshot. `npm run smoke:production` è verde su https://layercost.vercel.app dopo il deploy EVO-3a; la submission reale dalla pagina `/#/request-access` è arrivata a Formspree senza scritture Supabase. La CI di `main` (`338d693`) è verde (`check`, `e2e`, `database`); EVO-5 è verificata in locale e non è ancora committata né distribuita. Il login Google reale è verificato per entrambi gli account (2 identità su 2).
 
 ## 7. Come aggiungere un test
 

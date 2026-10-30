@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test.use({ colorScheme: 'light' })
 
 test('carica i font e i token della direzione Strato', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/calculator')
   await page.evaluate(() => document.fonts.ready)
 
   const data = await page.evaluate(async () => {
@@ -36,7 +36,7 @@ test('i controlli usano i token, il focus è visibile e non c’è overflow a 37
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/')
+  await page.goto('/#/calculator')
 
   const nameInput = page.getByLabel('Nome preventivo')
   await expect(nameInput).toBeVisible()
