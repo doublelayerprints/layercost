@@ -163,7 +163,7 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - Repository locale: `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`.
 - Nome prodotto: **LayerCost**.
 - Repo GitHub: `doublelayerprints/layercost` (privata, branch `main`).
-- CI GitHub: verde su `main` `36303b4` (`check`, `e2e`, `database`).
+- CI GitHub: verde su `main` `c1ac1ac` (`check`, `e2e`, `database`).
 - Deploy Vercel: **live su https://layercost.vercel.app**, build `index-B43SUpOJ.js` / `index-CfPGRLn4.css` con landing EVO-5, cloud, Google, EVO-3a, EVO-6, limite `.3mf` e rinomina del preventivo dal titolo (T5.22) attivi.
 - Supabase produzione: `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner, signup disabilitato, keep-alive e backup verificati.
 - Google login (EVO-1, ADR-0025): distribuito il 29/10/2026 con `VITE_AUTH_GOOGLE_ENABLED=true` su Production e Preview. OAuth client e provider Supabase configurati; login verificato per **entrambi gli account** (2 identità Google su 2); il secondo owner ha completato il collegamento il 29/10/2026. Il rollback è documentato nel runbook §15.
