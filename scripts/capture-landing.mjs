@@ -44,7 +44,9 @@ async function main() {
     const start = page.getByRole('button', { name: 'Ho capito, inizia' })
     if (await start.isVisible().catch(() => false)) await start.click()
 
+    await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
     await page.getByLabel('Nome preventivo').fill('Portachiavi a strati')
+    await page.keyboard.press('Enter')
     await page.locator('input[aria-label="Ore"]').first().fill('10')
     await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
     await page.getByText(/3,70/).first().waitFor({ timeout: 10_000 })
