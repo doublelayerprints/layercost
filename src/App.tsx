@@ -27,6 +27,18 @@ const RequestAccessPage = lazy(() =>
   })),
 )
 
+const DocsPage = lazy(() =>
+  import('@/features/docs/DocsPage').then((module) => ({
+    default: module.DocsPage,
+  })),
+)
+
+const FeedbackPage = lazy(() =>
+  import('@/features/feedback/FeedbackPage').then((module) => ({
+    default: module.FeedbackPage,
+  })),
+)
+
 function RouteLoading() {
   const { t } = useI18n()
   return (
@@ -75,6 +87,30 @@ export default function App() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="compare" element={<ComparePage />} />
             <Route path="login" element={<LoginPage />} />
+            <Route
+              path="docs"
+              element={
+                <Suspense fallback={<RouteLoading />}>
+                  <DocsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="docs/:section"
+              element={
+                <Suspense fallback={<RouteLoading />}>
+                  <DocsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="feedback"
+              element={
+                <Suspense fallback={<RouteLoading />}>
+                  <FeedbackPage />
+                </Suspense>
+              }
+            />
             <Route
               path="request-access"
               element={

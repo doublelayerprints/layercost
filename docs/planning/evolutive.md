@@ -1,10 +1,10 @@
 # Evolutive — Google login, richiesta accesso, landing pubblica, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 implementato e verificato in locale il 29/10/2026 (ADR-0029, landing pubblica); EVO-2–EVO-4 proposte
-**Data:** 29 ottobre 2026
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato in locale il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-2–EVO-4 proposte
+**Data:** 30 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
-**Piano collegato:** `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-5-landing-page.md`
-**ADR:** 0025 (Google OAuth), **0026 (pagina Richiedi accesso)**, **0029 (landing pubblica)**; **0027** (tetti e signup) e **0028** (multi-workspace) solo se si implementano EVO-2/EVO-4
+**Piano collegato:** `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-5-landing-page.md`, `docs/planning/evo-6-docs-feedback.md`
+**ADR:** 0025 (Google OAuth), **0026 (pagina Richiedi accesso)**, **0029 (landing pubblica)**, **0030 (documentazione e Suggerimenti)**; **0027** (tetti e signup) e **0028** (multi-workspace) solo se si implementano EVO-2/EVO-4
 
 Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a riprendere il lavoro in una nuova sessione senza ricostruire il contesto.
 
@@ -449,18 +449,52 @@ Per il modello B serve:
 
 ---
 
+## 5B. EVO-6 — Documentazione in-app e Suggerimenti
+
+**Obiettivo:** rendere LayerCost consultabile dentro l’app e dare un canale semplice per inviare miglioramenti o segnalazioni, senza backend e senza dati dell’app.
+**Stato:** implementato in locale il 30/10/2026 (ADR-0030); deploy e configurazione Formspree di produzione da fare.
+**Stima:** 1–2 giorni.
+**Dipende da:** un nuovo form Formspree Free e una env pubblica.
+**Piano:** `docs/planning/evo-6-docs-feedback.md`.
+
+### 5B.1 Decisioni
+
+- Gruppo sidebar **Aiuto** con **Documentazione** (`/#/docs/primi-passi`) e **Suggerimenti** (`/#/feedback`).
+- Layout docs a tre zone su desktop, indice orizzontale su mobile; dieci sezioni con URL diretto.
+- Contenuti docs tipizzati e bilingui in un dizionario locale caricato solo dal chunk lazy della guida, per non aumentare il bundle iniziale.
+- Screenshot reali in `public/docs/` e riuso degli asset della landing; `npm run capture:docs` li rigenera.
+- Form Suggerimenti separato dal form di richiesta accesso; campi tipo, area, titolo, descrizione, email opzionale, privacy e honeypot.
+- Formspree Free con `VITE_FEEDBACK_ENDPOINT` pubblico; nessuna creazione di account, nessun dato dell’app, nessuna autoresponse.
+- Rollback: rimuovere la env disabilita il form e mostra “Modulo non disponibile”; la guida resta.
+
+### 5B.2 Verifiche
+
+- 267 unitari (+18), 5 E2E docs, 6 E2E feedback con endpoint mockato, 1 E2E feedback senza endpoint; route docs e feedback in axe.
+- `npm run check` verde; budget JS iniziale 220,2/230 KB, lazy 73,0/80 KB, totale iniziale 286,9/350 KB; HTML 6,0/10 KB.
+- Deploy da fare: creare form di produzione e test, impostare la env, Restrict to Domain, submission reale e smoke.
+
+### 5B.3 Deploy
+
+- Variabile `VITE_FEEDBACK_ENDPOINT` su Vercel: Production = form reale, Preview/Development = form di test; `.env.local` = test.
+- Verificare `/#/docs/primi-passi`, `/#/docs/materiali`, `/#/feedback`, immagini `public/docs/*.jpg` e link dalla sidebar a 375/1440.
+- Smoke di produzione invariato; nessuna modifica a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
+- Baseline visual dedicata a docs e feedback: follow-up opzionale.
+
+---
+
 ## 6. Roadmap consigliata
 
-| Fase       | Contenuto                                               | Stima        | Dipendenze               |
-| ---------- | ------------------------------------------------------- | ------------ | ------------------------ |
-| **EVO-1**  | Google login per i due account; fallback email/password | 0,5–1 giorno | Google Cloud + Supabase  |
-| **EVO-3a** | Pagina “Richiedi accesso” con Formspree Free            | 0,5–1 giorno | Formspree + env pubblica |
-| **EVO-5**  | Landing pubblica, pre-render SEO e routing `/calculator` | 1–2 giorni   | —                        |
-| **EVO-2**  | `workspace_limits`, trigger membri/preventivi, UI quota | 1–2 giorni   | EVO-1 o indipendente     |
-| **EVO-3b** | Invite-only/allowlist, eventuale tetto globale          | 1–2 giorni   | EVO-2, EVO-3a            |
-| **EVO-4**  | Multi-workspace (solo se serve)                         | 3–5 giorni   | ADR-0028, migrazione     |
+| Fase       | Contenuto                                                 | Stima        | Dipendenze               |
+| ---------- | --------------------------------------------------------- | ------------ | ------------------------ |
+| **EVO-1**  | Google login per i due account; fallback email/password   | 0,5–1 giorno | Google Cloud + Supabase  |
+| **EVO-3a** | Pagina “Richiedi accesso” con Formspree Free              | 0,5–1 giorno | Formspree + env pubblica |
+| **EVO-5**  | Landing pubblica, pre-render SEO e routing `/calculator`  | 1–2 giorni   | —                        |
+| **EVO-6**  | Documentazione in-app e pagina Suggerimenti con Formspree | 1–2 giorni   | Formspree + env pubblica |
+| **EVO-2**  | `workspace_limits`, trigger membri/preventivi, UI quota   | 1–2 giorni   | EVO-1 o indipendente     |
+| **EVO-3b** | Invite-only/allowlist, eventuale tetto globale            | 1–2 giorni   | EVO-2, EVO-3a            |
+| **EVO-4**  | Multi-workspace (solo se serve)                           | 3–5 giorni   | ADR-0028, migrazione     |
 
-Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
+Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-6 → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
 
 ---
 

@@ -24,7 +24,7 @@ Prima di toccare il codice:
 3. `AGENTS.md` (questo file)
 4. `PLAN.md`
 5. `TASKS.md`
-6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/planning/evo-5-landing-page.md` per la landing pubblica, `docs/engineering/workspace-runbook.md` per utenti, membership e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
+6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/planning/evo-5-landing-page.md` per la landing pubblica, `docs/planning/evo-6-docs-feedback.md` per documentazione e Suggerimenti, `docs/engineering/workspace-runbook.md` per utenti, membership e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
 7. `docs/domain/cost-model.md`
 8. `docs/domain/data-model.md`
 9. gli ADR rilevanti in `docs/adr/`
@@ -98,7 +98,7 @@ Regole di dipendenza:
 8. **Cambio formula = docs + test + `engineVersion`.** Nello stesso commit.
 9. **Nessun backend, account o sync in v1.** Solo architettura predisposta. La fase 5 aggiunge il sync opzionale con Supabase (ADR-0024): la v1 resta local-only, il cloud non è obbligatorio.
 10. **Nessuna libreria di componenti prima della fase 4.** HTML semantico + Tailwind + primitivi interni.
-11. **Nessun analytics, cookie o chiamata di rete** oltre agli asset statici. Unica eccezione: l’invio esplicito della richiesta di accesso a Formspree (ADR-0026), con i soli dati del modulo e nessun dato dell’app.
+11. **Nessun analytics, cookie o chiamata di rete** oltre agli asset statici. Uniche eccezioni: l’invio esplicito della richiesta di accesso a Formspree (ADR-0026) e l’invio esplicito di un suggerimento a Formspree (ADR-0030), con i soli dati dei moduli e nessun dato dell’app.
 12. **Nessun `eval`, `dangerouslySetInnerHTML`, `any`.**
 
 ---
@@ -266,14 +266,17 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/planning/t5.4-cloud-sync.md` — piano dettagliato del sync Supabase: schema, RLS, auth, task e operazioni free.
 - `docs/planning/evolutive.md` — evolutive future: Google login, tetti utenti/preventivi, landing e apertura multi-workspace.
 - `docs/planning/evo-5-landing-page.md` — piano operativo e acceptance della landing pubblica.
+- `docs/planning/evo-6-docs-feedback.md` — piano operativo e acceptance di documentazione in-app e Suggerimenti.
 - `docs/engineering/workspace-runbook.md` — runbook del workspace condiviso: utenti, membership, reset password, audit e troubleshooting.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.
 - `docs/adr/0025-google-oauth.md` — Google OAuth, PKCE, auto-link, “Collega Google”, segreti e rollback.
 - `docs/adr/0026-request-access-formspree.md` — pagina pubblica “Richiedi accesso”, Formspree Free, privacy e retention.
 - `docs/adr/0029-public-landing-page.md` — landing pubblica, routing `/#/calculator`, pre-render SEO e budget.
+- `docs/adr/0030-docs-and-feedback.md` — documentazione in-app, Suggerimenti, Formspree e budget.
 - `docs/planning/evo-3a-access-request.md` — piano di EVO-3a.
 - `docs/engineering/access-requests.md` — runbook amministratore per richieste, approvazione manuale, retention e cancellazione.
+- `docs/engineering/feedback.md` — configurazione e gestione del form Suggerimenti.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
 - `docs/design/directions.md` — direzioni e scelta visiva.
 - `docs/design/design-system.md` — token, componenti, accessibilità e stampa.

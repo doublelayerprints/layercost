@@ -33,6 +33,13 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
         { to: '/settings', label: t('nav.settings') },
       ],
     },
+    {
+      label: t('nav.help'),
+      items: [
+        { to: '/docs', label: t('nav.docs') },
+        { to: '/feedback', label: t('nav.feedback') },
+      ],
+    },
   ]
 
   return (
@@ -45,7 +52,7 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/calculator' || item.to === '/welcome'}
+                end={item.to === '/calculator' || item.to === '/welcome' || item.to === '/feedback'}
                 onClick={onNavigate}
                 className={({ isActive }) =>
                   cn(

@@ -4,6 +4,7 @@ import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isLocale, plural, translate } from '
 import { authIt } from './it/auth'
 import { accessIt } from './it/access'
 import { calculatorIt } from './it/calculator'
+import { feedbackIt } from './it/feedback'
 import { landingIt } from './it/landing'
 import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
@@ -29,6 +30,7 @@ describe('dizionari i18n', () => {
       authIt,
       accessIt,
       landingIt,
+      feedbackIt,
     ]
     const keys = parts.flatMap((part) => Object.keys(part))
     expect(new Set(keys).size).toBe(keys.length)

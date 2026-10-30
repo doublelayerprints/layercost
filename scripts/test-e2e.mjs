@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process'
 
 const ACCESS_TEST_ENDPOINT = 'https://formspree.io/f/layercost-e2e'
+const FEEDBACK_TEST_ENDPOINT = 'https://formspree.io/f/layercost-feedback-e2e'
 
 function run(command, args, env = process.env) {
   const result = spawnSync(command, args, {
@@ -18,12 +19,14 @@ console.log('Build con endpoint Formspree di test...')
 run('npm', ['run', 'build'], {
   ...process.env,
   VITE_ACCESS_REQUEST_ENDPOINT: ACCESS_TEST_ENDPOINT,
+  VITE_FEEDBACK_ENDPOINT: FEEDBACK_TEST_ENDPOINT,
 })
 
 console.log('E2E con endpoint Formspree di test...')
 run('npx', ['playwright', 'test'], {
   ...process.env,
   E2E_ACCESS: '1',
+  E2E_FEEDBACK: '1',
   E2E_FRESH: '1',
 })
 
@@ -31,11 +34,17 @@ console.log('Build senza endpoint per lo stato "modulo non disponibile"...')
 run('npm', ['run', 'build'], {
   ...process.env,
   VITE_ACCESS_REQUEST_ENDPOINT: '',
+  VITE_FEEDBACK_ENDPOINT: '',
 })
 
 console.log('E2E dello stato "modulo non disponibile"...')
-run('npx', ['playwright', 'test', 'tests/e2e/access-missing.spec.ts'], {
-  ...process.env,
-  E2E_ACCESS: '',
-  E2E_FRESH: '1',
-})
+run(
+  'npx',
+  ['playwright', 'test', 'tests/e2e/access-missing.spec.ts', 'tests/e2e/feedback-missing.spec.ts'],
+  {
+    ...process.env,
+    E2E_ACCESS: '',
+    E2E_FEEDBACK: '',
+    E2E_FRESH: '1',
+  },
+)
