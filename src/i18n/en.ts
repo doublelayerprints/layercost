@@ -17,6 +17,7 @@ const baseEn: Record<BaseMessageKey, string> = {
   'app.tagline': 'Cost and price for 3D prints',
   'app.dataLocal': 'Data is saved only in this browser.',
   'app.exportBackup': 'Export a backup',
+  'app.topbarControls': 'Top bar controls',
   'app.engineVersion': 'Engine v{version}',
   'meta.title': 'LayerCost — Cost and price for 3D prints',
   'meta.description':

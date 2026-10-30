@@ -19,6 +19,7 @@ export const baseIt = {
   'app.tagline': 'Costo e prezzo delle stampe 3D',
   'app.dataLocal': 'Dati salvati solo su questo browser.',
   'app.exportBackup': 'Esporta un backup',
+  'app.topbarControls': 'Controlli della barra',
   'app.engineVersion': 'Motore v{version}',
   'meta.title': 'LayerCost — Costo e prezzo delle stampe 3D',
   'meta.description':

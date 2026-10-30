@@ -3,10 +3,11 @@ import { useEffect, useId, useState } from 'react'
 import { useI18n } from '@/app/i18n-context'
 import type { MessageKey } from '@/i18n'
 import { QuickPreferences } from '@/app/QuickPreferences'
+import { TopBar } from '@/app/TopBar'
 import { useAppStore, type AppWarning } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
 import { SyncIndicator } from '@/features/sync/SyncIndicator'
-import { WorkspaceSwitcher } from '@/features/workspace/WorkspaceSwitcher'
+import { WorkspaceMenu } from '@/features/workspace/WorkspaceMenu'
 import { Alert } from '@/components/ui'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/cn'
@@ -52,7 +53,7 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
           <div key={group.label} role="group" aria-labelledby={labelId}>
             <p
               id={labelId}
-              className="flex items-center gap-3 px-3 pb-2 pt-6 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted"
+              className="app-sidebar-group-label flex items-center gap-3 px-3 pb-2 pt-6 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted"
             >
               <span className="shrink-0">{group.label}</span>
               <span aria-hidden="true" className="h-px flex-1 bg-line" />
@@ -69,7 +70,7 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
                   className={({ isActive }) =>
                     cn(
                       'flex items-center rounded-control text-sm transition-feedback',
-                      mobile ? 'px-3 py-3 font-medium' : 'px-3 py-[7px]',
+                      mobile ? 'px-3 py-3 font-medium' : 'px-3 py-1',
                       isActive
                         ? 'bg-raised font-medium text-ink'
                         : 'text-muted hover:bg-raised hover:text-ink',
@@ -102,17 +103,20 @@ function MobileHeader() {
 
   return (
     <header className="no-print sticky top-0 z-30 border-b border-line bg-ground lg:hidden">
-      <div className="flex h-14 items-center justify-between gap-3 px-4">
+      <div className="flex h-14 items-center justify-between gap-2 px-4">
         <Logo tagline={false} />
-        <button
-          type="button"
-          onClick={() => setMenuOpen((open) => !open)}
-          aria-expanded={menuOpen}
-          aria-controls={menuOpen ? 'mobile-navigation' : undefined}
-          className="inline-flex h-10 items-center rounded-control px-3 text-sm font-medium text-muted transition-feedback hover:bg-raised hover:text-ink"
-        >
-          {menuOpen ? t('nav.close') : t('nav.menu')}
-        </button>
+        <div className="flex items-center gap-1">
+          <WorkspaceMenu compact />
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-controls={menuOpen ? 'mobile-navigation' : undefined}
+            className="inline-flex h-10 items-center rounded-control px-3 text-sm font-medium text-muted transition-feedback hover:bg-raised hover:text-ink"
+          >
+            {menuOpen ? t('nav.close') : t('nav.menu')}
+          </button>
+        </div>
       </div>
       {menuOpen ? (
         <nav
@@ -121,7 +125,6 @@ function MobileHeader() {
           aria-label={t('nav.main')}
         >
           <NavItems mobile onNavigate={() => setMenuOpen(false)} />
-          <WorkspaceSwitcher mobile />
           <div className="mt-3 border-t border-line pt-2">
             <SyncIndicator mobile />
           </div>
@@ -171,21 +174,14 @@ export function Layout() {
         {t('nav.skipToContent')}
       </a>
 
-      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-ground px-3 py-5 lg:flex">
+      <aside className="no-print fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-hidden border-r border-line bg-ground px-3 py-5 lg:flex">
         <div className="px-2">
           <Logo />
         </div>
-        <WorkspaceSwitcher />
-        <nav className="mt-2 flex-1 overflow-y-auto" aria-label={t('nav.main')}>
+        <nav className="mt-2 flex-1" aria-label={t('nav.main')}>
           <NavItems />
         </nav>
-        <div className="border-t border-line px-3 pt-2">
-          <SyncIndicator />
-        </div>
-        <div className="mt-2 border-t border-line px-3 pt-3">
-          <QuickPreferences />
-        </div>
-        <div className="mt-3 border-t border-line px-3 pt-3 text-xs text-muted">
+        <div className="app-sidebar-footer mt-3 border-t border-line px-3 pt-3 text-xs text-muted">
           <p>{mode === 'cloud' ? t('sync.accountMode') : t('app.dataLocal')}</p>
           <Link
             to="/settings"
@@ -198,6 +194,7 @@ export function Layout() {
       </aside>
 
       <div className="lg:pl-64 print:pl-0">
+        <TopBar />
         <MobileHeader />
 
         <main

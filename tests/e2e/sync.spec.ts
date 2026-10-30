@@ -299,11 +299,18 @@ test('crea un secondo spazio e isola i preventivi', async ({ page }) => {
     await page.goto('/#/settings')
     await waitForSynced(page)
 
-    await page.getByRole('button', { name: 'Nuovo spazio' }).click()
+    const prefs = page.getByRole('group', { name: 'Controlli della barra' })
+    await expect(prefs).toBeVisible()
+    await prefs.getByRole('radio', { name: 'Scuro' }).check()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await prefs.getByRole('radio', { name: 'Sistema' }).check()
+
+    await page.getByRole('button', { name: /^Spazi:/ }).click()
+    await page.getByRole('menuitem', { name: 'Nuovo spazio' }).click()
     const createDialog = page.getByRole('dialog', { name: 'Crea uno spazio' })
     await createDialog.getByLabel('Nome dello spazio').fill('Secondo spazio')
     await createDialog.getByRole('button', { name: 'Crea spazio' }).click()
-    await expect(page.getByLabel('Spazio attivo').first()).toHaveValue(/.+/)
+    await expect(page.getByRole('button', { name: 'Spazi: Secondo spazio' })).toBeVisible()
     await waitForSynced(page)
     await expect(
       page.getByRole('main').getByText('Secondo spazio', { exact: true }).first(),
@@ -319,13 +326,15 @@ test('crea un secondo spazio e isola i preventivi', async ({ page }) => {
     await page.waitForURL(/#\/quotes\/.+/)
 
     await page.goto('/#/settings')
-    await page.getByLabel('Spazio attivo').first().selectOption({ label: 'E2E workspace' })
+    await page.getByRole('button', { name: /^Spazi:/ }).click()
+    await page.getByRole('menuitemradio', { name: /E2E workspace/ }).click()
     await waitForSynced(page)
     await page.goto('/#/quotes')
     await expect(page.getByText('Solo secondo spazio')).toHaveCount(0)
 
     await page.goto('/#/settings')
-    await page.getByLabel('Spazio attivo').first().selectOption({ label: 'Secondo spazio' })
+    await page.getByRole('button', { name: /^Spazi:/ }).click()
+    await page.getByRole('menuitemradio', { name: /Secondo spazio/ }).click()
     await waitForSynced(page)
     await page.goto('/#/quotes')
     await expect(page.getByText('Solo secondo spazio').first()).toBeVisible()
@@ -368,7 +377,8 @@ test('un invito aggiunge un utente allo spazio condiviso', async ({ browser, pag
     await guestPage.goto('/#/settings')
     await waitForSynced(guestPage)
 
-    await guestPage.getByRole('button', { name: 'Hai un codice invito?' }).click()
+    await guestPage.getByRole('button', { name: /^Spazi:/ }).click()
+    await guestPage.getByRole('menuitem', { name: 'Hai un codice invito?' }).click()
     const redeemDialog = guestPage.getByRole('dialog', { name: 'Usa un codice invito' })
     await redeemDialog.getByLabel('Codice invito').fill(token ?? '')
     await redeemDialog.getByRole('button', { name: 'Entra nello spazio' }).click()
@@ -376,6 +386,10 @@ test('un invito aggiunge un utente allo spazio condiviso', async ({ browser, pag
 
     await guestPage.goto('/#/quotes')
     await expect(guestPage.getByText('Visibile agli invitati').first()).toBeVisible()
+
+    const prefs = guestPage.getByRole('group', { name: 'Controlli della barra' })
+    await prefs.getByRole('radio', { name: 'English' }).check()
+    await expect(guestPage.getByRole('link', { name: 'Quotes', exact: true })).toBeVisible()
   } finally {
     await guestContext.close()
     deleteWorkspace(workspaceId)
@@ -421,7 +435,7 @@ test('un utente senza membership o di un altro workspace non vede i dati condivi
     await login(outsiderPage, outsider)
     await outsiderPage.goto('/#/settings')
     await waitForSynced(outsiderPage)
-    await expect(outsiderPage.getByLabel('Spazio attivo').first()).toBeVisible()
+    await expect(outsiderPage.getByRole('button', { name: /^Spazi:/ })).toBeVisible()
     await audit(outsiderPage)
     await outsiderPage.goto('/#/quotes')
     await expect(outsiderPage.getByText('Solo workspace condiviso')).toHaveCount(0)

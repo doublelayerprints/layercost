@@ -12,9 +12,7 @@ test('il tema è esplicito, persistente e segue il sistema', async ({ page }) =>
   await expect(themeGroup).toBeVisible()
   await expect(themeGroup.getByRole('radio', { name: /Sistema/ })).toBeChecked()
 
-  const quickTheme = page.locator('aside').getByRole('group', { name: 'Tema dell’interfaccia' })
-  await expect(quickTheme).toBeVisible()
-  await quickTheme.getByRole('radio', { name: 'Scuro' }).check()
+  await themeGroup.getByRole('radio', { name: 'Scuro' }).check()
   await expect(html).toHaveAttribute('data-theme', 'dark')
   await expect(page.locator('main').getByRole('radio', { name: 'Scuro' })).toBeChecked()
 
@@ -63,4 +61,21 @@ test('il tema è esplicito, persistente e segue il sistema', async ({ page }) =>
     body: await page.screenshot({ fullPage: true }),
     contentType: 'image/png',
   })
+})
+
+test('le preferenze rapide del menu mobile cambiano tema e lingua', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#/calculator')
+  await page.getByRole('button', { name: 'Menu' }).click()
+
+  const nav = page.locator('#mobile-navigation')
+  const themeGroup = nav.getByRole('group', { name: 'Tema dell’interfaccia' })
+  await themeGroup.getByRole('radio', { name: 'Scuro' }).check()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  expect(await page.evaluate(() => localStorage.getItem('layercost:theme'))).toBe('dark')
+
+  const languageGroup = nav.getByRole('group', { name: 'Lingua dell’interfaccia' })
+  await languageGroup.getByRole('radio', { name: 'English' }).check()
+  expect(await page.evaluate(() => localStorage.getItem('layercost:locale'))).toBe('en')
+  await expect(nav.getByRole('link', { name: 'Calculator' })).toBeVisible()
 })
