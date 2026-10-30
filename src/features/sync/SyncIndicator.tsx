@@ -2,22 +2,9 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { isCloudConfigured } from '@/data/cloud/client'
 import { useAuthStore } from '@/state/auth-store'
-import { useSyncStore, type SyncStatus } from '@/state/sync-store'
+import { useSyncStore } from '@/state/sync-store'
 import { cn } from '@/lib/cn'
-import { syncStatusKeys } from './messages'
-
-const dotTones: Record<SyncStatus, string> = {
-  disabled: 'bg-muted',
-  idle: 'bg-muted',
-  connecting: 'bg-data',
-  firstLogin: 'bg-data',
-  syncing: 'bg-data',
-  synced: 'bg-positive',
-  pending: 'bg-warning',
-  offline: 'bg-warning',
-  conflict: 'bg-data',
-  error: 'bg-negative',
-}
+import { syncStatusKeys, syncStatusTones } from './messages'
 
 /** Discrete header/sidebar indicator; the label carries the meaning, not the colour. */
 export function SyncIndicator({ mobile = false }: { mobile?: boolean }) {
@@ -40,7 +27,10 @@ export function SyncIndicator({ mobile = false }: { mobile?: boolean }) {
         mobile ? 'px-3 py-2' : 'px-1 py-1',
       )}
     >
-      <span className={cn('h-2 w-2 shrink-0 rounded-full', dotTones[status])} aria-hidden="true" />
+      <span
+        className={cn('h-2 w-2 shrink-0 rounded-full', syncStatusTones[status])}
+        aria-hidden="true"
+      />
       <span>{label}</span>
     </Link>
   )
