@@ -131,7 +131,7 @@ Codici errore: `workspace_limit`, `member_limit`, `invite_invalid`, `invite_expi
 
 ### 5.3 UI
 
-- **Selettore spazio** in cima alla sidebar e nel menu mobile: spazio attivo, ruolo, elenco spazi, "Nuovo spazio", "Hai un codice invito?".
+- **Topbar connessa** in modalità cloud: pill dello spazio (menu con elenco, “Nuovo spazio”, “Hai un codice invito?”, “Gestisci spazio”), segmented control con lingua IT/EN, tema Sistema/Chiaro/Scuro e quadratino di stato sync. La sidebar desktop fa solo navigazione; il menu mobile usa una pill compatta con la sola iniziale.
 - **Pagina Spazio** in Impostazioni: nome (owner), ruolo, membri con ruolo e data, inviti attivi con scadenza e revoca, creazione invito con scelta ruolo e durata, uscita dallo spazio.
 - **Dialogo codice invito**: campo token, riscatto, messaggio di errore per codice non valido, scaduto, revocato o esaurito.
 - **Primo accesso**: nessuno stato vuoto; lo spazio personale è già creato e popolato.
@@ -216,7 +216,7 @@ Rollback:
 | EVO-4.3 | Gateway, chiavi per workspace, preferenza spazio attivo | Fatto |
 | EVO-4.4 | `auth-store` e `sync-store`: lista spazi, switch, flush, generazione | Fatto |
 | EVO-4.5 | Seed idempotente del nuovo spazio | Fatto |
-| EVO-4.6 | Selettore spazio, pagina Spazio, dialogo invito, i18n | Fatto |
+| EVO-4.6 | Topbar con spazio, tema/lingua/sync, pagina Spazio, dialogo invito, i18n | Fatto |
 | EVO-4.7 | Test pgTAP, unitari, E2E, axe e budget | Fatto |
 | EVO-4.8 | Runbook, data model, STATUS, TASKS, CHANGELOG; deploy e smoke | Fatto (deploy 30/10/2026) |
 
