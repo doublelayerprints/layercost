@@ -240,6 +240,10 @@ Card con header comprimibile per le sezioni del calcolatore. Il titolo resta un 
 
 La top bar pubblica usa `PublicTopBarControls`: un unico segmented control con due gruppi di radio native, lingua IT/EN e tema chiaro/scuro. Il contenitore è `--color-raised` con un outline interno `--color-line`; il thumb dell'opzione attiva è `--color-surface` con outline `--color-line`, testo o icona `--color-ink`. Le opzioni inattive restano `--color-muted` e passano a ink all'hover. Il thumb scorre di 150 ms, disattivato con `prefers-reduced-motion`; il cambio tema non anima i colori, così non si crea un intervallo a basso contrasto. Il focus ring è sull'opzione, non sull'input invisibile. Ogni gruppo ha una `legend` sr-only e ogni radio un nome accessibile esteso; le frecce spostano la scelta come in qualsiasi gruppo di radio native. La landing espone solo Chiaro/Scuro: la preferenza Sistema resta in Impostazioni → Aspetto, mentre il controllo segue il tema di sistema finché non viene fatta una scelta esplicita.
 
+### 3.22 Navigazione della sidebar
+
+La sidebar raggruppa i link in tre sezioni — Lavoro, Configurazione, Aiuto — sia su desktop sia nel menu mobile. Ogni sezione ha un'etichetta in maiuscolo da 11 px, peso 600, tracking `0.1em` e colore `--color-muted`, seguita da una hairline `--color-line` che riempie la riga a destra: il gruppo si legge come un blocco, senza aggiungere bordi a tutta larghezza o card. L'etichetta non è un heading, così l'ordine dei titoli resta quello della pagina; il contenitore usa `role="group"` e `aria-labelledby` per dare un nome accessibile al gruppo. Le voci restano link da 14 px con pill attiva `--color-raised` e hover neutro.
+
 ---
 
 ## 4. Accessibilità

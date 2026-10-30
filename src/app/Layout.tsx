@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useI18n } from '@/app/i18n-context'
 import type { MessageKey } from '@/i18n'
 import { QuickPreferences } from '@/app/QuickPreferences'
@@ -13,6 +13,7 @@ import { ENGINE_VERSION } from '@/domain/version'
 
 function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const { t } = useI18n()
+  const groupIdPrefix = useId()
   const navGroups = [
     {
       label: t('nav.work'),
@@ -44,32 +45,43 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
 
   return (
     <>
-      {navGroups.map((group) => (
-        <div key={group.label}>
-          <p className="px-3 pb-1.5 pt-6 text-xs font-medium text-muted">{group.label}</p>
-          <div className="space-y-px">
-            {group.items.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/calculator' || item.to === '/welcome' || item.to === '/feedback'}
-                onClick={onNavigate}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center rounded-control text-sm transition-feedback',
-                    mobile ? 'px-3 py-3 font-medium' : 'px-3 py-[7px]',
-                    isActive
-                      ? 'bg-raised font-medium text-ink'
-                      : 'text-muted hover:bg-raised hover:text-ink',
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+      {navGroups.map((group, index) => {
+        const labelId = `${groupIdPrefix}-${index}`
+        return (
+          <div key={group.label} role="group" aria-labelledby={labelId}>
+            <p
+              id={labelId}
+              className="flex items-center gap-3 px-3 pb-2 pt-6 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted"
+            >
+              <span className="shrink-0">{group.label}</span>
+              <span aria-hidden="true" className="h-px flex-1 bg-line" />
+            </p>
+            <div className="space-y-px">
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={
+                    item.to === '/calculator' || item.to === '/welcome' || item.to === '/feedback'
+                  }
+                  onClick={onNavigate}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center rounded-control text-sm transition-feedback',
+                      mobile ? 'px-3 py-3 font-medium' : 'px-3 py-[7px]',
+                      isActive
+                        ? 'bg-raised font-medium text-ink'
+                        : 'text-muted hover:bg-raised hover:text-ink',
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </>
   )
 }
