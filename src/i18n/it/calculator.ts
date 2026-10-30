@@ -12,9 +12,11 @@ export const calculatorIt = {
   'calculator.newDraft': 'Nuovo',
   'calculator.quoteSection': 'Preventivo',
   'calculator.quoteDescription':
-    'Il nome identifica il lavoro; data e cliente compaiono in stampa e nei link condivisi.',
+    'Il nome si modifica dal titolo in alto; data e cliente compaiono in stampa e nei link condivisi.',
   'calculator.nameLabel': 'Nome preventivo',
   'calculator.namePlaceholder': 'Es. Set organizer scrivania',
+  'calculator.renameQuote': 'Rinomina preventivo',
+  'calculator.renameHint': 'Premi Invio per confermare o Esc per annullare.',
   'calculator.date': 'Data',
   'calculator.customer': 'Cliente',
   'calculator.customerPlaceholder': 'Nome o riferimento',

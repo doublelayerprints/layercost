@@ -1,6 +1,6 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password) e **T5.4.4 chiuso** (sync, outbox, conflitti)
+**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.22 chiuso** (rinomina del preventivo dal titolo); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password) e **T5.4.4 chiuso** (sync, outbox, conflitti)
 **Data:** 28 ottobre 2026
 **Base:** v1.0.0, commit `cc949b3`
 **Prossima sessione:** T5.4 è **chiuso e live in produzione**. Follow-up opzionale: baseline visual delle schermate cloud. Piano completo in `t5.4-cloud-sync.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`; smoke test in `docs/engineering/deployment.md` §13. Il resto del backlog è chiuso/non in scope.
@@ -507,6 +507,14 @@ Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 gi
 - **Stato:** locale alla schermata, default espanso, nessuna persistenza. Nessun cambio a formule, schema, snapshot o `engineVersion`.
 - **Esito:** chiuso il 28/10/2026. 4 chiavi i18n (899 totali), 1 E2E dedicato; `npm run check` verde e budget 224,6 KB JS / 225 KB. Baseline visive del calcolatore rigenerate in CI.
 
+### 5.7 T5.22 — Rinomina del preventivo dal titolo
+
+- **Obiettivo:** rendere modificabile il nome del preventivo dove l'utente lo legge, cioè nel titolo della pagina, invece che nella card Preventivo.
+- **UI:** una matita “Rinomina preventivo” accanto all'`h1` sostituisce il titolo con un input 24/600 a tutta larghezza; Invio o blur confermano, Esc ripristina il nome precedente e il focus torna alla matita. Un nome vuoto non viene confermato. Il campo nella card Preventivo è stato rimosso: restano data e cliente.
+- **Primitiva:** `PageHeader` accetta `title: ReactNode`, `titleAction` e `titleClassName`; l'azione resta fuori dall'heading.
+- **Dati:** nessun cambio a formule, schema, snapshot o `engineVersion`; la bozza continua a salvarsi a ogni modifica.
+- **Esito:** chiuso il 30/10/2026. 2 chiavi i18n (1235 totali), 1 E2E dedicato; `npm run check` verde e budget 220,9 KB JS / 230 KB. Baseline visive del calcolatore da rigenerare in CI.
+
 ---
 
 ## 6. Lavoro trasversale
@@ -524,7 +532,7 @@ Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 gi
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5 e sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1 e §13, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.21 e T5.4.0–T5.4.6 sono chiusi; il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner e workspace `ws-doublelayer`. `main` = `origin/main` = `4017c36` (T5.4 + docs); CI `main`, smoke test, keep-alive e backup verdi. Per le evolutive future (Google login, tetti utenti/preventivi) il punto di partenza è `docs/planning/evolutive.md`. `.env.local` contiene le credenziali di produzione ed è gitignored; su Vercel ci sono solo le due env pubbliche. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` e il job CI `database` verdi.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5 e sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1 e §13, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.22 e T5.4.0–T5.4.6 sono chiusi; il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner e workspace `ws-doublelayer`. `main` = `origin/main` = `4017c36` (T5.4 + docs); CI `main`, smoke test, keep-alive e backup verdi. Per le evolutive future (Google login, tetti utenti/preventivi) il punto di partenza è `docs/planning/evolutive.md`. `.env.local` contiene le credenziali di produzione ed è gitignored; su Vercel ci sono solo le due env pubbliche. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` e il job CI `database` verdi.
 
 ---
 

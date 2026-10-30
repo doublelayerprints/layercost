@@ -442,11 +442,15 @@ export function Price({
 
 export function PageHeader({
   title,
+  titleAction,
+  titleClassName,
   description,
   actions,
   meta,
 }: {
-  title: string
+  title: ReactNode
+  titleAction?: ReactNode
+  titleClassName?: string
   description?: ReactNode
   actions?: ReactNode
   meta?: ReactNode
@@ -454,7 +458,14 @@ export function PageHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold tracking-title text-ink">{title}</h1>
+        <div className="flex min-w-0 items-start gap-1">
+          <h1
+            className={cn('min-w-0 text-2xl font-semibold tracking-title text-ink', titleClassName)}
+          >
+            {title}
+          </h1>
+          {titleAction ? <div className="shrink-0">{titleAction}</div> : null}
+        </div>
         {description ? <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p> : null}
         {meta ? (
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">{meta}</div>

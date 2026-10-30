@@ -14,9 +14,11 @@ export const calculatorEn: Record<keyof typeof calculatorIt, string> = {
   'calculator.newDraft': 'New',
   'calculator.quoteSection': 'Quote',
   'calculator.quoteDescription':
-    'The name identifies the job; date and customer appear in print and in shared links.',
+    'Edit the name from the title at the top; date and customer appear in print and in shared links.',
   'calculator.nameLabel': 'Quote name',
   'calculator.namePlaceholder': 'E.g. Desk organizer set',
+  'calculator.renameQuote': 'Rename quote',
+  'calculator.renameHint': 'Press Enter to confirm or Esc to cancel.',
   'calculator.date': 'Date',
   'calculator.customer': 'Customer',
   'calculator.customerPlaceholder': 'Name or reference',
