@@ -25,8 +25,9 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Divide il prezzo netto in costo pieno e guadagno con due barre, e apre un preventivo cliccando tutta la riga nella lista.
 - Comprime le card del calcolatore e le singole stampe in righe compatte con drop down, con una sintesi sempre leggibile.
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
-- Funziona interamente nel browser: nessun backend, nessun account, nessun analytics. La pagina “Richiedi accesso” invia a Formspree solo su azione esplicita (ADR-0026).
+- Funziona interamente nel browser: nessun backend, nessun account, nessun analytics. La pagina “Richiedi accesso” e la pagina “Suggerimenti” inviano a Formspree solo su azione esplicita (ADR-0026, ADR-0030).
 - La root è una landing pubblica in italiano e inglese, pre-renderizzata in `index.html` per i crawler e per chi non ha JavaScript; il calcolatore vive su `/#/calculator` e `/#/welcome` riapre la landing anche da utenti esistenti (ADR-0029).
+- Include una **documentazione in-app** con indice per sezioni, screenshot reali e link diretti (`/#/docs/primi-passi`), e una pagina **Suggerimenti** per inviare migliorie o segnalazioni (`/#/feedback`).
 
 ## Stack
 
@@ -48,6 +49,7 @@ npm run dev          # sviluppo
 npm run build        # build di produzione
 npm run preview      # anteprima build
 npm run capture:landing # screenshot reali della landing (richiede Chrome)
+npm run capture:docs # screenshot reali della documentazione (richiede Chrome)
 npm run typecheck    # TypeScript
 npm run lint         # oxlint
 npm run test         # unit + dati
@@ -88,6 +90,13 @@ Chi non ha un account può aprire `#/request-access` e inviare una richiesta all
 
 Con l'account attivo, configurazione e preventivi vivono nel **workspace condiviso**; bozza, tema e lingua restano locali. Le modifiche offline entrano in una coda persistita e vengono inviate al ritorno della rete; se lo stesso dato è cambiato su un altro dispositivo, l'app mostra un conflitto e chiede come risolverlo. Il primo accesso propone di importare i dati locali dopo aver scaricato un backup JSON. Al logout la copia locale dei dati cloud viene rimossa (o conservata se ci sono modifiche ancora in sospeso). Il database locale viene azzerato da `npm run test:e2e:sync`, non dalla build normale.
 
+## Documentazione e suggerimenti
+
+La sidebar ha il gruppo **Aiuto**:
+
+- **Documentazione** (`/#/docs/primi-passi`) spiega configurazione, calcolo, import `.3mf`, prezzo, preventivi, cloud e backup, con indice laterale e screenshot reali. Ogni sezione ha un URL diretto, ad esempio `/#/docs/materiali`.
+- **Suggerimenti** (`/#/feedback`) invia una miglioria o una segnalazione all'amministratore tramite un form **Formspree Free** separato, configurato con `VITE_FEEDBACK_ENDPOINT` (pubblico, nessun segreto). Il form non crea account e invia solo i campi compilati: tipo, area, titolo, descrizione, email opzionale e consenso privacy. Formspree conserva le submission per 30 giorni; non c'è autoresponse.
+
 ## Deploy
 
 **Live:** https://layercost.vercel.app
@@ -101,7 +110,7 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 - Framework preset: Vite
 - Build: `npm run build`
 - Output: `dist`
-- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, più `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il login Google (pubblico, nessun segreto) e `VITE_ACCESS_REQUEST_ENDPOINT` per il form Formspree della pagina “Richiedi accesso” (pubblico, nessun segreto)
+- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, più `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il login Google (pubblico, nessun segreto), `VITE_ACCESS_REQUEST_ENDPOINT` per la pagina “Richiedi accesso” e `VITE_FEEDBACK_ENDPOINT` per la pagina “Suggerimenti” (pubblici, nessun segreto)
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 
@@ -109,25 +118,27 @@ La root è indicizzabile: `index.html` contiene la landing italiana pre-renderiz
 
 ## Documentazione
 
-| File                                    | Contenuto                                              |
-| --------------------------------------- | ------------------------------------------------------ |
-| `STATUS.md`                             | Stato attuale, test, deploy e limiti                   |
-| `PLAN.md`                               | Visione, scope, architettura, roadmap                  |
-| `TASKS.md`                              | Task e stato di avanzamento                            |
-| `AGENTS.md`                             | Regole per il coding agent                             |
-| `docs/domain/cost-model.md`             | Specifica normativa del calcolo                        |
-| `docs/domain/data-model.md`             | Schema e invarianti                                    |
-| `docs/domain/golden-cases.md`           | Esempi numerici e test                                 |
-| `docs/domain/sources.md`                | Fonti su stampanti e potenze                           |
-| `docs/engineering/`                     | Architettura, persistenza, test, release, deploy       |
-| `docs/engineering/workspace-runbook.md` | Workspace condiviso: utenti, membership, audit         |
-| `docs/planning/phase-5.md`              | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync           |
+| File                                    | Contenuto                                                       |
+| --------------------------------------- | --------------------------------------------------------------- |
+| `STATUS.md`                             | Stato attuale, test, deploy e limiti                            |
+| `PLAN.md`                               | Visione, scope, architettura, roadmap                           |
+| `TASKS.md`                              | Task e stato di avanzamento                                     |
+| `AGENTS.md`                             | Regole per il coding agent                                      |
+| `docs/domain/cost-model.md`             | Specifica normativa del calcolo                                 |
+| `docs/domain/data-model.md`             | Schema e invarianti                                             |
+| `docs/domain/golden-cases.md`           | Esempi numerici e test                                          |
+| `docs/domain/sources.md`                | Fonti su stampanti e potenze                                    |
+| `docs/engineering/`                     | Architettura, persistenza, test, release, deploy                |
+| `docs/engineering/workspace-runbook.md` | Workspace condiviso: utenti, membership, audit                  |
+| `docs/planning/phase-5.md`              | Piano fase 5: `.3mf`, inglese, `.xlsx`, sync                    |
 | `docs/planning/evolutive.md`            | Google login, tetti utenti/preventivi, landing, multi-workspace |
-| `docs/planning/evo-5-landing-page.md`   | Piano e acceptance della landing pubblica              |
-| `docs/design/ui-brief.md`               | Requisiti per la fase design                           |
-| `docs/design/directions.md`             | Direzioni e scelta visiva                              |
-| `docs/design/design-system.md`          | Token, componenti, accessibilità                       |
-| `docs/adr/`                             | 29 decisioni architetturali                            |
+| `docs/planning/evo-5-landing-page.md`   | Piano e acceptance della landing pubblica                       |
+| `docs/planning/evo-6-docs-feedback.md`  | Piano di documentazione in-app e Suggerimenti                   |
+| `docs/engineering/feedback.md`          | Configurazione e gestione del form Suggerimenti                 |
+| `docs/design/ui-brief.md`               | Requisiti per la fase design                                    |
+| `docs/design/directions.md`             | Direzioni e scelta visiva                                       |
+| `docs/design/design-system.md`          | Token, componenti, accessibilità                                |
+| `docs/adr/`                             | 30 decisioni architetturali                                     |
 
 ## Stato
 

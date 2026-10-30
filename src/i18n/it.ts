@@ -1,6 +1,7 @@
 import { authIt } from './it/auth'
 import { accessIt } from './it/access'
 import { calculatorIt } from './it/calculator'
+import { feedbackIt } from './it/feedback'
 import { landingIt } from './it/landing'
 import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
@@ -24,6 +25,9 @@ export const baseIt = {
 
   'nav.work': 'Lavoro',
   'nav.configuration': 'Configurazione',
+  'nav.help': 'Aiuto',
+  'nav.docs': 'Documentazione',
+  'nav.feedback': 'Suggerimenti',
   'nav.overview': 'Panoramica',
   'nav.calculator': 'Calcolatore',
   'nav.quotes': 'Preventivi',
@@ -125,6 +129,7 @@ export const it = {
   ...authIt,
   ...accessIt,
   ...landingIt,
+  ...feedbackIt,
 } as const
 
 export type BaseMessageKey = keyof typeof baseIt

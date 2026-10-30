@@ -7,7 +7,7 @@
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 30/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). **EVO-5 — Landing page pubblica** (ADR-0029) è implementata e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`): route `/#/`, `/#/calculator` e `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot e budget JS 218,2/230 KB, HTML 6,0/10 KB; smoke verde. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 42 baseline visive (36 app + 6 landing) sono state verificate su Linux con EVO-5.
+**Stato al 30/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). **EVO-5 — Landing page pubblica** (ADR-0029) è implementata e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`): route `/#/`, `/#/calculator` e `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot e budget JS 218,2/230 KB, HTML 6,0/10 KB; smoke verde. **EVO-6 — Documentazione in-app e Suggerimenti** (ADR-0030) è implementata e configurata in locale il 30/10/2026: guida a dieci sezioni con indice e link diretti, screenshot reali, form Formspree separato con env locale/Vercel e submission di test verificata; budget iniziale 220,2/230 KB; deploy da fare. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 42 baseline visive (36 app + 6 landing) sono state verificate su Linux con EVO-5.
 
 ---
 
@@ -1208,7 +1208,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e verificato in locale il 29/10/2026 (landing pubblica, deploy da fare); EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e distribuito il 30/10/2026; EVO-6 implementato in locale il 30/10/2026 (deploy da fare); EVO-2–EVO-4 proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login
@@ -1288,6 +1288,22 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - **EVO-5.5 Test e budget:** 249 unitari (+12), 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync), 42 screenshot (+6), 68 scansioni axe (+8); JS 218,2/230 KB, HTML 6,0/10 KB, totale 284,5/350 KB.
 - **EVO-5.6 Docs e deploy:** ADR-0029, piano, README, STATUS, deployment, testing, i18n inventory e design system; deploy Vercel del 30/10/2026 (`index-CciHjhFo.js` / `index-DicimwUj.css`), switch in top bar (PR #34) e smoke verde.
 - **EVO-5.7 Top bar:** `PublicTopBarControls` è un segmented control unico con due gruppi di radio native (lingua IT/EN, tema chiaro/scuro), thumb `surface` con outline `line`, focus sull'opzione e frecce; il cambio tema non anima i colori. Test E2E aggiornati, axe 0 violazioni; 6 baseline landing rigenerate con il container Playwright Linux.
+- Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
+
+## EVO-6 — Documentazione in-app e Suggerimenti
+
+**Stato:** `[x]` — implementato in locale e configurato il 30/10/2026; form Formspree di produzione/test creati, env su Vercel, submission di test verificata; deploy e submission di produzione da fare
+**Dipende da:** —
+**ADR:** 0030
+**Piano:** `docs/planning/evo-6-docs-feedback.md`
+
+- **EVO-6.1 Routing:** gruppo sidebar **Aiuto** con **Documentazione** (`/#/docs`, `/#/docs/:section`) e **Suggerimenti** (`/#/feedback`); route lazy, redirect alla prima sezione, focus sul titolo e scroll in alto.
+- **EVO-6.2 Guida:** dieci sezioni (Primi passi, Stampanti, Materiali, Tariffe ed extra, Calcolare, Import `.3mf`, Prezzo e IVA, Preventivi, Cloud e backup, Suggerimenti), indice sticky su desktop e orizzontale su mobile, blocchi tipizzati, link utili, precedente/successiva e CTA feedback. Contenuti IT/EN in un dizionario locale caricato solo dal chunk della guida.
+- **EVO-6.3 Screenshot:** riuso degli screenshot reali della landing e nuovi `public/docs/{printers,materials,tariffs,settings}.jpg` generati con `npm run capture:docs`; `alt` e caption localizzati.
+- **EVO-6.4 Suggerimenti:** form con tipo, area, titolo, descrizione, email opzionale, consenso privacy e honeypot; invio Formspree con `VITE_FEEDBACK_ENDPOINT`, `_subject` e `_replyto` solo con email; stati success/error/endpoint mancante; nessun account o dato dell’app.
+- **EVO-6.5 Test e budget:** 15 unit feedback, 3 unit docs, 5 E2E docs, 6 E2E feedback, 1 E2E senza endpoint, route docs/feedback in axe; `scripts/test-e2e.mjs` costruisce con e senza i due endpoint. Budget iniziale 220,2/230 KB, lazy 73,0/80 KB, totale 286,9/350 KB.
+- **EVO-6.6 Docs e privacy:** ADR-0030, piano, README, STATUS, deployment, testing, i18n inventory, `.env.example` e CHANGELOG. Formspree processore USA, archivio 30 giorni, soli campi del modulo. Rollback: rimuovere la env.
+- Resta: applicare **Restrict to Domain = `layercost.vercel.app`** al form di produzione, verificare una submission reale sul form di produzione dopo il deploy, cancellare la submission di test e aggiungere una baseline visual dedicata (follow-up).
 - Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
 
 **Prompt di ripresa:** §8 di `docs/planning/evolutive.md`.
