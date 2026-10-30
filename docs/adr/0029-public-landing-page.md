@@ -2,7 +2,7 @@
 
 **Stato:** Accettato e distribuito
 **Data:** 29 ottobre 2026
-**Deploy:** 30 ottobre 2026, build `index-mbP2OUSu.js` / `index-DYXu1jt6.css`, smoke di produzione verde
+**Deploy:** 30 ottobre 2026, build `index-DskoieRT.js` / `index-DYXu1jt6.css`, copy gratuita PR #32, smoke di produzione verde
 **Piano:** `docs/planning/evo-5-landing-page.md`
 **Relazione:** non cambia formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync
 
