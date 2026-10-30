@@ -1,6 +1,6 @@
 # EVO-5 — Landing page pubblica
 
-**Stato:** Implementata il 29 ottobre 2026 e distribuita in produzione il 30 ottobre 2026 (PR #30, squash `29b954b`); copy cloud gratuita con PR #32 (`294c6f1`)
+**Stato:** Implementata il 29 ottobre 2026 e distribuita in produzione il 30 ottobre 2026 (PR #30, squash `29b954b`); copy cloud gratuita con PR #32 (`294c6f1`); switch tema/lingua in top bar con PR #34 (`8d7d2e2`)
 **Data:** 29 ottobre 2026
 **ADR:** `docs/adr/0029-public-landing-page.md`
 **Riferimenti:** `docs/planning/evolutive.md`, `docs/engineering/deployment.md`, `docs/engineering/testing.md`, `docs/planning/i18n-inventory.md`, `docs/design/design-system.md`
@@ -147,7 +147,7 @@ Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a
 - [x] 249 unitari, 68 E2E, 42 screenshot, 68 scansioni axe.
 - [x] `npm run check` verde; budget JS 218,2/230 KB e HTML 6,0/10 KB.
 - [x] Documentazione e ADR-0029.
-- [x] Deploy Vercel e verifica della produzione (30/10/2026, build `index-DskoieRT.js` / `index-DYXu1jt6.css`, copy gratuita PR #32, smoke verde).
+- [x] Deploy Vercel e verifica della produzione (30/10/2026, build `index-CciHjhFo.js` / `index-DicimwUj.css`, copy gratuita PR #32, top bar PR #34, smoke verde).
 
 ---
 

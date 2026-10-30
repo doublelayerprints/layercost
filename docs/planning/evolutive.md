@@ -20,7 +20,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 - **Membri:** due account `owner`; le email non sono nel repository.
 - **Dati attuali:** 2 stampanti, 8 materiali, 5 extra, 2 preventivi (29/10/2026).
 - **Auth:** email + password, signup pubblico disabilitato, nessun SMTP; reset amministrativo.
-- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; il 29/10/2026 EVO-1 porta a `index-BN8y8TA2.js` / `index-B2c8cUBY.css`, EVO-3a a `index-B6Cg37Ap.js` / `index-G-eqO2lr.css`, il limite `.3mf` a `index-BR5hKjFi.js` / `index-G-eqO2lr.css` e EVO-5 a `index-DskoieRT.js` / `index-DYXu1jt6.css` (copy gratuita PR #32). Cloud, Google, richiesta accesso, landing pubblica e import `.3mf` fino a 250 MiB sono attivi in produzione.
+- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; il 29/10/2026 EVO-1 porta a `index-BN8y8TA2.js` / `index-B2c8cUBY.css`, EVO-3a a `index-B6Cg37Ap.js` / `index-G-eqO2lr.css`, il limite `.3mf` a `index-BR5hKjFi.js` / `index-G-eqO2lr.css` e EVO-5 a `index-CciHjhFo.js` / `index-DicimwUj.css` (copy gratuita PR #32, top bar PR #34). Cloud, Google, richiesta accesso, landing pubblica e import `.3mf` fino a 250 MiB sono attivi in produzione.
 - **Operazioni:** keep-alive giornaliero e backup settimanale cifrato attivi e verificati.
 - **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e i flag pubblici (`VITE_AUTH_GOOGLE_ENABLED`, `VITE_ACCESS_REQUEST_ENDPOINT`; Production = form reale, Preview/Development = form di test).
 
