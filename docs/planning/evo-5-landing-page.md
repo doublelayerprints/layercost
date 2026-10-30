@@ -41,7 +41,7 @@ Aprire LayerCost a chi non lo conosce con una pagina pubblica completa, in itali
 
 La landing è in `src/features/landing/`, con testi in `src/i18n/it/landing.ts` e `src/i18n/en/landing.ts`.
 
-1. **Header pubblico** con logo, Funzionalità, Come funziona, Privacy, FAQ e CTA “Apri il calcolatore”. Su mobile il menu contiene i link e la CTA.
+1. **Header pubblico** con logo, Funzionalità, Come funziona, Privacy, FAQ, CTA “Apri il calcolatore” e interruttori compatti tema chiaro/scuro e lingua IT/EN nella top bar. Su mobile il menu contiene i link e la CTA; gli interruttori restano visibili nella barra.
 2. **Hero** con headline “Il costo vero delle stampe 3D.”, sottotitolo, CTA “Apri il calcolatore” e “Richiedi accesso”, nota “Nessun account richiesto” e screenshot reale del calcolatore.
 3. **Sei funzionalità** in una tabella di confronto con un foglio di calcolo: motore di costo, multi-materiale, preventivi, import `.3mf`, export `.xlsx`/PDF, confronto stampanti. Ogni risposta è in parole, non un simbolo.
 4. **Dal calcolo al cliente**: preventivo reale con prezzi congelati, righe e composizione del costo.
@@ -49,7 +49,7 @@ La landing è in `src/features/landing/`, con testi in `src/i18n/it/landing.ts` 
 6. **Privacy/local-first**: nessun account obbligatorio, dati nel browser, backup completo, nessun analytics; cloud gratuito e opzionale.
 7. **Cloud**: tutto gratuito, cloud compreso; richiesta di accesso, attivazione, accesso e ritrovo dei dati su più dispositivi. La landing non espone dettagli tecnici del provider.
 8. **FAQ** native in cinque domande: account, costo, dati, più dispositivi, richiesta di accesso.
-9. **CTA finale** e **footer** con login, richiesta accesso, versione motore, nota privacy, lingua e tema.
+9. **CTA finale** e **footer** con login, richiesta accesso, versione motore, nota privacy e dati.
 
 Immagini: quattro screenshot reali in `public/landing/` (calcolatore, dettaglio, condivisione, import `.3mf`) e `public/og-image.jpg` 1200×630. Si rigenerano con `npm run capture:landing` (server di sviluppo temporaneo, JPEG quality 88).
 
@@ -108,13 +108,13 @@ Totale: **249 unitari** (+12).
 
 | Voce | Misura | Limite |
 | --- | --- | --- |
-| JS iniziale | 217,9 KB gzip | 230 KB |
+| JS iniziale | 218,2 KB gzip | 230 KB |
 | HTML | 6,0 KB gzip | 10 KB |
 | Chunk lazy | 55,8 KB | 80 KB |
 | Worker `.3mf` | 37,7 KB | 40 KB |
 | CSS | 9,5 KB | 20 KB |
 | Font | 56,8 KB | 120 KB |
-| Totale iniziale | 284,2 KB | 350 KB |
+| Totale iniziale | 284,5 KB | 350 KB |
 
 Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a 230 KB per la landing (prima schermata, dizionari IT/EN e componenti). Il limite di avviso Vite sul chunk raw passa a 860 KB.
 
@@ -145,7 +145,7 @@ Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a
 - [x] 375/768/1440, chiaro/scuro, `prefers-reduced-motion`, axe WCAG 2.2 AA.
 - [x] Parità i18n IT/EN e inventario aggiornato.
 - [x] 249 unitari, 68 E2E, 42 screenshot, 68 scansioni axe.
-- [x] `npm run check` verde; budget JS 217,9/230 KB e HTML 6,0/10 KB.
+- [x] `npm run check` verde; budget JS 218,2/230 KB e HTML 6,0/10 KB.
 - [x] Documentazione e ADR-0029.
 - [x] Deploy Vercel e verifica della produzione (30/10/2026, build `index-DskoieRT.js` / `index-DYXu1jt6.css`, copy gratuita PR #32, smoke verde).
 

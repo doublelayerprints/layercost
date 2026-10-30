@@ -93,7 +93,7 @@ Nessun CSP restrittivo in v1.0 per non bloccare gli asset Vite; da valutare in u
 - `index.html`: title/description italiani, canonical `https://layercost.vercel.app/`, Open Graph/Twitter, `og-image.jpg` 1200×630, JSON-LD `SoftwareApplication`, `robots: index,follow`.
 - `public/robots.txt`: `Allow: /` e `Sitemap: https://layercost.vercel.app/sitemap.xml`; `public/sitemap.xml` contiene la root.
 - Screenshot reali in `public/landing/`; rigenerazione con `npm run capture:landing`.
-- Budget: JS iniziale 217,9/230 KB, HTML 6,0/10 KB, totale 284,2/350 KB. Motivazione in ADR-0029.
+- Budget: JS iniziale 218,2/230 KB, HTML 6,0/10 KB, totale 284,5/350 KB. Motivazione in ADR-0029.
 - L’inglese è disponibile nell’interfaccia; un’indicizzazione inglese separata (`/en` o `?lang=en`) non è implementata.
 
 ## 3. Base path
@@ -167,7 +167,7 @@ La checklist operativa e l'esito della v1.0.0 sono in `release.md`. In sintesi:
 - Google login (EVO-1, ADR-0025): distribuito il 29/10/2026 con `VITE_AUTH_GOOGLE_ENABLED=true` su Production e Preview. OAuth client e provider Supabase configurati; login verificato per **entrambi gli account** (2 identità Google su 2); il secondo owner ha completato il collegamento il 29/10/2026. Il rollback è documentato nel runbook §15.
 - Richiesta accesso (EVO-3a, ADR-0026): implementata, configurata e distribuita il 29/10/2026 (PR #26, squash `125f0d5`, build `index-B6Cg37Ap.js` / `index-G-eqO2lr.css`). Formspree ha form di produzione e test separati, endpoint in locale/Vercel, notifica email verificata e Restrict to Domain sul progetto di produzione; submission reale e smoke verdi. Resta la pulizia delle submission di prova. Runbook in `docs/engineering/access-requests.md`.
 - Limite import `.3mf`: distribuito il 29/10/2026 (PR #28, squash `338d693`, build `index-BR5hKjFi.js` / `index-G-eqO2lr.css`). File compresso fino a **250 MiB**, contenuto decompresso fino a **1 GiB**; smoke di produzione verde.
-- Landing pubblica (EVO-5, ADR-0029): distribuita il 30/10/2026 con la PR #30 e la copy gratuita della PR #32 (squash `294c6f1`, build `index-DskoieRT.js` / `index-DYXu1jt6.css`). Verificati in produzione HTML pre-renderizzato, canonical/OG, `robots.txt` con `Allow: /`, `sitemap.xml`, assenza di `X-Robots-Tag`, `/calculator`, `/welcome`, immagini `public/landing/` e `og-image.jpg`; smoke verde. In locale: 249 unitari, 68 E2E, 42 screenshot, 12 test visuali Linux, `inspect.mjs` 0 FAIL/1 WARN, budget 217,9/230 KB e HTML 6,0/10 KB.
+- Landing pubblica (EVO-5, ADR-0029): distribuita il 30/10/2026 con la PR #30 e la copy gratuita della PR #32 (squash `294c6f1`, build `index-DskoieRT.js` / `index-DYXu1jt6.css`). Verificati in produzione HTML pre-renderizzato, canonical/OG, `robots.txt` con `Allow: /`, `sitemap.xml`, assenza di `X-Robots-Tag`, `/calculator`, `/welcome`, immagini `public/landing/` e `og-image.jpg`; smoke verde. In locale: 249 unitari, 68 E2E, 42 screenshot, 12 test visuali Linux, `inspect.mjs` 0 FAIL/1 WARN, budget 218,2/230 KB e HTML 6,0/10 KB.
 - Release **v1.0.0** del 24/10/2026, commit `cc949b3`, tag `v1.0.0`; deploy di produzione verificato con build `index-C_5bQZYu.js`, gate visivo 0 FAIL, 1 WARN (`ragged-row`, rail sticky), prezzo 3,70 €, bozza protetta, alert di salvataggio non ripetuto al reload, tema scuro persistente e PDF A4 chiaro (99 KB).
 - Progetto collegato alla repo; status check Vercel verde sull’ultimo commit.
 - Le preview deployment sono protette da SSO Vercel; la produzione è pubblica.

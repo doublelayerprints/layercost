@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { ENGINE_VERSION } from '@/domain/version'
 import { LANDING_SECTIONS } from './content'
-import { PublicPreferences } from './PublicPreferences'
 import { scrollToSection } from './scroll'
 
 const linkClass =
@@ -70,9 +69,11 @@ export function PublicFooter() {
 
           <div className="lg:col-span-3">
             <h3 className="text-[13px] font-semibold text-ink">
-              {t('landing.footer.preferences')}
+              {t('landing.footer.dataTitle')}
             </h3>
-            <PublicPreferences className="mt-3" />
+            <p className="mt-3 text-[13px] leading-relaxed text-muted">
+              {t('landing.footer.dataNote')}
+            </p>
           </div>
         </div>
 

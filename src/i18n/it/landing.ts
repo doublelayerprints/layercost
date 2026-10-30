@@ -165,4 +165,8 @@ export const landingIt = {
   'landing.footer.dataTitle': 'Dati e privacy',
   'landing.footer.dataNote': 'Nessun analytics, nessun cookie. Solo i dati che inserisci.',
   'landing.footer.description': 'Calcolatore per stampe 3D. Tutto gratuito, cloud compreso.',
+
+  'landing.topbar.themeToDark': 'Passa al tema scuro',
+  'landing.topbar.themeToLight': 'Passa al tema chiaro',
+  'landing.topbar.languageTo': 'Passa a {language}',
 } as const
