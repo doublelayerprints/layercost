@@ -82,7 +82,9 @@
 
 **Stato EVO-5:** aggiunte **116 chiavi** nell’area `landing` per meta, navigazione, hero, tabella delle funzionalità, passi e demo, privacy, cloud, FAQ, CTA, footer e interruttori tema/lingua della top bar, più `nav.overview` per la voce **Panoramica** della sidebar. Parità it/en a **1176** chiavi; il test delle aree include `landingIt`. La landing usa gli stessi dizionari tipizzati e cambia lingua senza ricaricare la pagina.
 
-**Stato EVO-6:** aggiunte **54 chiavi** nell’area `feedback` (tipo, area, campi, privacy, invio, conferma, errori, validazione) e **3 chiavi** di navigazione (`nav.help`, `nav.docs`, `nav.feedback`). Parità globale it/en a **1233** chiavi; il test delle aree include `feedbackIt`. La documentazione aggiunge **179 chiavi** in un dizionario locale `docs` (`src/i18n/{it,en}/docs.ts`) caricato solo dal chunk lazy della guida, quindi non entra nella parità globale né nel bundle iniziale. Il test `src/features/docs/docs.test.ts` verifica che ogni chiave usata da `content.ts` esista in italiano e in inglese.
+**Stato EVO-6:** aggiunte **54 chiavi** nell'area `feedback` (tipo, area, campi, privacy, invio, conferma, errori, validazione) e **3 chiavi** di navigazione (`nav.help`, `nav.docs`, `nav.feedback`). Parità globale it/en a **1233** chiavi; il test delle aree include `feedbackIt`. La documentazione aggiunge **179 chiavi** in un dizionario locale `docs` (`src/i18n/{it,en}/docs.ts`) caricato solo dal chunk lazy della guida, quindi non entra nella parità globale né nel bundle iniziale. Il test `src/features/docs/docs.test.ts` verifica che ogni chiave usata da `content.ts` esista in italiano e in inglese.
+
+**Stato T5.22:** aggiunte 2 chiavi nell'area `calculator` per la rinomina dal titolo (`calculator.renameQuote`, `calculator.renameHint`). Parità globale it/en a **1235** chiavi; nessun cambio ai dizionari lazy di documentazione e landing.
 
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 

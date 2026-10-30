@@ -38,10 +38,10 @@ test('i controlli usano i token, il focus è visibile e non c’è overflow a 37
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/#/calculator')
 
-  const nameInput = page.getByLabel('Nome preventivo')
-  await expect(nameInput).toBeVisible()
+  const customerInput = page.getByLabel('Cliente (opzionale)')
+  await expect(customerInput).toBeVisible()
 
-  const inputStyles = await nameInput.evaluate((element) => {
+  const inputStyles = await customerInput.evaluate((element) => {
     const styles = getComputedStyle(element)
     return {
       borderColor: styles.borderTopColor,
@@ -53,8 +53,8 @@ test('i controlli usano i token, il focus è visibile e non c’è overflow a 37
   expect(inputStyles.borderWidth).toBe('1px')
   expect(inputStyles.height).toBe('44px')
 
-  await nameInput.click()
-  const focus = await nameInput.evaluate((element) => {
+  await customerInput.click()
+  const focus = await customerInput.evaluate((element) => {
     const styles = getComputedStyle(element)
     return {
       outlineColor: styles.outlineColor,

@@ -2,12 +2,12 @@
 
 **Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 in corso; CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
-**Data:** 29 ottobre 2026
+**Data:** 30 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 30/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). **EVO-5 — Landing page pubblica** (ADR-0029) è implementata e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`): route `/#/`, `/#/calculator` e `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot e budget JS 218,2/230 KB, HTML 6,0/10 KB; smoke verde. **EVO-6 — Documentazione in-app e Suggerimenti** (ADR-0030) è implementata, configurata e **distribuita in produzione il 30/10/2026** (PR #36, squash `ec321fb`, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`): guida a dieci sezioni con indice e link diretti, screenshot reali, form Formspree separato con env locale/Vercel, Restrict to Domain e submission di test verificata; budget iniziale 220,2/230 KB. Restano submission di produzione e pulizia di quella di test. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 42 baseline visive (36 app + 6 landing) sono state verificate su Linux con EVO-5; le baseline app sono state rigenerate per EVO-6.
+**Stato al 30/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.21** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti e card comprimibili) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). **EVO-5 — Landing page pubblica** (ADR-0029) è implementata e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`): route `/#/`, `/#/calculator` e `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot e budget JS 218,2/230 KB, HTML 6,0/10 KB; smoke verde. **EVO-6 — Documentazione in-app e Suggerimenti** (ADR-0030) è implementata, configurata e **distribuita in produzione il 30/10/2026** (PR #36, squash `ec321fb`, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`): guida a dieci sezioni con indice e link diretti, screenshot reali, form Formspree separato con env locale/Vercel, Restrict to Domain e submission di test verificata; budget iniziale 220,2/230 KB. Restano submission di produzione e pulizia di quella di test. **T5.22 — Rinomina del preventivo dal titolo** è chiuso il 30/10/2026: matita accanto al titolo del calcolatore, Invio/blur/Esc e campo duplicato rimosso dalla card Preventivo. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 42 baseline visive (36 app + 6 landing) sono state verificate su Linux con EVO-5; le baseline app sono state rigenerate per EVO-6.
 
 ---
 
@@ -1189,6 +1189,20 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 
 **Accettazione:** tutte le card configurabili del calcolatore e le singole stampe si comprimono e si espandono da tastiera e mouse; da compresse mostrano una sintesi utile; le azioni restano raggiungibili; layout verificato a 375 e 1440 px; `npm run check` verde. → soddisfatta; baseline visive del calcolatore rigenerate in CI.
 
+## T5.22 — Rinomina del preventivo dal titolo
+
+**Stato:** `[x]` — chiuso il 30/10/2026
+
+**Nota:** il nome della bozza si modifica dal titolo della pagina, non più dalla card Preventivo.
+
+- `PageHeader` accetta `title: ReactNode`, `titleAction` e `titleClassName`; l'azione resta fuori dall'`h1`, che conserva il nome del preventivo come testo accessibile.
+- Nel calcolatore la matita “Rinomina preventivo” accanto al titolo sostituisce il testo con un input 24/600 a tutta larghezza. Invio o blur confermano, Esc ripristina il nome precedente; il focus torna alla matita. Un nome vuoto non viene confermato. La bozza continua a salvarsi a ogni modifica.
+- Il campo “Nome preventivo” è stato rimosso dalla card Preventivo, che ora contiene solo data e cliente; la descrizione rimanda al titolo. Nessun campo duplicato.
+- Nuove chiavi i18n `calculator.renameQuote` e `calculator.renameHint` (parità it/en a 1235). Nessun cambio a formule, schema, snapshot o `engineVersion`.
+- Test: 1 E2E dedicato su rinomina, persistenza, Esc e nome vuoto; aggiornati gli E2E esistenti che usavano il campo nella card. `npm run check` verde: 267 unitari; 63 E2E eseguiti su Chromium/WebKit (12 visual, 3 auth e 3 sync saltati); budget 220,9 KB JS / 230 KB e 287,7 KB totali / 350 KB. Baseline visive del calcolatore da rigenerare in CI.
+
+**Accettazione:** il nome del preventivo si modifica dal titolo in alto con mouse e tastiera; Invio/blur confermano, Esc annulla; il valore persiste; nessun campo duplicato nella card; layout verificato a 375 e 1440 px; `npm run check` verde. → soddisfatta; baseline visive del calcolatore da rigenerare in CI.
+
 ---
 
 ## Ordine consigliato
@@ -1198,7 +1212,7 @@ I controlli sono radio nativi coperti dall’etichetta: il click sull’intero p
 3. T2.1 → T2.12
 4. T3.1 → T3.12
 5. T4.1 → T4.7
-6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.18 → T5.19 → T5.20 → T5.21 → T5.4 (sync richiesto il 26/10/2026)
+6. T5.0 → T5.3 → T5.6 → T5.12 → T5.13 → T5.14 → T5.15 → T5.16 → T5.17 → T5.18 → T5.19 → T5.20 → T5.21 → T5.22 → T5.4 (sync richiesto il 26/10/2026)
 7. Nessun altro task di fase 5: T5.1, T5.2, T5.5 e T5.7–T5.11 sono chiusi/non in scope su indicazione del committente.
 
 Non iniziare la UI prima che il motore e la persistenza siano stabili. Non iniziare il design prima del MVP funzionale. Non iniziare il sync prima di 3MF e inglese.

@@ -15,6 +15,7 @@ import {
   Input,
   PageHeader,
 } from '@/components/ui'
+import { buttonClassName } from '@/components/button-styles'
 import { TextField } from '@/components/number-fields'
 import { OnboardingCard } from '@/features/onboarding/OnboardingCard'
 import { QuotePrint } from '@/features/quotes/QuotePrint'
@@ -57,8 +58,14 @@ export function CalculatorPage() {
   const saveDraft = useAppStore((state) => state.saveDraft)
   const navigate = useNavigate()
   const dateFieldId = useId()
+  const renameHintId = useId()
 
   const [saveError, setSaveError] = useState<string>()
+  const [isRenaming, setIsRenaming] = useState(false)
+  const nameBeforeRenameRef = useRef('')
+  const restoreTitleFocusRef = useRef(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
+  const renameButtonRef = useRef<HTMLButtonElement>(null)
   const pendingFocusRef = useRef<string | undefined>(undefined)
   const {
     fileInputRef,
@@ -95,6 +102,19 @@ export function CalculatorPage() {
     nameInput?.focus()
     line?.scrollIntoView({ block: 'center' })
   }, [draft.lines, t])
+
+  useEffect(() => {
+    if (!isRenaming) return
+    const input = nameInputRef.current
+    input?.focus()
+    input?.select()
+  }, [isRenaming])
+
+  useEffect(() => {
+    if (isRenaming || !restoreTitleFocusRef.current) return
+    restoreTitleFocusRef.current = false
+    renameButtonRef.current?.focus()
+  }, [isRenaming])
 
   const editingQuote = quotes.find(
     (quote) => quote.id === draft.id && quote.status === 'saved' && !quote.archived,
@@ -194,6 +214,26 @@ export function CalculatorPage() {
     navigate(`/quotes/${id}`)
   }
 
+  const startRenaming = () => {
+    nameBeforeRenameRef.current = draft.name
+    setIsRenaming(true)
+  }
+
+  const finishRenaming = () => {
+    if (!draft.name.trim() && nameBeforeRenameRef.current.trim()) {
+      updateDraftMeta({ name: nameBeforeRenameRef.current })
+    }
+    setIsRenaming(false)
+  }
+
+  const cancelRenaming = () => {
+    updateDraftMeta({ name: nameBeforeRenameRef.current })
+    restoreTitleFocusRef.current = true
+    setIsRenaming(false)
+  }
+
+  const quoteTitle = draft.name.trim() || t('calculator.newQuote')
+
   const paragraphCount = draft.lines.length
   const lineCountLabel = t(
     paragraphCount === 1 ? 'calculator.lineCount.one' : 'calculator.lineCount.other',
@@ -276,14 +316,79 @@ export function CalculatorPage() {
     <>
       <div className="print:hidden">
         <PageHeader
-          title={draft.name.trim() || t('calculator.newQuote')}
+          title={
+            isRenaming ? (
+              <input
+                ref={nameInputRef}
+                value={draft.name}
+                aria-label={t('calculator.nameLabel')}
+                aria-describedby={renameHintId}
+                placeholder={t('calculator.namePlaceholder')}
+                onChange={(event) => updateDraftMeta({ name: event.target.value })}
+                onBlur={finishRenaming}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    restoreTitleFocusRef.current = true
+                    finishRenaming()
+                  } else if (event.key === 'Escape') {
+                    event.preventDefault()
+                    cancelRenaming()
+                  }
+                }}
+                className="w-full min-w-0 rounded-control border border-control bg-surface px-3 py-1.5 text-2xl font-semibold tracking-title text-ink transition-feedback placeholder:font-normal placeholder:text-muted"
+              />
+            ) : (
+              quoteTitle
+            )
+          }
+          titleAction={
+            isRenaming ? undefined : (
+              <button
+                ref={renameButtonRef}
+                type="button"
+                onClick={startRenaming}
+                aria-label={t('calculator.renameQuote')}
+                title={t('calculator.renameQuote')}
+                className={buttonClassName({
+                  variant: 'ghost',
+                  size: 'sm',
+                  className: '-ml-1 w-8 shrink-0 px-0 max-sm:w-10',
+                })}
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+              </button>
+            )
+          }
+          titleClassName={isRenaming ? 'w-full' : undefined}
           description={t('calculator.meta', {
             date: format.dateOnly(draft.quoteDate),
             count: paragraphCount,
             lines: lineCountLabel,
             grams: format.grams(totalGrams),
           })}
-          meta={<span className="text-xs text-muted">{t('calculator.autosaveNote')}</span>}
+          meta={
+            <>
+              <span className="text-xs text-muted">{t('calculator.autosaveNote')}</span>
+              {isRenaming ? (
+                <span id={renameHintId} className="sr-only">
+                  {t('calculator.renameHint')}
+                </span>
+              ) : null}
+            </>
+          }
           actions={
             <>
               <Button variant="secondary" onClick={openFilePicker} disabled={isLoading}>
@@ -342,14 +447,6 @@ export function CalculatorPage() {
               headingId="section-intestazione"
             >
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <TextField
-                  label={t('calculator.nameLabel')}
-                  value={draft.name}
-                  onChange={(value) => updateDraftMeta({ name: value })}
-                  placeholder={t('calculator.namePlaceholder')}
-                  required
-                  className="sm:col-span-2"
-                />
                 <Field label={t('calculator.date')} htmlFor={dateFieldId}>
                   <Input
                     id={dateFieldId}

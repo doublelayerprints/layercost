@@ -63,6 +63,6 @@ test('comprime ed espande le card del calcolatore', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Comprimi Preventivo' }).focus()
   await page.keyboard.press('Space')
-  await expect(page.locator('input[aria-label="Nome preventivo"]')).toBeHidden()
+  await expect(page.getByLabel('Cliente (opzionale)')).toBeHidden()
   await expect(page.getByRole('button', { name: 'Espandi Preventivo' })).toBeFocused()
 })

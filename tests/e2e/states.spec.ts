@@ -29,6 +29,36 @@ test('la bozza chiede conferma prima di essere sostituita', async ({ page }) => 
   await expect(grams).toHaveValue('0')
 })
 
+test('il titolo del preventivo si rinomina in alto', async ({ page }) => {
+  await page.goto('/#/calculator')
+
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Nuovo preventivo')
+
+  await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
+  const name = page.getByRole('textbox', { name: 'Nome preventivo' })
+  await expect(name).toBeVisible()
+  await expect(name).toBeFocused()
+  await name.fill('Titolo modificabile')
+  await page.keyboard.press('Enter')
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Titolo modificabile' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Rinomina preventivo' })).toBeFocused()
+
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 1, name: 'Titolo modificabile' })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
+  await page.getByRole('textbox', { name: 'Nome preventivo' }).fill('Da annullare')
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('heading', { level: 1, name: 'Titolo modificabile' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Rinomina preventivo' })).toBeFocused()
+
+  await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
+  await page.getByRole('textbox', { name: 'Nome preventivo' }).fill('')
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('heading', { level: 1, name: 'Titolo modificabile' })).toBeVisible()
+})
+
 test('un preventivo salvato offre di aprire la copia senza perdere la bozza', async ({ page }) => {
   await page.goto('/#/calculator')
   await page.locator('input[aria-label="Ore"]').first().fill('10')
