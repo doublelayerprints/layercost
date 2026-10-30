@@ -5,7 +5,7 @@
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Live:** https://layercost.vercel.app
 **Locale:** `/Users/tancredi/Desktop/DoubleLayeRPrints/layercost`
-**Branch:** `main` = `origin/main` = `ec321fb` — EVO-6 mergiata con la PR #36 e distribuita in produzione
+**Branch:** `main` = `origin/main` = `c1ac1ac` — T5.22 mergiata con la PR #39 e record di deploy con la PR #40; produzione verificata
 
 ---
 
