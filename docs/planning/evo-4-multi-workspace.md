@@ -1,6 +1,6 @@
 # EVO-4 — Spazi separati (multi-workspace)
 
-**Stato:** implementato e verificato in locale il 30/10/2026; deploy in produzione da fare
+**Stato:** implementato, distribuito e verificato in produzione il 30/10/2026 (build `index-eT8g6H47.js`, smoke verde)
 **ADR:** `docs/adr/0028-multi-workspace.md`
 **Relazione:** supersede in parte ADR-0024 (un solo workspace condiviso); non cambia formule, `engineVersion`, snapshot economici, schema locale v4 o dominio
 **Stima:** 5–7 giorni
@@ -205,7 +205,7 @@ Rollback:
 - [x] La modalità locale senza account resta invariata.
 - [x] `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync` verdi.
 - [ ] Documentazione e runbook aggiornati; nessun segreto o token nei log.
-- [ ] Deploy in produzione: migrazione prima del client, backup, smoke.
+- [x] Deploy in produzione: backup cifrato, migrazione prima del client, build `index-eT8g6H47.js`, smoke verde (30/10/2026).
 
 ## 9. Task
 
@@ -218,7 +218,7 @@ Rollback:
 | EVO-4.5 | Seed idempotente del nuovo spazio | Fatto |
 | EVO-4.6 | Selettore spazio, pagina Spazio, dialogo invito, i18n | Fatto |
 | EVO-4.7 | Test pgTAP, unitari, E2E, axe e budget | Fatto |
-| EVO-4.8 | Runbook, data model, STATUS, TASKS, CHANGELOG; deploy e smoke | Documenti fatti; deploy da fare |
+| EVO-4.8 | Runbook, data model, STATUS, TASKS, CHANGELOG; deploy e smoke | Fatto (deploy 30/10/2026) |
 
 ## 10. Rischi
 

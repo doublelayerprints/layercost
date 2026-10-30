@@ -1283,7 +1283,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-4 — Spazi separati (multi-workspace)
 
-**Stato:** `[x]` — implementato e verificato in locale il 30/10/2026; deploy in produzione da fare
+**Stato:** `[x]` — implementato, verificato e distribuito in produzione il 30/10/2026 (build `index-eT8g6H47.js`, smoke verde)
 **Dipende da:** —
 **ADR:** 0028
 **Piano:** `docs/planning/evo-4-multi-workspace.md`
@@ -1292,7 +1292,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - **Client:** gateway con filtri `workspace_id`, cache/outbox per spazio (`layercost:cloud-cache:<id>`, `layercost:sync-state:<id>`), spazio attivo in `layercost:active-workspace`, `pending-seed` per i nuovi spazi, switch con flush e guardia di generazione, nessun dialogo di primo accesso quando si cambia spazio.
 - **UI:** selettore in sidebar e menu mobile, sezione **Spazio** in Impostazioni con nome, membri, inviti e uscita, dialogo codice invito, i18n IT/EN.
 - **Verifiche:** `npm run check` verde; 289 unitari; 74 asserzioni `db:test` (33 + 41); 61 E2E default; 3 E2E auth; 5 E2E sync (spazi, inviti, offline, conflitto, isolamento); budget JS iniziale 226,6/230 KB.
-- **Da fare:** backup di produzione, applicare la migrazione prima del client, deploy, `smoke:production`, verifica manuale dei due account e aggiornamento di `CHANGELOG.md`/STATUS alla release.
+- **Deploy (30/10/2026):** backup cifrato verificato (`layercost-full-2026-10-30-pre-evo4.dump.gpg`), migrazione `20261030120000_multi_workspace.sql` applicata prima del client, build `index-eT8g6H47.js`, smoke di produzione verde. Al primo login i due account ricevono lo spazio personale accanto a `ws-doublelayer`.
 
 ## EVO-5 — Landing page pubblica
 
