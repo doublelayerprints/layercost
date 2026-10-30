@@ -84,13 +84,16 @@ insert into public.printers (
   );
 
 select is(
-  (select count(*) from public.printers where id = 'printer-kobra-3'),
+  (select count(*) from public.printers
+   where id = 'printer-kobra-3' and workspace_id in ('ws-a', 'ws-b')),
   2::bigint,
   'the same seed id exists in two workspaces without collisions'
 );
 
 select results_eq(
-  $$ select workspace_id from public.printers where id = 'printer-kobra-3' order by workspace_id $$,
+  $$ select workspace_id from public.printers
+     where id = 'printer-kobra-3' and workspace_id in ('ws-a', 'ws-b')
+     order by workspace_id $$,
   array['ws-a', 'ws-b']::text[],
   'both workspace rows are distinct'
 );
@@ -471,7 +474,8 @@ select results_eq(
 reset role;
 
 select is(
-  (select count(*) from public.materials where id = 'material-pla'),
+  (select count(*) from public.materials
+   where id = 'material-pla' and workspace_id in ('ws-a', 'ws-b')),
   2::bigint,
   'both workspaces keep their own material-pla row'
 );

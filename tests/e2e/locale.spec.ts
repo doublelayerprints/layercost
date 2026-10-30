@@ -5,11 +5,11 @@ test('cambia lingua, la persiste e salva preventivi in inglese', async ({ page }
   page.on('pageerror', (error) => errors.push(error.message))
 
   await page.goto('/#/settings')
-  const quickLanguage = page
-    .locator('aside')
+  const languageGroup = page
+    .locator('main')
     .getByRole('group', { name: 'Lingua dell’interfaccia' })
-  await expect(quickLanguage).toBeVisible()
-  await quickLanguage.getByRole('radio', { name: 'English' }).check()
+  await expect(languageGroup).toBeVisible()
+  await languageGroup.getByRole('radio', { name: 'English' }).check()
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.locator('main').getByRole('radio', { name: /English/ })).toBeChecked()
@@ -20,7 +20,6 @@ test('cambia lingua, la persiste e salva preventivi in inglese', async ({ page }
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.locator('main').getByRole('radio', { name: /English/ })).toBeChecked()
-  await expect(page.locator('aside').getByRole('radio', { name: 'English' })).toBeChecked()
 
   await page.getByRole('link', { name: 'Calculator' }).first().click()
   await expect(page.getByRole('heading', { name: 'New quote' }).first()).toBeVisible()

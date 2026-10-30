@@ -268,3 +268,20 @@
     background-color: #c4c4c4 !important;
   }
 }
+
+/*
+ * The desktop sidebar is fixed and must never show an internal scrollbar.
+ * On short viewports the footer (also available in Settings) and the group
+ * gaps compact so every navigation item stays reachable.
+ */
+@media (max-height: 680px) {
+  .app-sidebar-footer {
+    display: none;
+  }
+}
+
+@media (max-height: 620px) {
+  .app-sidebar-group-label {
+    padding-top: 0.5rem;
+  }
+}

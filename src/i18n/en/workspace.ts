@@ -3,6 +3,9 @@ export const workspaceEn = {
   'workspace.description':
     'Each workspace has its own quotes, printers, materials and settings. Switching workspace switches the data.',
   'workspace.active': 'Active workspace',
+  'workspace.spaces': 'Workspaces',
+  'workspace.manage': 'Manage workspace',
+  'workspace.topbarAria': 'Workspace bar',
   'workspace.switcherLabel': 'Active workspace',
   'workspace.loading': 'Loading workspaces…',
   'workspace.retry': 'Try again',

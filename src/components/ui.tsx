@@ -75,6 +75,34 @@ export function Badge({
   )
 }
 
+/** Shared disclosure chevron for menus and popovers. */
+export function ChevronDown({
+  open = false,
+  className,
+}: {
+  open?: boolean
+  className?: string
+}) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      className={cn(
+        'size-3.5 shrink-0 transition-transform duration-150',
+        open && 'rotate-180',
+        className,
+      )}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m4 6 4 4 4-4" />
+    </svg>
+  )
+}
+
 export interface FieldProps {
   label?: ReactNode
   htmlFor?: string

@@ -209,14 +209,17 @@ Cerchio da 20 px, bordo `--color-control`, testo 12 muted, `aria-label` con la s
 
 In Impostazioni → Aspetto: un `fieldset` con `legend` ("Tema dell'interfaccia") e tre radio native — Sistema, Chiaro, Scuro — dentro etichette-card. La radio è visibile e usa `accent-data`; la card selezionata ha bordo `--color-data` e fondo `--color-raised`. Il focus è quello nativo del controllo, quindi resta visibile anche senza classi aggiuntive. Non usare un toggle a due stati: la terza opzione "Sistema" è necessaria.
 
-### 3.16 Preferenze rapide nella sidebar
+### 3.16 Preferenze nella topbar connessa
 
-In fondo alla sidebar desktop e nel menu mobile, `QuickPreferences` offre due gruppi compatti:
+In modalità cloud la topbar desktop contiene un unico segmented control, lo stesso pattern della landing:
 
-- **Tema**: Sistema / Chiaro / Scuro.
-- **Lingua**: IT / EN, con nome accessibile esteso.
+- **Lingua**: IT / EN.
+- **Tema**: Sistema / Chiaro / Scuro, con icone monitor, sole e luna.
+- **Sync**: un quadratino di stato alla fine del gruppo, separato da una hairline. La forma dell'icona porta l'informazione (spunta = sincronizzato, orologio = in attesa, nuvoletta barrata = offline, triangolo = errore/conflitto), il colore è solo un accento e `title`/`aria-label` riportano lo stato esteso. Cliccandolo si apre Impostazioni → Sincronizzazione.
 
-Sono radio native coperte da un'etichetta-pulsantino, non toggle a due stati. L'input invisibile occupa l'intera etichetta (opacità 0) così il click funziona su tutto il pulsantino e il focus ring compare sul contenitore tramite `focus-within`. L'opzione selezionata ha fondo `--color-surface` e testo `--color-ink`; le altre restano muted. Su mobile il target è 44 px. Le preferenze sono le stesse di Impostazioni: nessuna duplicazione di stato.
+Il contenitore è `--color-raised` con outline interno `--color-line`; il thumb dell'opzione attiva è `--color-surface`. Le opzioni inattive sono muted e passano a ink all'hover; il focus ring è sull'opzione. I radio sono nativi, quindi le frecce funzionano. Il cambio tema non anima i colori.
+
+Nel menu mobile restano le `QuickPreferences` etichettate (tema e lingua), perché lì c'è spazio e la topbar non esiste. La sidebar desktop non contiene più preferenze: fa solo navigazione.
 
 ### 3.17 Colore del filamento
 
@@ -238,11 +241,11 @@ Card con header comprimibile per le sezioni del calcolatore. Il titolo resta un 
 
 ### 3.21 Switch della landing
 
-La top bar pubblica usa `PublicTopBarControls`: un unico segmented control con due gruppi di radio native, lingua IT/EN e tema chiaro/scuro. Il contenitore è `--color-raised` con un outline interno `--color-line`; il thumb dell'opzione attiva è `--color-surface` con outline `--color-line`, testo o icona `--color-ink`. Le opzioni inattive restano `--color-muted` e passano a ink all'hover. Il thumb scorre di 150 ms, disattivato con `prefers-reduced-motion`; il cambio tema non anima i colori, così non si crea un intervallo a basso contrasto. Il focus ring è sull'opzione, non sull'input invisibile. Ogni gruppo ha una `legend` sr-only e ogni radio un nome accessibile esteso; le frecce spostano la scelta come in qualsiasi gruppo di radio native. La landing espone solo Chiaro/Scuro: la preferenza Sistema resta in Impostazioni → Aspetto, mentre il controllo segue il tema di sistema finché non viene fatta una scelta esplicita.
+La top bar pubblica usa `PublicTopBarControls`: un unico segmented control con due gruppi di radio native, lingua IT/EN e tema chiaro/scuro. Il contenitore è `--color-raised` con un outline interno `--color-line`; il thumb dell'opzione attiva è `--color-surface` con outline `--color-line`, testo o icona `--color-ink`. Le opzioni inattive restano `--color-muted` e passano a ink all'hover. Il thumb scorre di 150 ms, disattivato con `prefers-reduced-motion`; il cambio tema non anima i colori, così non si crea un intervallo a basso contrasto. Il focus ring è sull'opzione, non sull'input invisibile. Ogni gruppo ha una `legend` sr-only e ogni radio un nome accessibile esteso; le frecce spostano la scelta come in qualsiasi gruppo di radio native. La landing espone solo Chiaro/Scuro: la preferenza Sistema resta in Impostazioni → Aspetto, mentre il controllo segue il tema di sistema finché non viene fatta una scelta esplicita. Lo stesso pattern visivo è usato in `TopBarControls` per la modalità connessa, con tema a tre stati e quadratino di stato sync.
 
 ### 3.22 Navigazione della sidebar
 
-La sidebar raggruppa i link in tre sezioni — Lavoro, Configurazione, Aiuto — sia su desktop sia nel menu mobile. Ogni sezione ha un'etichetta in maiuscolo da 11 px, peso 600, tracking `0.1em` e colore `--color-muted`, seguita da una hairline `--color-line` che riempie la riga a destra: il gruppo si legge come un blocco, senza aggiungere bordi a tutta larghezza o card. L'etichetta non è un heading, così l'ordine dei titoli resta quello della pagina; il contenitore usa `role="group"` e `aria-labelledby` per dare un nome accessibile al gruppo. Le voci restano link da 14 px con pill attiva `--color-raised` e hover neutro.
+La sidebar raggruppa i link in tre sezioni — Lavoro, Configurazione, Aiuto — sia su desktop sia nel menu mobile. Ogni sezione ha un'etichetta in maiuscolo da 11 px, peso 600, tracking `0.1em` e colore `--color-muted`, seguita da una hairline `--color-line` che riempie la riga a destra: il gruppo si legge come un blocco, senza aggiungere bordi a tutta larghezza o card. L'etichetta non è un heading, così l'ordine dei titoli resta quello della pagina; il contenitore usa `role="group"` e `aria-labelledby` per dare un nome accessibile al gruppo. Le voci restano link da 14 px con pill attiva `--color-raised` e hover neutro. Su desktop sono più compatte e la sidebar non ha scroll interno: il footer si nasconde sotto 680 px di altezza e i distacchi dei gruppi si compattano sotto 620 px, così tutti i link restano raggiungibili.
 
 ---
 
@@ -343,8 +346,8 @@ La sidebar raggruppa i link in tre sezioni — Lavoro, Configurazione, Aiuto —
 - `tests/e2e/design-system.spec.ts` — 2 test:
   1. token e font caricati (`--color-ground`, `--color-data`, `--color-control`, Archivo, Source Serif 4);
   2. a 375 px: bordo campo 1 px `#8a8a8a`, altezza 44 px, focus 2 px `#5b21b6`, primario ink senza ombra, nessun overflow orizzontale, menu mobile che apre e chiude e mostra le preferenze rapide.
-- `tests/e2e/theme.spec.ts` — 1 test: tema scuro dalla sidebar, sincronizzazione con Impostazioni, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px.
-- `tests/e2e/locale.spec.ts` — 1 test: cambio lingua dalla sidebar, sincronizzazione con Impostazioni, `<html lang>`, titolo, persistenza al reload, salvataggio in inglese e stampa inglese anche con UI italiana.
+- `tests/e2e/theme.spec.ts` — 2 test: tema scuro da Impostazioni, token e `meta theme-color` aggiornati, persistenza al reload, ritorno a chiaro, “Sistema” che segue `emulateMedia`, screenshot dark a 1440 px; preferenze rapide del menu mobile per tema e lingua.
+- `tests/e2e/locale.spec.ts` — 1 test: cambio lingua da Impostazioni, sincronizzazione con la UI, `<html lang>`, titolo, persistenza al reload, salvataggio in inglese e stampa inglese anche con UI italiana.
 - `tests/e2e/quote-lifecycle.spec.ts` — 1 test: azioni in alto prima del prezzo, modifica in place con lo stesso id e snapshot congelato, blocco dopo invio e completamento, duplicazione ancora disponibile.
 - `tests/e2e/line-color.spec.ts` — 1 test: colore impostato, visibile nel dettaglio e in stampa, persistito nel preventivo, ricaricato in modifica e rimosso.
 - `tests/e2e/states.spec.ts` — 2 test: conferma prima di scartare la bozza (Esc, focus restituito, annulla e conferma) e sostituzione della bozza dal dettaglio preventivo.
@@ -461,7 +464,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 
 ### 8.8 Rifiniture T5.15–T5.17 — esito (26/10/2026)
 
-- **Preferenze rapide (T5.15).** `QuickPreferences` in fondo alla sidebar e nel menu mobile: tre radio per il tema e due per la lingua, sincronizzate con Impostazioni e persistenti fuori da `AppData`. L'input invisibile copre l'etichetta, quindi il click è su tutto il pulsantino; il focus ring è sul contenitore. La lingua adotta la bozza vuota e non tocca i preventivi salvati.
+- **Preferenze rapide (T5.15).** `QuickPreferences` nel menu mobile: tre radio per il tema e due per la lingua, sincronizzate con Impostazioni e persistenti fuori da `AppData`. L'input invisibile copre l'etichetta, quindi il click è su tutto il pulsantino; il focus ring è sul contenitore. La lingua adotta la bozza vuota e non tocca i preventivi salvati. Nel follow-up EVO-4 (30/10/2026) le preferenze sono passate nella topbar connessa come segmented control; la sidebar desktop non le mostra più.
 - **Azioni del preventivo (T5.16).** “Gestione del preventivo” è passata subito sotto testata e avvisi, prima di prezzo e righe; “Stampa / PDF” è secondaria. Il ciclo di vita e le conferme restano invariati.
 - **Colore filamento (T5.17).** `PrintLine.color?: string` (`#rrggbb`) è un dato opzionale di presentazione, senza migrazione e senza impatto su formule, `engineVersion` o snapshot. Swatch nel calcolatore (picker nativo + rimozione), nel dettaglio, nella tabella costi e in stampa A4.
 - **Verifiche.** `npm run check` verde (124 unitari, build, budget 288,4 KB totali su 350 KB); 38 E2E (32 eseguiti + 6 visual) verdi in locale; axe invariato a 40 scansioni con 0 violazioni. Le baseline visive a 1440/768/390 px sono state rigenerate in CI il 28/10/2026 con l'accento viola e il batch T5.12–T5.20.
@@ -531,7 +534,11 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 | `src/state/theme-store.ts`                        | stato Zustand della preferenza                                                                                                                                     |
 | `src/app/theme.ts`                                | applicazione del tema e `meta theme-color`                                                                                                                         |
 | `src/app/ThemeController.tsx`                     | sincronizzazione con `prefers-color-scheme`                                                                                                                        |
-| `src/app/QuickPreferences.tsx`                    | tema e lingua compatti in sidebar e menu mobile                                                                                                                    |
+| `src/app/QuickPreferences.tsx`                    | tema e lingua compatti nel menu mobile                                                                                                                             |
+| `src/app/TopBarControls.tsx`                      | segmented control della topbar connessa: lingua, tema e stato sync                                                                                                 |
+| `src/app/TopBar.tsx`                              | barra contestuale della modalità cloud, nascosta in modalità ospite                                                                                                |
+| `src/features/workspace/WorkspaceMenu.tsx`        | pill dello spazio con menu, creazione e riscatto invito                                                                                                            |
+| `src/features/sync/SyncStatusButton.tsx`          | quadratino di stato sync con icona, tooltip e link a Impostazioni                                                                                                  |
 | `src/features/settings/SettingsPage.tsx`          | sezione Aspetto con le tre radio                                                                                                                                   |
 | `src/components/line-color.tsx`                   | swatch di lettura e color picker del filamento                                                                                                                     |
 | `src/lib/color.ts`                                | validazione `#rrggbb` condivisa da schema e UI                                                                                                                     |

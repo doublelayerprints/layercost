@@ -3,6 +3,9 @@ export const workspaceIt = {
   'workspace.description':
     'Ogni spazio ha i suoi preventivi, stampanti, materiali e impostazioni. Cambiando spazio cambi archivio.',
   'workspace.active': 'Spazio attivo',
+  'workspace.spaces': 'Spazi',
+  'workspace.manage': 'Gestisci spazio',
+  'workspace.topbarAria': 'Barra dello spazio',
   'workspace.switcherLabel': 'Spazio attivo',
   'workspace.loading': 'Caricamento spazi…',
   'workspace.retry': 'Riprova',
