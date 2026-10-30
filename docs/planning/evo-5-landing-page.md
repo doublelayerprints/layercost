@@ -46,8 +46,8 @@ La landing è in `src/features/landing/`, con testi in `src/i18n/it/landing.ts` 
 3. **Sei funzionalità** in una tabella di confronto con un foglio di calcolo: motore di costo, multi-materiale, preventivi, import `.3mf`, export `.xlsx`/PDF, confronto stampanti. Ogni risposta è in parole, non un simbolo.
 4. **Dal calcolo al cliente**: preventivo reale con prezzi congelati, righe e composizione del costo.
 5. **Come funziona** in tre passi: scegli, inserisci, leggi. Include l’esempio dal vivo “Prova con i tuoi numeri” con grammi e ore, costo pieno, prezzo netto e barra costo/guadagno, calcolati dal motore reale sui valori di partenza.
-6. **Privacy/local-first**: nessun account obbligatorio, dati in `localStorage`, backup JSON, nessun analytics; cloud opzionale.
-7. **Cloud**: richiesta gratuita, approvazione manuale, Google o email, workspace condiviso, note su piano Free e regione EU.
+6. **Privacy/local-first**: nessun account obbligatorio, dati nel browser, backup completo, nessun analytics; cloud gratuito e opzionale.
+7. **Cloud**: tutto gratuito, cloud compreso; richiesta di accesso, attivazione, accesso e ritrovo dei dati su più dispositivi. La landing non espone dettagli tecnici del provider.
 8. **FAQ** native in cinque domande: account, costo, dati, più dispositivi, richiesta di accesso.
 9. **CTA finale** e **footer** con login, richiesta accesso, versione motore, nota privacy, lingua e tema.
 
@@ -108,13 +108,13 @@ Totale: **249 unitari** (+12).
 
 | Voce | Misura | Limite |
 | --- | --- | --- |
-| JS iniziale | 218,0 KB gzip | 230 KB |
-| HTML | 6,2 KB gzip | 10 KB |
+| JS iniziale | 217,9 KB gzip | 230 KB |
+| HTML | 6,0 KB gzip | 10 KB |
 | Chunk lazy | 55,8 KB | 80 KB |
 | Worker `.3mf` | 37,7 KB | 40 KB |
 | CSS | 9,5 KB | 20 KB |
 | Font | 56,8 KB | 120 KB |
-| Totale iniziale | 284,4 KB | 350 KB |
+| Totale iniziale | 284,2 KB | 350 KB |
 
 Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a 230 KB per la landing (prima schermata, dizionari IT/EN e componenti). Il limite di avviso Vite sul chunk raw passa a 860 KB.
 
@@ -145,7 +145,7 @@ Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a
 - [x] 375/768/1440, chiaro/scuro, `prefers-reduced-motion`, axe WCAG 2.2 AA.
 - [x] Parità i18n IT/EN e inventario aggiornato.
 - [x] 249 unitari, 68 E2E, 42 screenshot, 68 scansioni axe.
-- [x] `npm run check` verde; budget JS 218,0/230 KB e HTML 6,2/10 KB.
+- [x] `npm run check` verde; budget JS 217,9/230 KB e HTML 6,0/10 KB.
 - [x] Documentazione e ADR-0029.
 - [x] Deploy Vercel e verifica della produzione (30/10/2026, build `index-mbP2OUSu.js` / `index-DYXu1jt6.css`, smoke verde).
 

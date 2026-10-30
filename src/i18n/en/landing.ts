@@ -106,53 +106,53 @@ export const landingEn: Record<keyof typeof landingIt, string> = {
 
   'landing.privacy.title': 'Your numbers stay yours.',
   'landing.privacy.body':
-    'LayerCost has no mandatory backend. The calculator and quotes live in your browser; the cloud is an extra for those who ask for it.',
+    'LayerCost works right away in your browser. The calculator and quotes stay there; the cloud is a free extra for those who ask for it.',
   'landing.privacy.account.title': 'No account to start',
   'landing.privacy.account.body':
-    'Open the calculator and work. The account is only for optional sync.',
+    'Open the calculator and work. The account is only for the free, optional cloud.',
   'landing.privacy.data.title': 'Data in your browser',
   'landing.privacy.data.body':
-    'Configuration and quotes live in localStorage. Clearing browser data deletes them: the backup is the external copy.',
+    'Configuration and quotes stay in your browser. Clearing browser data deletes them: the backup is the external copy.',
   'landing.privacy.backup.title': 'Back up when you want',
   'landing.privacy.backup.body':
-    'Export a complete JSON, import it into another browser or keep it outside the app.',
+    'Export a complete backup, import it into another browser or keep it outside the app.',
   'landing.privacy.tracking.title': 'No analytics',
   'landing.privacy.tracking.body':
-    'No tracking cookies, no advertising. The only external call is the access request, and only if you send it.',
+    'No tracking cookies, no advertising, no analytics.',
 
   'landing.sync.title': 'Elsewhere, if you want.',
   'landing.sync.body':
-    'The cloud is free, requested and approved by hand. There is no self sign-up and it is not required to use the calculator.',
+    'The calculator and the cloud are free. The cloud is activated on request and is optional.',
   'landing.sync.request.title': 'Request access',
   'landing.sync.request.body':
-    'Fill in the form with your email. The request does not create an account.',
-  'landing.sync.approve.title': 'Wait for approval',
+    'Open the form and enter your email.',
+  'landing.sync.approve.title': 'Wait for activation',
   'landing.sync.approve.body':
-    'The administrator reads the request and creates the user manually.',
-  'landing.sync.signin.title': 'Sign in with Google or email',
+    'We will let you know when access is ready.',
+  'landing.sync.signin.title': 'Sign in',
   'landing.sync.signin.body':
-    'Google is the fastest route; email and password stay available.',
+    'Enter with your account.',
   'landing.sync.find.title': 'Find everything again',
   'landing.sync.find.body':
-    'Configuration and quotes live in the shared workspace, with backups and explicit conflicts.',
-  'landing.sync.note': 'Supabase free plan, EU region. The cloud is optional.',
+    'Your data follows you on the devices you use.',
+  'landing.sync.note': 'Everything is free, cloud included. The cloud is optional.',
 
   'landing.faq.title': 'Questions before you start.',
   'landing.faq.account.question': 'Do I need an account?',
   'landing.faq.account.answer':
-    'No. The calculator, quotes and exports work without an account. The account is only for optional cloud sync.',
+    'No. The calculator, quotes and exports work without an account. The account is only for the cloud, which is free and activated on request.',
   'landing.faq.cost.question': 'How much does it cost?',
   'landing.faq.cost.answer':
-    'The calculator is free. The cloud uses the Supabase free plan and is activated only after the request is approved. There are no subscriptions.',
+    'Everything is free: calculator, exports and cloud. The cloud is activated on request. There are no subscriptions.',
   'landing.faq.data.question': 'Where is the data?',
   'landing.faq.data.answer':
-    'Without an account, in your browser (localStorage). With an account, in the shared workspace on Supabase in the EU region. You can export a JSON backup at any time.',
+    'Without an account, in your browser. With an account, in the cloud, so you can find it on your devices. You can export a complete backup at any time.',
   'landing.faq.devices.question': 'Can I use it on more devices?',
   'landing.faq.devices.answer':
-    'Yes, with the cloud account: configuration and quotes align in the workspace. Without an account, export the JSON backup and import it on the other device.',
+    'Yes, with the account: your data stays aligned across devices. Without an account, export a complete backup and import it on the other device.',
   'landing.faq.access.question': 'How do I request access?',
   'landing.faq.access.answer':
-    'Open the Request access page, enter your email and consent. The administrator creates the account manually: there is no self sign-up and no automatic confirmation email.',
+    'Open the Request access page, enter your email and consent. We will let you know when access is active.',
 
   'landing.cta.title': 'Put in your numbers.',
   'landing.cta.body':
@@ -163,8 +163,8 @@ export const landingEn: Record<keyof typeof landingIt, string> = {
   'landing.footer.app': 'App',
   'landing.footer.preferences': 'Preferences',
   'landing.footer.privacyNote':
-    'No analytics and no cookies. App data stays in your browser; the cloud is optional.',
+    'No analytics and no cookies. App data stays in your browser; the cloud is free and optional.',
   'landing.footer.dataTitle': 'Data and privacy',
   'landing.footer.dataNote': 'No analytics, no cookies. Only the data you enter.',
-  'landing.footer.description': 'Local-first calculator for 3D prints.',
+  'landing.footer.description': 'Calculator for 3D prints. Everything free, cloud included.',
 }

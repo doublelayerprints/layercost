@@ -104,53 +104,53 @@ export const landingIt = {
 
   'landing.privacy.title': 'I tuoi numeri restano tuoi.',
   'landing.privacy.body':
-    'LayerCost non ha un backend obbligatorio. Il calcolatore e i preventivi vivono nel browser; il cloud è un extra per chi lo chiede.',
+    'LayerCost funziona subito nel browser. Il calcolatore e i preventivi restano lì; il cloud è un extra gratuito per chi lo chiede.',
   'landing.privacy.account.title': 'Nessun account per iniziare',
   'landing.privacy.account.body':
-    'Apri il calcolatore e lavora. L’account serve solo per la sincronizzazione opzionale.',
+    'Apri il calcolatore e lavora. L’account serve solo per il cloud, gratuito e opzionale.',
   'landing.privacy.data.title': 'Dati nel browser',
   'landing.privacy.data.body':
-    'Configurazione e preventivi stanno in localStorage. Svuotare i dati del browser li cancella: il backup è la copia esterna.',
+    'Configurazione e preventivi restano nel browser. Svuotare i dati del browser li cancella: il backup è la copia esterna.',
   'landing.privacy.backup.title': 'Backup quando vuoi',
   'landing.privacy.backup.body':
-    'Esporta un JSON completo, importalo su un altro browser o conservalo fuori dall’app.',
+    'Esporta un backup completo, importalo su un altro browser o conservalo fuori dall’app.',
   'landing.privacy.tracking.title': 'Nessun analytics',
   'landing.privacy.tracking.body':
-    'Niente cookie di tracciamento, niente pubblicità. L’unica chiamata esterna è la richiesta di accesso, solo se la invii.',
+    'Niente cookie di tracciamento, niente pubblicità, nessun analytics.',
 
   'landing.sync.title': 'Se vuoi, anche altrove.',
   'landing.sync.body':
-    'Il cloud è gratuito, richiesto e approvato a mano. Non c’è registrazione automatica e non è necessario per usare il calcolatore.',
+    'Il calcolatore e il cloud sono gratuiti. Il cloud si attiva su richiesta di accesso e non è obbligatorio.',
   'landing.sync.request.title': 'Richiedi l’accesso',
   'landing.sync.request.body':
-    'Compila il modulo con la tua email. La richiesta non crea un account.',
-  'landing.sync.approve.title': 'Attendi l’approvazione',
+    'Apri il modulo e inserisci la tua email.',
+  'landing.sync.approve.title': 'Attendi l’attivazione',
   'landing.sync.approve.body':
-    'L’amministratore legge la richiesta e crea l’utente manualmente.',
-  'landing.sync.signin.title': 'Accedi con Google o email',
+    'Ti avvisiamo quando l’accesso è pronto.',
+  'landing.sync.signin.title': 'Accedi',
   'landing.sync.signin.body':
-    'Google è il percorso più rapido; email e password restano disponibili.',
+    'Entra con il tuo account.',
   'landing.sync.find.title': 'Ritrova tutto',
   'landing.sync.find.body':
-    'Configurazione e preventivi vivono nel workspace condiviso, con backup e conflitti espliciti.',
-  'landing.sync.note': 'Piano gratuito Supabase, regione EU. Il cloud non è obbligatorio.',
+    'I tuoi dati ti seguono sui dispositivi che usi.',
+  'landing.sync.note': 'Tutto gratuito, cloud compreso. Il cloud non è obbligatorio.',
 
   'landing.faq.title': 'Domande prima di iniziare.',
   'landing.faq.account.question': 'Serve un account?',
   'landing.faq.account.answer':
-    'No. Il calcolatore, i preventivi e gli export funzionano senza account. L’account serve solo per la sincronizzazione cloud opzionale.',
+    'No. Il calcolatore, i preventivi e gli export funzionano senza account. L’account serve solo per il cloud, che è gratuito e si attiva su richiesta.',
   'landing.faq.cost.question': 'Quanto costa?',
   'landing.faq.cost.answer':
-    'Il calcolatore è gratuito. Il cloud usa il piano gratuito di Supabase e viene attivato solo dopo l’approvazione della richiesta. Non ci sono abbonamenti.',
+    'Tutto è gratuito: calcolatore, export e cloud. Il cloud si attiva su richiesta di accesso. Non ci sono abbonamenti.',
   'landing.faq.data.question': 'Dove sono i dati?',
   'landing.faq.data.answer':
-    'Senza account, nel browser (localStorage). Con l’account, nel workspace condiviso su Supabase in regione EU. Puoi esportare un backup JSON in ogni momento.',
+    'Senza account, nel browser. Con l’account, nel cloud, così li ritrovi sui tuoi dispositivi. Puoi esportare un backup completo in ogni momento.',
   'landing.faq.devices.question': 'Si può usare da più dispositivi?',
   'landing.faq.devices.answer':
-    'Sì, con l’account cloud: configurazione e preventivi si allineano nel workspace. Senza account, esporta il backup JSON e importalo sull’altro dispositivo.',
+    'Sì, con l’account: i tuoi dati si allineano sui dispositivi. Senza account, esporta un backup completo e importalo sull’altro dispositivo.',
   'landing.faq.access.question': 'Come si richiede l’accesso?',
   'landing.faq.access.answer':
-    'Apri la pagina Richiedi accesso, inserisci email e consenso. L’amministratore crea l’account manualmente: non c’è registrazione automatica né email di conferma automatica.',
+    'Apri la pagina Richiedi accesso, inserisci email e consenso. Ti avvisiamo quando l’accesso è attivo.',
 
   'landing.cta.title': 'Metti i tuoi numeri.',
   'landing.cta.body':
@@ -161,8 +161,8 @@ export const landingIt = {
   'landing.footer.app': 'App',
   'landing.footer.preferences': 'Preferenze',
   'landing.footer.privacyNote':
-    'Nessun analytics e nessun cookie. I dati dell’app restano nel browser; il cloud è opzionale.',
+    'Nessun analytics e nessun cookie. I dati dell’app restano nel browser; il cloud è gratuito e opzionale.',
   'landing.footer.dataTitle': 'Dati e privacy',
   'landing.footer.dataNote': 'Nessun analytics, nessun cookie. Solo i dati che inserisci.',
-  'landing.footer.description': 'Calcolatore local-first per stampe 3D.',
+  'landing.footer.description': 'Calcolatore per stampe 3D. Tutto gratuito, cloud compreso.',
 } as const
