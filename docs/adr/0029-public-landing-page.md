@@ -1,7 +1,8 @@
 # ADR-0029 — Landing page pubblica, routing `/calculator` e pre-render SEO
 
-**Stato:** Accettato
+**Stato:** Accettato e distribuito
 **Data:** 29 ottobre 2026
+**Deploy:** 30 ottobre 2026, build `index-mbP2OUSu.js` / `index-DYXu1jt6.css`, smoke di produzione verde
 **Piano:** `docs/planning/evo-5-landing-page.md`
 **Relazione:** non cambia formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync
 

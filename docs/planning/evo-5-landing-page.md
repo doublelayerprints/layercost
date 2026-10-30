@@ -1,6 +1,6 @@
 # EVO-5 — Landing page pubblica
 
-**Stato:** Implementata e verificata in locale il 29 ottobre 2026; deploy di produzione da fare
+**Stato:** Implementata il 29 ottobre 2026 e distribuita in produzione il 30 ottobre 2026 (PR #30, squash `29b954b`)
 **Data:** 29 ottobre 2026
 **ADR:** `docs/adr/0029-public-landing-page.md`
 **Riferimenti:** `docs/planning/evolutive.md`, `docs/engineering/deployment.md`, `docs/engineering/testing.md`, `docs/planning/i18n-inventory.md`, `docs/design/design-system.md`
@@ -129,7 +129,7 @@ Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a
 | EVO-5.3 | SEO: pre-render, canonical, OG/Twitter, robots, sitemap, header | `[x]` |
 | EVO-5.4 | Accessibilità, tema, reduced motion, responsive, axe | `[x]` |
 | EVO-5.5 | Test unit/E2E/visual e budget | `[x]` |
-| EVO-5.6 | Documentazione, inventario i18n, ADR-0029, deploy | `[~]` documentazione fatta; deploy da fare |
+| EVO-5.6 | Documentazione, inventario i18n, ADR-0029, deploy | `[x]` deploy del 30/10/2026, smoke verde |
 
 ---
 
@@ -147,7 +147,7 @@ Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a
 - [x] 249 unitari, 68 E2E, 42 screenshot, 68 scansioni axe.
 - [x] `npm run check` verde; budget JS 218,0/230 KB e HTML 6,2/10 KB.
 - [x] Documentazione e ADR-0029.
-- [ ] Deploy Vercel e verifica della produzione (passo separato).
+- [x] Deploy Vercel e verifica della produzione (30/10/2026, build `index-mbP2OUSu.js` / `index-DYXu1jt6.css`, smoke verde).
 
 ---
 
