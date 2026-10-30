@@ -133,7 +133,7 @@ Procedura normale, dalla UI:
 1. L'admin crea l'utente in `auth.users` (vedi §4.4 di `docs/engineering/access-requests.md`).
 2. Un `owner` apre **Impostazioni → Spazio → Inviti**, sceglie ruolo e durata, genera il codice.
 3. Consegna il codice a voce o con un canale sicuro: è monouso e scade.
-4. La persona accede con l'account creato e inserisce il codice da **Spazio attivo → Hai un codice invito?**.
+4. La persona accede con l'account creato e inserisce il codice dal **menu dello spazio nella topbar → Hai un codice invito?**.
 5. La RPC `redeem_invite` crea la membership. Se l'utente era già membro, il riscatto è idempotente e non consuma il codice.
 
 Fallback SQL, se la UI non è disponibile:
