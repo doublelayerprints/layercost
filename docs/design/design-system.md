@@ -496,7 +496,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Contenuti.** Tabella di confronto a 6 righe, showcase con screenshot reale, tre passi con demo dal vivo del motore, privacy, cloud, FAQ native, CTA e footer a colonne. Le immagini sono screenshot reali dell'app in `public/landing/`, non mockup.
 - **Movimento.** Reveal progressivo, drift della hero, hover/focus, FAQ e demo; `prefers-reduced-motion` e no-JS mostrano tutto. `inspect.mjs` sulla landing: **0 FAIL, 1 WARN** (`no-footage`), motivato dal fatto che il prodotto è software e la demo è interattiva.
 - **Accessibilità.** 375/768/1440, chiaro/scuro, axe WCAG 2.2 AA (8 scansioni landing, 68 totali), target 44 px su mobile, tabelle responsive, focus visibile, FAQ `<details name>`.
-- **Budget.** JS iniziale 218,0/230 KB, HTML 6,2/10 KB, CSS 9,5/20 KB, totale 284,4/350 KB. Motivazione in ADR-0029.
+- **Budget.** JS iniziale 217,9/230 KB, HTML 6,0/10 KB, CSS 9,5/20 KB, totale 284,2/350 KB. Motivazione in ADR-0029.
 - **Test.** 249 unitari (+12), 68 E2E (+11 landing, +6 visual), 42 screenshot (+6), 68 scansioni axe (+8).
 
 ## 9. Mappa dei file
