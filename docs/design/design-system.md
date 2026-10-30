@@ -180,7 +180,7 @@ Superficie bianca con bordo `--color-line`, titolo 16/600, descrizione 14 muted,
 
 ### 3.9 PageHeader
 
-Titolo `h1` 24/600, descrizione 14 muted, azioni a destra. Niente eyebrow: l'etichetta sopra il titolo è stata rimossa. `titleAction` aggiunge un comando accanto al titolo senza inglobarlo nell'heading: nel calcolatore è la matita “Rinomina preventivo”, che sostituisce il titolo con un campo della stessa scala; Invio o blur confermano, Esc ripristina il nome precedente e il focus torna alla matita.
+Titolo `h1` 24/600, descrizione 14 muted, azioni a destra. Niente eyebrow: l'etichetta sopra il titolo è stata rimossa. `titleEdit` rende modificabile il titolo stesso: l'`h1` ha una sottolineatura di 1 px in `--color-data`, un pulsante trasparente con nome accessibile “Rinomina preventivo” copre il testo e il cursore diventa quello del testo. Al click il titolo diventa un input 24/600 con sola sottolineatura di 2 px in `--color-data`, senza focus ring né selezione automatica: Invio o blur confermano, Esc ripristina il nome precedente e il focus torna al titolo. L'heading resta testo pulito per screen reader.
 
 ### 3.10 Table
 
@@ -510,9 +510,9 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 
 ### 8.14 Rinomina del preventivo dal titolo (30/10/2026)
 
-- **Titolo.** Nel calcolatore il nome della bozza è il titolo della pagina: accanto all'`h1` c'è una matita “Rinomina preventivo”. Il comando sostituisce il testo con un input 24/600 a tutta larghezza; Invio o blur confermano, Esc ripristina il nome precedente e restituisce il focus alla matita. Un nome vuoto non viene confermato: torna quello precedente. La bozza continua a salvarsi a ogni modifica.
+- **Titolo.** Nel calcolatore il nome della bozza è il titolo della pagina: l'`h1` ha una sottolineatura di 1 px in `--color-data` e un pulsante trasparente che copre il testo, con cursore da testo. Al click il titolo diventa un input 24/600 con sola sottolineatura di 2 px, senza focus ring né selezione automatica; Invio o blur confermano, Esc ripristina il nome precedente e il focus torna al titolo. Un nome vuoto non viene confermato: torna quello precedente. La bozza continua a salvarsi a ogni modifica.
 - **Card Preventivo.** Il campo “Nome preventivo” è stato rimosso dalla card, che ora contiene solo data e cliente; la descrizione spiega che il nome si modifica dal titolo. Nessun campo duplicato.
-- **Primitiva.** `PageHeader` accetta `title: ReactNode`, un `titleAction` opzionale e `titleClassName`; l'azione resta fuori dall'heading, che conserva il nome del preventivo come testo accessibile.
+- **Primitiva.** `PageHeader` accetta `title: ReactNode`, un `titleEdit` opzionale (label, click e ref del pulsante trasparente) e `titleClassName`; l'azione non è un bottone visibile e l'heading conserva il nome del preventivo come testo accessibile.
 - **i18n e dati.** Due chiavi nuove (`calculator.renameQuote`, `calculator.renameHint`), parità it/en a 1235. Nessun cambio a formule, schema, snapshot o `engineVersion`.
 - **Verifiche.** 267 unitari, 63 E2E eseguiti su Chromium/WebKit, axe 0 violazioni; `npm run check` verde, budget 220,9/230 KB JS e 287,7/350 KB totali. Le sei baseline visive del calcolatore e le sei del modale import sono state rigenerate su Linux e committate; la PR #39 è distribuita in produzione il 30/10/2026 (build `index-B43SUpOJ.js` / `index-CfPGRLn4.css`), con smoke e verifica reale della rinomina verdi.
 

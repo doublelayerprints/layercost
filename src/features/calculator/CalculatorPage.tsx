@@ -15,7 +15,6 @@ import {
   Input,
   PageHeader,
 } from '@/components/ui'
-import { buttonClassName } from '@/components/button-styles'
 import { TextField } from '@/components/number-fields'
 import { OnboardingCard } from '@/features/onboarding/OnboardingCard'
 import { QuotePrint } from '@/features/quotes/QuotePrint'
@@ -107,7 +106,7 @@ export function CalculatorPage() {
     if (!isRenaming) return
     const input = nameInputRef.current
     input?.focus()
-    input?.select()
+    input?.setSelectionRange(input.value.length, input.value.length)
   }, [isRenaming])
 
   useEffect(() => {
@@ -336,43 +335,22 @@ export function CalculatorPage() {
                     cancelRenaming()
                   }
                 }}
-                className="w-full min-w-0 rounded-control border border-control bg-surface px-3 py-1.5 text-2xl font-semibold tracking-title text-ink transition-feedback placeholder:font-normal placeholder:text-muted"
+                className="w-full min-w-0 border-b-2 border-data bg-transparent px-0 pb-0.5 pt-0 text-2xl font-semibold tracking-title text-ink caret-data transition-feedback placeholder:font-normal placeholder:text-muted focus:outline-none focus-visible:outline-none"
               />
             ) : (
               quoteTitle
             )
           }
-          titleAction={
-            isRenaming ? undefined : (
-              <button
-                ref={renameButtonRef}
-                type="button"
-                onClick={startRenaming}
-                aria-label={t('calculator.renameQuote')}
-                title={t('calculator.renameQuote')}
-                className={buttonClassName({
-                  variant: 'ghost',
-                  size: 'sm',
-                  className: '-ml-1 w-8 shrink-0 px-0 max-sm:w-10',
-                })}
-              >
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                </svg>
-              </button>
-            )
-          }
           titleClassName={isRenaming ? 'w-full' : undefined}
+          titleEdit={
+            isRenaming
+              ? undefined
+              : {
+                  label: t('calculator.renameQuote'),
+                  onClick: startRenaming,
+                  buttonRef: renameButtonRef,
+                }
+          }
           description={t('calculator.meta', {
             date: format.dateOnly(draft.quoteDate),
             count: paragraphCount,
