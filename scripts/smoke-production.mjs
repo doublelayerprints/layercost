@@ -157,7 +157,9 @@ try {
 
   const quoteName = `Smoke ${Date.now()}`
   await page.goto(`${appUrl}/#/calculator`)
+  await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
   await page.getByLabel('Nome preventivo').fill(quoteName)
+  await page.keyboard.press('Enter')
   await page.locator('input[aria-label="Ore"]').first().fill('1')
   await page.locator('input[aria-label="Grammi materiale 1"]').fill('10')
   await page.getByRole('button', { name: 'Salva preventivo' }).click()

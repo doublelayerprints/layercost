@@ -513,7 +513,7 @@ Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 gi
 - **UI:** una matita “Rinomina preventivo” accanto all'`h1` sostituisce il titolo con un input 24/600 a tutta larghezza; Invio o blur confermano, Esc ripristina il nome precedente e il focus torna alla matita. Un nome vuoto non viene confermato. Il campo nella card Preventivo è stato rimosso: restano data e cliente.
 - **Primitiva:** `PageHeader` accetta `title: ReactNode`, `titleAction` e `titleClassName`; l'azione resta fuori dall'heading.
 - **Dati:** nessun cambio a formule, schema, snapshot o `engineVersion`; la bozza continua a salvarsi a ogni modifica.
-- **Esito:** chiuso il 30/10/2026. 2 chiavi i18n (1235 totali), 1 E2E dedicato; `npm run check` verde e budget 220,9 KB JS / 230 KB. Baseline visive del calcolatore da rigenerare in CI.
+- **Esito:** chiuso il 30/10/2026. 2 chiavi i18n (1235 totali), 1 E2E dedicato; `npm run check` verde e budget 220,9 KB JS / 230 KB. Baseline visive del calcolatore e del modale import rigenerate su Linux; PR #39 (squash `36303b4`) distribuita in produzione con build `index-B43SUpOJ.js` / `index-CfPGRLn4.css`, smoke e verifica reale verdi.
 
 ---
 
