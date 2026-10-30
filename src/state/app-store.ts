@@ -28,7 +28,7 @@ import {
 import { createEmptyDraft, createEmptyLine, createSeedConfig } from '@/data/seed'
 import { SCHEMA_VERSION, type AppData } from '@/data/storage'
 import { localRepository, type DataRepository } from '@/data/repository'
-import { cloudCacheRepository } from '@/data/cloud-cache'
+import { createCloudCacheRepository } from '@/data/cloud-cache'
 import { createPersistQueue } from './persist-queue'
 
 function toAppData(state: Pick<AppState, 'config' | 'quotes' | 'draft'>): AppData {
@@ -108,7 +108,7 @@ export interface AppState {
   pendingWrites: () => number
   setWarning: (warning?: AppWarning) => void
 
-  enterCloudMode: (data: AppData) => Promise<AppData>
+  enterCloudMode: (data: AppData, workspaceId: string) => Promise<AppData>
   applyCloudData: (data: AppData) => Promise<AppData>
   exitCloudMode: () => Promise<AppData>
 
@@ -243,9 +243,9 @@ export const useAppStore = create<AppState>()((set, get) => {
 
     setWarning: (warning) => set({ warning }),
 
-    enterCloudMode: async (data) => {
+    enterCloudMode: async (data, workspaceId) => {
       await persistQueue.flush()
-      activeRepository = cloudCacheRepository
+      activeRepository = createCloudCacheRepository(workspaceId)
       const next = applyData(data)
       set({ mode: 'cloud' })
       persistQueue.enqueue(next)

@@ -7,6 +7,7 @@ import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
 import { quotesIt } from './it/quotes'
 import { settingsIt } from './it/settings'
+import { workspaceIt } from './it/workspace'
 import { xlsxIt } from './it/xlsx'
 
 /**
@@ -130,6 +131,7 @@ export const it = {
   ...accessIt,
   ...landingIt,
   ...feedbackIt,
+  ...workspaceIt,
 } as const
 
 export type BaseMessageKey = keyof typeof baseIt

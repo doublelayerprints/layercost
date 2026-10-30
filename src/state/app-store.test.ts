@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { CLOUD_CACHE_KEY } from '@/data/cloud-cache'
+import { cloudCacheKey } from '@/data/cloud-cache'
 import { localRepository } from '@/data/repository'
 import { createEmptyDraft, createSeedConfig } from '@/data/seed'
 import { createInitialData, STORAGE_KEY, type AppData } from '@/data/storage'
@@ -151,10 +151,10 @@ describe('app store async', () => {
 
     const cloud = createInitialData()
     cloud.draft.name = 'Bozza cloud'
-    const applied = await useAppStore.getState().enterCloudMode(cloud)
+    const applied = await useAppStore.getState().enterCloudMode(cloud, 'ws-test')
 
     const localRaw = JSON.parse(values.get(STORAGE_KEY) ?? '{}') as AppData
-    const cloudRaw = JSON.parse(values.get(CLOUD_CACHE_KEY) ?? '{}') as AppData
+    const cloudRaw = JSON.parse(values.get(cloudCacheKey('ws-test')) ?? '{}') as AppData
     expect(applied.draft.name).toBe('Bozza cloud')
     expect(useAppStore.getState().mode).toBe('cloud')
     expect(useAppStore.getState().draft.name).toBe('Bozza cloud')
@@ -172,7 +172,7 @@ describe('app store async', () => {
     ]
     await useAppStore.getState().applyCloudData(updated)
 
-    const updatedRaw = JSON.parse(values.get(CLOUD_CACHE_KEY) ?? '{}') as AppData
+    const updatedRaw = JSON.parse(values.get(cloudCacheKey('ws-test')) ?? '{}') as AppData
     expect(useAppStore.getState().quotes[0]?.name).toBe('Preventivo cloud')
     expect(updatedRaw.quotes).toHaveLength(1)
 

@@ -20,6 +20,58 @@ export type CloudErrorCode =
   | 'limit'
   | 'unknown'
 
+export type WorkspaceRole = 'owner' | 'editor'
+
+export interface WorkspaceSummary {
+  id: string
+  name: string
+  role: WorkspaceRole
+  joinedAt: string
+}
+
+export interface WorkspaceMember {
+  userId: string
+  role: WorkspaceRole
+  /** Only owners receive the email; editors get `undefined`. */
+  email?: string
+  joinedAt: string
+}
+
+export interface WorkspaceInvite {
+  id: string
+  role: WorkspaceRole
+  expiresAt: string
+  maxUses: number
+  usedCount: number
+  revokedAt?: string
+  createdAt: string
+}
+
+export type WorkspaceErrorCode =
+  | 'network'
+  | 'auth'
+  | 'workspaceLimit'
+  | 'memberLimit'
+  | 'invalidName'
+  | 'inviteInvalid'
+  | 'inviteExpired'
+  | 'inviteRevoked'
+  | 'inviteExhausted'
+  | 'lastOwner'
+  | 'notOwner'
+  | 'notMember'
+  | 'unknown'
+
+export class WorkspaceError extends Error {
+  readonly code: WorkspaceErrorCode
+
+  constructor(code: WorkspaceErrorCode, message: string = code) {
+    super(message)
+    this.name = 'WorkspaceError'
+    this.code = code
+  }
+}
+
 export class CloudError extends Error {
   readonly code: CloudErrorCode
 
@@ -42,7 +94,16 @@ export type CloudPushResult =
   | { ok: false; conflict: CloudConflictResult }
 
 export interface CloudGateway {
-  resolveWorkspace: () => Promise<string>
+  listWorkspaces: () => Promise<WorkspaceSummary[]>
+  ensurePersonalWorkspace: () => Promise<string | null>
+  createWorkspace: (name: string) => Promise<string>
+  renameWorkspace: (workspaceId: string, name: string) => Promise<void>
+  listMembers: (workspaceId: string) => Promise<WorkspaceMember[]>
+  listInvites: (workspaceId: string) => Promise<WorkspaceInvite[]>
+  createInvite: (workspaceId: string, role: WorkspaceRole, days: number) => Promise<string>
+  revokeInvite: (inviteId: string) => Promise<void>
+  redeemInvite: (token: string) => Promise<string>
+  leaveWorkspace: (workspaceId: string) => Promise<void>
   pull: (workspaceId: string) => Promise<CloudSnapshot>
   push: (workspaceId: string, operation: SyncOperation) => Promise<CloudPushResult>
   importAll: (workspaceId: string, data: AppData) => Promise<CloudSnapshot>
@@ -89,6 +150,42 @@ export function mapCloudError(error: unknown): CloudError {
   return new CloudError('unknown', error instanceof Error ? error.message : 'unknown')
 }
 
+const WORKSPACE_ERRORS: Record<string, WorkspaceErrorCode> = {
+  workspace_limit: 'workspaceLimit',
+  member_limit: 'memberLimit',
+  invalid_name: 'invalidName',
+  invalid_role: 'invalidName',
+  invalid_expiry: 'invalidName',
+  invite_invalid: 'inviteInvalid',
+  invite_expired: 'inviteExpired',
+  invite_revoked: 'inviteRevoked',
+  invite_exhausted: 'inviteExhausted',
+  last_owner: 'lastOwner',
+  not_owner: 'notOwner',
+  not_member: 'notMember',
+  not_authenticated: 'auth',
+}
+
+/** Maps the RPC `raise exception` messages and the PostgREST errors. */
+export function mapWorkspaceError(error: unknown): WorkspaceError {
+  if (error instanceof WorkspaceError) return error
+  const candidate = asPostgrestError(error)
+  if (candidate) {
+    const message = typeof candidate.message === 'string' ? candidate.message : ''
+    if (isNetworkMessage(message)) return new WorkspaceError('network', message)
+    // Business errors carry a specific message; check it before the HTTP status
+    // so `not_owner`/`not_member` are not collapsed into a generic auth error.
+    const code = WORKSPACE_ERRORS[message.trim()]
+    if (code) return new WorkspaceError(code, message)
+    if (candidate.status === 401 || candidate.status === 403) {
+      return new WorkspaceError('auth', message || 'auth')
+    }
+    if (candidate.code === 'PGRST301') return new WorkspaceError('auth', message || 'auth')
+    return new WorkspaceError('unknown', message || 'unknown')
+  }
+  return mapWorkspaceError({ message: error instanceof Error ? error.message : 'unknown' })
+}
+
 function isDuplicate(error: PostgrestErrorLike | undefined): boolean {
   return error?.code === '23505'
 }
@@ -105,6 +202,10 @@ function conflict(reason: CloudConflictReason, remote?: unknown): CloudPushResul
   return { ok: false, conflict: { reason, remote } }
 }
 
+function toRole(value: string): WorkspaceRole {
+  return value === 'owner' ? 'owner' : 'editor'
+}
+
 export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
   const client = await loadSupabaseClient()
 
@@ -118,36 +219,66 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
     return data
   }
 
-  async function fetchTariff(id: string): Promise<Tables<'energy_tariffs'> | null> {
+  async function fetchTariff(
+    workspaceId: string,
+    id: string,
+  ): Promise<Tables<'energy_tariffs'> | null> {
     const { data, error } = await client
       .from('energy_tariffs')
       .select('*')
+      .eq('workspace_id', workspaceId)
       .eq('id', id)
       .maybeSingle()
     if (error) throw mapCloudError(error)
     return data
   }
 
-  async function fetchPrinter(id: string): Promise<Tables<'printers'> | null> {
-    const { data, error } = await client.from('printers').select('*').eq('id', id).maybeSingle()
+  async function fetchPrinter(
+    workspaceId: string,
+    id: string,
+  ): Promise<Tables<'printers'> | null> {
+    const { data, error } = await client
+      .from('printers')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .eq('id', id)
+      .maybeSingle()
     if (error) throw mapCloudError(error)
     return data
   }
 
-  async function fetchMaterial(id: string): Promise<Tables<'materials'> | null> {
-    const { data, error } = await client.from('materials').select('*').eq('id', id).maybeSingle()
+  async function fetchMaterial(
+    workspaceId: string,
+    id: string,
+  ): Promise<Tables<'materials'> | null> {
+    const { data, error } = await client
+      .from('materials')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .eq('id', id)
+      .maybeSingle()
     if (error) throw mapCloudError(error)
     return data
   }
 
-  async function fetchExtra(id: string): Promise<Tables<'extras'> | null> {
-    const { data, error } = await client.from('extras').select('*').eq('id', id).maybeSingle()
+  async function fetchExtra(workspaceId: string, id: string): Promise<Tables<'extras'> | null> {
+    const { data, error } = await client
+      .from('extras')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .eq('id', id)
+      .maybeSingle()
     if (error) throw mapCloudError(error)
     return data
   }
 
-  async function fetchQuote(id: string): Promise<Tables<'quotes'> | null> {
-    const { data, error } = await client.from('quotes').select('*').eq('id', id).maybeSingle()
+  async function fetchQuote(workspaceId: string, id: string): Promise<Tables<'quotes'> | null> {
+    const { data, error } = await client
+      .from('quotes')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .eq('id', id)
+      .maybeSingle()
     if (error) throw mapCloudError(error)
     return data
   }
@@ -191,19 +322,20 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
       const { data, error } = await client
         .from('energy_tariffs')
         .update(update)
+        .eq('workspace_id', workspaceId)
         .eq('id', operation.entityId)
         .eq('updated_at', operation.expectedUpdatedAt)
         .select('*')
         .maybeSingle()
       if (error) throw mapCloudError(error)
       if (data) return result(data)
-      const remote = await fetchTariff(operation.entityId)
+      const remote = await fetchTariff(workspaceId, operation.entityId)
       return remote ? conflict('updated', remote) : conflict('deleted')
     }
 
     const { data, error } = await client.from('energy_tariffs').insert(row).select('*').single()
     if (error) {
-      if (isDuplicate(error)) return conflict('exists', await fetchTariff(operation.entityId))
+      if (isDuplicate(error)) return conflict('exists', await fetchTariff(workspaceId, operation.entityId))
       throw mapCloudError(error)
     }
     return result(data)
@@ -220,19 +352,20 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
       const { data, error } = await client
         .from('printers')
         .update(update)
+        .eq('workspace_id', workspaceId)
         .eq('id', operation.entityId)
         .eq('updated_at', operation.expectedUpdatedAt)
         .select('*')
         .maybeSingle()
       if (error) throw mapCloudError(error)
       if (data) return result(data)
-      const remote = await fetchPrinter(operation.entityId)
+      const remote = await fetchPrinter(workspaceId, operation.entityId)
       return remote ? conflict('updated', remote) : conflict('deleted')
     }
 
     const { data, error } = await client.from('printers').insert(row).select('*').single()
     if (error) {
-      if (isDuplicate(error)) return conflict('exists', await fetchPrinter(operation.entityId))
+      if (isDuplicate(error)) return conflict('exists', await fetchPrinter(workspaceId, operation.entityId))
       throw mapCloudError(error)
     }
     return result(data)
@@ -249,19 +382,20 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
       const { data, error } = await client
         .from('materials')
         .update(update)
+        .eq('workspace_id', workspaceId)
         .eq('id', operation.entityId)
         .eq('updated_at', operation.expectedUpdatedAt)
         .select('*')
         .maybeSingle()
       if (error) throw mapCloudError(error)
       if (data) return result(data)
-      const remote = await fetchMaterial(operation.entityId)
+      const remote = await fetchMaterial(workspaceId, operation.entityId)
       return remote ? conflict('updated', remote) : conflict('deleted')
     }
 
     const { data, error } = await client.from('materials').insert(row).select('*').single()
     if (error) {
-      if (isDuplicate(error)) return conflict('exists', await fetchMaterial(operation.entityId))
+      if (isDuplicate(error)) return conflict('exists', await fetchMaterial(workspaceId, operation.entityId))
       throw mapCloudError(error)
     }
     return result(data)
@@ -275,19 +409,20 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
       const { data, error } = await client
         .from('extras')
         .update(update)
+        .eq('workspace_id', workspaceId)
         .eq('id', operation.entityId)
         .eq('updated_at', operation.expectedUpdatedAt)
         .select('*')
         .maybeSingle()
       if (error) throw mapCloudError(error)
       if (data) return result(data)
-      const remote = await fetchExtra(operation.entityId)
+      const remote = await fetchExtra(workspaceId, operation.entityId)
       return remote ? conflict('updated', remote) : conflict('deleted')
     }
 
     const { data, error } = await client.from('extras').insert(row).select('*').single()
     if (error) {
-      if (isDuplicate(error)) return conflict('exists', await fetchExtra(operation.entityId))
+      if (isDuplicate(error)) return conflict('exists', await fetchExtra(workspaceId, operation.entityId))
       throw mapCloudError(error)
     }
     return result(data)
@@ -304,31 +439,37 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
       const { data, error } = await client
         .from('quotes')
         .update(update)
+        .eq('workspace_id', workspaceId)
         .eq('id', operation.entityId)
         .eq('updated_at', operation.expectedUpdatedAt)
         .select('*')
         .maybeSingle()
       if (error) {
-        if (isLockedQuote(error)) return conflict('locked', await fetchQuote(operation.entityId))
+        if (isLockedQuote(error)) {
+          return conflict('locked', await fetchQuote(workspaceId, operation.entityId))
+        }
         throw mapCloudError(error)
       }
       if (data) return result(data)
-      const remote = await fetchQuote(operation.entityId)
+      const remote = await fetchQuote(workspaceId, operation.entityId)
       return remote ? conflict('updated', remote) : conflict('deleted')
     }
 
     const { data, error } = await client.from('quotes').insert(row).select('*').single()
     if (error) {
-      if (isDuplicate(error)) return conflict('exists', await fetchQuote(operation.entityId))
+      if (isDuplicate(error)) return conflict('exists', await fetchQuote(workspaceId, operation.entityId))
       throw mapCloudError(error)
     }
     return result(data)
   }
 
-  async function deleteTariff(operation: SyncOperation): Promise<CloudPushResult> {
+  async function deleteTariff(
+    workspaceId: string,
+    operation: SyncOperation,
+  ): Promise<CloudPushResult> {
     let expected = operation.expectedUpdatedAt
     if (!expected) {
-      const remote = await fetchTariff(operation.entityId)
+      const remote = await fetchTariff(workspaceId, operation.entityId)
       if (!remote) return { ok: true, updatedAt: new Date().toISOString() }
       expected = remote.updated_at
     }
@@ -336,20 +477,24 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
     const { data, error } = await client
       .from('energy_tariffs')
       .update({ deleted_at: now })
+      .eq('workspace_id', workspaceId)
       .eq('id', operation.entityId)
       .eq('updated_at', expected)
       .select('*')
       .maybeSingle()
     if (error) throw mapCloudError(error)
     if (data) return result(data)
-    const remote = await fetchTariff(operation.entityId)
+    const remote = await fetchTariff(workspaceId, operation.entityId)
     return remote ? conflict('updated', remote) : { ok: true, updatedAt: now }
   }
 
-  async function deletePrinter(operation: SyncOperation): Promise<CloudPushResult> {
+  async function deletePrinter(
+    workspaceId: string,
+    operation: SyncOperation,
+  ): Promise<CloudPushResult> {
     let expected = operation.expectedUpdatedAt
     if (!expected) {
-      const remote = await fetchPrinter(operation.entityId)
+      const remote = await fetchPrinter(workspaceId, operation.entityId)
       if (!remote) return { ok: true, updatedAt: new Date().toISOString() }
       expected = remote.updated_at
     }
@@ -357,20 +502,24 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
     const { data, error } = await client
       .from('printers')
       .update({ deleted_at: now })
+      .eq('workspace_id', workspaceId)
       .eq('id', operation.entityId)
       .eq('updated_at', expected)
       .select('*')
       .maybeSingle()
     if (error) throw mapCloudError(error)
     if (data) return result(data)
-    const remote = await fetchPrinter(operation.entityId)
+    const remote = await fetchPrinter(workspaceId, operation.entityId)
     return remote ? conflict('updated', remote) : { ok: true, updatedAt: now }
   }
 
-  async function deleteMaterial(operation: SyncOperation): Promise<CloudPushResult> {
+  async function deleteMaterial(
+    workspaceId: string,
+    operation: SyncOperation,
+  ): Promise<CloudPushResult> {
     let expected = operation.expectedUpdatedAt
     if (!expected) {
-      const remote = await fetchMaterial(operation.entityId)
+      const remote = await fetchMaterial(workspaceId, operation.entityId)
       if (!remote) return { ok: true, updatedAt: new Date().toISOString() }
       expected = remote.updated_at
     }
@@ -378,20 +527,24 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
     const { data, error } = await client
       .from('materials')
       .update({ deleted_at: now })
+      .eq('workspace_id', workspaceId)
       .eq('id', operation.entityId)
       .eq('updated_at', expected)
       .select('*')
       .maybeSingle()
     if (error) throw mapCloudError(error)
     if (data) return result(data)
-    const remote = await fetchMaterial(operation.entityId)
+    const remote = await fetchMaterial(workspaceId, operation.entityId)
     return remote ? conflict('updated', remote) : { ok: true, updatedAt: now }
   }
 
-  async function deleteExtra(operation: SyncOperation): Promise<CloudPushResult> {
+  async function deleteExtra(
+    workspaceId: string,
+    operation: SyncOperation,
+  ): Promise<CloudPushResult> {
     let expected = operation.expectedUpdatedAt
     if (!expected) {
-      const remote = await fetchExtra(operation.entityId)
+      const remote = await fetchExtra(workspaceId, operation.entityId)
       if (!remote) return { ok: true, updatedAt: new Date().toISOString() }
       expected = remote.updated_at
     }
@@ -399,20 +552,24 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
     const { data, error } = await client
       .from('extras')
       .update({ deleted_at: now })
+      .eq('workspace_id', workspaceId)
       .eq('id', operation.entityId)
       .eq('updated_at', expected)
       .select('*')
       .maybeSingle()
     if (error) throw mapCloudError(error)
     if (data) return result(data)
-    const remote = await fetchExtra(operation.entityId)
+    const remote = await fetchExtra(workspaceId, operation.entityId)
     return remote ? conflict('updated', remote) : { ok: true, updatedAt: now }
   }
 
-  async function deleteQuote(operation: SyncOperation): Promise<CloudPushResult> {
+  async function deleteQuote(
+    workspaceId: string,
+    operation: SyncOperation,
+  ): Promise<CloudPushResult> {
     let expected = operation.expectedUpdatedAt
     if (!expected) {
-      const remote = await fetchQuote(operation.entityId)
+      const remote = await fetchQuote(workspaceId, operation.entityId)
       if (!remote) return { ok: true, updatedAt: new Date().toISOString() }
       expected = remote.updated_at
     }
@@ -420,13 +577,14 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
     const { data, error } = await client
       .from('quotes')
       .update({ deleted_at: now })
+      .eq('workspace_id', workspaceId)
       .eq('id', operation.entityId)
       .eq('updated_at', expected)
       .select('*')
       .maybeSingle()
     if (error) throw mapCloudError(error)
     if (data) return result(data)
-    const remote = await fetchQuote(operation.entityId)
+    const remote = await fetchQuote(workspaceId, operation.entityId)
     return remote ? conflict('updated', remote) : { ok: true, updatedAt: now }
   }
 
@@ -465,16 +623,93 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
   }
 
   return {
-    async resolveWorkspace() {
-      const { data, error } = await client
-        .from('workspace_members')
-        .select('workspace_id')
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle()
-      if (error) throw mapCloudError(error)
-      if (!data) throw new CloudError('noWorkspace')
-      return data.workspace_id
+    async listWorkspaces() {
+      const { data, error } = await client.rpc('list_my_workspaces')
+      if (error) throw mapWorkspaceError(error)
+      return (data ?? []).map((row) => ({
+        id: row.workspace_id,
+        name: row.name,
+        role: toRole(row.role),
+        joinedAt: row.joined_at,
+      }))
+    },
+
+    async ensurePersonalWorkspace() {
+      const { data, error } = await client.rpc('ensure_personal_workspace')
+      if (error) throw mapWorkspaceError(error)
+      return data ?? null
+    },
+
+    async createWorkspace(name) {
+      const { data, error } = await client.rpc('create_workspace', { p_name: name })
+      if (error) throw mapWorkspaceError(error)
+      if (!data) throw new WorkspaceError('unknown')
+      return data
+    },
+
+    async renameWorkspace(workspaceId, name) {
+      const { error } = await client
+        .from('workspaces')
+        .update({ name: name.trim() })
+        .eq('id', workspaceId)
+      if (error) throw mapWorkspaceError(error)
+    },
+
+    async listMembers(workspaceId) {
+      const { data, error } = await client.rpc('list_workspace_members', {
+        p_workspace_id: workspaceId,
+      })
+      if (error) throw mapWorkspaceError(error)
+      return (data ?? []).map((row) => ({
+        userId: row.user_id,
+        role: toRole(row.role),
+        email: row.email ?? undefined,
+        joinedAt: row.joined_at,
+      }))
+    },
+
+    async listInvites(workspaceId) {
+      const { data, error } = await client.rpc('list_workspace_invites', {
+        p_workspace_id: workspaceId,
+      })
+      if (error) throw mapWorkspaceError(error)
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        role: toRole(row.role),
+        expiresAt: row.expires_at,
+        maxUses: row.max_uses,
+        usedCount: row.used_count,
+        revokedAt: row.revoked_at ?? undefined,
+        createdAt: row.created_at,
+      }))
+    },
+
+    async createInvite(workspaceId, role, days) {
+      const { data, error } = await client.rpc('create_invite', {
+        p_workspace_id: workspaceId,
+        p_role: role,
+        p_days: days,
+      })
+      if (error) throw mapWorkspaceError(error)
+      if (!data) throw new WorkspaceError('unknown')
+      return data
+    },
+
+    async revokeInvite(inviteId) {
+      const { error } = await client.rpc('revoke_invite', { p_invite_id: inviteId })
+      if (error) throw mapWorkspaceError(error)
+    },
+
+    async redeemInvite(token) {
+      const { data, error } = await client.rpc('redeem_invite', { p_token: token.trim() })
+      if (error) throw mapWorkspaceError(error)
+      if (!data) throw new WorkspaceError('inviteInvalid')
+      return data
+    },
+
+    async leaveWorkspace(workspaceId) {
+      const { error } = await client.rpc('leave_workspace', { p_workspace_id: workspaceId })
+      if (error) throw mapWorkspaceError(error)
     },
 
     pull: pullSnapshot,
@@ -490,15 +725,15 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
         if (operation.kind === 'delete') {
           switch (operation.entity) {
             case 'energyTariff':
-              return await deleteTariff(operation)
+              return await deleteTariff(workspaceId, operation)
             case 'printer':
-              return await deletePrinter(operation)
+              return await deletePrinter(workspaceId, operation)
             case 'material':
-              return await deleteMaterial(operation)
+              return await deleteMaterial(workspaceId, operation)
             case 'extra':
-              return await deleteExtra(operation)
+              return await deleteExtra(workspaceId, operation)
             case 'quote':
-              return await deleteQuote(operation)
+              return await deleteQuote(workspaceId, operation)
           }
         }
         switch (operation.entity) {
@@ -532,7 +767,7 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
           .from('energy_tariffs')
           .upsert(
             tariffs.map((tariff) => tariffToRow(tariff, workspaceId)),
-            { onConflict: 'id' },
+            { onConflict: 'workspace_id,id' },
           )
         if (error) throw mapCloudError(error)
       }
@@ -542,7 +777,7 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
           .from('printers')
           .upsert(
             data.config.printers.map((printer) => printerToRow(printer, workspaceId)),
-            { onConflict: 'id' },
+            { onConflict: 'workspace_id,id' },
           )
         if (error) throw mapCloudError(error)
       }
@@ -552,7 +787,7 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
           .from('materials')
           .upsert(
             data.config.materials.map((material) => materialToRow(material, workspaceId)),
-            { onConflict: 'id' },
+            { onConflict: 'workspace_id,id' },
           )
         if (error) throw mapCloudError(error)
       }
@@ -562,7 +797,7 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
           .from('extras')
           .upsert(
             data.config.extras.map((extra) => extraToRow(extra, workspaceId)),
-            { onConflict: 'id' },
+            { onConflict: 'workspace_id,id' },
           )
         if (error) throw mapCloudError(error)
       }
@@ -573,7 +808,7 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
           .from('quotes')
           .upsert(
             quotes.map((quote) => quoteToRow(quote, workspaceId)),
-            { onConflict: 'id' },
+            { onConflict: 'workspace_id,id' },
           )
         if (error) throw mapCloudError(error)
       }

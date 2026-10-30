@@ -274,14 +274,15 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 7. Schema cloud (T5.4.2)
 
-Il modello cloud è in `supabase/migrations/20261028120000_init.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`. La produzione usa il progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`) con due account `owner` nello stesso workspace.
+Il modello cloud è in `supabase/migrations/20261028120000_init.sql` e `supabase/migrations/20261030120000_multi_workspace.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`. La produzione usa il progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`) con due account `owner` nello spazio condiviso `ws-doublelayer` e uno spazio personale per ciascuno (ADR-0028).
 
 Gli account (email, password, sessione) sono gestiti da **Supabase Auth** in `auth.users`; l'app non ha una tabella utenti propria. Le membership collegano `auth.users` ai workspace. La sessione è un token tecnico nel browser, non un dato economico e non entra nei backup.
 
 | Tabella | Contenuto |
 | --- | --- |
-| `workspaces` | Spazio condiviso; ID `text` stabile |
+| `workspaces` | Spazio; ID `text` stabile; `kind` `personal` o `shared` |
 | `workspace_members` | Membership `owner`/`editor`; PK `(workspace_id, user_id)`, FK a `auth.users` |
+| `workspace_invites` | Codici invito monouso; solo hash SHA-256, scadenza, ruolo e revoca |
 | `settings` | Una riga per workspace, campi scalari di `Settings` |
 | `energy_tariffs` | Tariffe energia con `effective_from` |
 | `printers` | Stampanti, profili potenza JSONB, `archived_at` |
@@ -289,24 +290,29 @@ Gli account (email, password, sessione) sono gestiti da **Supabase Auth** in `au
 | `extras` | Extra `perUnit`/`perJob`, `archived_at` |
 | `quotes` | Preventivi `saved`/`sent`/`completed`; righe, lavoro, prezzo, snapshot e risultato in JSONB |
 
+Le tabelle dati (`energy_tariffs`, `printers`, `materials`, `extras`, `quotes`) hanno **PK `(workspace_id, id)`**: ogni spazio può riusare gli stessi ID di seed (`printer-kobra-3`, `material-pla`, …). Le FK restano confinate allo spazio, per esempio `printers (workspace_id, energy_tariff_id) → energy_tariffs (workspace_id, id)`.
+
 Invarianti cloud:
 
 1. Le bozze restano locali: `quotes.status` ammette solo `saved`, `sent` e `completed`.
 2. RLS su ogni tabella; l'accesso è consentito solo ai membri del workspace tramite `is_workspace_member`.
-3. `workspace_members` è gestito solo dagli owner; l'ultimo owner non può essere rimosso.
-4. I preventivi `sent`/`completed` non cambiano i campi economici; un trigger blocca anche le transizioni all'indietro.
-5. La cancellazione fisica non è concessa: si usano `archived_at` e `deleted_at`.
-6. `updated_at`/`updated_by` sono impostati dal database; il client non li usa per i calcoli. `created_by` è il default `auth.uid()` all'inserimento.
-7. I soldi restano interi in micro-euro, le percentuali in basis point, il tempo in secondi e la massa in centigrammi.
+3. `workspace_members` è gestito dagli owner e dalle RPC degli inviti; l'ultimo owner non può essere rimosso.
+4. Un utente può appartenere a più workspace e ha uno spazio personale automatico (`kind = 'personal'`), creato dalla RPC `ensure_personal_workspace` se manca. Gli spazi condivisi si creano con `create_workspace`; il tetto è 10 spazi condivisi posseduti per utente, più il personale.
+5. Gli inviti sono codici da 16 byte mostrati una sola volta; il database conserva solo l'hash, la scadenza (1–30 giorni) e il ruolo. Il riscatto crea la membership con la RPC `redeem_invite`; il tetto è 20 membri per spazio.
+6. I preventivi `sent`/`completed` non cambiano i campi economici; un trigger blocca anche le transizioni all'indietro.
+7. La cancellazione fisica non è concessa: si usano `archived_at` e `deleted_at`.
+8. `updated_at`/`updated_by` sono impostati dal database; il client non li usa per i calcoli. `created_by` è il default `auth.uid()` all'inserimento.
+9. I soldi restano interi in micro-euro, le percentuali in basis point, il tempo in secondi e la massa in centigrammi.
 
-Test: `supabase/tests/rls.test.sql` (33 asserzioni pgTAP, incluse quote condivise, audit e isolamento) e `src/data/cloud/mappers.test.ts`.
+Test: `supabase/tests/rls.test.sql` (33 asserzioni) e `supabase/tests/multi_workspace.test.sql` (41 asserzioni: ID uguali in due spazi, spazio personale, tetti, inviti, ultimo owner, email dei membri), più `src/data/cloud/mappers.test.ts`.
 
 **Dati tecnici del sync (fuori da `AppData`):**
 
-- `layercost:cloud-cache` — copia di lavoro della modalità connessa; non sovrascrive `layercost:data`.
-- `layercost:sync-state` — outbox, metadati `updated_at` per entità, `workspaceId` e ultimo sync. Se il workspace cambia, cache e outbox vengono scartati prima di riusarli.
+- `layercost:cloud-cache:<workspaceId>` — copia di lavoro della modalità connessa, una per spazio; non sovrascrive `layercost:data`. La chiave legacy `layercost:cloud-cache` migra verso lo spazio attivo al primo accesso.
+- `layercost:sync-state:<workspaceId>` — outbox, metadati `updated_at`, `workspaceId` e ultimo sync, uno per spazio. La chiave legacy `layercost:sync-state` migra solo se appartiene allo spazio attivo.
+- `layercost:active-workspace` — ID dello spazio attivo; `layercost:pending-seed` elenca gli spazi nuovi da popolare con il seed.
 - La sessione Supabase è nella chiave `sb-<project-ref>-auth-token` gestita da `supabase-js`; non entra nei backup.
 
 **Amministrazione:** `service_role` ha grant completi sulle tabelle solo per script admin (bootstrap, E2E, backup) e non viene usato dal client. `protect_last_owner` protegge gli utenti autenticati ma consente alle richieste senza subject JWT (service role/SQL) di rimuovere l'ultimo owner, così la cancellazione di un workspace può fare cascade. Il cleanup di test usa `delete from workspaces` con le FK attive. La procedura operativa è in `docs/engineering/workspace-runbook.md`.
 
-**Limite noto:** gli ID delle entità sono primary key globali (`text`). Il deployment previsto ha un solo workspace condiviso; due workspace nello stesso database con gli stessi ID seed colliderebbero. Una multi-tenancy piena richiederebbe PK `(workspace_id, id)` e un adeguamento dei mapper.
+**Spazi separati (ADR-0028):** ogni utente ha uno spazio personale e può appartenere a più spazi condivisi. `list_my_workspaces`, `list_workspace_members` e `list_workspace_invites` sono RPC `security definer`; `workspace_invites` non ha grant diretti per `authenticated`, quindi il token hash non è leggibile dal client. La creazione degli spazi e il riscatto degli inviti passano da RPC con advisory lock e tetti espliciti.

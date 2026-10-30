@@ -441,6 +441,54 @@ export type Database = {
           },
         ]
       }
+      workspace_invites: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          max_uses: number
+          revoked_at: string | null
+          role: string
+          token_hash: string
+          used_count: number
+          workspace_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id: string
+          max_uses?: number
+          revoked_at?: string | null
+          role: string
+          token_hash: string
+          used_count?: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          max_uses?: number
+          revoked_at?: string | null
+          role?: string
+          token_hash?: string
+          used_count?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'workspace_invites_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -476,6 +524,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          kind: string
           name: string
         }
         ComputedFields: never
@@ -483,12 +532,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id: string
+          kind?: string
           name: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
+          kind?: string
           name?: string
         }
         Relationships: []
@@ -498,9 +549,50 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_invite: {
+        Args: { p_days: number; p_role: string; p_workspace_id: string }
+        Returns: string
+      }
+      create_workspace: { Args: { p_name: string }; Returns: string }
+      ensure_personal_workspace: { Args: Record<PropertyKey, never>; Returns: string }
       is_workspace_member: { Args: { target_workspace_id: string }; Returns: boolean }
       is_workspace_owner: { Args: { target_workspace_id: string }; Returns: boolean }
       keepalive: { Args: Record<PropertyKey, never>; Returns: string }
+      leave_workspace: { Args: { p_workspace_id: string }; Returns: undefined }
+      list_my_workspaces: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          joined_at: string
+          name: string
+          role: string
+          workspace_id: string
+        }[]
+      }
+      list_workspace_invites: {
+        Args: { p_workspace_id: string }
+        Returns: {
+          created_at: string
+          expires_at: string
+          id: string
+          max_uses: number
+          revoked_at: string
+          role: string
+          used_count: number
+        }[]
+      }
+      list_workspace_members: {
+        Args: { p_workspace_id: string }
+        Returns: {
+          email: string
+          joined_at: string
+          role: string
+          user_id: string
+        }[]
+      }
+      max_owned_workspaces: { Args: Record<PropertyKey, never>; Returns: number }
+      max_workspace_members: { Args: Record<PropertyKey, never>; Returns: number }
+      redeem_invite: { Args: { p_token: string }; Returns: string }
+      revoke_invite: { Args: { p_invite_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

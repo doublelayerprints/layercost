@@ -24,7 +24,7 @@ Prima di toccare il codice:
 3. `AGENTS.md` (questo file)
 4. `PLAN.md`
 5. `TASKS.md`
-6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/planning/evo-5-landing-page.md` per la landing pubblica, `docs/planning/evo-6-docs-feedback.md` per documentazione e Suggerimenti, `docs/engineering/workspace-runbook.md` per utenti, membership e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
+6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/planning/evo-5-landing-page.md` per la landing pubblica, `docs/planning/evo-6-docs-feedback.md` per documentazione e Suggerimenti, `docs/planning/evo-4-multi-workspace.md` per gli spazi separati, `docs/engineering/workspace-runbook.md` per utenti, membership e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
 7. `docs/domain/cost-model.md`
 8. `docs/domain/data-model.md`
 9. gli ADR rilevanti in `docs/adr/`
@@ -267,11 +267,13 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/planning/evolutive.md` — evolutive future: Google login, tetti utenti/preventivi, landing e apertura multi-workspace.
 - `docs/planning/evo-5-landing-page.md` — piano operativo e acceptance della landing pubblica.
 - `docs/planning/evo-6-docs-feedback.md` — piano operativo e acceptance di documentazione in-app e Suggerimenti.
+- `docs/planning/evo-4-multi-workspace.md` — piano operativo e acceptance degli spazi separati.
 - `docs/engineering/workspace-runbook.md` — runbook del workspace condiviso: utenti, membership, reset password, audit e troubleshooting.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.
 - `docs/adr/0025-google-oauth.md` — Google OAuth, PKCE, auto-link, “Collega Google”, segreti e rollback.
 - `docs/adr/0026-request-access-formspree.md` — pagina pubblica “Richiedi accesso”, Formspree Free, privacy e retention.
+- `docs/adr/0028-multi-workspace.md` — spazi separati, spazio personale automatico, inviti e chiavi composte.
 - `docs/adr/0029-public-landing-page.md` — landing pubblica, routing `/#/calculator`, pre-render SEO e budget.
 - `docs/adr/0030-docs-and-feedback.md` — documentazione in-app, Suggerimenti, Formspree e budget.
 - `docs/planning/evo-3a-access-request.md` — piano di EVO-3a.

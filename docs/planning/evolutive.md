@@ -243,7 +243,7 @@ Resta:
 
 **Obiettivo:** aprire a più utenti con limiti configurabili, senza dipendere solo dai limiti del piano.
 **Stima:** 1–2 giorni.
-**Dipende da:** decisione sul modello (stesso workspace o workspace separati).
+**Dipende da:** EVO-4 per i tetti per workspace (la creazione di spazi è già limitata a 10 per utente nella RPC).
 **ADR:** `docs/adr/0027-*` (da creare; EVO-2 passa ad ADR-0027 dopo EVO-3a/ADR-0026).
 
 ### 4.1 Perché non basta Supabase
@@ -365,7 +365,7 @@ L'app deve mostrare “Hai raggiunto il limite di N preventivi. Esporta o elimin
 
 ## 5. EVO-3b/EVO-4 — Apertura e multi-workspace
 
-**Stato:** decisione non presa. Da affrontare solo quando l’apertura non è più “due persone”.
+**Stato:** decisione presa il 30/10/2026: modello **B** (un workspace per utente/team, con spazi condivisi). Vedi ADR-0028 e `docs/planning/evo-4-multi-workspace.md`; implementato e verificato in locale il 30/10/2026, deploy in produzione da fare. L'analisi che segue resta come motivazione storica.
 
 EVO-3b (invite-only/allowlist) è descritto in §4.3; questa sezione riguarda soprattutto EVO-4, il modello multi-workspace.
 
@@ -408,11 +408,13 @@ Per il modello B serve:
 8. Migrazione dei dati esistenti e backup prima della migrazione.
 9. ADR dedicato (0028) e piano di rollback.
 
-### 5.3 Raccomandazione
+### 5.3 Decisione (30/10/2026)
 
-- Prima **A**: più membri nello stesso archivio, con `max_members`.
-- Solo se nasce l'esigenza di clienti separati, fare **B** con ADR e migrazione dedicata.
-- Non introdurre multi-workspace “di nascosto”: il limite degli ID globali è già documentato.
+- Il modello scelto è **B**, con una variante: ogni utente riceve automaticamente uno spazio personale al primo accesso e può appartenere a più spazi condivisi.
+- `ws-doublelayer` resta lo spazio condiviso dei due account attuali; nessun dato si sposta.
+- Inviti con codice monouso senza SMTP; account creato dall'amministratore.
+- Dettagli, schema, RPC, UI, test e rollback in `docs/adr/0028-multi-workspace.md` e `docs/planning/evo-4-multi-workspace.md`.
+- Il limite degli ID globali viene rimosso con PK `(workspace_id, id)`: non è più un vincolo aperto.
 
 ---
 
@@ -506,7 +508,7 @@ Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-6 → EVO-2 → EVO-3b*
 4. Il tetto utenti è globale o per workspace?
 5. Valori iniziali: 10 utenti e 500 preventivi? Altri?
 6. Il tetto preventivi conta anche gli archiviati? (Proposta: sì, purché non cancellati.)
-7. L'apertura futura è stesso archivio o un workspace per cliente?
+7. ~~L'apertura futura è stesso archivio o un workspace per cliente?~~ Risolta il 30/10/2026: spazi separati con spazio personale automatico e spazi condivisi (ADR-0028).
 8. Serve un custom domain/branding Google o va bene il dominio Supabase?
 9. Chi gestisce gli inviti e i limiti: solo admin via SQL o UI owner?
 10. Restiamo su Free finché possibile o prevediamo un passaggio a Pro a una soglia?

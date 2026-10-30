@@ -64,62 +64,25 @@ async function deleteWorkspace(workspaceId) {
   })
 }
 
+async function deletePersonalWorkspaces(userId) {
+  const response = await admin(
+    `/rest/v1/workspaces?created_by=eq.${encodeURIComponent(userId)}&kind=eq.personal&select=id`,
+  )
+  const rows = await response.json()
+  for (const row of rows) {
+    await deleteWorkspace(row.id)
+  }
+}
+
 async function deleteUser(userId) {
   await admin(`/auth/v1/admin/users/${encodeURIComponent(userId)}`, { method: 'DELETE' })
 }
 
 /**
- * Entity IDs are global primary keys, so a new workspace cannot import the
- * same seed IDs that already exist in ws-doublelayer. Rename the guest seed
- * once in this disposable browser context: the smoke keeps its own workspace,
- * tests the first-login import and never touches production rows.
+ * The smoke workspace is empty, so the first connection seeds it with the
+ * browser's default configuration. Nothing is renamed: composite primary keys
+ * (workspace_id, id) let every workspace reuse the same seed identifiers.
  */
-async function renameGuestIds(page) {
-  await page.addInitScript(() => {
-    const marker = 'layercost:smoke-ids'
-    if (localStorage.getItem(marker)) return
-    const raw = localStorage.getItem('layercost:data')
-    if (!raw) return
-    try {
-      const data = JSON.parse(raw)
-      const suffix = `-smoke-${Date.now().toString(36)}`
-      const ids = new Map()
-      const rename = (id) => {
-        if (!id) return id
-        if (!ids.has(id)) ids.set(id, `${id}${suffix}`)
-        return ids.get(id)
-      }
-      const config = data.config ?? {}
-      const tariffs = config.settings?.tariffs ?? []
-      for (const tariff of tariffs) tariff.id = rename(tariff.id)
-      for (const printer of config.printers ?? []) {
-        printer.id = rename(printer.id)
-        if (printer.energyTariffId) printer.energyTariffId = rename(printer.energyTariffId)
-      }
-      for (const material of config.materials ?? []) material.id = rename(material.id)
-      for (const extra of config.extras ?? []) extra.id = rename(extra.id)
-
-      const renameQuote = (quote) => {
-        for (const line of quote.lines ?? []) {
-          if (line.printerId) line.printerId = rename(line.printerId)
-          for (const usage of line.materials ?? []) {
-            if (usage.materialId) usage.materialId = rename(usage.materialId)
-          }
-          line.extraIds = (line.extraIds ?? []).map(rename)
-        }
-        quote.job.extraIds = (quote.job?.extraIds ?? []).map(rename)
-      }
-      if (data.draft) renameQuote(data.draft)
-      for (const quote of data.quotes ?? []) renameQuote(quote)
-
-      localStorage.setItem('layercost:data', JSON.stringify(data))
-      localStorage.setItem(marker, '1')
-    } catch {
-      // Leave the data untouched; the smoke will fail with a clear sync error.
-    }
-  })
-  await page.reload()
-}
 
 const user = await createUser()
 let workspaceId
@@ -131,8 +94,6 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
 
   await page.goto(`${appUrl}/#/login`)
-  await expect(page.getByRole('heading', { name: 'Accedi' })).toBeVisible()
-  await renameGuestIds(page)
   await expect(page.getByRole('heading', { name: 'Accedi' })).toBeVisible()
   await page.getByLabel('Email').fill(user.email)
   await page.getByLabel('Password').fill(user.password)
@@ -181,6 +142,11 @@ try {
     } catch (error) {
       console.error('Cleanup workspace fallito:', error)
     }
+  }
+  try {
+    await deletePersonalWorkspaces(user.id)
+  } catch (error) {
+    console.error('Cleanup spazio personale fallito:', error)
   }
   try {
     await deleteUser(user.id)

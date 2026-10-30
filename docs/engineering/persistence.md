@@ -103,7 +103,7 @@ Se qualcosa fallisce, i dati correnti restano intatti.
 - `localStorage` è tipicamente 5–10 MB per origine.
 - Svuotare i dati del browser cancella tutto.
 - I link condivisi contengono una copia del preventivo: non sono un backup completo.
-- Non c'è sincronizzazione tra dispositivi in v1. La fase 5 aggiunge un sync cloud opzionale: la cache cloud usa `layercost:cloud-cache`, l'outbox `layercost:sync-state` e nessuna delle due sovrascrive `layercost:data`.
+- Non c'è sincronizzazione tra dispositivi in v1. La fase 5 aggiunge un sync cloud opzionale: la cache cloud usa `layercost:cloud-cache:<workspaceId>`, l'outbox `layercost:sync-state:<workspaceId>` e nessuna delle due sovrascrive `layercost:data`.
 
 ## 8. Privacy
 
@@ -127,14 +127,16 @@ interface DataRepository {
 }
 
 interface CloudGateway {
-  resolveWorkspace(): Promise<string>
+  listWorkspaces(): Promise<WorkspaceSummary[]>
+  ensurePersonalWorkspace(): Promise<string | null>
+  createWorkspace(name: string): Promise<string>
   pull(workspaceId: string): Promise<CloudSnapshot>
   push(workspaceId: string, operation: SyncOperation): Promise<PushResult>
   importAll(workspaceId: string, data: AppData): Promise<CloudSnapshot>
 }
 ```
 
-La decisione è in **ADR-0024**: Supabase Free, email/password, workspace condiviso, RLS per membership, nessun realtime nella prima iterazione. **ADR-0025** aggiunge Google come provider opzionale (PKCE, auto-link e “Collega Google”), senza modificare la persistenza. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md`. Schema, RLS e mapper sono in T5.4.2; client e store auth in T5.4.3; gateway dati, outbox e conflitti in T5.4.4; workspace condiviso, runbook e audit in T5.4.5. La procedura amministrativa è in `docs/engineering/workspace-runbook.md`.
+La decisione è in **ADR-0024** (Supabase Free, email/password, RLS per membership, nessun realtime) e **ADR-0028** (spazi separati, spazio personale automatico, inviti con codice, PK composte). **ADR-0025** aggiunge Google come provider opzionale (PKCE, auto-link e “Collega Google”), senza modificare la persistenza. Il piano operativo completo è in `docs/planning/t5.4-cloud-sync.md` e `docs/planning/evo-4-multi-workspace.md`. La procedura amministrativa è in `docs/engineering/workspace-runbook.md`.
 
 Regole:
 
@@ -142,9 +144,10 @@ Regole:
 - Le scritture usano `updated_at` lato server per il controllo ottimistico; offline vanno in un outbox e vengono riprodotte al ritorno.
 - I conflitti sono visibili; nessun overwrite silenzioso. I preventivi `sent`/`completed` sono bloccati anche da un trigger.
 - `created_by`/`updated_by` sono audit del database; il client li mostra come “te”/“un altro membro”, non li riscrive nelle update e non li include nei link condivisi.
-- La cache cloud usa `layercost:cloud-cache` e non sovrascrive `layercost:data`; al logout l'app torna ai dati ospite.
-- L'outbox, i metadati `updated_at`, il workspace e l'ultimo sync vivono in `layercost:sync-state`. Se il workspace cambia, cache e outbox vengono scartati prima di riusarli.
-- Al logout con scritture in sospeso cache e outbox restano nel browser e riprendono al prossimo accesso; senza scritture in sospeso vengono rimosse.
+- La cache cloud usa `layercost:cloud-cache:<workspaceId>` e non sovrascrive `layercost:data`; al logout l'app torna ai dati ospite. La chiave legacy viene migrata una volta verso lo spazio attivo.
+- L'outbox, i metadati `updated_at`, il workspace e l'ultimo sync vivono in `layercost:sync-state:<workspaceId>`. Ogni spazio ha cache e coda separate: cambiare spazio non mescola le modifiche in sospeso.
+- Lo spazio attivo è in `layercost:active-workspace`; un nuovo spazio viene marcato in `layercost:pending-seed` e popolato con `createInitialData()` al primo pull, mai con i dati dello spazio precedente.
+- Al logout con scritture in sospeso cache e outbox dello spazio attivo restano nel browser e riprendono al prossimo accesso; senza scritture in sospeso vengono rimosse. Gli altri spazi non vengono toccati.
 - Prima del primo sync va esportato un backup JSON; sul database esiste un `pg_dump` settimanale.
 
 La v1.0.0 resta local-only. La modalità ospite usa solo `localRepository`; il cloud è opzionale.

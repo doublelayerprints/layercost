@@ -10,6 +10,7 @@ import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
 import { quotesIt } from './it/quotes'
 import { settingsIt } from './it/settings'
+import { workspaceIt } from './it/workspace'
 import { xlsxIt } from './it/xlsx'
 import { baseIt, it as itDictionary } from './it'
 
@@ -31,6 +32,7 @@ describe('dizionari i18n', () => {
       accessIt,
       landingIt,
       feedbackIt,
+      workspaceIt,
     ]
     const keys = parts.flatMap((part) => Object.keys(part))
     expect(new Set(keys).size).toBe(keys.length)

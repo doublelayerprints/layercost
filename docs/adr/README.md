@@ -31,11 +31,11 @@ Le decisioni architetturali di LayerCost. Un ADR accettato non si riscrive: se c
 | 0025 | [Google OAuth come provider aggiuntivo](0025-google-oauth.md)                                                   |
 | 0026 | [Pagina pubblica “Richiedi accesso” con Formspree Free](0026-request-access-formspree.md)                       |
 | 0027 | _(riservato a EVO-2 — tetti utenti/preventivi)_                                                                 |
-| 0028 | _(riservato a EVO-4 — multi-workspace)_                                                                         |
+| 0028 | [Spazi separati: multi-workspace con membership molti-a-molti](0028-multi-workspace.md)                         |
 | 0029 | [Landing page pubblica, routing `/calculator` e pre-render SEO](0029-public-landing-page.md)                    |
 | 0030 | [Documentazione in-app e pagina “Suggerimenti” con Formspree](0030-docs-and-feedback.md)                        |
 
-> Dopo EVO-3a/ADR-0026, **EVO-2** (tetti utenti/preventivi) userà **ADR-0027**, **EVO-4** (multi-workspace) **ADR-0028**, **EVO-5** (landing pubblica) è **ADR-0029** ed **EVO-6** (documentazione e suggerimenti) è **ADR-0030**.
+> **EVO-4** (multi-workspace) è **ADR-0028**, **EVO-5** (landing pubblica) è **ADR-0029**, **EVO-6** (documentazione e suggerimenti) è **ADR-0030**. **EVO-2** (tetti utenti/preventivi) userà **ADR-0027**.
 
 ---
 
