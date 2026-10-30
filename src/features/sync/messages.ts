@@ -16,6 +16,19 @@ export const syncStatusKeys: Record<SyncStatus, MessageKey> = {
   error: 'sync.status.error',
 }
 
+export const syncStatusTones: Record<SyncStatus, string> = {
+  disabled: 'bg-muted',
+  idle: 'bg-muted',
+  connecting: 'bg-data',
+  firstLogin: 'bg-data',
+  syncing: 'bg-data',
+  synced: 'bg-positive',
+  pending: 'bg-warning',
+  offline: 'bg-warning',
+  conflict: 'bg-data',
+  error: 'bg-negative',
+}
+
 export const syncErrorKeys: Record<SyncErrorCode, MessageKey> = {
   network: 'sync.error.network',
   auth: 'sync.error.auth',
