@@ -1,6 +1,6 @@
 # EVO-5 — Landing page pubblica
 
-**Stato:** Implementata il 29 ottobre 2026 e distribuita in produzione il 30 ottobre 2026 (PR #30, squash `29b954b`); copy cloud gratuita con PR #32 (`294c6f1`); switch tema/lingua in top bar con PR #34 (`8d7d2e2`)
+**Stato:** Implementata il 29 ottobre 2026 e distribuita in produzione il 30 ottobre 2026 (PR #30, squash `29b954b`); copy cloud gratuita con PR #32 (`294c6f1`); switch tema/lingua in top bar con PR #34 (`8d7d2e2`) e rifiniti come segmented control il 30 ottobre 2026
 **Data:** 29 ottobre 2026
 **ADR:** `docs/adr/0029-public-landing-page.md`
 **Riferimenti:** `docs/planning/evolutive.md`, `docs/engineering/deployment.md`, `docs/engineering/testing.md`, `docs/planning/i18n-inventory.md`, `docs/design/design-system.md`
@@ -41,7 +41,7 @@ Aprire LayerCost a chi non lo conosce con una pagina pubblica completa, in itali
 
 La landing è in `src/features/landing/`, con testi in `src/i18n/it/landing.ts` e `src/i18n/en/landing.ts`.
 
-1. **Header pubblico** con logo, Funzionalità, Come funziona, Privacy, FAQ, CTA “Apri il calcolatore” e interruttori compatti tema chiaro/scuro e lingua IT/EN nella top bar. Su mobile il menu contiene i link e la CTA; gli interruttori restano visibili nella barra.
+1. **Header pubblico** con logo, Funzionalità, Come funziona, Privacy, FAQ, CTA “Apri il calcolatore” e un segmented control compatto per lingua IT/EN e tema chiaro/scuro nella top bar. Su mobile il menu contiene i link e la CTA; gli interruttori restano visibili nella barra.
 2. **Hero** con headline “Il costo vero delle stampe 3D.”, sottotitolo, CTA “Apri il calcolatore” e “Richiedi accesso”, nota “Nessun account richiesto” e screenshot reale del calcolatore.
 3. **Sei funzionalità** in una tabella di confronto con un foglio di calcolo: motore di costo, multi-materiale, preventivi, import `.3mf`, export `.xlsx`/PDF, confronto stampanti. Ogni risposta è in parole, non un simbolo.
 4. **Dal calcolo al cliente**: preventivo reale con prezzi congelati, righe e composizione del costo.
@@ -74,7 +74,7 @@ Immagini: quattro screenshot reali in `public/landing/` (calcolatore, dettaglio,
 ## 5. Design e accessibilità
 
 - Design system **Strato**: token, Archivo, Source Serif 4, card, pill, focus. La landing aggiunge solo la scala display (`.landing-display`, `.landing-h2`, `.landing-wordmark`) e il layout pubblico; i componenti dell’app restano invariati.
-- `PublicLayout` senza sidebar; header sticky senza chrome; footer con wordmark, colonne e preferenze.
+- `PublicLayout` senza sidebar; header sticky senza chrome; footer con wordmark, colonne e preferenze. La top bar usa un segmented control unico con radio native per lingua e tema, allineato a `QuickPreferences`: thumb `surface`, outline `line`, focus sull'opzione e frecce; il cambio tema non anima i colori.
 - Tema chiaro/scuro, `prefers-reduced-motion`, focus visibile, target 44 px su mobile, tabelle responsive, FAQ `<details name>`, contrasti AA.
 - Movimento progressivo: reveal all’ingresso, drift della hero, hover/focus, FAQ, demo dal vivo. Il contenuto resta visibile senza JavaScript e con movimento ridotto.
 - Verifica: 375/768/1440 px, axe WCAG 2.2 AA in IT/EN e chiaro/scuro, `inspect.mjs` 0 FAIL (solo il WARN `no-footage`, motivato: il prodotto è software e l’esempio è interattivo).
@@ -102,7 +102,7 @@ Totale: **249 unitari** (+12).
 ### Visual
 
 - `tests/e2e/visual.spec.ts`: landing a 1440/768/390 in italiano e inglese, oltre alle 36 baseline esistenti.
-- Baseline Linux generate con il workflow `visual-baselines.yml` o, in locale, con il container Playwright Linux; le baseline desktop dell’app sono state rigenerate per la voce **Panoramica**.
+- Baseline Linux generate con il workflow `visual-baselines.yml` o, in locale, con il container Playwright Linux; le baseline desktop dell'app sono state rigenerate per la voce **Panoramica** e le 6 baseline landing il 30/10/2026 dopo la rifinitura della top bar.
 
 ### Budget
 
@@ -116,7 +116,7 @@ Totale: **249 unitari** (+12).
 | Font | 56,8 KB | 120 KB |
 | Totale iniziale | 284,5 KB | 350 KB |
 
-Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a 230 KB per la landing (prima schermata, dizionari IT/EN e componenti). Il limite di avviso Vite sul chunk raw passa a 860 KB.
+Dopo la rifinitura della top bar (30/10/2026): JS 218,5/230 KB, CSS 9,7/20 KB, totale 285,0/350 KB. Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a 230 KB per la landing (prima schermata, dizionari IT/EN e componenti). Il limite di avviso Vite sul chunk raw passa a 860 KB.
 
 ---
 
@@ -130,6 +130,7 @@ Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a
 | EVO-5.4 | Accessibilità, tema, reduced motion, responsive, axe | `[x]` |
 | EVO-5.5 | Test unit/E2E/visual e budget | `[x]` |
 | EVO-5.6 | Documentazione, inventario i18n, ADR-0029, deploy | `[x]` deploy del 30/10/2026, smoke verde |
+| EVO-5.7 | Rifinitura della top bar: segmented control unico per lingua e tema, radio native, focus e frecce | `[x]` |
 
 ---
 
@@ -143,9 +144,10 @@ Il limite HTML passa da 4 KB a 10 KB per il pre-render; il limite JS da 210 KB a
 - [x] Hero con screenshot reale; demo dal vivo con il motore reale; 4 immagini reali.
 - [x] `index.html` pre-renderizzato in italiano, canonical, Open Graph, Twitter, robots e sitemap; nessun `noindex`.
 - [x] 375/768/1440, chiaro/scuro, `prefers-reduced-motion`, axe WCAG 2.2 AA.
+- [x] La top bar offre lingua e tema come segmented control accessibile, con radio native, frecce e focus visibile in chiaro e scuro.
 - [x] Parità i18n IT/EN e inventario aggiornato.
 - [x] 249 unitari, 68 E2E, 42 screenshot, 68 scansioni axe.
-- [x] `npm run check` verde; budget JS 218,2/230 KB e HTML 6,0/10 KB.
+- [x] `npm run check` verde; budget JS 218,5/230 KB dopo la rifinitura della top bar e HTML 6,0/10 KB.
 - [x] Documentazione e ADR-0029.
 - [x] Deploy Vercel e verifica della produzione (30/10/2026, build `index-CciHjhFo.js` / `index-DicimwUj.css`, copy gratuita PR #32, top bar PR #34, smoke verde).
 

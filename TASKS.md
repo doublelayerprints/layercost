@@ -1276,7 +1276,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-5 — Landing page pubblica
 
-**Stato:** `[x]` — implementata il 29/10/2026 e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`); smoke verde
+**Stato:** `[x]` — implementata il 29/10/2026 e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`, rifinita come segmented control il 30/10/2026); smoke verde
 **Dipende da:** —
 **ADR:** 0029
 **Piano:** `docs/planning/evo-5-landing-page.md`
@@ -1287,6 +1287,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - **EVO-5.4 Design e a11y:** Strato, `PublicLayout`, 375/768/1440, chiaro/scuro, `prefers-reduced-motion`, axe WCAG 2.2 AA.
 - **EVO-5.5 Test e budget:** 249 unitari (+12), 68 E2E (50 default incl. 11 landing + 12 visual + 3 auth + 3 sync), 42 screenshot (+6), 68 scansioni axe (+8); JS 218,2/230 KB, HTML 6,0/10 KB, totale 284,5/350 KB.
 - **EVO-5.6 Docs e deploy:** ADR-0029, piano, README, STATUS, deployment, testing, i18n inventory e design system; deploy Vercel del 30/10/2026 (`index-CciHjhFo.js` / `index-DicimwUj.css`), switch in top bar (PR #34) e smoke verde.
+- **EVO-5.7 Top bar:** `PublicTopBarControls` è un segmented control unico con due gruppi di radio native (lingua IT/EN, tema chiaro/scuro), thumb `surface` con outline `line`, focus sull'opzione e frecce; il cambio tema non anima i colori. Test E2E aggiornati, axe 0 violazioni; 6 baseline landing rigenerate con il container Playwright Linux.
 - Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
 
 **Prompt di ripresa:** §8 di `docs/planning/evolutive.md`.

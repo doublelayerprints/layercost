@@ -26,6 +26,11 @@ async function openLanding(page: Page) {
   ).toBeVisible()
 }
 
+async function emulateColorScheme(page: Page, scheme: 'light' | 'dark') {
+  await page.emulateMedia({ colorScheme: scheme })
+  await expect(page.locator('html')).toHaveAttribute('data-theme', scheme)
+}
+
 test.beforeEach(async ({ page }) => {
   // The first navigation of each test starts as a brand-new visitor. Later
   // navigations keep what the test deliberately wrote.
@@ -41,7 +46,9 @@ test('la prima visita mostra la landing e non crea dati locali', async ({ page }
   await expect(
     page.getByRole('heading', { level: 1, name: 'Il costo vero delle stampe 3D.' }),
   ).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Tutto quello che serve al prezzo.' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Tutto quello che serve al prezzo.' }),
+  ).toBeVisible()
   await expect(
     page.getByRole('heading', { name: 'Tre passi, nessun foglio di calcolo.' }),
   ).toBeVisible()
@@ -120,25 +127,34 @@ test('login e richiesta accesso sono raggiungibili dalla landing', async ({ page
 
 test('la lingua cambia, si persiste e aggiorna titolo e lang', async ({ page }) => {
   await openLanding(page)
-  await page.getByRole('button', { name: /Passa a English/ }).click()
+  await page.getByRole('radio', { name: 'English' }).check()
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  await expect(page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' }),
+  ).toBeVisible()
   await expect(page).toHaveTitle('LayerCost — The real cost of 3D prints')
   await expect(page.getByRole('heading', { name: 'Everything the price needs.' })).toBeVisible()
 
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  await expect(page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Switch to Italiano/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' }),
+  ).toBeVisible()
+  await expect(page.getByRole('radio', { name: 'English' })).toBeChecked()
+  await expect(page.getByRole('radio', { name: 'Italiano' })).not.toBeChecked()
 })
 
-test('il tema si può cambiare dalla landing', async ({ page }) => {
+test('il tema si può cambiare dalla landing e persiste', async ({ page }) => {
   await openLanding(page)
-  await page.getByRole('button', { name: 'Passa al tema scuro' }).click()
+  await page.getByRole('radio', { name: 'Scuro' }).check()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
-  await page.getByRole('button', { name: 'Passa al tema chiaro' }).click()
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await expect(page.getByRole('radio', { name: 'Scuro' })).toBeChecked()
+
+  await page.getByRole('radio', { name: 'Chiaro' }).check()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
 })
 
@@ -157,7 +173,7 @@ test('axe WCAG 2.2 AA a 375 e 1440 px in italiano e inglese', async ({ page }) =
     await audit(page, `${locale} · mobile chiaro`)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375)
 
-    await page.emulateMedia({ colorScheme: 'dark' })
+    await emulateColorScheme(page, 'dark')
     await audit(page, `${locale} · mobile scuro`)
 
     await page.setViewportSize({ width: 1440, height: 900 })
@@ -166,7 +182,7 @@ test('axe WCAG 2.2 AA a 375 e 1440 px in italiano e inglese', async ({ page }) =
       1440,
     )
 
-    await page.emulateMedia({ colorScheme: 'light' })
+    await emulateColorScheme(page, 'light')
     await audit(page, `${locale} · desktop chiaro`)
   }
 })

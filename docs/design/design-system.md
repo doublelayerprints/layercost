@@ -236,6 +236,10 @@ Controllo riutilizzabile per gli sconti di riga e di preventivo: una select “N
 
 Card con header comprimibile per le sezioni del calcolatore. Il titolo resta un heading reale; a destra un chevron SVG piatto da 20 px dentro un'area ghost da 32 px, senza bordo né cerchio, con hover `--color-raised` come i pulsanti ghost del sito. Il chevron ruota di 180° quando la card è aperta. Un pulsante trasparente copre tutto l'header e gestisce `aria-expanded` e `aria-controls`; le azioni dell'header (Importa, Ripristina default) stanno sopra di esso con `z-10`, così restano cliccabili anche a card compressa. Il chevron è decorativo e `pointer-events-none`: il click sull'icona attraversa il livello e arriva al pulsante trasparente, anche quando l'icona ruotata crea un proprio contesto di stacking. Da compressa l'header mostra `summary` (data/cliente, righe/grammi/costo, ricarico/IVA) e, se presente, `meta`; da aperta mostra `description`. Lo stato è locale e parte sempre espanso: non viene persistito. Le singole righe di stampa usano lo stesso meccanismo con una sintesi dedicata.
 
+### 3.21 Switch della landing
+
+La top bar pubblica usa `PublicTopBarControls`: un unico segmented control con due gruppi di radio native, lingua IT/EN e tema chiaro/scuro. Il contenitore è `--color-raised` con un outline interno `--color-line`; il thumb dell'opzione attiva è `--color-surface` con outline `--color-line`, testo o icona `--color-ink`. Le opzioni inattive restano `--color-muted` e passano a ink all'hover. Il thumb scorre di 150 ms, disattivato con `prefers-reduced-motion`; il cambio tema non anima i colori, così non si crea un intervallo a basso contrasto. Il focus ring è sull'opzione, non sull'input invisibile. Ogni gruppo ha una `legend` sr-only e ogni radio un nome accessibile esteso; le frecce spostano la scelta come in qualsiasi gruppo di radio native. La landing espone solo Chiaro/Scuro: la preferenza Sistema resta in Impostazioni → Aspetto, mentre il controllo segue il tema di sistema finché non viene fatta una scelta esplicita.
+
 ---
 
 ## 4. Accessibilità
@@ -490,7 +494,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 
 ### 8.13 Landing pubblica — esito (EVO-5, 29/10/2026)
 
-- **Layout.** `PublicLayout` con skip link, header sticky senza chrome, `main` e footer; nessuna sidebar. La top bar contiene gli interruttori compatti tema chiaro/scuro e lingua IT/EN; il footer chiude con dati e privacy. `AppShell` resta l'unico punto che monta `HydrationGate`, sync e dialoghi cloud.
+- **Layout.** `PublicLayout` con skip link, header sticky senza chrome, `main` e footer; nessuna sidebar. La top bar contiene un unico segmented control per lingua IT/EN e tema chiaro/scuro, con radio native, thumb scorrevole e focus sull'opzione; il footer chiude con dati e privacy. `AppShell` resta l'unico punto che monta `HydrationGate`, sync e dialoghi cloud.
 - **Scala display.** La landing aggiunge solo `.landing-display` (52/36 px), `.landing-h2` (44/28 px), `.landing-h3` (18 px) e `.landing-wordmark` (88/69/48 px); il resto usa i passi dell'app (13/16/18). La hero headline resta su due righe a 1440/768/390.
 - **Colore.** Ground pietra, ink, surface/raised alternati; l'accent viola resta il colore del dato (barra costo/guadagno, focus) e non diventa un campo decorativo. La sezione privacy inverte ink/ground per un unico campo di colore.
 - **Contenuti.** Tabella di confronto a 6 righe, showcase con screenshot reale, tre passi con demo dal vivo del motore, privacy, cloud, FAQ native, CTA e footer a colonne. Le immagini sono screenshot reali dell'app in `public/landing/`, non mockup.
@@ -498,6 +502,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Accessibilità.** 375/768/1440, chiaro/scuro, axe WCAG 2.2 AA (8 scansioni landing, 68 totali), target 44 px su mobile, tabelle responsive, focus visibile, FAQ `<details name>`.
 - **Budget.** JS iniziale 218,2/230 KB, HTML 6,0/10 KB, CSS 9,6/20 KB, totale 284,5/350 KB. Motivazione in ADR-0029.
 - **Test.** 249 unitari (+12), 68 E2E (+11 landing, +6 visual), 42 screenshot (+6), 68 scansioni axe (+8).
+- **Top bar (rifinitura 30/10/2026).** Lingua e tema diventano un segmented control unico con radio native, thumb `--color-surface` e outline `--color-line`; il cambio tema non anima i colori, per non creare un lampo a basso contrasto. Test E2E aggiornati, axe resta a 0 violazioni; budget dopo la rifinitura: JS 218,5/230 KB, CSS 9,7/20 KB, totale 285,0/350 KB. Le 6 baseline visive della landing sono state rigenerate con il container Playwright Linux il 30/10/2026.
 
 ## 9. Mappa dei file
 
