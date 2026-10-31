@@ -1,6 +1,6 @@
 # EVO-7 — Nomi visibili e tag attività dei preventivi
 
-**Stato:** implementato e verificato in locale il 31/10/2026; deploy da fare
+**Stato:** implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, squash `ce8c207`, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`)
 **ADR:** `docs/adr/0031-display-names-and-quote-audit.md`
 **Relazione:** estende l'audit cloud di T5.4.5 e ADR-0024/ADR-0028; non cambia formule, `engineVersion`, snapshot economici, schema locale v4, auth o RLS dei dati esistenti
 
@@ -190,4 +190,4 @@ quoteMemberName(userId, currentUserId, members, t): string | undefined
 - [x] Email non esposta nei tag né agli editor.
 - [x] `npm run check`, `npm run db:test` e `npm run test:e2e:sync` verdi.
 - [x] Documentazione e ADR aggiornati.
-- [ ] Deploy di produzione e verifica con i due account.
+- [x] Deploy di produzione e verifica con i due account.

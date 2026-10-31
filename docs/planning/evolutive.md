@@ -1,6 +1,6 @@
 # Evolutive — Google login, richiesta accesso, landing pubblica, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato, configurato e distribuito il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-7 implementato e verificato in locale il 31/10/2026 (ADR-0031, nomi visibili e tag attività); EVO-2–EVO-3b proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato, configurato e distribuito il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-7 implementato, distribuito e verificato il 31/10/2026 (ADR-0031, nomi visibili e tag attività); EVO-2–EVO-3b proposte
 **Data:** 30 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
 **Piano collegato:** `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-5-landing-page.md`, `docs/planning/evo-6-docs-feedback.md`
@@ -487,7 +487,7 @@ Per il modello B serve:
 ## 5C. EVO-7 — Nomi visibili e tag attività dei preventivi
 
 **Obiettivo:** negli spazi condivisi mostrare chi ha creato e chi ha modificato per ultimo ogni preventivo, con nome e data.
-**Stato:** implementato e verificato in locale il 31/10/2026 (ADR-0031); deploy da fare.
+**Stato:** implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`).
 **Stima:** 1–2 giorni.
 **Dipende da:** EVO-4 e T5.4.5.
 **Piano:** `docs/planning/evo-7-quote-audit-tags.md`.
