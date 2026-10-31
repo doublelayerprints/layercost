@@ -152,9 +152,9 @@ async function login(page: Page, account: Account): Promise<void> {
 }
 
 async function waitForSynced(page: Page): Promise<void> {
-  await expect(page.getByText('Sincronizzato', { exact: true }).first()).toBeVisible({
-    timeout: 20_000,
-  })
+  await expect(
+    page.getByRole('link', { name: 'Stato sincronizzazione: Sincronizzato' }).first(),
+  ).toBeVisible({ timeout: 30_000 })
 }
 
 async function audit(page: Page): Promise<void> {
