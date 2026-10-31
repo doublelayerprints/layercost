@@ -34,12 +34,17 @@ async function admin(path: string, init: RequestInit = {}): Promise<Response> {
   })
 }
 
-async function createUser(label: string): Promise<Account> {
+async function createUser(label: string, displayName = label): Promise<Account> {
   const email = `sync-${label}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}@example.test`
   const password = 'Test-password-123!'
   const response = await admin('/auth/v1/admin/users', {
     method: 'POST',
-    body: JSON.stringify({ email, password, email_confirm: true }),
+    body: JSON.stringify({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name: displayName },
+    }),
   })
   if (!response.ok) {
     throw new Error(`Creazione utente fallita: ${response.status} ${await response.text()}`)
@@ -198,7 +203,7 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
   browser,
   page,
 }) => {
-  const accounts = [await createUser('a'), await createUser('b')]
+  const accounts = [await createUser('a', 'Anna'), await createUser('b', 'Bruno')]
   const workspaceId = await createWorkspace(accounts)
   const secondContext = await (browser as Browser).newContext()
   const secondPage = await secondContext.newPage()
@@ -225,6 +230,9 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
     await waitForSynced(secondPage)
     await secondPage.goto('/#/quotes')
     await expect(secondPage.getByText('Nuovo preventivo').first()).toBeVisible()
+    await expect(secondPage.getByText('Creato da Anna').first()).toBeVisible()
+    await expect(secondPage.getByText('Ultima modifica di Anna').first()).toBeVisible()
+    await audit(secondPage)
 
     await page.goto(quoteUrl)
     await expect(page.getByRole('heading', { name: 'Nuovo preventivo' }).first()).toBeVisible()
@@ -239,9 +247,17 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
     await expect(
       secondPage
         .getByRole('region', { name: 'Workspace condiviso' })
-        .getByText('un altro membro', { exact: true })
+        .getByText('Anna', { exact: true })
         .first(),
     ).toBeVisible()
+
+    await secondPage.goto('/#/settings')
+    const profileSection = secondPage.getByRole('region', { name: 'Profilo' })
+    await expect(profileSection.getByLabel('Nome visibile')).toHaveValue('Bruno')
+    await profileSection.getByLabel('Nome visibile').fill('Bruno Neri')
+    await profileSection.getByRole('button', { name: 'Salva nome' }).click()
+    await expect(profileSection.getByText('Nome aggiornato.')).toBeVisible()
+    await secondPage.goto(quoteUrl)
 
     // A edits offline; B edits and saves while A is still offline.
     await page.context().setOffline(true)
@@ -279,7 +295,7 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
     await expect(
       page
         .getByRole('region', { name: 'Workspace condiviso' })
-        .getByText('un altro membro', { exact: true })
+        .getByText('Bruno Neri', { exact: true })
         .first(),
     ).toBeVisible()
   } finally {

@@ -332,6 +332,7 @@ export const DOCS_SECTIONS = [
       { kind: 'paragraph', textKey: 'docs.cloud.p1' },
       { kind: 'paragraph', textKey: 'docs.cloud.p2' },
       { kind: 'paragraph', textKey: 'docs.cloud.p3' },
+      { kind: 'paragraph', textKey: 'docs.cloud.p4' },
       {
         kind: 'steps',
         titleKey: 'docs.cloud.stepsTitle',

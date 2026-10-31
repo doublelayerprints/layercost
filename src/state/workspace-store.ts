@@ -18,6 +18,7 @@ import {
 
 export type WorkspaceStatus = 'idle' | 'loading' | 'ready' | 'error'
 export type DetailsStatus = 'idle' | 'loading' | 'ready' | 'error'
+export type ProfileStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 export interface WorkspaceState {
   status: WorkspaceStatus
@@ -28,6 +29,9 @@ export interface WorkspaceState {
   invites: WorkspaceInvite[]
   detailsStatus: DetailsStatus
   detailsError?: WorkspaceErrorCode
+  profileStatus: ProfileStatus
+  profileName?: string
+  profileError?: WorkspaceErrorCode
 
   load: () => Promise<void>
   refresh: () => Promise<void>
@@ -37,6 +41,8 @@ export interface WorkspaceState {
   leave: (workspaceId: string) => Promise<boolean>
   rename: (workspaceId: string, name: string) => Promise<boolean>
   loadDetails: () => Promise<void>
+  loadProfile: () => Promise<void>
+  saveProfile: (displayName: string) => Promise<boolean>
   createInvite: (role: WorkspaceRole, days: number) => Promise<string | undefined>
   revokeInvite: (inviteId: string) => Promise<boolean>
   reset: () => void
@@ -71,6 +77,8 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
   let gateway: CloudGateway | undefined
   let gatewayPromise: Promise<CloudGateway> | undefined
   let loading: Promise<void> | undefined
+  let profileLoading: Promise<void> | undefined
+  let profileRequest = 0
 
   const ensureGateway = (): Promise<CloudGateway> => {
     if (gateway) return Promise.resolve(gateway)
@@ -99,6 +107,29 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
         detailsStatus: 'idle',
         detailsError: undefined,
       })
+      const workspace = get().workspaces.find((candidate) => candidate.id === workspaceId)
+      if (workspace?.kind === 'shared') void get().loadDetails()
+    }
+
+    const loadProfile = async (): Promise<void> => {
+      if (profileLoading) return profileLoading
+      if (get().profileStatus === 'ready') return
+      const request = ++profileRequest
+      set({ profileStatus: 'loading', profileError: undefined })
+      profileLoading = (async () => {
+        try {
+          const client = await ensureGateway()
+          const displayName = await client.getProfile()
+          if (request !== profileRequest) return
+          set({ profileStatus: 'ready', profileName: displayName ?? undefined })
+        } catch (error) {
+          if (request !== profileRequest) return
+          set({ profileStatus: 'error', profileError: errorCode(error) })
+        }
+      })().finally(() => {
+        profileLoading = undefined
+      })
+      return profileLoading
     }
 
     const load = async (): Promise<void> => {
@@ -133,6 +164,9 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
             detailsStatus: 'idle',
             detailsError: undefined,
           })
+          void loadProfile()
+          const workspace = workspaces.find((candidate) => candidate.id === active)
+          if (workspace?.kind === 'shared') void get().loadDetails()
         } catch (error) {
           set({ status: 'error', error: errorCode(error) })
         }
@@ -149,7 +183,8 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
       const current = get().activeId
       const active = pickActiveWorkspace(workspaces, current)
       if (active) deps.preference.save(active)
-      set({ workspaces, activeId: active })
+      set({ workspaces })
+      if (active !== current) setActive(active)
     }
 
     return {
@@ -161,6 +196,9 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
       invites: [],
       detailsStatus: 'idle',
       detailsError: undefined,
+      profileStatus: 'idle',
+      profileName: undefined,
+      profileError: undefined,
 
       load,
 
@@ -268,6 +306,21 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
         }
       },
 
+      loadProfile,
+
+      saveProfile: async (displayName) => {
+        set({ profileError: undefined })
+        try {
+          const client = await ensureGateway()
+          const saved = await client.saveProfile(displayName)
+          set({ profileName: saved, profileStatus: 'ready' })
+          return true
+        } catch (error) {
+          set({ profileError: errorCode(error) })
+          return false
+        }
+      },
+
       createInvite: async (role, days) => {
         const activeId = get().activeId
         if (!activeId) return undefined
@@ -296,7 +349,9 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
         }
       },
 
-      reset: () =>
+      reset: () => {
+        profileRequest += 1
+        profileLoading = undefined
         set({
           status: 'idle',
           workspaces: [],
@@ -306,7 +361,11 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
           invites: [],
           detailsStatus: 'idle',
           detailsError: undefined,
-        }),
+          profileStatus: 'idle',
+          profileName: undefined,
+          profileError: undefined,
+        })
+      },
 
       clearError: () => set({ error: undefined }),
     }

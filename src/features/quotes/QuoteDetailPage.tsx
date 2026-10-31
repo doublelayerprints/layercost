@@ -5,6 +5,7 @@ import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { useAppStore } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
+import { useWorkspaceStore } from '@/state/workspace-store'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
 import { ENGINE_VERSION } from '@/domain/version'
 import { draftHasContent } from '@/lib/draft'
@@ -13,6 +14,7 @@ import { QuoteOverview } from './QuoteOverview'
 import { QuotePrint } from './QuotePrint'
 import { ShareQuoteButton } from './ShareQuoteButton'
 import { quoteStatusDisplay } from './quote-status'
+import { quoteMemberName } from './quote-audit'
 import { plural } from '@/i18n'
 
 const STATUS_CONFIRM = {
@@ -35,6 +37,9 @@ export function QuoteDetailPage() {
   const draft = useAppStore((state) => state.draft)
   const mode = useAppStore((state) => state.mode)
   const userId = useAuthStore((state) => state.user?.id)
+  const workspaces = useWorkspaceStore((state) => state.workspaces)
+  const activeWorkspaceId = useWorkspaceStore((state) => state.activeId)
+  const members = useWorkspaceStore((state) => state.members)
   const duplicateQuote = useAppStore((state) => state.duplicateQuote)
   const refreshQuote = useAppStore((state) => state.refreshQuote)
   const archiveQuote = useAppStore((state) => state.archiveQuote)
@@ -85,6 +90,9 @@ export function QuoteDetailPage() {
   const statusDisplay = quoteStatusDisplay(quote)
   const canEdit = isQuoteEditable(quote.status, quote.archived)
   const locked = isQuoteLocked(quote.status) && !quote.archived
+  const sharedWorkspace =
+    mode === 'cloud' &&
+    workspaces.find((workspace) => workspace.id === activeWorkspaceId)?.kind === 'shared'
 
   const runDraftAction = (action: 'duplicate' | 'refresh' | 'edit') => {
     if (action === 'edit') {
@@ -231,7 +239,7 @@ export function QuoteDetailPage() {
               {quote.status === 'sent' ? t('quote.locked.sent') : t('quote.locked.completed')}
             </p>
           ) : null}
-          {mode === 'cloud' && userId && (quote.createdBy || quote.updatedBy) ? (
+          {sharedWorkspace && userId && (quote.createdBy || quote.updatedBy) ? (
             <section className="mt-4 border-t border-line pt-3" aria-labelledby="quote-audit-title">
               <h3 id="quote-audit-title" className="text-xs font-medium text-muted">
                 {t('quote.audit.title')}
@@ -241,11 +249,7 @@ export function QuoteDetailPage() {
                   <div className="flex flex-wrap items-baseline gap-x-1">
                     <dt>{t('quote.audit.created')}</dt>
                     <dd className="text-ink">
-                      <span>
-                        {quote.createdBy === userId
-                          ? t('quote.audit.you')
-                          : t('quote.audit.member')}
-                      </span>
+                      <span>{quoteMemberName(quote.createdBy, userId, members, t)}</span>
                       <span aria-hidden="true"> · </span>
                       <time dateTime={quote.createdAt}>{format.dateTime(quote.createdAt)}</time>
                     </dd>
@@ -255,11 +259,7 @@ export function QuoteDetailPage() {
                   <div className="flex flex-wrap items-baseline gap-x-1">
                     <dt>{t('quote.audit.updated')}</dt>
                     <dd className="text-ink">
-                      <span>
-                        {quote.updatedBy === userId
-                          ? t('quote.audit.you')
-                          : t('quote.audit.member')}
-                      </span>
+                      <span>{quoteMemberName(quote.updatedBy, userId, members, t)}</span>
                       <span aria-hidden="true"> · </span>
                       <time dateTime={quote.updatedAt}>{format.dateTime(quote.updatedAt)}</time>
                     </dd>

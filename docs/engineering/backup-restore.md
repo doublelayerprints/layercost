@@ -111,6 +111,7 @@ Regole:
 
 - Usa una connessione Postgres diretta o session pooler, non lo SQL editor, per `pg_restore`.
 - Non usare `--disable-triggers` su `auth.users`: le tabelle auth sono di proprietà di `supabase_auth_admin`. Il backup è progettato per essere ripristinato senza disabilitare i trigger.
+- `public.profiles` è nel dump `public` e non ha trigger applicativi su `auth.users`: il restore di auth seguito da public non duplica i nomi visibili.
 - Se ripristini in un progetto esistente, svuota prima le tabelle `public` e gli utenti di test; non eseguire il restore sopra dati di produzione diversi.
 - Le sessioni non sono incluse: dopo il restore gli utenti devono accedere di nuovo.
 
@@ -120,6 +121,7 @@ Regole:
 select count(*) from public.workspaces;
 select count(*) from public.workspace_members;
 select count(*) from public.quotes;
+select count(*) from public.profiles;
 select count(*) from auth.users;
 select count(*) from auth.identities;
 ```

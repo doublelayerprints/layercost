@@ -1,7 +1,7 @@
 # Inventario stringhe i18n
 
-**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1, EVO-3a ed EVO-5 incluse
-**Data:** 29 ottobre 2026
+**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1, EVO-3a, EVO-5, EVO-6 ed EVO-7 incluse
+**Data:** 31 ottobre 2026
 **Riferimenti:** ADR-0019, ADR-0025, ADR-0026, `docs/planning/phase-5.md` §3
 
 ---
@@ -32,13 +32,14 @@
 | Componenti comuni    | `src/components/ui.tsx`, `number-fields.tsx`, `cost-stack.tsx`                                                     | “Chiudi”, “Chiudi avviso”, label passate dai chiamanti, legenda stack                                   | I componenti non devono avere dizionari propri: ricevono `t` o stringhe tradotte |
 | Calcolatore          | `CalculatorPage`, `LineEditor`, `JobCostsEditor`, `PricingEditor`, `SummaryPanel`, `CostDetails`, `NewDraftButton` | intestazioni, label, hint, unità, stati, conferme, microcopy, “Salva preventivo”, “Stampa”, “Condividi” | Unità e valuta passano da `lib/format.ts`                                        |
 | Import `.3mf`        | `use-three-mf-import.ts`, `ThreeMfImportDialog.tsx`, `data/three-mf/parse.ts`                                      | pulsanti, stati, titolo modale, piatti, mappatura, conferma, errori/warning                             | Le chiavi `import.*` sono già nel dizionario; T5.6.2 collega la UI               |
-| Preventivi           | `QuotesPage`, `QuoteDetailPage`, `QuoteOverview`, `QuotePrint`, `SharePage`, `ShareQuoteButton`                    | lista, ricerca, vuoti, dettaglio, azioni, stampa, link, import nel proprio archivio                     | Stampare nella lingua del preventivo (T5.6.4)                                    |
+| Preventivi           | `QuotesPage`, `QuoteDetailPage`, `QuoteOverview`, `QuotePrint`, `SharePage`, `ShareQuoteButton`, `QuoteAuditTags`   | lista, ricerca, vuoti, dettaglio, azioni, stampa, link, import nel proprio archivio, tag di audit          | Stampare nella lingua del preventivo (T5.6.4); tag dal nome visibile in EVO-7      |
 | Export `.xlsx`       | `ExportXlsxButton`, `features/quotes/export-xlsx.ts`, `lib/xlsx.ts`                                                | pulsante, hint, nomi dei fogli, intestazioni di colonna, sì/no                                          | Area `xlsx`; intestazioni nella lingua dell’interfaccia (T5.12)                  |
 | Stampanti            | `PrintersPage`, `PrinterForm`                                                                                      | titoli, campi, unità, note, archivio, anteprima costo orario                                            |                                                                                  |
 | Materiali            | `MaterialsPage`, `MaterialForm`                                                                                    | campi, famiglie, prezzo/kg, peso bobina, colore, archivio                                               | `lib/labels.ts` per le famiglie                                                  |
 | Tariffe              | `TariffsPage`, `TariffForm`                                                                                        | storico, decorrenza, ultima tariffa, nota non eliminabile                                               |                                                                                  |
 | Extra                | `ExtrasPage`, `ExtraForm`                                                                                          | per pezzo/per lavoro, categorie, importi, archivio                                                      |                                                                                  |
 | Impostazioni         | `SettingsPage`, `SyncSettings`                                                                                     | manodopera, rischio, prezzo, arrotondamento, IVA, backup, reset, tema, lingua, sync                     | Sezione Lingua in T5.6.4; sync in T5.4.3                                         |
+| Profilo              | `ProfileSettings`, `workspace-store`                                                                               | nome visibile, hint, salvataggio, caricamento, conferma, errori                                        | Area `profile` aggiunta in EVO-7; 12 chiavi IT/EN                                |
 | Auth e sync          | `LoginPage`, `auth-store`, `sync-store`, `SyncSettings`, `SyncIndicator`, dialoghi primo login/conflitto           | login, errori auth, sessione scaduta, stato sync, primo login, conflitti, logout                        | Area `auth` aggiunta in T5.4.3; dialoghi sync in T5.4.4                          |
 | Richiesta accesso    | `RequestAccessPage`, `request-access.ts`, `LoginPage`, `SyncSettings`                                              | titolo, intro, campi, limiti, privacy, invio, stati, errori, conferma, link                             | Area `access` aggiunta in EVO-3a; 36 chiavi IT/EN                                |
 | Suggerimenti         | `FeedbackPage`, `feedback.ts`                                                                                      | tipo, area, titolo, descrizione, email, privacy, invio, stati, errori, conferma, validazione            | Area `feedback` aggiunta in EVO-6; 54 chiavi IT/EN                               |
@@ -85,6 +86,8 @@
 **Stato EVO-6:** aggiunte **54 chiavi** nell'area `feedback` (tipo, area, campi, privacy, invio, conferma, errori, validazione) e **3 chiavi** di navigazione (`nav.help`, `nav.docs`, `nav.feedback`). Parità globale it/en a **1233** chiavi; il test delle aree include `feedbackIt`. La documentazione aggiunge **179 chiavi** in un dizionario locale `docs` (`src/i18n/{it,en}/docs.ts`) caricato solo dal chunk lazy della guida, quindi non entra nella parità globale né nel bundle iniziale. Il test `src/features/docs/docs.test.ts` verifica che ogni chiave usata da `content.ts` esista in italiano e in inglese.
 
 **Stato T5.22:** aggiunte 2 chiavi nell'area `calculator` per la rinomina dal titolo (`calculator.renameQuote`, `calculator.renameHint`). Parità globale it/en a **1235** chiavi; nessun cambio ai dizionari lazy di documentazione e landing.
+
+**Stato EVO-7:** aggiunte 2 chiavi in `quotes` per i tag (`quote.audit.createdTag`, `quote.audit.updatedTag`) e 12 chiavi nell'area `profile` per titolo, descrizione, campo, hint, salvataggio, stati e quattro errori. Parità globale it/en a **1311** chiavi, misurate dal test di parità; il test delle aree include `profileIt`. Nessun cambio ai dizionari lazy.
 
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 

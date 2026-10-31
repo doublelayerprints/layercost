@@ -7,8 +7,13 @@ import type {
 import { WorkspaceError } from '@/data/cloud/gateway'
 import { createWorkspaceStore, pickActiveWorkspace } from './workspace-store'
 
-function summary(id: string, name: string, role: 'owner' | 'editor' = 'owner'): WorkspaceSummary {
-  return { id, name, role, joinedAt: '2026-10-30T00:00:00.000Z' }
+function summary(
+  id: string,
+  name: string,
+  role: 'owner' | 'editor' = 'owner',
+  kind: 'personal' | 'shared' = 'shared',
+): WorkspaceSummary {
+  return { id, name, role, kind, joinedAt: '2026-10-30T00:00:00.000Z' }
 }
 
 function createGateway(options: {
@@ -17,17 +22,24 @@ function createGateway(options: {
   created?: string
   redeemed?: string
   failCreate?: WorkspaceErrorCode
-}): { gateway: CloudGateway; created: string[] } {
+  failSave?: WorkspaceErrorCode
+  profile?: string
+}): { gateway: CloudGateway; created: string[]; savedProfiles: string[] } {
   let workspaces = [...options.workspaces]
   const created: string[] = []
+  const savedProfiles: string[] = []
 
   return {
     created,
+    savedProfiles,
     gateway: {
       listWorkspaces: async () => workspaces,
       ensurePersonalWorkspace: async () => {
         if (options.personal) {
-          workspaces = [...workspaces, summary(options.personal, 'Spazio personale')]
+          workspaces = [
+            ...workspaces,
+            summary(options.personal, 'Spazio personale', 'owner', 'personal'),
+          ]
         }
         return options.personal ?? null
       },
@@ -54,6 +66,13 @@ function createGateway(options: {
       },
       leaveWorkspace: async (id) => {
         workspaces = workspaces.filter((workspace) => workspace.id !== id)
+      },
+      getProfile: async () => options.profile ?? null,
+      saveProfile: async (displayName) => {
+        if (options.failSave) throw new WorkspaceError(options.failSave)
+        savedProfiles.push(displayName)
+        options.profile = displayName
+        return displayName
       },
       pull: async () => {
         throw new Error('not used')
@@ -170,6 +189,60 @@ describe('workspace store', () => {
 
     expect(id).toBeUndefined()
     expect(store.getState().error).toBe('workspaceLimit')
+  })
+
+  it('carica il nome visibile dell’utente', async () => {
+    const { store } = setup({
+      workspaces: [summary('ws-a', 'A')],
+      profile: 'Marco Rossi',
+    })
+
+    await store.getState().load()
+    await store.getState().loadProfile()
+
+    expect(store.getState().profileStatus).toBe('ready')
+    expect(store.getState().profileName).toBe('Marco Rossi')
+  })
+
+  it('salva il nome visibile e ne conserva il valore', async () => {
+    const { store, fake } = setup({ workspaces: [summary('ws-a', 'A')] })
+    await store.getState().load()
+
+    const ok = await store.getState().saveProfile('Giulia')
+
+    expect(ok).toBe(true)
+    expect(store.getState().profileName).toBe('Giulia')
+    expect(store.getState().profileStatus).toBe('ready')
+    expect(fake.savedProfiles).toEqual(['Giulia'])
+  })
+
+  it('mappa un nome non valido in un codice traducibile', async () => {
+    const { store } = setup({
+      workspaces: [summary('ws-a', 'A')],
+      failSave: 'invalidName',
+    })
+    await store.getState().load()
+
+    const ok = await store.getState().saveProfile('x')
+
+    expect(ok).toBe(false)
+    expect(store.getState().profileError).toBe('invalidName')
+  })
+
+  it('azzera profilo e directory al reset', async () => {
+    const { store } = setup({
+      workspaces: [summary('ws-a', 'A')],
+      profile: 'Marco',
+    })
+    await store.getState().load()
+    await store.getState().loadProfile()
+
+    store.getState().reset()
+
+    expect(store.getState().profileStatus).toBe('idle')
+    expect(store.getState().profileName).toBeUndefined()
+    expect(store.getState().members).toEqual([])
+    expect(store.getState().activeId).toBeUndefined()
   })
 
   it('sceglie il primo spazio quando la preferenza non è più valida', () => {

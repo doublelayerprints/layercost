@@ -227,6 +227,8 @@ export const docsEn = {
     'If you work offline, changes stay queued and are replayed when you return. If the same data changes on two devices, LayerCost asks which version to keep. On logout the local cloud copy is removed when there are no pending writes.',
   'docs.cloud.p3':
     'The JSON backup is the only complete external copy. Importing it replaces configuration, quotes and draft, after downloading a backup of the current data. The Excel file is for analysis, not a backup. Clearing the browser deletes local data.',
+  'docs.cloud.p4':
+    'In Settings you can choose your visible name: members of shared workspaces see it next to quotes, together with who created them and who last edited them. It is not your email, and you can change it whenever you want.',
   'docs.cloud.stepsTitle': 'Protecting data',
   'docs.cloud.step1': 'Export JSON from Settings → Data and backup before changing device.',
   'docs.cloud.step2': 'Keep the file somewhere safe: it is the only complete external copy.',

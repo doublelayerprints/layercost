@@ -5,6 +5,7 @@ import { feedbackEn } from './en/feedback'
 import { landingEn } from './en/landing'
 import { catalogsEn } from './en/catalogs'
 import { miscEn } from './en/misc'
+import { profileEn } from './en/profile'
 import { quotesEn } from './en/quotes'
 import { settingsEn } from './en/settings'
 import { workspaceEn } from './en/workspace'
@@ -124,6 +125,7 @@ export const en: Messages = {
   ...catalogsEn,
   ...settingsEn,
   ...miscEn,
+  ...profileEn,
   ...xlsxEn,
   ...authEn,
   ...accessEn,

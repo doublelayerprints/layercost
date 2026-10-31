@@ -1,6 +1,6 @@
 # Evolutive — Google login, richiesta accesso, landing pubblica, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato, configurato e distribuito il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-2–EVO-4 proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato, configurato e distribuito il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-7 implementato e verificato in locale il 31/10/2026 (ADR-0031, nomi visibili e tag attività); EVO-2–EVO-3b proposte
 **Data:** 30 ottobre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
 **Piano collegato:** `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-5-landing-page.md`, `docs/planning/evo-6-docs-feedback.md`
@@ -484,6 +484,35 @@ Per il modello B serve:
 
 ---
 
+## 5C. EVO-7 — Nomi visibili e tag attività dei preventivi
+
+**Obiettivo:** negli spazi condivisi mostrare chi ha creato e chi ha modificato per ultimo ogni preventivo, con nome e data.
+**Stato:** implementato e verificato in locale il 31/10/2026 (ADR-0031); deploy da fare.
+**Stima:** 1–2 giorni.
+**Dipende da:** EVO-4 e T5.4.5.
+**Piano:** `docs/planning/evo-7-quote-audit-tags.md`.
+
+### 5C.1 Decisioni
+
+- Nome visibile unico per utente in `profiles` (1–40 caratteri), backfill e creazione lazy da nome Google o parte locale dell'email.
+- RPC `get_my_profile`/`set_my_profile`; `list_workspace_members` espone `display_name` a tutti i membri, email solo agli owner; `list_my_workspaces` espone `kind`.
+- Sezione **Profilo** in Impostazioni; tag “Creato da …” e “Ultima modifica di …” con data nella lista Preventivi, solo cloud e spazi condivisi.
+- “Te” per l'utente corrente, nome visibile per gli altri, fallback “un altro membro”; nessun nome copiato nei preventivi.
+- Refresh della directory dopo il sync; nessun cambio a formule, `engineVersion`, snapshot o schema locale v4.
+
+### 5C.2 Verifiche
+
+- 17 pgTAP profili (91 totali), 297 unitari, 5 E2E sync con nomi e modifica profilo, axe sulle schermate coinvolte.
+- `npm run check` e `npm run db:test` verdi; budget iniziale 229,9/232 KB, totale 297,2/350 KB.
+
+### 5C.3 Deploy
+
+- Applicare la migrazione `20261031120000_profiles.sql` prima del client.
+- Verificare **Impostazioni → Profilo**, i tag nella lista Preventivi e i nomi nel dettaglio con due account.
+- Rollback applicativo: l'app precedente torna a “un altro membro”; i preventivi restano intatti.
+
+---
+
 ## 6. Roadmap consigliata
 
 | Fase       | Contenuto                                                 | Stima        | Dipendenze               |
@@ -492,11 +521,12 @@ Per il modello B serve:
 | **EVO-3a** | Pagina “Richiedi accesso” con Formspree Free              | 0,5–1 giorno | Formspree + env pubblica |
 | **EVO-5**  | Landing pubblica, pre-render SEO e routing `/calculator`  | 1–2 giorni   | —                        |
 | **EVO-6**  | Documentazione in-app e pagina Suggerimenti con Formspree | 1–2 giorni   | Formspree + env pubblica |
+| **EVO-7**  | Nomi visibili e tag attività dei preventivi               | 1–2 giorni   | EVO-4, T5.4.5             |
 | **EVO-2**  | `workspace_limits`, trigger membri/preventivi, UI quota   | 1–2 giorni   | EVO-1 o indipendente     |
 | **EVO-3b** | Invite-only/allowlist, eventuale tetto globale            | 1–2 giorni   | EVO-2, EVO-3a            |
 | **EVO-4**  | Multi-workspace (solo se serve)                           | 3–5 giorni   | ADR-0028, migrazione     |
 
-Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-6 → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
+Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-6 → EVO-4 → EVO-7 → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
 
 ---
 

@@ -74,6 +74,8 @@ export const quotesIt = {
   'quote.audit.title': 'Workspace condiviso',
   'quote.audit.created': 'Creato da',
   'quote.audit.updated': 'Ultima modifica',
+  'quote.audit.createdTag': 'Creato da {name}',
+  'quote.audit.updatedTag': 'Ultima modifica di {name}',
   'quote.audit.you': 'te',
   'quote.audit.member': 'un altro membro',
   'quote.duplicate': 'Duplica nel calcolatore',

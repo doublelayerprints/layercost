@@ -195,6 +195,8 @@ function createGateway(clouds: Record<string, CloudSnapshot>, initial = WS): Fak
     revokeInvite: async () => {},
     redeemInvite: async () => WS,
     leaveWorkspace: async () => {},
+    getProfile: async () => null,
+    saveProfile: async (displayName) => displayName,
     pull: async (workspaceId) => {
       if (failingPulls.has(workspaceId)) throw new Error('network')
       return structuredClone(store[workspaceId] ?? emptyCloud(workspaceId))

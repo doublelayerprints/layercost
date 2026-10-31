@@ -21,11 +21,13 @@ export type CloudErrorCode =
   | 'unknown'
 
 export type WorkspaceRole = 'owner' | 'editor'
+export type WorkspaceKind = 'personal' | 'shared'
 
 export interface WorkspaceSummary {
   id: string
   name: string
   role: WorkspaceRole
+  kind: WorkspaceKind
   joinedAt: string
 }
 
@@ -34,6 +36,8 @@ export interface WorkspaceMember {
   role: WorkspaceRole
   /** Only owners receive the email; editors get `undefined`. */
   email?: string
+  /** Visible to every member of the workspace. */
+  displayName?: string
   joinedAt: string
 }
 
@@ -104,6 +108,8 @@ export interface CloudGateway {
   revokeInvite: (inviteId: string) => Promise<void>
   redeemInvite: (token: string) => Promise<string>
   leaveWorkspace: (workspaceId: string) => Promise<void>
+  getProfile: () => Promise<string | null>
+  saveProfile: (displayName: string) => Promise<string>
   pull: (workspaceId: string) => Promise<CloudSnapshot>
   push: (workspaceId: string, operation: SyncOperation) => Promise<CloudPushResult>
   importAll: (workspaceId: string, data: AppData) => Promise<CloudSnapshot>
@@ -204,6 +210,10 @@ function conflict(reason: CloudConflictReason, remote?: unknown): CloudPushResul
 
 function toRole(value: string): WorkspaceRole {
   return value === 'owner' ? 'owner' : 'editor'
+}
+
+function toWorkspaceKind(value: string | null | undefined): WorkspaceKind {
+  return value === 'personal' ? 'personal' : 'shared'
 }
 
 export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
@@ -630,6 +640,7 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
         id: row.workspace_id,
         name: row.name,
         role: toRole(row.role),
+        kind: toWorkspaceKind(row.kind),
         joinedAt: row.joined_at,
       }))
     },
@@ -664,8 +675,24 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
         userId: row.user_id,
         role: toRole(row.role),
         email: row.email ?? undefined,
+        displayName: row.display_name ?? row.email?.split('@')[0] ?? undefined,
         joinedAt: row.joined_at,
       }))
+    },
+
+    async getProfile() {
+      const { data, error } = await client.rpc('get_my_profile')
+      if (error) throw mapWorkspaceError(error)
+      return data ?? null
+    },
+
+    async saveProfile(displayName) {
+      const { data, error } = await client.rpc('set_my_profile', {
+        p_display_name: displayName,
+      })
+      if (error) throw mapWorkspaceError(error)
+      if (!data) throw new WorkspaceError('invalidName')
+      return data
     },
 
     async listInvites(workspaceId) {
