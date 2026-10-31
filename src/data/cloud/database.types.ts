@@ -288,6 +288,28 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          updated_at: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          display_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       quotes: {
         Row: {
           archived_at: string | null
@@ -555,6 +577,7 @@ export type Database = {
       }
       create_workspace: { Args: { p_name: string }; Returns: string }
       ensure_personal_workspace: { Args: Record<PropertyKey, never>; Returns: string }
+      get_my_profile: { Args: Record<PropertyKey, never>; Returns: string }
       is_workspace_member: { Args: { target_workspace_id: string }; Returns: boolean }
       is_workspace_owner: { Args: { target_workspace_id: string }; Returns: boolean }
       keepalive: { Args: Record<PropertyKey, never>; Returns: string }
@@ -563,6 +586,7 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           joined_at: string
+          kind: string
           name: string
           role: string
           workspace_id: string
@@ -583,6 +607,7 @@ export type Database = {
       list_workspace_members: {
         Args: { p_workspace_id: string }
         Returns: {
+          display_name: string
           email: string
           joined_at: string
           role: string
@@ -591,8 +616,13 @@ export type Database = {
       }
       max_owned_workspaces: { Args: Record<PropertyKey, never>; Returns: number }
       max_workspace_members: { Args: Record<PropertyKey, never>; Returns: number }
+      profile_name_from_user: {
+        Args: { p_display_name: string; p_email: string; p_full_name: string; p_name: string }
+        Returns: string
+      }
       redeem_invite: { Args: { p_token: string }; Returns: string }
       revoke_invite: { Args: { p_invite_id: string }; Returns: undefined }
+      set_my_profile: { Args: { p_display_name: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

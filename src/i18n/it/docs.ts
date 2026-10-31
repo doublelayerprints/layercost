@@ -241,6 +241,8 @@ export const docsIt = {
     'Se lavori offline le modifiche restano in coda e vengono riprodotte al ritorno. Se lo stesso dato cambia su due dispositivi, LayerCost chiede quale versione tenere. Al logout la copia locale del cloud viene rimossa se non ci sono scritture in sospeso.',
   'docs.cloud.p3':
     'Il backup JSON è l’unica copia esterna completa. Importarlo sostituisce configurazione, preventivi e bozza, dopo aver scaricato un backup dei dati attuali. Il file Excel serve per analisi, non è un backup. Svuotare il browser cancella i dati locali.',
+  'docs.cloud.p4':
+    'Nelle Impostazioni puoi scegliere il tuo nome visibile: lo vedono i membri degli spazi condivisi accanto ai preventivi, insieme a chi li ha creati e a chi li ha modificati per ultimo. Non è la tua email e puoi cambiarlo quando vuoi.',
   'docs.cloud.stepsTitle': 'Proteggere i dati',
   'docs.cloud.step1':
     'Esporta un JSON da Impostazioni → Dati e backup prima di cambiare dispositivo.',

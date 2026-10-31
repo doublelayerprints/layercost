@@ -8,6 +8,7 @@ import { feedbackIt } from './it/feedback'
 import { landingIt } from './it/landing'
 import { catalogsIt } from './it/catalogs'
 import { miscIt } from './it/misc'
+import { profileIt } from './it/profile'
 import { quotesIt } from './it/quotes'
 import { settingsIt } from './it/settings'
 import { workspaceIt } from './it/workspace'
@@ -27,6 +28,7 @@ describe('dizionari i18n', () => {
       catalogsIt,
       settingsIt,
       miscIt,
+      profileIt,
       xlsxIt,
       authIt,
       accessIt,

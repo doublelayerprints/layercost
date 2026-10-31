@@ -6,6 +6,7 @@ import { useAppStore } from '@/state/app-store'
 import { Badge, Button, EmptyState, Input, PageHeader, TableScroll } from '@/components/ui'
 import { NewDraftButton } from '@/features/calculator/NewDraftButton'
 import { ExportXlsxButton } from './ExportXlsxButton'
+import { QuoteAuditTags } from './QuoteAuditTags'
 import { plural } from '@/i18n'
 import { quoteStatusDisplay } from './quote-status'
 
@@ -153,6 +154,7 @@ export function QuotesPage() {
                           {format.dateOnly(quote.quoteDate)}
                           {quote.customer ? ` · ${quote.customer}` : ''}
                         </p>
+                        <QuoteAuditTags quote={quote} className="mt-1.5" />
                       </th>
                       <td className="py-3 pr-4">
                         <Badge tone={status.tone}>{t(status.labelKey)}</Badge>
@@ -196,6 +198,7 @@ export function QuotesPage() {
                         <div className="mt-1.5">
                           <Badge tone={status.tone}>{t(status.labelKey)}</Badge>
                         </div>
+                        <QuoteAuditTags quote={quote} className="mt-1.5" />
                       </div>
                       <div className="shrink-0 text-right">
                         <p className="text-base font-medium tabular-nums text-ink">

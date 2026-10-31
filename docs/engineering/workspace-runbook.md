@@ -227,7 +227,9 @@ Il database registra automaticamente:
 - `updated_by`: ultimo utente che ha modificato la riga (trigger `set_audit_fields`);
 - `created_at`/`updated_at`: timestamp del server.
 
-I preventivi espongono `createdBy`/`updatedBy` come metadati opzionali nel dettaglio, solo in modalità cloud. L'interfaccia mostra “te” oppure “un altro membro”: con due owner, “un altro membro” identifica l'altra persona senza esporre l'email nel documento. I metadati non entrano nello snapshot economico, non cambiano `engineVersion` e vengono rimossi dai link condivisi.
+I preventivi espongono `createdBy`/`updatedBy` come metadati opzionali nel dettaglio, solo in modalità cloud. Negli spazi condivisi la lista **Preventivi** mostra due tag con creatore e ultima modifica, con data. L'interfaccia usa “te” per l'utente corrente e il **nome visibile** del profilo per gli altri; se la directory non è disponibile usa “un altro membro”. L'email completa resta visibile solo agli owner. I metadati non entrano nello snapshot economico, non cambiano `engineVersion` e vengono rimossi dai link condivisi.
+
+Il nome visibile è in `public.profiles` (uno per utente, 1–40 caratteri). Viene creato alla prima chiamata `get_my_profile` (l'app la esegue al login) e si modifica da **Impostazioni → Profilo** tramite `set_my_profile`. Non ci sono trigger applicativi su `auth.users`: il restore data-only di auth seguito da public non duplica i profili. La directory dei membri (`list_workspace_members`) espone `display_name` a tutti i membri, mentre `email` resta `null` per gli editor. La precompilazione usa, nell'ordine, `display_name`, `full_name`, `name`, la parte prima della `@` e infine `Membro`: la parte locale dell'email è quindi visibile ai membri finché l'utente non sceglie un nome diverso.
 
 Query di audit:
 
@@ -236,12 +238,16 @@ select q.id,
        q.name,
        q.status,
        creator.email as created_by_email,
+       coalesce(creator_profile.display_name, creator.email) as created_by_name,
        editor.email  as updated_by_email,
+       coalesce(editor_profile.display_name, editor.email) as updated_by_name,
        q.created_at,
        q.updated_at
 from public.quotes q
 left join auth.users creator on creator.id = q.created_by
+left join public.profiles creator_profile on creator_profile.user_id = q.created_by
 left join auth.users editor  on editor.id  = q.updated_by
+left join public.profiles editor_profile on editor_profile.user_id = q.updated_by
 where q.workspace_id = 'ws-doublelayer'
   and q.deleted_at is null
 order by q.updated_at desc;
@@ -260,9 +266,11 @@ Con due browser o due profili distinti:
 3. Creare e salvare un preventivo.
 4. Accedere con il secondo account e verificare che il preventivo sia visibile.
 5. Modificarlo dal secondo account e verificare che il primo lo riceva dopo “Sincronizza ora” o al focus.
-6. Aprire il dettaglio: la sezione **Workspace condiviso** mostra “Creato da” e “Ultima modifica” con “te” o “un altro membro”.
-7. Creare un terzo utente senza membership e verificare il messaggio “Questo account non è associato a un workspace”.
-8. Creare un workspace separato per un quarto utente, con dati e ID propri (non il seed), e verificare che non veda il preventivo del workspace condiviso.
+6. Aprire **Impostazioni → Profilo**, verificare il nome precompilato e salvarlo.
+7. Aprire il dettaglio: la sezione **Workspace condiviso** mostra “Creato da” e “Ultima modifica” con “te” o il nome visibile dell'altro membro.
+8. Aprire **Preventivi**: ogni riga mostra i tag “Creato da …” e “Ultima modifica di …” con la data.
+9. Creare un terzo utente senza membership e verificare il messaggio “Questo account non è associato a un workspace”.
+10. Creare un workspace separato per un quarto utente, con dati e ID propri (non il seed), e verificare che non veda il preventivo del workspace condiviso.
 
 Automatico: `npm run smoke:production` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e `PROD_URL` crea un utente/workspace temporanei, verifica login, sync e salvataggio di un preventivo, poi pulisce. Dettagli in `docs/engineering/deployment.md` §13.
 
@@ -279,7 +287,7 @@ Automatico: `npm run smoke:production` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROL
 | Utente senza membership          | Nessuno (la RPC crea il personale) | Nessuno                    | Negata (`42501`)            |
 | `anon`                           | Nessuno                            | Nessuno                    | Negata, salvo `keepalive()` |
 
-La verifica automatica è `npm run db:test`: 33 asserzioni su quote condivise, audit, isolamento e ultimo owner, più 41 asserzioni su PK composte, spazio personale, inviti, tetti ed email dei membri.
+La verifica automatica è `npm run db:test`: 33 asserzioni su quote condivise, audit, isolamento e ultimo owner, 41 asserzioni su PK composte, spazio personale, inviti, tetti ed email dei membri, più 17 asserzioni su profili, creazione lazy, backfill, nomi visibili e directory.
 
 ---
 
@@ -302,7 +310,7 @@ npm run db:test
 Comandi di verifica:
 
 ```bash
-npm run db:test          # 74 asserzioni pgTAP/RLS
+npm run db:test          # 91 asserzioni pgTAP/RLS
 npm run test:e2e:auth    # login, reload, impostazioni, logout
 npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 ```
@@ -356,8 +364,9 @@ npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 - [ ] Un utente senza membership riceve il personale e non vede i dati condivisi.
 - [ ] Un invito valido aggiunge un membro; uno scaduto o revocato no.
 - [ ] Un utente di un altro workspace non vede i dati condivisi.
-- [ ] `created_by`/`updated_by` popolati; dettaglio con “Workspace condiviso”.
-- [ ] `npm run db:test` verde (74 asserzioni).
+- [ ] `created_by`/`updated_by` popolati; dettaglio con “Workspace condiviso” e nome visibile.
+- [ ] **Impostazioni → Profilo** salva il nome; la lista Preventivi mostra i due tag di audit.
+- [ ] `npm run db:test` verde (91 asserzioni).
 - [ ] `npm run test:e2e:sync` verde (5 test).
 - [ ] Nessun segreto nel repository o nelle env Vercel.
 - [ ] Backup e keep-alive pianificati in T5.4.6.
@@ -487,3 +496,4 @@ Con un account esistente:
 - `docs/domain/data-model.md` §7 — schema cloud, audit e limite degli ID globali.
 - `supabase/migrations/20261028120000_init.sql` — tabelle, RLS, trigger e `keepalive`.
 - `supabase/tests/rls.test.sql` — 33 asserzioni di isolamento e audit.
+- `supabase/tests/profiles.test.sql` — 17 asserzioni su creazione lazy, backfill, nome visibile, validazione e directory.

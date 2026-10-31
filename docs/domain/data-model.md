@@ -160,7 +160,7 @@ Un importo fisso di riga si applica al totale della riga, non a ogni pezzo. Lo s
 >
 > **Modifica (ADR-0020):** `saved` è modificabile in place. La modifica usa la configurazione dello snapshot e non cambia `capturedAt`; il risultato viene ricalcolato con le stesse tariffe. `sent` e `completed` sono bloccati e si correggono solo duplicando. Lo schema passa a **v3** senza cambiare i dati esistenti: `draft` e `saved` restano validi.
 
-> **Audit cloud (T5.4.5):** in modalità connessa `createdBy` e `updatedBy` sono gli UUID dei membri che hanno creato e modificato il preventivo, mappati da `quotes.created_by`/`updated_by`. Sono metadati opzionali, non entrano nello snapshot economico, non cambiano `engineVersion` e non vengono riscritti dal client in update. Restano fuori dai link condivisi; l'interfaccia li mostra come “te” o “un altro membro” per non esporre l'email nel documento. Lo schema locale resta **v4**.
+> **Audit cloud (T5.4.5, EVO-7):** in modalità connessa `createdBy` e `updatedBy` sono gli UUID dei membri che hanno creato e modificato il preventivo, mappati da `quotes.created_by`/`updated_by`. Sono metadati opzionali, non entrano nello snapshot economico, non cambiano `engineVersion` e non vengono riscritti dal client in update. Restano fuori dai link condivisi. Negli spazi condivisi la UI mostra creatore e ultima modifica con il nome visibile del profilo (`profiles.display_name`), oppure “te” per l'utente corrente; l'email completa resta visibile solo agli owner. Lo schema locale resta **v4**.
 
 ### 2.8 `QuoteSnapshot`
 
@@ -274,13 +274,14 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 
 ## 7. Schema cloud (T5.4.2)
 
-Il modello cloud è in `supabase/migrations/20261028120000_init.sql` e `supabase/migrations/20261030120000_multi_workspace.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`. La produzione usa il progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`) con due account `owner` nello spazio condiviso `ws-doublelayer` e uno spazio personale per ciascuno (ADR-0028).
+Il modello cloud è in `supabase/migrations/20261028120000_init.sql`, `supabase/migrations/20261030120000_multi_workspace.sql` e `supabase/migrations/20261031120000_profiles.sql`; i tipi sono generati in `src/data/cloud/database.types.ts` e i mapper in `src/data/cloud/mappers.ts`. La produzione usa il progetto Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`) con due account `owner` nello spazio condiviso `ws-doublelayer` e uno spazio personale per ciascuno (ADR-0028).
 
-Gli account (email, password, sessione) sono gestiti da **Supabase Auth** in `auth.users`; l'app non ha una tabella utenti propria. Le membership collegano `auth.users` ai workspace. La sessione è un token tecnico nel browser, non un dato economico e non entra nei backup.
+Gli account (email, password, sessione) sono gestiti da **Supabase Auth** in `auth.users`; i nomi visibili vivono nella tabella applicativa `profiles`, le membership collegano `auth.users` ai workspace. La sessione è un token tecnico nel browser, non un dato economico e non entra nei backup.
 
 | Tabella | Contenuto |
 | --- | --- |
 | `workspaces` | Spazio; ID `text` stabile; `kind` `personal` o `shared` |
+| `profiles` | Nome visibile unico per utente; leggibile solo via RPC |
 | `workspace_members` | Membership `owner`/`editor`; PK `(workspace_id, user_id)`, FK a `auth.users` |
 | `workspace_invites` | Codici invito monouso; solo hash SHA-256, scadenza, ruolo e revoca |
 | `settings` | Una riga per workspace, campi scalari di `Settings` |
@@ -303,8 +304,9 @@ Invarianti cloud:
 7. La cancellazione fisica non è concessa: si usano `archived_at` e `deleted_at`.
 8. `updated_at`/`updated_by` sono impostati dal database; il client non li usa per i calcoli. `created_by` è il default `auth.uid()` all'inserimento.
 9. I soldi restano interi in micro-euro, le percentuali in basis point, il tempo in secondi e la massa in centigrammi.
+10. `profiles` contiene un solo nome visibile per utente (1–40 caratteri), creato alla prima chiamata `get_my_profile` con backfill iniziale da nome Google o parte locale dell'email. Non ha grant diretti: lettura e scrittura passano da `get_my_profile`/`set_my_profile`; `list_workspace_members` espone `display_name` a tutti i membri, mentre l'email resta solo agli owner. Nessun trigger applicativo su `auth.users`: il restore data-only di auth seguito da public non duplica i profili.
 
-Test: `supabase/tests/rls.test.sql` (33 asserzioni) e `supabase/tests/multi_workspace.test.sql` (41 asserzioni: ID uguali in due spazi, spazio personale, tetti, inviti, ultimo owner, email dei membri), più `src/data/cloud/mappers.test.ts`.
+Test: `supabase/tests/rls.test.sql` (33 asserzioni), `supabase/tests/multi_workspace.test.sql` (41 asserzioni: ID uguali in due spazi, spazio personale, tetti, inviti, ultimo owner, email dei membri) e `supabase/tests/profiles.test.sql` (17 asserzioni: creazione lazy, backfill, nome visibile, validazione, directory e isolamento), più `src/data/cloud/mappers.test.ts`.
 
 **Dati tecnici del sync (fuori da `AppData`):**
 

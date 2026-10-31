@@ -73,6 +73,8 @@ export const quotesEn: Record<keyof typeof quotesIt, string> = {
   'quote.audit.title': 'Shared workspace',
   'quote.audit.created': 'Created by',
   'quote.audit.updated': 'Last edit',
+  'quote.audit.createdTag': 'Created by {name}',
+  'quote.audit.updatedTag': 'Last edit by {name}',
   'quote.audit.you': 'you',
   'quote.audit.member': 'another member',
   'quote.duplicate': 'Duplicate in calculator',

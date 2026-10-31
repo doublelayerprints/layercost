@@ -161,7 +161,10 @@ function WorkspaceSettingsSection({ workspace }: { workspace: WorkspaceSummary }
                   <span className="text-sm text-ink">
                     {member.userId === userId
                       ? t('workspace.you')
-                      : (member.email ?? t('workspace.member'))}
+                      : (member.displayName ?? member.email ?? t('workspace.member'))}
+                    {member.userId !== userId && member.displayName && member.email ? (
+                      <span className="ml-2 break-all text-xs text-muted">{member.email}</span>
+                    ) : null}
                     <span className="ml-2 text-xs text-muted">
                       {member.role === 'owner'
                         ? t('workspace.roleOwner')

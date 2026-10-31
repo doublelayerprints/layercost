@@ -16,6 +16,7 @@ import { useThemeStore } from '@/state/theme-store'
 import { useLocaleStore } from '@/state/locale-store'
 import { ExportXlsxButton } from '@/features/quotes/ExportXlsxButton'
 import { SyncSettings } from './SyncSettings'
+import { ProfileSettings } from './ProfileSettings'
 import { WorkspaceSettings } from '@/features/workspace/WorkspaceSettings'
 import type { ThemePreference } from '@/lib/theme'
 import type { Locale } from '@/i18n'
@@ -404,6 +405,8 @@ export function SettingsPage() {
             <p className="mt-2 text-xs text-muted">{t('settings.themeSystemHint')}</p>
           </fieldset>
         </section>
+
+        <ProfileSettings />
 
         <WorkspaceSettings />
 

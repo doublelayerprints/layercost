@@ -44,7 +44,9 @@ const checks = [
     // initial chunk, together with its IT/EN copy. The measured size is 218.0 KB
     // gzip; the limit is raised from 210 KB to 230 KB with the motivation in
     // ADR-0029 and STATUS.md. EVO-3a (ADR-0026) had raised it to 210 KB.
-    limit: 230 * KB,
+    // EVO-7 (ADR-0031) adds visible names and quote audit tags: 229.9 KB gzip,
+    // limit raised to 232 KB to keep a small margin on the initial chunk.
+    limit: 232 * KB,
   },
   {
     label: 'Chunk lazy',
