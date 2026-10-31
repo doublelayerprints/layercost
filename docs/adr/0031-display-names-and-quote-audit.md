@@ -1,6 +1,6 @@
 # ADR-0031 — Nomi visibili e tag di audit dei preventivi
 
-**Stato:** Accettato
+**Stato:** Accettato; implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`)
 **Data:** 31 ottobre 2026
 **Piano:** `docs/planning/evo-7-quote-audit-tags.md`
 **Relazione:** estende l'audit cloud di T5.4.5, ADR-0024 e ADR-0028; non cambia formule, `engineVersion`, snapshot economici, schema locale v4 o auth
