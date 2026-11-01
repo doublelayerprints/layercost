@@ -1,6 +1,6 @@
 # ADR-0032 — Menu delle select in stile applicazione
 
-**Stato:** Accettato; implementato il 1° novembre 2026
+**Stato:** Accettato; implementato e distribuito in produzione il 1° novembre 2026 (build `index-Q58GRQ-Y.js` / `index-Cmj_upjM.css`)
 **Data:** 1 novembre 2026
 **Relazione:** sostituisce il menu nativo del componente `Select`; non cambia formule, `engineVersion`, schema dati, backup o sync
 
@@ -45,7 +45,7 @@ Il committente ha chiesto un menu dell'applicazione, coerente con la superficie,
 - Nuovo `src/components/select.tsx`; `src/components/ui.tsx` lo riesporta, quindi gli import esistenti non cambiano.
 - Aggiornati i chiamanti diretti (`SelectField`, import `.3mf`, righe di stampa, Suggerimenti) a `onValueChange`.
 - Nuovi test E2E per apertura, navigazione da tastiera, Escape, click esterno, type-ahead, axe e layout del menu; aggiornati i test di import, sconti, Suggerimenti e design system.
-- Le baseline visive cambiano in tutte le schermate con select e vanno rigenerate con il workflow **Visual baselines** su Linux.
+- Le baseline visive cambiano in tutte le schermate con select e sono state rigenerate su Linux il 1° novembre 2026: 16 screenshot aggiornati.
 - Rollback applicativo: ripristinare il componente `Select` nativo; nessun dato utente o schema è coinvolto.
 
 ## Riferimenti
