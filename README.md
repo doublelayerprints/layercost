@@ -25,7 +25,8 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Divide il prezzo netto in costo pieno e guadagno con due barre, e apre un preventivo cliccando tutta la riga nella lista.
 - Comprime le card del calcolatore e le singole stampe in righe compatte con drop down, con una sintesi sempre leggibile.
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
-- Funziona interamente nel browser: nessun backend, nessun account, nessun analytics. La pagina “Richiedi accesso” e la pagina “Suggerimenti” inviano a Formspree solo su azione esplicita (ADR-0026, ADR-0030).
+- Funziona **local-first**: senza account tutti i dati restano nel browser, senza backend, account o analytics. Il cloud è opzionale (ADR-0024) e si attiva su richiesta di accesso; la pagina “Richiedi accesso” e la pagina “Suggerimenti” inviano a Formspree solo su azione esplicita (ADR-0026, ADR-0030).
+- Negli spazi condivisi mostra **Creato da …** e **Ultima modifica di …** con data nella lista Preventivi, e il nome visibile nel dettaglio; il nome si sceglie in **Impostazioni → Profilo** (ADR-0031).
 - La root è una landing pubblica in italiano e inglese, pre-renderizzata in `index.html` per i crawler e per chi non ha JavaScript; il calcolatore vive su `/#/calculator` e `/#/welcome` riapre la landing anche da utenti esistenti (ADR-0029).
 - Include una **documentazione in-app** con indice per sezioni, screenshot reali e link diretti (`/#/docs/primi-passi`), e una pagina **Suggerimenti** per inviare migliorie o segnalazioni (`/#/feedback`).
 

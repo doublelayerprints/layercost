@@ -473,7 +473,7 @@ Per il modello B serve:
 
 - 267 unitari (+18), 5 E2E docs, 6 E2E feedback con endpoint mockato, 1 E2E feedback senza endpoint; route docs e feedback in axe.
 - `npm run check` verde; budget JS iniziale 220,2/230 KB, lazy 73,0/80 KB, totale iniziale 286,9/350 KB; HTML 6,0/10 KB.
-- Deploy da fare: creare form di produzione e test, impostare la env, Restrict to Domain, submission reale e smoke.
+- Deploy completato il 30/10/2026: form di produzione e test creati, env impostata, Restrict to Domain attivo, submission di test verificata e smoke verde; resta la submission di produzione.
 
 ### 5B.3 Deploy
 

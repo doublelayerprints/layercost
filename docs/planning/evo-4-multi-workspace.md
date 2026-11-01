@@ -192,7 +192,7 @@ Rollback:
 - Creazione invito, riscatto da un secondo contesto, dati condivisi.
 - Cambio spazio: i preventivi di A non compaiono in B.
 - Uscita da uno spazio e ritorno allo spazio personale.
-- Isolamento audit: "un altro membro" resta corretto dentro lo spazio.
+- Isolamento audit: "un altro membro" resta corretto dentro lo spazio. EVO-7/ADR-0031 ha poi aggiunto il nome visibile e i tag nella lista.
 - axe su selettore, pagina Spazio e dialogo invito a 375/1440 px.
 
 ## 8. Criteri di accettazione
