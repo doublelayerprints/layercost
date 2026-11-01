@@ -66,3 +66,38 @@ test('comprime ed espande le card del calcolatore', async ({ page }) => {
   await expect(page.getByLabel('Cliente (opzionale)')).toBeHidden()
   await expect(page.getByRole('button', { name: 'Espandi Preventivo' })).toBeFocused()
 })
+
+test('un nome lungo resta dentro la card compressa', async ({ page }) => {
+  const longName =
+    '1101-1646-gardevoir(1)_plate(04)_PLA_0.08_2h57m22s_SENZA_SPAZI_ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#/calculator')
+
+  const lineName = page.locator('input[aria-label="Nome della stampa"]').first()
+  await lineName.fill(longName)
+  await page.getByRole('button', { name: 'Comprimi stampa 1' }).click({ position: { x: 6, y: 6 } })
+  await expect(page.getByRole('button', { name: 'Espandi stampa 1' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  )
+
+  const layout = await page.evaluate((name) => {
+    const card = document.querySelector('fieldset[id^="line-"]') as HTMLElement | null
+    const label = [...(card?.querySelectorAll('span') ?? [])].find(
+      (element) => element.textContent === name,
+    )
+    return {
+      pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      cardWidth: card?.getBoundingClientRect().width ?? null,
+      parentWidth: card?.parentElement?.getBoundingClientRect().width ?? null,
+      labelClientWidth: label?.clientWidth ?? null,
+      labelScrollWidth: label?.scrollWidth ?? null,
+    }
+  }, longName)
+
+  expect(layout.pageOverflow).toBe(0)
+  expect(layout.cardWidth).not.toBeNull()
+  expect(layout.parentWidth).not.toBeNull()
+  expect(layout.cardWidth!).toBeLessThanOrEqual(layout.parentWidth! + 1)
+  expect(layout.labelScrollWidth!).toBeGreaterThan(layout.labelClientWidth!)
+})

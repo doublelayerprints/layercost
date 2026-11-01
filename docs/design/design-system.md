@@ -527,6 +527,12 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Date.** `createdAt`/`updatedAt` sono istanti ISO: `dateOnly` si aspetta `YYYY-MM-DD` e mostrava il timestamp grezzo. Il nuovo formatter `instantDate` in `src/lib/format.ts` mostra `gg/mm/aaaa` nel fuso del lettore; il tooltip continua a usare `dateTime` con l'ora.
 - **Semantica.** Le intestazioni restano `<th scope="col">` con le chiavi esistenti (`quote.audit.created`, `quote.audit.updated`), le date restano `<time dateTime>`. Nessuna chiave i18n nuova.
 
+### 8.16 Nome lungo nella riga compressa (01/11/2026)
+
+- **Bug.** Il `<fieldset>` di `LineEditor` ha il `min-inline-size: min-content` di default: con un nome senza spazi la card si allargava oltre la colonna, usciva dalla card Stampe e spingeva Duplica, Rimuovi e il chevron fuori dal bordo, con scroll orizzontale della pagina a 390 px.
+- **Correzione.** `min-w-0` sul `<fieldset>`: la card resta larga quanto la colonna e il nome compresso usa `truncate` con ellissi; il nome completo resta nel `<legend>` per gli screen reader e nell'input quando la riga è aperta. Nessun cambio a dati, formule o `engineVersion`.
+- **Test.** Nuovo caso E2E in `tests/e2e/collapsible-cards.spec.ts`: nome lungo senza spazi, card compressa a 390 px, nessun overflow di pagina, card entro il contenitore e nome effettivamente troncato.
+
 ## 9. Mappa dei file
 
 | File                                              | Contenuto                                                                                                                                                          |
