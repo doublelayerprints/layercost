@@ -519,6 +519,14 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **i18n e dati.** Due chiavi nuove (`calculator.renameQuote`, `calculator.renameHint`), parità it/en a 1235. Nessun cambio a formule, schema, snapshot o `engineVersion`.
 - **Verifiche.** 267 unitari, 63 E2E eseguiti su Chromium/WebKit, axe 0 violazioni; `npm run check` verde, budget 220,9/230 KB JS e 287,7/350 KB totali. Le sei baseline visive del calcolatore e le sei del modale import sono state rigenerate su Linux e committate; la PR #42 è distribuita in produzione il 30/10/2026 (build `index-CSbdD5ZH.js` / `index-BLecjq64.css`), con smoke e verifica reale della rinomina verdi. La sottolineatura a riposo è 1 px `data`, in modifica 2 px, senza focus ring.
 
+### 8.15 Audit dei preventivi a colonne (01/11/2026)
+
+- **Lista.** Nella tabella desktop “Creato da” e “Ultima modifica” non sono più badge sotto il nome: sono due colonne strette (`w-40`) dopo gli importi, con il nome in `text-sm` troncato e la data in `text-xs` muted sotto. Un metadato assente mostra `—`, così righe e colonne restano allineate.
+- **Mobile.** Le card della lista mantengono i due badge compatti sotto lo stato: non c'è spazio per due colonne a 390 px.
+- **Regola.** Le colonne compaiono solo in modalità cloud e spazio condiviso, con la stessa condizione dei tag; spazi personali e modalità ospite restano senza audit.
+- **Date.** `createdAt`/`updatedAt` sono istanti ISO: `dateOnly` si aspetta `YYYY-MM-DD` e mostrava il timestamp grezzo. Il nuovo formatter `instantDate` in `src/lib/format.ts` mostra `gg/mm/aaaa` nel fuso del lettore; il tooltip continua a usare `dateTime` con l'ora.
+- **Semantica.** Le intestazioni restano `<th scope="col">` con le chiavi esistenti (`quote.audit.created`, `quote.audit.updated`), le date restano `<time dateTime>`. Nessuna chiave i18n nuova.
+
 ## 9. Mappa dei file
 
 | File                                              | Contenuto                                                                                                                                                          |

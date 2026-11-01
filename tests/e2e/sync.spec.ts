@@ -230,8 +230,11 @@ test('due dispositivi condividono un preventivo e risolvono un conflitto offline
     await waitForSynced(secondPage)
     await secondPage.goto('/#/quotes')
     await expect(secondPage.getByText('Nuovo preventivo').first()).toBeVisible()
-    await expect(secondPage.getByText('Creato da Anna').first()).toBeVisible()
-    await expect(secondPage.getByText('Ultima modifica di Anna').first()).toBeVisible()
+    await expect(secondPage.getByRole('columnheader', { name: 'Creato da' })).toBeVisible()
+    await expect(secondPage.getByRole('columnheader', { name: 'Ultima modifica' })).toBeVisible()
+    // Creator and last editor are two separate columns, each with the name and the date.
+    const quoteRow = secondPage.getByRole('row').filter({ hasText: 'Nuovo preventivo' })
+    await expect(quoteRow.getByRole('cell').filter({ hasText: 'Anna' })).toHaveCount(2)
     await audit(secondPage)
 
     await page.goto(quoteUrl)

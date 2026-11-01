@@ -5,6 +5,7 @@ import {
   formatCurrency,
   formatDateOnly,
   formatGrams,
+  formatInstantDate,
   parseLocaleNumber,
 } from './format'
 
@@ -33,6 +34,14 @@ describe('displayCents', () => {
     expect(formatCurrency(13_965_000, 2, 'en')).toContain('13.97')
     expect(formatGrams(7_005, 'en')).toContain('70.05')
     expect(formatDateOnly('2026-10-26', 'en')).toBe('26/10/2026')
+  })
+
+  it('formatta la data di un istante invece del timestamp grezzo', () => {
+    expect(formatInstantDate('2026-10-29T15:19:55.771+00:00', 'it')).toMatch(
+      /^\d{2}\/\d{2}\/\d{4}$/,
+    )
+    expect(formatInstantDate('2026-10-29T15:19:55.771+00:00', 'it')).not.toContain('T')
+    expect(formatInstantDate('non una data', 'it')).toBe('non una data')
   })
 })
 

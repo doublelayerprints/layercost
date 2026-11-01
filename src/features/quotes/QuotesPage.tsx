@@ -6,7 +6,8 @@ import { useAppStore } from '@/state/app-store'
 import { Badge, Button, EmptyState, Input, PageHeader, TableScroll } from '@/components/ui'
 import { NewDraftButton } from '@/features/calculator/NewDraftButton'
 import { ExportXlsxButton } from './ExportXlsxButton'
-import { QuoteAuditTags } from './QuoteAuditTags'
+import { QuoteAuditCells, QuoteAuditTags } from './QuoteAuditTags'
+import { useQuoteAuditVisible } from './use-quote-audit'
 import { plural } from '@/i18n'
 import { quoteStatusDisplay } from './quote-status'
 
@@ -14,6 +15,7 @@ export function QuotesPage() {
   const { t, locale } = useI18n()
   const format = useFormat()
   const quotes = useAppStore((state) => state.quotes)
+  const showAudit = useQuoteAuditVisible()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [showArchived, setShowArchived] = useState(false)
@@ -129,6 +131,16 @@ export function QuotesPage() {
                   <th scope="col" className="py-2 pr-4 text-right font-medium">
                     {t('quote.label.price')}
                   </th>
+                  {showAudit ? (
+                    <>
+                      <th scope="col" className="w-40 py-2 pr-4 text-left font-medium">
+                        {t('quote.audit.created')}
+                      </th>
+                      <th scope="col" className="w-40 py-2 pr-4 text-left font-medium">
+                        {t('quote.audit.updated')}
+                      </th>
+                    </>
+                  ) : null}
                 </tr>
               </thead>
               <tbody>
@@ -154,7 +166,6 @@ export function QuotesPage() {
                           {format.dateOnly(quote.quoteDate)}
                           {quote.customer ? ` · ${quote.customer}` : ''}
                         </p>
-                        <QuoteAuditTags quote={quote} className="mt-1.5" />
                       </th>
                       <td className="py-3 pr-4">
                         <Badge tone={status.tone}>{t(status.labelKey)}</Badge>
@@ -168,6 +179,7 @@ export function QuotesPage() {
                       <td className="py-3 pr-4 text-right font-medium tabular-nums text-ink">
                         {quote.result ? format.cents(quote.result.grossPriceCents) : '—'}
                       </td>
+                      {showAudit ? <QuoteAuditCells quote={quote} /> : null}
                     </tr>
                   )
                 })}
