@@ -30,22 +30,22 @@ Casi d'uso:
 
 ## 3. Scelte
 
-| Tema         | Scelta                                                                                |
-| ------------ | ------------------------------------------------------------------------------------- |
-| Identità     | Nome visibile unico per utente, modificabile in Impostazioni → Profilo                |
-| Storage      | Tabella cloud `profiles`, separata da `auth.users`                                    |
-| Backfill     | Nome Google, poi `full_name`, poi parte locale dell'email, poi `Membro`               |
-| Nuovi utenti | Creazione lazy alla prima chiamata `get_my_profile` con lo stesso criterio            |
-| Validazione  | 1–40 caratteri dopo trim e normalizzazione degli spazi                                |
-| Directory    | `list_workspace_members` restituisce anche `display_name`                             |
-| Spazi        | `list_my_workspaces` restituisce `kind` (`personal`/`shared`)                         |
-| Tag          | Solo modalità cloud, spazio attivo `shared`, se esiste il metadato                    |
-| Proprio nome | Nei tag si usa “te”, come nel dettaglio attuale                                       |
-| Nome altrui  | Nome visibile; fallback “un altro membro”                                             |
-| Date         | `<time dateTime>` con `dateOnly` nella lista e `dateTime` nel dettaglio               |
-| Privacy      | Nome visibile ai membri dello spazio; email resta visibile solo agli owner            |
-| Cambio nome  | Aggiorna anche i tag storici (nome dinamico, non congelato)                           |
-| Offline      | Nessun blocco: tag nascosti o “un altro membro” finché la directory non è disponibile |
+| Tema         | Scelta                                                                                   |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| Identità     | Nome visibile unico per utente, modificabile in Impostazioni → Profilo                   |
+| Storage      | Tabella cloud `profiles`, separata da `auth.users`                                       |
+| Backfill     | Nome Google, poi `full_name`, poi parte locale dell'email, poi `Membro`                  |
+| Nuovi utenti | Creazione lazy alla prima chiamata `get_my_profile` con lo stesso criterio               |
+| Validazione  | 1–40 caratteri dopo trim e normalizzazione degli spazi                                   |
+| Directory    | `list_workspace_members` restituisce anche `display_name`                                |
+| Spazi        | `list_my_workspaces` restituisce `kind` (`personal`/`shared`)                            |
+| Tag          | Solo modalità cloud, spazio attivo `shared`, se esiste il metadato                       |
+| Proprio nome | Nei tag si usa “te”, come nel dettaglio attuale                                          |
+| Nome altrui  | Nome visibile; fallback “un altro membro”                                                |
+| Date         | `<time dateTime>` con `instantDate` nella lista e `dateTime` nel dettaglio e nel tooltip |
+| Privacy      | Nome visibile ai membri dello spazio; email resta visibile solo agli owner               |
+| Cambio nome  | Aggiorna anche i tag storici (nome dinamico, non congelato)                              |
+| Offline      | Nessun blocco: tag nascosti o “un altro membro” finché la directory non è disponibile    |
 
 ## 4. Schema database
 
@@ -133,8 +133,10 @@ quoteMemberName(userId, currentUserId, members, t): string | undefined
 
 ### 5.4 UI
 
-- `QuoteAuditTags`: due badge con `Creato da …` e `Ultima modifica di …`, `<time>` e formattazione locale.
-- Lista preventivi: tag nella cella del nome (desktop) e sotto lo stato (mobile).
+- `QuoteAuditTags`: due badge con `Creato da …` e `Ultima modifica di …`, `<time>` e formattazione locale; restano sulle card mobile.
+- Lista preventivi desktop: due colonne strette `Creato da` e `Ultima modifica` dopo gli importi, con nome sopra la data, troncamento del nome e `—` quando il metadato manca. La data usa `instantDate`: i timestamp di audit sono istanti ISO e `dateOnly` restituiva la stringa grezza.
+- Lista preventivi mobile: i tag restano sotto lo stato, come nella versione iniziale.
+- Le colonne compaiono con la stessa regola dei tag (modalità cloud e spazio condiviso).
 - Dettaglio: la sezione “Workspace condiviso” usa `quoteMemberName`; email mai mostrata.
 - Impostazioni: nuova sezione **Profilo** prima di Spazio e Sincronizzazione.
   - visibile solo con cloud configurato e sessione autenticata;

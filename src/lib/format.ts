@@ -162,6 +162,20 @@ export function formatDateOnly(isoDate: string, locale: Locale = DEFAULT_LOCALE)
   }).format(new Date(Date.UTC(year, month - 1, day)))
 }
 
+/**
+ * Calendar date for an instant. Audit metadata stores full ISO timestamps, so
+ * they must not go through `formatDateOnly`, which expects a `YYYY-MM-DD` date.
+ */
+export function formatInstantDate(iso: string, locale: Locale = DEFAULT_LOCALE): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return iso
+  return new Intl.DateTimeFormat(INTL_LOCALES[locale], {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date)
+}
+
 export function formatDateTime(iso: string, locale: Locale = DEFAULT_LOCALE): string {
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return iso
@@ -187,6 +201,7 @@ export interface Formatters {
   inputNumber: (value: number, decimals?: number) => string
   pricePerUnit: (cents: number, quantity: number) => string
   dateOnly: (isoDate: string) => string
+  instantDate: (iso: string) => string
   dateTime: (iso: string) => string
 }
 
@@ -206,6 +221,7 @@ export function createFormatters(locale: Locale = DEFAULT_LOCALE): Formatters {
     inputNumber: (value, decimals) => formatInputNumber(value, decimals, locale),
     pricePerUnit: (cents, quantity) => formatPricePerUnit(cents, quantity, locale),
     dateOnly: (isoDate) => formatDateOnly(isoDate, locale),
+    instantDate: (iso) => formatInstantDate(iso, locale),
     dateTime: (iso) => formatDateTime(iso, locale),
   }
 }
