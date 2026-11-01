@@ -103,7 +103,7 @@ export function LineEditor({
   return (
     <fieldset
       id={`line-${line.id}`}
-      className="rounded-card border border-line bg-raised/60 p-4 sm:p-5"
+      className="min-w-0 rounded-card border border-line bg-raised/60 p-4 sm:p-5"
     >
       <legend className="sr-only">
         {t('line.legend', {
