@@ -53,24 +53,46 @@ test('i controlli usano i token, il focus è visibile e non c’è overflow a 37
   expect(inputStyles.borderWidth).toBe('1px')
   expect(inputStyles.height).toBe('44px')
 
-  const selectStyles = await page
-    .locator('select[aria-label="Materiale 1"]')
-    .first()
-    .evaluate((element) => {
-      const styles = getComputedStyle(element)
-      return {
-        appearance: styles.appearance,
-        paddingRight: styles.paddingRight,
-        backgroundImage: styles.backgroundImage,
-        backgroundSize: styles.backgroundSize,
-        height: styles.height,
-      }
-    })
-  expect(selectStyles.appearance).toBe('none')
-  expect(selectStyles.paddingRight).toBe('40px')
-  expect(selectStyles.backgroundImage).toContain('data:image/svg+xml')
-  expect(selectStyles.backgroundSize).toBe('16px 16px')
+  const select = page.getByRole('combobox', { name: 'Materiale 1' }).first()
+  const selectStyles = await select.evaluate((element) => {
+    const styles = getComputedStyle(element)
+    return {
+      height: styles.height,
+      paddingLeft: styles.paddingLeft,
+      paddingRight: styles.paddingRight,
+      haspopup: element.getAttribute('aria-haspopup'),
+    }
+  })
   expect(selectStyles.height).toBe('44px')
+  expect(selectStyles.paddingLeft).toBe('12px')
+  expect(selectStyles.paddingRight).toBe('12px')
+  expect(selectStyles.haspopup).toBe('listbox')
+  await expect(select.locator('svg')).toHaveCount(1)
+
+  await select.click()
+  await expect(select).toHaveAttribute('aria-expanded', 'true')
+  const listbox = page.getByRole('listbox')
+  await expect(listbox).toBeVisible()
+  const listboxStyles = await listbox.evaluate((element) => {
+    const styles = getComputedStyle(element)
+    const rect = element.getBoundingClientRect()
+    return {
+      background: styles.backgroundColor,
+      radius: styles.borderRadius,
+      shadow: styles.boxShadow,
+      left: rect.left,
+      width: rect.width,
+      viewportWidth: window.innerWidth,
+    }
+  })
+  expect(listboxStyles.background).toBe('rgb(255, 255, 255)')
+  expect(listboxStyles.radius).toBe('8px')
+  expect(listboxStyles.shadow).not.toBe('none')
+  expect(listboxStyles.left).toBeGreaterThanOrEqual(0)
+  expect(listboxStyles.left + listboxStyles.width).toBeLessThanOrEqual(listboxStyles.viewportWidth)
+  await expect(listbox.locator('[role="option"][aria-selected="true"]')).toHaveCount(1)
+  await page.keyboard.press('Escape')
+  await expect(select).toHaveAttribute('aria-expanded', 'false')
 
   await customerInput.click()
   const focus = await customerInput.evaluate((element) => {

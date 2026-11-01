@@ -17,8 +17,8 @@ test('importa un .3mf, compila la riga, la salva e la ricarica', async ({ page }
   await expect(dialog).toBeVisible()
   await expect(dialog).toContainText('anycubic-kobra3-pla.gcode.3mf')
   await expect(dialog).toContainText('Anycubic Slicer Next')
-  await expect(dialog.getByLabel('Stampante')).toHaveValue('printer-kobra-3')
-  await expect(dialog.getByLabel(/Materiale per PLA/)).toHaveValue('material-pla')
+  await expect(dialog.getByLabel('Stampante')).toHaveAttribute('data-value', 'printer-kobra-3')
+  await expect(dialog.getByLabel(/Materiale per PLA/)).toHaveAttribute('data-value', 'material-pla')
 
   const results = await new AxeBuilder({ page })
     .include('[role="dialog"]')
@@ -33,7 +33,8 @@ test('importa un .3mf, compila la riga, la salva e la ricarica', async ({ page }
   const name = page.locator('input[aria-label="Nome della stampa"]').first()
   await expect(name).toHaveValue('anycubic-kobra3-pla — piatto 1')
   await expect(name).toBeFocused()
-  await expect(page.locator('select[aria-label="Materiale 1"]').first()).toHaveValue('material-pla')
+  const material = page.getByRole('combobox', { name: 'Materiale 1' }).first()
+  await expect(material).toHaveAttribute('data-value', 'material-pla')
   await expect(page.locator('input[aria-label="Grammi materiale 1"]').first()).toHaveValue('1,46')
 
   await page.getByRole('button', { name: 'Salva preventivo' }).click()
@@ -81,13 +82,18 @@ test('richiede la scelta quando più materiali corrispondono', async ({ page }) 
   await page.locator('input[type="file"]').setInputFiles(KOBRA3)
   const dialog = page.getByRole('dialog', { name: 'Importa .3mf' })
   const material = dialog.getByLabel(/Materiale per PLA/)
-  await expect(material).toHaveValue('')
+  await expect(material).toHaveAttribute('data-value', '')
   await expect(dialog.getByRole('button', { name: 'Importa 1 riga' })).toBeDisabled()
 
-  await material.selectOption('material-pla-2')
+  await material.click()
+  await page.getByRole('option', { name: /PLA bianco/ }).click()
+  await expect(material).toHaveAttribute('data-value', 'material-pla-2')
   await expect(dialog.getByRole('button', { name: 'Importa 1 riga' })).toBeEnabled()
   await dialog.getByRole('button', { name: 'Importa 1 riga' }).click()
-  await expect(page.locator('select[aria-label="Materiale 1"]')).toHaveValue('material-pla-2')
+  await expect(page.getByRole('combobox', { name: 'Materiale 1' })).toHaveAttribute(
+    'data-value',
+    'material-pla-2',
+  )
 })
 
 test('chiede conferma e aggiunge alla bozza esistente', async ({ page }) => {

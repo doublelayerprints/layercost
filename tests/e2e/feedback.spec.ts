@@ -32,8 +32,10 @@ async function fulfillCors(route: Route, status: number, body = '') {
 }
 
 async function fillValidForm(page: Page, withEmail = true) {
-  await page.getByLabel('Tipo').selectOption('bug')
-  await page.getByLabel('Area dell’app').selectOption('calculator')
+  await page.getByLabel('Tipo').click()
+  await page.getByRole('option', { name: 'Problema' }).click()
+  await page.getByLabel('Area dell’app').click()
+  await page.getByRole('option', { name: 'Calcolatore' }).click()
   await page.getByLabel('Titolo').fill('Il totale non si aggiorna dopo lo sconto')
   await page
     .getByLabel('Descrizione')

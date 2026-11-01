@@ -233,9 +233,7 @@ export function LineEditor({
               >
                 <Select
                   value={usage.materialId}
-                  onChange={(event) =>
-                    onUpdateMaterial(materialIndex, { materialId: event.target.value })
-                  }
+                  onValueChange={(value) => onUpdateMaterial(materialIndex, { materialId: value })}
                   aria-label={t('line.materialAria', { index: materialIndex + 1 })}
                 >
                   <option value="">{t('line.chooseMaterial')}</option>

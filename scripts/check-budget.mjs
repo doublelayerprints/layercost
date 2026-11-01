@@ -46,7 +46,9 @@ const checks = [
     // ADR-0029 and STATUS.md. EVO-3a (ADR-0026) had raised it to 210 KB.
     // EVO-7 (ADR-0031) adds visible names and quote audit tags: 229.9 KB gzip,
     // limit raised to 232 KB to keep a small margin on the initial chunk.
-    limit: 232 * KB,
+    // ADR-0032 replaces the native select menu with the app listbox: 232.1 KB
+    // gzip, limit raised to 236 KB to cover the accessible combobox.
+    limit: 236 * KB,
   },
   {
     label: 'Chunk lazy',

@@ -283,7 +283,7 @@ Lo stack è il pezzo che appartiene solo a LayerCost: il nome e il modello di co
 
 - **Pulsanti.** Primario: `#141414`, testo bianco, 36 px, raggio 6, 500 14 px. Secondario: riempimento `#efeeeb`, testo ink, nessun bordo. Distruttivo: testo `--negative`, nessun riempimento, conferma. Un solo primario per schermata.
 - **Campi.** 36 px desktop / 44 px touch, bordo 1 px `#8a8a8a`, raggio 6, label sopra 14/500, unità 12 muted. Focus: outline 2 px `--data`, offset 2 px. Errore: 12 px `--negative`, `aria-describedby`; nessun errore solo col bordo rosso.
-- **Select.** Stessa geometria dei campi; nessun bordo pesante; chevron a 16 px.
+- **Select.** Stessa geometria dei campi; nessun bordo pesante; chevron a 16 px. Il menu aperto è un listbox dell'app, non il menu nativo del sistema.
 - **Tabelle.** Nessuna card intorno; header 12 px muted, sentence case, nessuna banda di riempimento; righe 44 px; numeri a destra, tabular; colonna identità più larga; stato con testo + simbolo, non solo colore.
 - **Badge.** Solo per stato: Bozza, Salvato, Archiviato, Non ricalcolabile, Stimato. Pill 20 px, 12 px, con testo; "Stimato" usa il warning con un triangolo e la parola.
 - **Vuoti.** "Nessun preventivo. Salva il primo dal calcolatore." con link; nessuna illustrazione.

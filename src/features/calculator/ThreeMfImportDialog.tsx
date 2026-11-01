@@ -242,7 +242,7 @@ export function ThreeMfImportDialog({
           <Select
             id={printerFieldId}
             value={printerId}
-            onChange={(event) => setPrinterId(event.target.value)}
+            onValueChange={setPrinterId}
             disabled={activePrinters.length === 0}
           >
             <option value="">{t('import.choosePrinter')}</option>
@@ -458,7 +458,7 @@ function FilamentRow({
       </div>
       <Select
         value={materialId}
-        onChange={(event) => onChange(event.target.value)}
+        onValueChange={onChange}
         aria-label={t('import.filamentAria', {
           type: filamentName,
           id: filament.id,

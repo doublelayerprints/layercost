@@ -223,7 +223,7 @@ export function FeedbackPage() {
                 id="feedback-type"
                 name="type"
                 value={values.type}
-                onChange={(event) => update('type', event.target.value as FeedbackType)}
+                onValueChange={(value) => update('type', value as FeedbackType)}
                 disabled={disabled}
               >
                 {FEEDBACK_TYPES.map((type) => (
@@ -239,7 +239,7 @@ export function FeedbackPage() {
                 id="feedback-area"
                 name="area"
                 value={values.area}
-                onChange={(event) => update('area', event.target.value as FeedbackArea)}
+                onValueChange={(value) => update('area', value as FeedbackArea)}
                 disabled={disabled}
               >
                 {FEEDBACK_AREAS.map((area) => (

@@ -9,7 +9,6 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
   type Ref,
-  type SelectHTMLAttributes,
   type TableHTMLAttributes,
 } from 'react'
 import { createPortal } from 'react-dom'
@@ -17,6 +16,8 @@ import { useI18n } from '@/app/i18n-context'
 import { cn } from '@/lib/cn'
 import { FieldContext, useFieldIds, type FieldIds } from './field-context'
 import { buttonClassName, type ButtonSize, type ButtonVariant } from './button-styles'
+
+export { Select } from './select'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
@@ -174,20 +175,6 @@ export function Input({ className, ...props }: ComponentPropsWithRef<'input'>) {
       aria-invalid={ids.errorId ? true : props['aria-invalid']}
       className={cn(controlClasses, 'h-9 max-sm:h-11', className)}
     />
-  )
-}
-
-export function Select({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  const ids = useFieldIds()
-  return (
-    <select
-      {...props}
-      aria-describedby={describedBy(props['aria-describedby'], ids)}
-      aria-invalid={ids.errorId ? true : props['aria-invalid']}
-      className={cn(controlClasses, 'select-control h-9 pr-10 max-sm:h-11', className)}
-    >
-      {children}
-    </select>
   )
 }
 

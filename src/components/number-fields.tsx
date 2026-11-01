@@ -374,12 +374,7 @@ export function SelectField({
   const id = useId()
   return (
     <Field label={label} htmlFor={id} hint={hint} error={error} className={className}>
-      <Select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        disabled={disabled}
-      >
+      <Select id={id} value={value} onValueChange={onChange} disabled={disabled}>
         {placeholder ? <option value="">{placeholder}</option> : null}
         {options.map((option) => (
           <option key={option.value} value={option.value} disabled={option.disabled}>
