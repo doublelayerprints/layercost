@@ -1330,7 +1330,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-7 — Nomi visibili e tag attività dei preventivi
 
-**Stato:** `[x]` — implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, squash `ce8c207`, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`)
+**Stato:** `[x]` — implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, squash `ce8c207`; follow-up docs/test PR #51, `b62c0f1`; build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`)
 **Dipende da:** EVO-4 (spazi separati) e T5.4.5 (audit cloud)
 **ADR:** 0031
 **Piano:** `docs/planning/evo-7-quote-audit-tags.md`
@@ -1341,5 +1341,5 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - **EVO-7.4 Comportamento:** tag solo cloud e spazi condivisi; “te” per l'utente corrente; fallback “un altro membro”; refresh della directory dopo il sync; nessun nome duplicato nei preventivi.
 - **EVO-7.5 Test:** 17 pgTAP profili (91 totali), unit store/helper, E2E sync con nomi, modifica profilo e axe; `npm run check`, `npm run db:test`, `npm run test:e2e:sync`.
 - **EVO-7.6 Docs:** ADR-0031, data-model §7, workspace runbook, i18n inventory, STATUS, CHANGELOG e questo task. Budget iniziale 229,9/232 KB, totale 297,2/350 KB.
-- **EVO-7.7 Deploy:** backup di produzione del 31/10/2026 scaricato, checksum e `pg_restore --list` verificati; migrazione `20261031120000_profiles.sql` applicata a `layercost-prod`; PR #50 mergiata con squash `ce8c207`; Vercel produzione `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`; due profili backfillati da Google; smoke di produzione e verifica reale con due account temporanei (tag, Profilo, propagazione del nome) verdi, cleanup completo.
+- **EVO-7.7 Deploy:** backup di produzione del 31/10/2026 scaricato, checksum e `pg_restore --list` verificati; migrazione `20261031120000_profiles.sql` applicata a `layercost-prod`; PR #50 mergiata con squash `ce8c207` e follow-up docs/test PR #51 (`b62c0f1`, `waitForSynced` sul nome accessibile); Vercel produzione `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`; due profili backfillati da Google; smoke di produzione e verifica reale con due account temporanei (tag, Profilo, propagazione del nome) verdi, cleanup completo.
 - Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4 o RLS delle tabelle dati.
