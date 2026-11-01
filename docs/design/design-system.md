@@ -155,6 +155,7 @@ Toni: `neutral`, `success`, `warning`, `info`, `danger`. Pill 20 px, testo 12 px
 - `Field` genera `labelId`, `hintId`, `errorId` e li passa via contesto; `Input`, `Select` e `Textarea` aggiungono automaticamente `aria-describedby` e `aria-invalid`.
 - Errori: 12 px `text-negative`, `role="alert"`, associati al campo. Non usare il solo bordo rosso.
 - Campi: 36 px desktop / 44 px touch; bordo 1 px `--color-control`; raggio 6; focus anello 2 px `--color-data`.
+- `Select`: stessa geometria degli altri campi. L'indicatore nativo del browser è nascosto (`appearance: none`) e sostituito dal chevron SVG da 16 px usato da menu e card, a 12 px dal bordo destro e con `pr-10` per non far toccare il testo. Il colore corrisponde a `--color-muted` nelle due palette. Su iOS il picker nativo resta invariato; cambia solo l'aspetto del controllo chiuso.
 - `DurationField` usa `aria-labelledby` sul gruppo; i due input hanno label "Ore" e "Minuti".
 - `Toggle`: traccia `--color-control` spenta, `--color-ink` accesa; focus visibile sulla traccia.
 

@@ -53,6 +53,25 @@ test('i controlli usano i token, il focus è visibile e non c’è overflow a 37
   expect(inputStyles.borderWidth).toBe('1px')
   expect(inputStyles.height).toBe('44px')
 
+  const selectStyles = await page
+    .locator('select[aria-label="Materiale 1"]')
+    .first()
+    .evaluate((element) => {
+      const styles = getComputedStyle(element)
+      return {
+        appearance: styles.appearance,
+        paddingRight: styles.paddingRight,
+        backgroundImage: styles.backgroundImage,
+        backgroundSize: styles.backgroundSize,
+        height: styles.height,
+      }
+    })
+  expect(selectStyles.appearance).toBe('none')
+  expect(selectStyles.paddingRight).toBe('40px')
+  expect(selectStyles.backgroundImage).toContain('data:image/svg+xml')
+  expect(selectStyles.backgroundSize).toBe('16px 16px')
+  expect(selectStyles.height).toBe('44px')
+
   await customerInput.click()
   const focus = await customerInput.evaluate((element) => {
     const styles = getComputedStyle(element)

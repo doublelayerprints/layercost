@@ -184,7 +184,7 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
       {...props}
       aria-describedby={describedBy(props['aria-describedby'], ids)}
       aria-invalid={ids.errorId ? true : props['aria-invalid']}
-      className={cn(controlClasses, 'h-9 max-sm:h-11', className)}
+      className={cn(controlClasses, 'select-control h-9 pr-10 max-sm:h-11', className)}
     >
       {children}
     </select>
