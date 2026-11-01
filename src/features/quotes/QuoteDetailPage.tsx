@@ -58,9 +58,16 @@ export function QuoteDetailPage() {
   const [printAudience, setPrintAudience] = useState<'customer' | 'internal'>('customer')
 
   // The confirmation is for this visit only: drop it from history so a reload does not repeat it.
+  // Defer the cleanup by one task and re-check the route: navigating immediately can race a
+  // user who leaves the quote right after saving and pull them back to the quote.
   useEffect(() => {
-    if (cameFromSave) navigate(location.pathname, { replace: true, state: null })
-  }, [cameFromSave, location.pathname, navigate])
+    if (!cameFromSave) return
+    const timer = window.setTimeout(() => {
+      if (window.location.hash !== `#${location.pathname}${location.search}`) return
+      navigate(location.pathname, { replace: true, state: null })
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [cameFromSave, location.pathname, location.search, navigate])
 
   // Keep the chosen audience until the print dialog closes, then restore the customer copy.
   useEffect(() => {
