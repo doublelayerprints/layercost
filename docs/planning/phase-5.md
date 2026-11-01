@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** T5.3 completato; **T5.6 chiuso** (i18n, formattazione, `Quote.locale`, selettore e verifiche); **T5.13–T5.14 chiusi** (preventivi modificabili e card del calcolatore); **T5.15–T5.17 chiusi** (preferenze rapide, azioni in alto e colore filamento); **T5.20 chiuso** (sconti di riga e di preventivo); **T5.21 chiuso** (card comprimibili nel calcolatore); **T5.22 chiuso** (rinomina del preventivo dal titolo); **T5.4.0 chiuso** (piano e ADR-0024), **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password) e **T5.4.4 chiuso** (sync, outbox, conflitti)
-**Data:** 28 ottobre 2026
+**Stato:** **Fase 5 chiusa** — T5.3, T5.6, T5.12, T5.13–T5.22 e T5.4.0–T5.4.6 completati. Le evolutive EVO-1, EVO-3a, EVO-4, EVO-5, EVO-6 ed EVO-7 sono distribuite in produzione; il prossimo task è **EVO-2 — tetti utenti/preventivi** (ADR-0027).
+**Data:** 1 novembre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** T5.4 è **chiuso e live in produzione**. Follow-up opzionale: baseline visual delle schermate cloud. Piano completo in `t5.4-cloud-sync.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`; smoke test in `docs/engineering/deployment.md` §13. Il resto del backlog è chiuso/non in scope.
+**Prossima sessione:** fase 5 chiusa. Prossimo task **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi EVO-3b. Evolutive completate in `docs/planning/evolutive.md`; piano EVO-7 in `docs/planning/evo-7-quote-audit-tags.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`; smoke test in `docs/engineering/deployment.md` §13.
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---

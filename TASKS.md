@@ -1,6 +1,6 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 in corso; EVO-7 verificata in locale; CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 in corso; EVO-7 distribuita e verificata in produzione; CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 31 ottobre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
@@ -899,7 +899,7 @@ Sottotask:
 - **T5.4.2 — Schema Supabase, RLS e trigger** `[x]` (28/10/2026): migrazione iniziale con 8 tabelle, RLS per membership, trigger di audit/immutabilità/ultimo owner, `keepalive`, tipi generati e mapper Zod; 21 test pgTAP RLS con due workspace e un utente esterno (22 dopo il cleanup admin di T5.4.4). `npm run db:test` verde.
 - **T5.4.3 — Auth email/password** `[x]` (28/10/2026): client Supabase lazy, auth gateway/store, pagina `#/login`, logout con flush, banner sessione scaduta, sezione Sincronizzazione in Impostazioni, i18n, 11 test auth, 2 E2E auth con axe. `npm run test:e2e:auth` verde; 159 unitari totali (182 dopo T5.4.4).
 - **T5.4.4 — Repository cloud, sync e conflitti** `[x]` (28/10/2026): gateway Supabase pull/push, cache cloud separata, import iniziale con backup, outbox persistita, scritture ottimistiche su `updated_at`, conflitti espliciti, indicatore e impostazioni sync. 182 unitari, 2 E2E sync, 22 pgTAP.
-- **T5.4.5 — Workspace condiviso** `[x]` (28/10/2026): runbook in `docs/engineering/workspace-runbook.md`; entrambi gli owner vedono e modificano gli stessi preventivi; audit `created_by`/`updated_by` nel dettaglio (solo cloud, “te”/“un altro membro”); 33 pgTAP e 3 E2E sync, inclusi utente senza membership e workspace separato.
+- **T5.4.5 — Workspace condiviso** `[x]` (28/10/2026): runbook in `docs/engineering/workspace-runbook.md`; entrambi gli owner vedono e modificano gli stessi preventivi; audit `created_by`/`updated_by` nel dettaglio (solo cloud, “te”/“un altro membro”); 33 pgTAP e 3 E2E sync, inclusi utente senza membership e workspace separato. EVO-7 ha poi sostituito “un altro membro” con il nome visibile.
 - **T5.4.6 — Operazioni, test e deploy** `[x]` (28/10/2026): keep-alive, backup/restore, CI database, budget e **deploy di produzione chiusi**; baseline visual cloud come follow-up opzionale.
 
 **Esito T5.4.5 (28/10/2026):**
@@ -909,7 +909,7 @@ Sottotask:
 - **Audit:** `Quote.createdBy`/`updatedBy` sono metadati opzionali mappati da `quotes.created_by`/`updated_by`; non entrano nello snapshot, non cambiano `engineVersion`, non vengono riscritti in update e sono rimossi dai link condivisi. Schema locale invariato v4.
 - **Isolamento:** un utente senza membership non vede né inserisce preventivi; un owner di un altro workspace non vede né modifica quelli del workspace condiviso. 11 nuove asserzioni pgTAP (22 → 33) e 1 nuovo E2E sync (2 → 3), con axe sulle nuove schermate.
 - **Test:** 185 unitari, 33 pgTAP, 3 E2E sync, 49 scansioni axe, 0 violazioni. `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth` e `npm run test:e2e:sync` verdi. Budget 202,3/205 KB iniziali con env, cloud lazy 53,5/80 KB, worker 37,6/40 KB, totale 267,1/350 KB.
-- **Limite noto:** l’audit UI non espone l’email; con due owner “un altro membro” identifica l’altra persona, con più membri servirà una directory o un nome visibile.
+- **Limite noto (superato da EVO-7):** l’audit UI non esponeva l’email; con due owner “un altro membro” identificava l’altra persona, con più membri serviva una directory o un nome visibile. EVO-7/ADR-0031 ha aggiunto `profiles`, il nome visibile e i tag nella lista.
 
 **Esito T5.4.6 (28/10/2026):**
 
@@ -1224,7 +1224,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e distribuito il 30/10/2026; EVO-6 implementato, configurato e distribuito il 30/10/2026; EVO-4 implementato e verificato in locale il 30/10/2026 (deploy da fare); EVO-2–EVO-3b proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e distribuito il 30/10/2026; EVO-6 implementato, configurato e distribuito il 30/10/2026; EVO-4 implementato, distribuito e verificato in produzione il 30/10/2026; EVO-7 implementato, distribuito e verificato in produzione il 31/10/2026; EVO-2–EVO-3b proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login

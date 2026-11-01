@@ -143,7 +143,7 @@ Regole:
 - Configurazione e preventivi `saved`/`sent`/`completed` si sincronizzano; bozza, tema, lingua e onboarding restano locali.
 - Le scritture usano `updated_at` lato server per il controllo ottimistico; offline vanno in un outbox e vengono riprodotte al ritorno.
 - I conflitti sono visibili; nessun overwrite silenzioso. I preventivi `sent`/`completed` sono bloccati anche da un trigger.
-- `created_by`/`updated_by` sono audit del database; il client li mostra come “te”/“un altro membro”, non li riscrive nelle update e non li include nei link condivisi.
+- `created_by`/`updated_by` sono audit del database; negli spazi condivisi la UI mostra il **nome visibile** del profilo (o “te” per l’utente corrente), non li riscrive nelle update e non li include nei link condivisi.
 - La cache cloud usa `layercost:cloud-cache:<workspaceId>` e non sovrascrive `layercost:data`; al logout l'app torna ai dati ospite. La chiave legacy viene migrata una volta verso lo spazio attivo.
 - L'outbox, i metadati `updated_at`, il workspace e l'ultimo sync vivono in `layercost:sync-state:<workspaceId>`. Ogni spazio ha cache e coda separate: cambiare spazio non mescola le modifiche in sospeso.
 - Lo spazio attivo è in `layercost:active-workspace`; un nuovo spazio viene marcato in `layercost:pending-seed` e popolato con `createInitialData()` al primo pull, mai con i dati dello spazio precedente.

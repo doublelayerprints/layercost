@@ -69,7 +69,22 @@ Da eseguire solo dopo aver configurato Google in Supabase e impostato `VITE_AUTH
 
 ---
 
-## 4. Esito
+## 4. Profilo e tag attività (EVO-7)
+
+Da eseguire in uno spazio condiviso con due account.
+
+- [ ] **Impostazioni → Profilo** mostra `Nome visibile` con il nome precompilato da Google o dalla parte locale dell’email.
+- [ ] Salva un nome nuovo: compare “Nome aggiornato.” e il campo conserva il valore dopo il reload.
+- [ ] Nella lista **Preventivi** ogni riga mostra “Creato da …” e “Ultima modifica di …” con la data.
+- [ ] Per l’utente corrente i tag mostrano “te”; per l’altro membro mostrano il nome visibile.
+- [ ] Il dettaglio del preventivo mostra il nome visibile nella sezione **Workspace condiviso**.
+- [ ] Dopo una modifica dell’altro account e un sync, il nome nei tag si aggiorna senza ricaricare l’app.
+- [ ] In uno spazio personale o in modalità ospite i tag non compaiono.
+- [ ] L’email completa non compare nei tag; resta visibile solo agli owner nella gestione dello spazio.
+
+---
+
+## 5. Esito
 
 Compila e allega alla PR o a una nota in `STATUS.md`:
 
@@ -82,6 +97,9 @@ Compila e allega alla PR o a una nota in `STATUS.md`:
 | Google: login e reload        |       |      |
 | Google: fallback email        |       |      |
 | Google: annullamento/errore   |       |      |
+| Profilo: salvataggio nome     |       |      |
+| Tag attività in lista/dettaglio |     |      |
+| Sync nome tra due account     |       |      |
 | VoiceOver: titoli e landmark  |       |      |
 | VoiceOver: form e tab order   |       |      |
 | VoiceOver: modale bozza       |       |      |
@@ -94,4 +112,4 @@ Se qualcosa fallisce, apri una issue con:
 - passi per riprodurre;
 - cosa annuncia VoiceOver e cosa ti aspettavi.
 
-Le prove automatiche restano la fonte principale: 42 unitari, 18 E2E, 25 scansioni axe, PDF A4 valido e regressione visiva su 15 schermate.
+Le prove automatiche restano la fonte principale: 297 unitari, 84 E2E, 91 asserzioni pgTAP, axe su tutte le route, PDF A4 valido e regressione visiva su 42 schermate.
