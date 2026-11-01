@@ -1,6 +1,6 @@
 # ADR-0032 — Menu delle select in stile applicazione
 
-**Stato:** Accettato; implementato e distribuito in produzione il 1° novembre 2026 (build `index-Q58GRQ-Y.js` / `index-Cmj_upjM.css`)
+**Stato:** Accettato; implementato e distribuito in produzione il 1° novembre 2026 (build `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`)
 **Data:** 1 novembre 2026
 **Relazione:** sostituisce il menu nativo del componente `Select`; non cambia formule, `engineVersion`, schema dati, backup o sync
 
