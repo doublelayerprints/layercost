@@ -1,7 +1,7 @@
 # Lista stampanti compatta — design
 
 **Data:** 2 novembre 2026
-**Stato:** approvato e implementato; verde in locale, preview/deploy da fare
+**Stato:** approvato, implementato, distribuito e verificato in produzione il 2 novembre 2026 (build `index-BjqdEKE_.js` / `index--nSacJA8.css`)
 **Ambito:** `/#/printers`, senza modifiche a dati, schema, formule o `engineVersion`
 
 ## Contesto

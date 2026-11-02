@@ -541,7 +541,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Mobile.** Ogni stampante è una card con bordo e raggio propri, separate da `gap-3`. La parte chiusa mostra nome, badge, modello con volume, usura/h, prezzo e Dettagli; Modifica e Archivia stanno nel pannello aperto.
 - **Catalogo.** Una banda con accento `data` sopra l'avviso sulle stime annuncia “29 modelli pronti all'uso” e porta a `/#/printers/catalog` con “Sfoglia il catalogo”. Il link in testata resta come scorciatoia; la banda non importa il catalogo e resta lazy.
 - **Accessibilità.** Tabella con caption, `scope="col"` e `scope="row"`; il pulsante Dettagli ha il nome visibile “Dettagli” più il nome della stampante in `sr-only`, quindi rispetta Label in Name. axe verde con il pannello aperto a 375 px.
-- **Verifiche.** 310 unitari, 95 E2E (73 passati, 22 saltati) più 2 senza endpoint, 49 scansioni axe totali; budget **234,7/236 KB** iniziali, **77,7/80 KB** lazy e **302,0/350 KB** totali.
+- **Verifiche.** 310 unitari, 95 E2E (73 passati, 22 saltati) più 2 senza endpoint, 49 scansioni axe totali; budget **234,7/236 KB** iniziali, **77,7/80 KB** lazy e **302,0/350 KB** totali. Distribuita in produzione il 02/11/2026 (PR #59, squash `8b07085`, build `index-BjqdEKE_.js` / `index--nSacJA8.css`).
 
 ## 9. Mappa dei file
 
