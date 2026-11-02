@@ -48,11 +48,14 @@ const checks = [
     // limit raised to 232 KB to keep a small margin on the initial chunk.
     // ADR-0032 replaces the native select menu with the app listbox: 232.1 KB
     // gzip, limit raised to 236 KB to cover the accessible combobox.
+    // ADR-0033 adds the printer catalog: 233.6 KB gzip, within the same limit.
     limit: 236 * KB,
   },
   {
     label: 'Chunk lazy',
     bytes: lazyBytes,
+    // ADR-0033 adds the lazy printer catalog page (+4.5 KB gzip); the measured
+    // lazy total is 77.7 KB, so the limit stays at 80 KB.
     limit: 80 * KB,
   },
   {

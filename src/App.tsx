@@ -39,6 +39,12 @@ const FeedbackPage = lazy(() =>
   })),
 )
 
+const PrinterCatalogPage = lazy(() =>
+  import('@/features/printers/PrinterCatalogPage').then((module) => ({
+    default: module.PrinterCatalogPage,
+  })),
+)
+
 function RouteLoading() {
   const { t } = useI18n()
   return (
@@ -81,6 +87,14 @@ export default function App() {
             <Route path="quotes/:id" element={<QuoteDetailPage />} />
             <Route path="share" element={<SharePage />} />
             <Route path="printers" element={<PrintersPage />} />
+            <Route
+              path="printers/catalog"
+              element={
+                <Suspense fallback={<RouteLoading />}>
+                  <PrinterCatalogPage />
+                </Suspense>
+              }
+            />
             <Route path="materials" element={<MaterialsPage />} />
             <Route path="tariffs" element={<TariffsPage />} />
             <Route path="extras" element={<ExtrasPage />} />

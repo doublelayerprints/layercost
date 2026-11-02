@@ -35,6 +35,8 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 **Rifiniture post-EVO-7 (1–2 novembre 2026).** La select nativa è stata sostituita da un combobox/listbox in stile applicazione (ADR-0032): menu portale, tastiera, type-ahead, focus sul trigger e opzioni da 36/44 px, senza dipendenze esterne. La lista **Preventivi** mostra i metadati di audit come colonne (#54); i nomi lunghi restano dentro le card compresse (#55); il ripristino della route dopo una navigazione rapida è stato corretto. Build di produzione `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`. Verifiche: 298 unitari, 90 E2E (68 passati, 22 saltati) più 2 test nello stato senza endpoint, budget 232,2/236 KB iniziali e 299,5/350 KB totali. Nessuna modifica a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
 
+**Catalogo stampanti (2 novembre 2026, ADR-0033).** Nuova pagina lazy `/#/printers/catalog` con **29 preset** per Bambu Lab (11), Creality (7), Anycubic (3), Prusa (3), Elegoo (2), FLSUN, Sovol e QIDI. Ricerca e filtro marca lato client, card con prezzo/volume, dettagli su potenze stimate, fonte, data e confidenza, “Già presente” e aggiunta di più unità. I preset sono copiati in normali `Printer` tramite `addPrinter`: nessuna nuova entità, schema, migrazione, snapshot o modifica a `engineVersion`; Kobra 3 e Kobra X restano fuori dal catalogo. Prezzi indicativi IVA inclusa a novembre 2026, `multicolor` solo se incluso nella SKU base, potenza nominale informativa e nessun supplemento AMS/ACE. Verifiche locali: 11 unitari (+11), 3 E2E (+3), axe 48 scansioni (+3), nessuna richiesta esterna; budget **233,6/236 KB** iniziali, **77,7/80 KB** lazy e **300,9/350 KB** totali. **Preview Vercel e deploy sono ancora da fare.** Nessuna modifica a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS o sync.
+
 **Verifiche manuali e follow-up chiusi il 2 novembre 2026.** Safari reale e VoiceOver sono stati provati sulla produzione (`docs/engineering/manual-checks.md`). L'import `.3mf` è stato misurato con un file reale nella fascia 150–250 MB. Il confronto di `prediction` con una stampa reale è stato eseguito e il valore è stato accettato senza modifiche al motore. Il feedback sui valori di seed delle due stampanti è stato raccolto e confermato.
 
 ---
@@ -58,6 +60,7 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 - Confronto Kobra 3 / Kobra X.
 - Storico preventivi con ricerca, duplicazione, aggiornamento prezzi, archiviazione.
 - Configurazione di stampanti, materiali, tariffe energia con storico, extra, impostazioni.
+- Catalogo stampanti (ADR-0033): pagina lazy `/#/printers/catalog` con 29 preset di 8 marche, ricerca e filtro marca, dettagli su prezzo, volume, potenze stimate, fonte e confidenza. I preset sono copiati in normali stampanti modificabili; “Già presente” non blocca l’aggiunta di una seconda unità. Nessuna nuova entità, schema, migrazione o modifica al motore.
 - Export/import JSON con backup automatico prima dell'import.
 - Link condivisibile compresso, import nel proprio archivio.
 - Stampa/PDF tramite stylesheet dedicato.
@@ -138,28 +141,28 @@ T4.1–T4.7 sono chiusi, mergiati in `main` e distribuiti in produzione. La rele
 
 ## 3. Verifiche
 
-| Verifica           | Stato                                                                                                                                                   |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TypeScript strict  | verde                                                                                                                                                   |
-| oxlint             | verde                                                                                                                                                   |
-| Test unitari/dati  | 298 superati                                                                                                                                            |
-| Database locale    | 91 test pgTAP (33 RLS + 41 multi-workspace + 17 profili) + 8 test mapper; `npm run db:test` verde                                                       |
-| Test E2E           | 90 totali (68 passati + 22 saltati: 12 visual, 5 sync, 3 auth, 2 endpoint mancante) + 2 nello stato senza endpoint; 2 WebKit                            |
-| Documentazione     | 3 unit, 5 E2E (sidebar, indice, deep link, redirect, mobile, inglese, screenshot), axe 375 px; 179 chiavi IT/EN nel chunk lazy                          |
-| Suggerimenti       | 15 unit, 6 E2E con Formspree mockato, 1 E2E senza endpoint, 8 scansioni axe; form di produzione/test configurati e submission di test verificata          |
-| Richiesta accesso  | 17 unit, 5 E2E con Formspree mockato, 1 E2E senza endpoint, 8 scansioni axe; form reali, notifica email, deploy e submission verificati                 |
-| Auth E2E           | 3 test con Supabase locale (login, reload, impostazioni, logout, errori; Google mockato e annullamento; link richiesta accesso); axe 375/1440           |
-| Google login       | verificato in locale contro Supabase di produzione e in produzione (pulsante, redirect, callback) il 29/10/2026; **2 account su 2 con identità Google** |
-| Sync E2E           | 5 test con Supabase locale (primo login, due contesti/offline/conflitto, secondo spazio, invito, isolamento)                                            |
+| Verifica           | Stato                                                                                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript strict  | verde                                                                                                                                                      |
+| oxlint             | verde                                                                                                                                                      |
+| Test unitari/dati  | 298 superati                                                                                                                                               |
+| Database locale    | 91 test pgTAP (33 RLS + 41 multi-workspace + 17 profili) + 8 test mapper; `npm run db:test` verde                                                          |
+| Test E2E           | 90 totali (68 passati + 22 saltati: 12 visual, 5 sync, 3 auth, 2 endpoint mancante) + 2 nello stato senza endpoint; 2 WebKit                               |
+| Documentazione     | 3 unit, 5 E2E (sidebar, indice, deep link, redirect, mobile, inglese, screenshot), axe 375 px; 179 chiavi IT/EN nel chunk lazy                             |
+| Suggerimenti       | 15 unit, 6 E2E con Formspree mockato, 1 E2E senza endpoint, 8 scansioni axe; form di produzione/test configurati e submission di test verificata           |
+| Richiesta accesso  | 17 unit, 5 E2E con Formspree mockato, 1 E2E senza endpoint, 8 scansioni axe; form reali, notifica email, deploy e submission verificati                    |
+| Auth E2E           | 3 test con Supabase locale (login, reload, impostazioni, logout, errori; Google mockato e annullamento; link richiesta accesso); axe 375/1440              |
+| Google login       | verificato in locale contro Supabase di produzione e in produzione (pulsante, redirect, callback) il 29/10/2026; **2 account su 2 con identità Google**    |
+| Sync E2E           | 5 test con Supabase locale (primo login, due contesti/offline/conflitto, secondo spazio, invito, isolamento)                                               |
 | Accessibilità      | axe WCAG 2.2 AA su tutte le route, incluse documentazione, Suggerimenti e liste cloud, IT/EN e 375/1440, 0 violazioni                                      |
-| Regressione visiva | 42 screenshot (21 it + 21 en) a 1440/768/390 px, incl. 6 landing; baseline Linux verificate; cloud, accesso, docs e feedback non ancora coperti         |
-| Build produzione   | verde (866,5 KB JS main con env cloud; ~108 KB worker; 232,2 KB gzip iniziale; lazy 73,2 KB; HTML 6,0 KB gzip)                                          |
-| Budget bundle      | JS iniziale 232,2/236 KB; lazy 73,2/80 KB; worker 37,7/40 KB; CSS 10,5/20 KB; HTML 6,0/10 KB; totale iniziale 299,5/350 KB                              |
-| CI GitHub `main`   | verde su EVO-7 (`ce8c207`, PR #50) e follow-up docs/test (`b62c0f1`, PR #51); rifiniture post-EVO-7 su `main` fino a `b2fd798`                          |
+| Regressione visiva | 42 screenshot (21 it + 21 en) a 1440/768/390 px, incl. 6 landing; baseline Linux verificate; cloud, accesso, docs e feedback non ancora coperti            |
+| Build produzione   | verde (866,5 KB JS main con env cloud; ~108 KB worker; 232,2 KB gzip iniziale; lazy 73,2 KB; HTML 6,0 KB gzip)                                             |
+| Budget bundle      | JS iniziale 232,2/236 KB; lazy 73,2/80 KB; worker 37,7/40 KB; CSS 10,5/20 KB; HTML 6,0/10 KB; totale iniziale 299,5/350 KB                                 |
+| CI GitHub `main`   | verde su EVO-7 (`ce8c207`, PR #50) e follow-up docs/test (`b62c0f1`, PR #51); rifiniture post-EVO-7 su `main` fino a `b2fd798`                             |
 | Vercel produzione  | **live** `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`; EVO-7, select ADR-0032, tag audit in colonna, EVO-5 landing, cloud, docs/feedback e pre-render attivi |
-| Smoke produzione   | verde il 31/10/2026 dopo il deploy EVO-7 (login, profilo, tag, sync, salvataggio e cleanup); deploy select verificato in produzione il 1/11/2026         |
-| Keep-alive         | workflow manuale verde (9s)                                                                                                                             |
-| Backup             | workflow manuale verde (44s); checksum e decifratura verificati                                                                                         |
+| Smoke produzione   | verde il 31/10/2026 dopo il deploy EVO-7 (login, profilo, tag, sync, salvataggio e cleanup); deploy select verificato in produzione il 1/11/2026           |
+| Keep-alive         | workflow manuale verde (9s)                                                                                                                                |
+| Backup             | workflow manuale verde (44s); checksum e decifratura verificati                                                                                            |
 
 Comandi:
 

@@ -40,6 +40,7 @@ async function auditRoutes(page: Page, quotePath: string, label: string) {
     ['dettaglio', quotePath],
     ['condivisione non valida', '/#/share'],
     ['stampanti', '/#/printers'],
+    ['catalogo stampanti', '/#/printers/catalog'],
     ['materiali', '/#/materials'],
     ['tariffe', '/#/tariffs'],
     ['extra', '/#/extras'],

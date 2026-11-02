@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Printer } from '@/domain/types'
 import { useAppStore } from '@/state/app-store'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { Alert, Badge, Button, Card, EmptyState, Modal, PageHeader } from '@/components/ui'
+import { buttonClassName } from '@/components/button-styles'
 import { materialFamilyLabel, materialFamilyLabels, powerSourceLabel } from '@/lib/labels'
 import { PrinterForm } from './PrinterForm'
 
@@ -33,7 +35,14 @@ export function PrintersPage() {
       <PageHeader
         title={t('nav.printers')}
         description={t('printers.description')}
-        actions={<Button onClick={() => setEditing('new')}>{t('printers.add')}</Button>}
+        actions={
+          <>
+            <Link to="/printers/catalog" className={buttonClassName({ variant: 'secondary' })}>
+              {t('printers.catalog')}
+            </Link>
+            <Button onClick={() => setEditing('new')}>{t('printers.add')}</Button>
+          </>
+        }
       />
 
       <div className="mt-6">
@@ -47,7 +56,16 @@ export function PrintersPage() {
           <EmptyState
             title={t('printers.emptyTitle')}
             description={t('printers.emptyBody')}
-            action={<Button onClick={() => setEditing('new')}>{t('printers.add')}</Button>}
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                <Link to="/printers/catalog" className={buttonClassName()}>
+                  {t('printers.catalog')}
+                </Link>
+                <Button variant="secondary" onClick={() => setEditing('new')}>
+                  {t('printers.add')}
+                </Button>
+              </div>
+            }
           />
         </div>
       ) : (
