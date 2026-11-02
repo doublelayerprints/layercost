@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Printer } from '@/domain/types'
 import type { ThreeMfSummary } from '@/domain/three-mf'
 import { proposeThreeMfMapping } from '@/domain/three-mf-mapping'
+import { t } from '@/i18n'
 import { createSeedConfig } from '@/data/seed'
 import { printerSchema } from '@/data/schemas'
 import {
@@ -34,6 +35,10 @@ describe('catalogo stampanti', () => {
     expect(PRINTER_CATALOG).toHaveLength(29)
     expect(new Set(PRINTER_CATALOG.map((entry) => entry.brand))).toEqual(new Set(PRINTER_BRANDS))
     expect(CATALOG_REVIEWED_AT).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+
+  it('il promo della lista cita il numero di preset', () => {
+    expect(t('printers.catalogPromoTitle')).toContain(String(PRINTER_CATALOG.length))
   })
 
   it('non duplica id, nomi o modelli', () => {

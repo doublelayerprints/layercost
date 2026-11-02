@@ -1,6 +1,6 @@
 # Inventario stringhe i18n
 
-**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1, EVO-3a, EVO-5, EVO-6, EVO-7 e catalogo stampanti (ADR-0033) incluse
+**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1, EVO-3a, EVO-5, EVO-6, EVO-7, catalogo stampanti (ADR-0033) e lista stampanti compatta incluse
 **Data:** 2 novembre 2026
 **Riferimenti:** ADR-0019, ADR-0025, ADR-0026, `docs/planning/phase-5.md` §3
 
@@ -91,6 +91,8 @@
 
 **Stato ADR-0033 (catalogo stampanti):** aggiunte **41 chiavi** in `catalogs`: `printers.catalog` e l’area `printerCatalog.*` per titolo, descrizione, ricerca, filtro marca, conteggi plurali, stato vuoto, azioni, conferma, dettagli, potenze stimate, badge multicolore/chiusa, fonte, data, confidenza e nota sui seed. Parità globale it/en a **1352** chiavi. La pagina è lazy ma le chiavi restano nel dizionario globale, come per Richiedi accesso.
 
+**Stato lista stampanti compatta (02/11/2026):** aggiunte **10 chiavi** nell’area `printers` per etichetta della tabella, colonne (Stampante, Prezzo, Usura/h, Volume, Azioni, Dettagli), pulsante Dettagli e banda catalogo (titolo, descrizione, CTA). Parità globale it/en a **1362** chiavi; nessun cambio ai dizionari lazy.
+
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 
 1. Shell e componenti comuni (chiude subito le stringhe condivise).
@@ -108,4 +110,4 @@
 - Typecheck: una chiave mancante in `en.ts` è un errore.
 - Dopo l'estrazione: E2E in inglese, persistenza, `<html lang>`, stampa/link nella lingua del preventivo, axe e visual.
 - La migrazione `Quote.locale`, la formattazione locale, il selettore, la persistenza e le verifiche in inglese sono implementati in T5.6.3–T5.6.5.
-- EVO-3a: `access.spec.ts` verifica IT/EN a 375/1440, inclusi errori e conferma; `access-missing.spec.ts` verifica lo stato senza endpoint in entrambe le lingue. La parità globale è a **1352** chiavi dopo il catalogo stampanti (ADR-0033).
+- EVO-3a: `access.spec.ts` verifica IT/EN a 375/1440, inclusi errori e conferma; `access-missing.spec.ts` verifica lo stato senza endpoint in entrambe le lingue. La parità globale è a **1362** chiavi dopo la lista stampanti compatta.

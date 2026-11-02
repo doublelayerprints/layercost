@@ -41,6 +41,7 @@
 
 ### Changed
 
+- Lista stampanti compatta (2/11/2026): la pagina Stampanti passa a una tabella su desktop (≥1280 px) con colonne Stampante, Prezzo, Usura/h, Volume, Azioni e Dettagli e a card separate sotto i 1280 px. Ogni riga/card ha un pulsante Dettagli con `aria-expanded` e un pannello con residuo, vita utile, manutenzione, avvio, tariffa, potenze e note; su mobile Modifica/Archivia stanno nel pannello. Sopra la lista una banda “29 modelli pronti all’uso” porta al catalogo, senza importare il catalogo lazy. 10 chiavi i18n, parità 1362; 310 unitari (+1), 95 E2E (+2), 49 scansioni axe; budget **234,7/236 KB** iniziali e **302,0/350 KB** totali. Nessun cambio a dati, schema, formule o `engineVersion`.
 - Budget (ADR-0032): il limite del JS iniziale passa da **232 KB a 236 KB** per la select applicativa. Misura dopo ADR-0032 e le rifiniture: **232,2 KB gzip** iniziali, 73,2 KB lazy, 299,5 KB totali. Motivazione in ADR-0032.
 - Budget (EVO-7): il limite del JS iniziale passa da **230 KB a 232 KB** per i tag di audit e la sezione Profilo. Misura dopo EVO-7: **229,9 KB gzip** iniziali, 73,2 KB lazy, 297,2 KB totali. Motivazione in ADR-0031.
 - Budget (EVO-6): i dizionari della documentazione (179 chiavi IT/EN) vivono nel chunk lazy della guida invece che nel dizionario globale; il bundle iniziale resta **220,2/230 KB** invece di salire di ~19 KB. Lazy 73,0/80 KB, totale 286,9/350 KB. Nuova variabile pubblica `VITE_FEEDBACK_ENDPOINT`; nessun segreto.
