@@ -24,7 +24,7 @@ Prima di toccare il codice:
 3. `AGENTS.md` (questo file)
 4. `PLAN.md`
 5. `TASKS.md`
-6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/planning/evo-5-landing-page.md` per la landing pubblica, `docs/planning/evo-6-docs-feedback.md` per documentazione e Suggerimenti, `docs/planning/evo-4-multi-workspace.md` per gli spazi separati, `docs/planning/evo-7-quote-audit-tags.md` per nomi visibili e tag attività, `docs/engineering/workspace-runbook.md` per utenti, membership, profili e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
+6. `docs/planning/phase-5.md` per i task di fase 5, `docs/planning/t5.4-cloud-sync.md` per T5.4, `docs/planning/evo-5-landing-page.md` per la landing pubblica, `docs/planning/evo-6-docs-feedback.md` per documentazione e Suggerimenti, `docs/planning/evo-4-multi-workspace.md` per gli spazi separati, `docs/planning/evo-7-quote-audit-tags.md` per nomi visibili e tag attività, `docs/planning/evo-2-user-quote-caps.md` per signup e tetti, `docs/engineering/workspace-runbook.md` per utenti, membership, profili e audit cloud e `docs/planning/i18n-inventory.md` per i task i18n
 7. `docs/domain/cost-model.md`
 8. `docs/domain/data-model.md`
 9. gli ADR rilevanti in `docs/adr/`
@@ -273,13 +273,15 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/planning/i18n-inventory.md` — inventario delle stringhe e ordine di estrazione i18n.
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace condiviso e sync opzionale.
 - `docs/adr/0025-google-oauth.md` — Google OAuth, PKCE, auto-link, “Collega Google”, segreti e rollback.
-- `docs/adr/0026-request-access-formspree.md` — pagina pubblica “Richiedi accesso”, Formspree Free, privacy e retention.
+- `docs/adr/0026-request-access-formspree.md` — pagina pubblica “Richiedi accesso”, Formspree Free, privacy e retention (superseded da ADR-0027).
+- `docs/adr/0027-signup-cap-and-workspace-limits.md` — signup aperto a tetto numerico, tetti per workspace e ritiro di Richiedi accesso.
 - `docs/adr/0028-multi-workspace.md` — spazi separati, spazio personale automatico, inviti e chiavi composte.
 - `docs/adr/0029-public-landing-page.md` — landing pubblica, routing `/#/calculator`, pre-render SEO e budget.
 - `docs/adr/0030-docs-and-feedback.md` — documentazione in-app, Suggerimenti, Formspree e budget.
 - `docs/adr/0031-display-names-and-quote-audit.md` — profili, nome visibile, tag creatore/ultima modifica e privacy.
 - `docs/adr/0032-app-select.md` — select in stile applicazione, listbox accessibile, tastiera e budget.
-- `docs/planning/evo-3a-access-request.md` — piano di EVO-3a.
+- `docs/planning/evo-2-user-quote-caps.md` — piano operativo e acceptance di EVO-2 (signup a tetto numerico, tetti per workspace, ritiro di Richiedi accesso).
+- `docs/planning/evo-3a-access-request.md` — piano di EVO-3a (ritirata con EVO-2, ADR-0026 superseded).
 - `docs/engineering/access-requests.md` — runbook amministratore per richieste, approvazione manuale, retention e cancellazione.
 - `docs/engineering/feedback.md` — configurazione e gestione del form Suggerimenti.
 - `docs/design/ui-brief.md` — requisiti per la fase design.
