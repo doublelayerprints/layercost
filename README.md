@@ -77,6 +77,8 @@ I dati vivono in `localStorage` (`layercost:data`). Svuotare i dati del browser 
 
 I valori di partenza di prezzi, potenze e vita utile sono **stime modificabili**. La guida iniziale porta a confermare i quattro numeri che contano: prezzo stampanti, vita utile, tariffa kWh, prezzi bobine.
 
+Il **catalogo stampanti** (`/#/printers/catalog`) offre 29 profili pronti per le stampanti FDM più diffuse: ricerca, filtro per marca, dettagli su prezzo, volume, potenze stimate, fonte e confidenza. L’aggiunta copia i valori in una stampante normale e modificabile; il catalogo non viene salvato nei dati e non entra nei backup. Le due Kobra restano fuori perché già presenti di serie (ADR-0033).
+
 ## Cloud opzionale
 
 La build senza variabili Supabase resta **local-only**: login, sync e chunk cloud non vengono caricati. Per provare il cloud in locale:
@@ -139,7 +141,7 @@ La root è indicizzabile: `index.html` contiene la landing italiana pre-renderiz
 | `docs/design/ui-brief.md`               | Requisiti per la fase design                                    |
 | `docs/design/directions.md`             | Direzioni e scelta visiva                                       |
 | `docs/design/design-system.md`          | Token, componenti, accessibilità                                |
-| `docs/adr/`                             | 31 ADR + 0027 riservato a EVO-2                                  |
+| `docs/adr/`                             | 31 ADR + 0027 riservato a EVO-2                                 |
 
 ## Stato
 

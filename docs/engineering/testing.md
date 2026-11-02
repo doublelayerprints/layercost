@@ -1,6 +1,6 @@
 # Testing
 
-**Stato:** v1.0.0 + fase 5 + EVO-1 + EVO-3a + EVO-4 + EVO-5 + EVO-6 + EVO-7 + rifiniture post-EVO-7 (ADR-0032) — 298 test unitari + 90 E2E (68 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante) più 2 nello stato senza endpoint + 91 pgTAP (33 RLS + 41 multi-workspace + 17 profili)
+**Stato:** v1.0.0 + fase 5 + EVO-1 + EVO-3a + EVO-4 + EVO-5 + EVO-6 + EVO-7 + rifiniture post-EVO-7 (ADR-0032) + catalogo stampanti (ADR-0033) — 309 test unitari + 93 E2E (71 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante) più 2 nello stato senza endpoint + 91 pgTAP (33 RLS + 41 multi-workspace + 17 profili)
 
 ---
 
@@ -44,6 +44,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 
 - `src/domain/cost.test.ts` — 18 test: conversioni, arrotondamenti, allocazione, esempio 1, lotto, pricing, guasti, tariffe, multi-materiale, sconti di riga/preventivo, limite a zero, somma esatta e proprietà.
 - `src/data/storage.test.ts` — 9 test: seed valido, colore riga valido/rifiutato, schema futuro rifiutato, payload invalido rifiutato, migrazione v1 → v4, envelope v1, backup raw prima della migrazione, v2 → v4 e v3 → v4 con `discountBp`.
+- `src/data/printer-catalog.test.ts` — 11 test: 29 preset e tutte le marche, ID/nomi/modelli univoci, Kobra del seed escluse, validità secondo `printerSchema`, unità intere, note bilingui e metadati di fonte, soli profili stimati PLA/PETG/ABS/ASA, ricerca e filtro marca, rilevamento “già presente” e match esatto con `printer_model` dell’import `.3mf`.
 - `src/data/repository.test.ts` — 6 test: contratto asincrono locale e fake, roundtrip, import, reset ed export.
 - `src/data/cloud/mappers.test.ts` — 8 test: settings/tariffe, stampanti/materiali/extra, archivio, preventivi, audit cloud, configurazione, unità intere e roundtrip.
 - `src/data/cloud/sync.test.ts` — 13 test: diff per entità, delete, deduplica outbox, priorità, ack con payload cambiato, metadati e tombstone, snapshot → `AppData`, decisione del primo login e dati locali significativi.
@@ -83,7 +84,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/data/three-mf/limits.test.ts` — 3 test: limiti predefiniti a 250 MiB compressi e 1 GiB decompressi, rifiuto oltre il limite senza leggere il file, accettazione del confine esatto.
 - `src/features/calculator/three-mf-messages.test.ts` — 1 test: `ARCHIVE_TOO_LARGE` mostra le soglie correnti in italiano e inglese.
 - `src/domain/three-mf-mapping.test.ts` — 15 test: una riga per piatto, aggregazione per materiale, zero grammi, errori di mapping, proposte stampante/materiali e property test su somma esatta e nessun supplemento.
-- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a **1176** chiavi dopo EVO-5 (36 `access.*` + 116 `landing.*` + `nav.overview`).
+- `src/i18n/i18n.test.ts` — 8 test: parità chiavi it/en, valori non vuoti, aree senza duplicati, plurali e relative forme opposte, placeholder coerenti, locale supportata, interpolazione e plurali con `Intl.PluralRules`. Parità a **1352** chiavi dopo il catalogo stampanti (ADR-0033).
 - `src/lib/share.test.ts` — 6 test: roundtrip con lingua, migrazione dei vecchi link senza `locale` a italiano, migrazione di `discountBp` alla regola percentuale, conservazione degli sconti di riga/preventivo, rimozione dell’audit cloud, payload non valido rifiutato.
 - `src/features/access/request-access.test.ts` — 17 test: validazione email/nome/messaggio/consenso, limiti dopo trim, payload `_subject`/`_replyto`/`_gotcha`, endpoint Formspree valido/assente/non valido, mapping 429/5xx/4xx/unknown, invio con `Accept`/`Content-Type`/`credentials: 'omit'`, errore di rete, endpoint mancante e honeypot senza rete.
 - `src/features/feedback/feedback.test.ts` — 15 test: validazione titolo/descrizione/email opzionale/consenso, limiti dopo trim, payload con e senza `_replyto`, endpoint Formspree, mapping errori, invio, rete, endpoint mancante e honeypot.
@@ -102,7 +103,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `tests/e2e/collapsible-cards.spec.ts` — 1 test: comprimi/espandi Preventivo, Stampe, Costi di lavoro, Prezzo e una riga; verifica sintesi, `aria-expanded`, campi nascosti e “Ripristina default” cliccabile senza aprire la card.
 - `tests/e2e/discounts.spec.ts` — 2 test: sconto di riga a importo fisso + sconto percentuale del preventivo, persistenza dopo il salvataggio; sconto fisso oltre il prezzo limitato a zero con avviso.
 - `tests/e2e/xlsx.spec.ts` — 2 test: download reale del workbook con preventivo archiviato e verifica di fogli e contenuto; pulsante disabilitato senza preventivi.
-- `tests/e2e/a11y.spec.ts` — 3 test: 45 scansioni axe (30 italiane, 15 inglesi) su tutte le route, incluse `/#/request-access`, `/#/docs/primi-passi`, `/#/docs/materiali` e `/#/feedback`, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni. Le altre scansioni sono in `landing.spec.ts` (8), `access.spec.ts` (4), `access-missing.spec.ts` (4), `docs.spec.ts` (1), `feedback.spec.ts` (4), `feedback-missing.spec.ts` (4), auth (4) e sync (5); il totale cresce con EVO-6.
+- `tests/e2e/a11y.spec.ts` — 3 test: 48 scansioni axe (32 italiane, 16 inglesi) su tutte le route, incluse `/#/request-access`, `/#/printers/catalog`, `/#/docs/primi-passi`, `/#/docs/materiali` e `/#/feedback`, tema chiaro desktop, tema scuro mobile e inglese desktop, menu, modali e import `.3mf` inclusi; 0 violazioni. Le altre scansioni sono in `landing.spec.ts` (8), `access.spec.ts` (4), `access-missing.spec.ts` (4), `docs.spec.ts` (1), `feedback.spec.ts` (4), `feedback-missing.spec.ts` (4), auth (4) e sync (5); il totale cresce con EVO-6.
 - `tests/e2e/landing.spec.ts` — 11 test: prima visita senza dati locali, CTA e marker, redirect per marker e dati, `/#/welcome`, Panoramica in sidebar, login/richiesta accesso, lingua, tema, axe 375/1440 IT/EN chiaro/scuro (8 scansioni), nessuna richiesta esterna, pre-render statico.
 - `src/features/landing/routing.test.ts` — 4 test sulla decisione landing/calcolatore.
 - `src/features/landing/preview.test.ts` — 3 test su costo/prezzo, monotonia e input non validi.
@@ -110,6 +111,7 @@ Playwright usa Chrome locale (`channel: 'chrome'`) per il progetto Chromium; in 
 - `src/features/landing/static-render.test.ts` — 1 test di allineamento dello snapshot `landing-static.html`.
 - `tests/e2e/webkit.spec.ts` — 2 test su WebKit: flusso critico con stampa, link condiviso e import.
 - `tests/e2e/release.spec.ts` — 3 test: backup esportato e reimportato; PDF A4 valido con foglio chiaro e margini bianchi partendo dal tema scuro; nessuna richiesta esterna, inclusa la pagina “Richiedi accesso” al caricamento.
+- `tests/e2e/printer-catalog.spec.ts` — 3 test: ricerca e filtro marca con conteggi e stato vuoto; aggiunta di A1 mini, seconda unità, verifica su Stampanti e persistenza dopo reload; dettagli potenze/fonte e nessun overflow a 375 px; interfaccia inglese.
 - `tests/e2e/visual.spec.ts` — 12 test, 42 screenshot: 21 italiani e 21 inglesi (calcolatore, modale import `.3mf`, dettaglio, preventivi, materiali, impostazioni e landing) a 1440/768/390 px. Saltati fuori dalla CI; le baseline del calcolatore e della landing sono state rigenerate su Linux dopo EVO-5. Le 6 baseline della landing sono PNG a viewport (non full page).
 - `tests/fixtures/3mf/` — fixture ridotte per l'import `.3mf` (T5.3.1): Kobra 3, Kobra X, multi-piatto e progetto non slicato. Il README indica slicer, versione e valori attesi; i test del parser sono in `parse.test.ts`.
 

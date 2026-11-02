@@ -1,6 +1,6 @@
 # Architettura
 
-**Stato:** v1.0.0 — MVP funzionale; landing pubblica EVO-5 (ADR-0029); documentazione in-app e Suggerimenti EVO-6 (ADR-0030); profili, nomi visibili e tag attività EVO-7 (ADR-0031), tutto distribuito in produzione
+**Stato:** v1.0.0 — MVP funzionale; landing pubblica EVO-5 (ADR-0029); documentazione in-app e Suggerimenti EVO-6 (ADR-0030); profili, nomi visibili e tag attività EVO-7 (ADR-0031); catalogo stampanti (ADR-0033), tutto distribuito in produzione tranne il catalogo, verificato in locale
 
 ---
 
@@ -89,7 +89,7 @@ Il risultato è memorizzato in `Quote.result`. Il ricalcolo usa lo snapshot; “
 src/
   app/            Layout, PublicLayout, AppShell, HydrationGate, routing, theme
   components/     ui.tsx, number-fields.tsx
-  data/           repository, storage, cloud-cache, schemas, seed, theme, visit, three-mf, cloud/
+  data/           repository, storage, cloud-cache, schemas, seed, printer-catalog, theme, visit, three-mf, cloud/
   domain/         units, money, types, version, cost/, three-mf
   features/       calculator, quotes, printers, materials, tariffs, extras, settings, compare, onboarding, auth, sync, access, landing, docs, feedback
   i18n/           it.ts, en.ts, index.ts
@@ -97,7 +97,7 @@ src/
   state/          app-store, auth-store, sync-store, workspace-store, persist-queue, theme-store, locale-store
 ```
 
-Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts`, `auth.ts`, `oauth.ts`, `gateway.ts`, `sync.ts` e `sync-state.ts`; `data/cloud-cache.ts` implementa la cache connessa. `features/auth/LoginPage.tsx`, `features/auth/OAuthCallbackRedirect.tsx`, `features/settings/SyncSettings.tsx`, `features/sync/SyncController.tsx`, i dialoghi di primo login/conflitto, `state/auth-store.ts` e `state/sync-store.ts` sono implementati. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`. EVO-5 introduce `app/PublicLayout.tsx`, `app/AppShell.tsx`, `app/meta.ts`, `features/landing/` (componenti, contenuti, demo dal vivo, pre-render statico e test) e `data/visit.ts`. EVO-6 aggiunge `features/docs/` (contenuti, i18n locale, pagina e test) e `features/feedback/` (pagina, validazione/trasporto e test), più `public/docs/` e `scripts/capture-docs.mjs`. EVO-4 aggiunge `features/workspace/` (selettore, pagina Spazio, messaggi), `state/workspace-store.ts` e `data/workspace-preference.ts`. EVO-7 aggiunge `features/settings/ProfileSettings.tsx`, `features/quotes/QuoteAuditTags.tsx` e `features/quotes/quote-audit.ts`, estende `state/workspace-store.ts` con profilo e directory e `data/cloud/gateway.ts` con `getProfile`/`saveProfile`; la migrazione `20261031120000_profiles.sql` crea `profiles` e le RPC collegate.
+Fase 5 (`docs/planning/t5.4-cloud-sync.md`): `data/cloud/` contiene `database.types.ts`, `mappers.ts`, `client.ts`, `auth.ts`, `oauth.ts`, `gateway.ts`, `sync.ts` e `sync-state.ts`; `data/cloud-cache.ts` implementa la cache connessa. `features/auth/LoginPage.tsx`, `features/auth/OAuthCallbackRedirect.tsx`, `features/settings/SyncSettings.tsx`, `features/sync/SyncController.tsx`, i dialoghi di primo login/conflitto, `state/auth-store.ts` e `state/sync-store.ts` sono implementati. Il dominio non cambia. T5.4.1 ha introdotto `state/persist-queue.ts` e `app/HydrationGate.tsx`. EVO-5 introduce `app/PublicLayout.tsx`, `app/AppShell.tsx`, `app/meta.ts`, `features/landing/` (componenti, contenuti, demo dal vivo, pre-render statico e test) e `data/visit.ts`. EVO-6 aggiunge `features/docs/` (contenuti, i18n locale, pagina e test) e `features/feedback/` (pagina, validazione/trasporto e test), più `public/docs/` e `scripts/capture-docs.mjs`. EVO-4 aggiunge `features/workspace/` (selettore, pagina Spazio, messaggi), `state/workspace-store.ts` e `data/workspace-preference.ts`. EVO-7 aggiunge `features/settings/ProfileSettings.tsx`, `features/quotes/QuoteAuditTags.tsx` e `features/quotes/quote-audit.ts`, estende `state/workspace-store.ts` con profilo e directory e `data/cloud/gateway.ts` con `getProfile`/`saveProfile`; la migrazione `20261031120000_profiles.sql` crea `profiles` e le RPC collegate. ADR-0033 aggiunge `data/printer-catalog.ts` e `features/printers/PrinterCatalogPage.tsx`, caricata solo dalla route `/#/printers/catalog`; i preset sono copiati in `Printer` e non entrano in `AppData`, snapshot o sync.
 
 Flusso connesso:
 

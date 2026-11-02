@@ -166,3 +166,63 @@ Questi dati non sono stimabili in modo affidabile da fonti esterne: il wizard in
 - **MDN — `Intl`:** https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
   - **Dati usati:** formattazione di prezzi, date, numeri e plurali per locale.
   - **Confidenza:** alta.
+
+---
+
+## 7. Catalogo stampanti (novembre 2026)
+
+**Data di rilevazione:** 2 novembre 2026.
+**Ambito:** 29 preset in `src/data/printer-catalog.ts`, esclusi Kobra 3 e Kobra X del seed.
+**Regola:** prezzi indicativi IVA inclusa per la macchina base; potenza nominale informativa; consumi medi stimati e mai usati come nominale.
+
+### 7.1 Bambu Lab
+
+- **Store ufficiale EU — pagine prodotto:** https://eu.store.bambulab.com/products/{a1-mini,a1,p1s,p2s,x2d,a2l,h2d,h2s,h2c}
+  - **Dati usati:** prezzo base, prezzo Combo, volume, potenza massima e nome del modello. Rilevati il 02/11/2026: A1 mini €179, A1 €239, P1S €349, P2S €449, X2D €549, A2L €349, H2D €1399, H2S €999, H2C €1799 (AMS Combo). Volumi verificati: H2S 340×320×340 mm, X2D 256×256×260 mm (ugello principale), H2C 330×320×325 mm; per gli altri modelli si usa il volume a ugello singolo.
+  - **Confidenza:** alta per prezzi e specifiche; i prezzi cambiano con promozioni e bundle.
+- **Bambu Lab Wiki — P1 e X1:** https://wiki.bambulab.com/en/p1 e https://wiki.bambulab.com/en/x1
+  - **Dati usati:** specifiche di P1P e X1 Carbon, entrambe fuori listino.
+  - **Confidenza:** alta per le specifiche; i prezzi €249 e €699 sono indicativi dell'usato e hanno confidenza bassa.
+- **Note:** i profili di potenza sono stime, non misure. `multicolor` resta `false` quando l'AMS non è inclusa nella SKU base; H2C è l'unica voce con AMS Combo nella versione considerata.
+
+### 7.2 Creality
+
+- **Pagine prodotto ufficiali:** https://www.creality.com/products/creality-ender-3-v3-ke e catalogo Creality.
+  - **Dati usati:** volume, potenza e specifiche di Ender-3 V2/V3 KE/S1 Pro, K1, K1 Max e K2 Plus.
+  - **Confidenza:** media. Alcune pagine hanno risposto 404 o 429 durante il rilevamento; prezzi e specifiche sono integrati con listini UE e schede pubbliche.
+- **Ender-3 e Ender-3 V2:** modelli fuori listino, prezzo indicativo dell'usato e confidenza bassa.
+- **Note:** K2 Plus ha CFS opzionale, quindi `multicolor: false` con `multicolorReady: true`.
+
+### 7.3 Anycubic
+
+- **Pagine prodotto ufficiali:** https://www.anycubic.com/products/kobra-2-pro, `/kobra-3-max`, `/kobra-s1` (accesso parziale: 429 durante il rilevamento).
+  - **Dati usati:** volume, potenza nominale e prezzo indicativo di Kobra 2 Pro, Kobra 3 Max e Kobra S1.
+  - **Confidenza:** media. Le due Kobra del seed restano invariate e non sono nel catalogo.
+
+### 7.4 Prusa Research
+
+- **Pagine prodotto ufficiali:** https://www.prusa3d.com/product/original-prusa-mk4s-3d-printer-kit/, https://www.prusa3d.com/product/prusa-core-one/ e catalogo Prusa MINI+.
+  - **Dati usati:** prezzo del kit, volume, potenza e specifiche di MK4S, Core One e MINI+.
+  - **Confidenza:** alta per le specifiche; il prezzo è quello del kit da assemblare, non della versione assemblata.
+
+### 7.5 Elegoo, FLSUN, Sovol e QIDI
+
+- **Pagine prodotto ufficiali:** https://eu.elegoo.com/products/neptune-4-pro, https://eu.elegoo.com/products/centauri-carbon, https://www.flsun3d.com/products/super-racer, https://www.sovol3d.com/products/sovol-sv08, https://qidi3d.com/products/plus4.
+  - **Dati usati:** volume, potenza nominale, prezzo indicativo e presenza di sistemi multicolore opzionali.
+  - **Confidenza:** media per Neptune 4 Pro, Centauri Carbon, SV08 e Plus4; bassa per Super Racer, fuori listino e con prezzo indicativo dell'usato.
+- **Note:** le pagine hanno risposto 429 durante il rilevamento; i valori sono quindi indicativi e marcati come tali. Il volume della Super Racer è cilindrico (Ø260 × 330 mm) e nel modello viene rappresentato come 260 × 260 × 330 mm.
+
+### 7.6 Sintesi del catalogo
+
+| Marca     | Modelli | Fonte principale        | Confidenza prevalente |
+| --------- | ------- | ----------------------- | --------------------- |
+| Bambu Lab | 11      | Store EU ufficiale      | alta                  |
+| Creality  | 7       | Sito ufficiale/lista UE | media                 |
+| Anycubic  | 3       | Sito ufficiale          | media                 |
+| Prusa     | 3       | Sito ufficiale          | alta                  |
+| Elegoo    | 2       | Sito ufficiale          | media                 |
+| FLSUN     | 1       | Scheda pubblica         | bassa                 |
+| Sovol     | 1       | Sito ufficiale          | media                 |
+| QIDI      | 1       | Sito ufficiale          | media                 |
+
+Tutti i profili di potenza sono stime indicative: la fonte descrive la macchina, non il consumo medio in stampa. La verifica va fatta con una presa intelligente seguendo il §4.

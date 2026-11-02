@@ -74,6 +74,16 @@ La tariffa corrente è quella con `effectiveFrom` più recente e ≤ data del pr
 
 `PowerProfile`: `{ avgWatts: Watts; source: 'measured' | 'estimated' | 'vendor'; note?: string }`.
 
+#### 2.3.1 Catalogo stampanti
+
+`src/data/printer-catalog.ts` contiene 29 preset statici per le stampanti FDM più diffuse. Il catalogo **non è un'entità persistita**: non fa parte di `AppData`, non ha `schemaVersion`, non viene salvato in `layercost:data`, nei backup, negli snapshot o nel cloud e non è letto dal motore di costo.
+
+- `PrinterCatalogEntry` descrive marca, nome, `model` compatibile con lo slicer, prezzo, valore residuo, vita utile, manutenzione, avvio, multicolor, volume, potenza nominale, quattro profili medi stimati (PLA, PETG, ABS, ASA) più il default, note IT/EN, fonte e confidenza.
+- `catalogEntryToPrinter(entry, locale)` restituisce `Omit<Printer, 'id'>` con `archived: false`, nessun `energyTariffId`, note nella lingua attiva e profili `source: 'estimated'`.
+- L'aggiunta usa il normale `addPrinter`, che genera l'ID e salva una copia modificabile. Lo stesso modello può essere aggiunto più volte.
+- Le due stampanti del seed (Kobra 3 e Kobra X) sono escluse dal catalogo perché già presenti nella configurazione iniziale.
+- Il campo `model` segue il nome dello slicer per essere proposto dall'import `.3mf` con match esatto.
+
 ### 2.4 `Material`
 
 | Campo               | Tipo             | Note                        |
@@ -114,7 +124,7 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 | `finishingSecondsPerUnit` | `Seconds`                                                |                                         |
 | `extraIds`                | string[]                                                 | Extra `perUnit`                         |
 | `overrides`               | `{ powerOverrideW?, energyOverrideWh?, failureRateBp? }` |                                         |
-| `discount`                | `DiscountRule?`                                         | Sconto sulla riga, dopo il ricarico     |
+| `discount`                | `DiscountRule?`                                          | Sconto sulla riga, dopo il ricarico     |
 | `color`                   | string?                                                  | Filamento `#rrggbb`, solo presentazione |
 | `notes`                   | string?                                                  |                                         |
 
@@ -123,7 +133,7 @@ Un extra `perJob` non può essere attaccato a una riga; un extra `perUnit` non p
 ```ts
 type DiscountRule =
   | { mode: 'percent'; valueBp: BasisPoints } // 0–90%
-  | { mode: 'amount'; amount: MicroEur }     // importo fisso, limitato al prezzo
+  | { mode: 'amount'; amount: MicroEur } // importo fisso, limitato al prezzo
 ```
 
 Un importo fisso di riga si applica al totale della riga, non a ogni pezzo. Lo sconto è commerciale: non entra nel costo, nello snapshot economico o nella riserva guasti.
@@ -150,7 +160,7 @@ Un importo fisso di riga si applica al totale della riga, non a ogni pezzo. Lo s
 | `engineVersion`          | string?                                             |                              |
 | `createdAt`, `updatedAt` | ISO string                                          |                              |
 | `archived`               | boolean?                                            |                              |
-| `createdBy`, `updatedBy` | UUID string?                                        | Solo cloud; audit             |
+| `createdBy`, `updatedBy` | UUID string?                                        | Solo cloud; audit            |
 
 `QuotePricing`: `{ mode, markupBp, marginBp, roundingStep, roundingMode, discount?: DiscountRule, vatMode, vatRateBp }`.
 
@@ -278,18 +288,18 @@ Il modello cloud è in `supabase/migrations/20261028120000_init.sql`, `supabase/
 
 Gli account (email, password, sessione) sono gestiti da **Supabase Auth** in `auth.users`; i nomi visibili vivono nella tabella applicativa `profiles`, le membership collegano `auth.users` ai workspace. La sessione è un token tecnico nel browser, non un dato economico e non entra nei backup.
 
-| Tabella | Contenuto |
-| --- | --- |
-| `workspaces` | Spazio; ID `text` stabile; `kind` `personal` o `shared` |
-| `profiles` | Nome visibile unico per utente; leggibile solo via RPC |
-| `workspace_members` | Membership `owner`/`editor`; PK `(workspace_id, user_id)`, FK a `auth.users` |
-| `workspace_invites` | Codici invito monouso; solo hash SHA-256, scadenza, ruolo e revoca |
-| `settings` | Una riga per workspace, campi scalari di `Settings` |
-| `energy_tariffs` | Tariffe energia con `effective_from` |
-| `printers` | Stampanti, profili potenza JSONB, `archived_at` |
-| `materials` | Materiali, famiglia, prezzo al kg, `archived_at` |
-| `extras` | Extra `perUnit`/`perJob`, `archived_at` |
-| `quotes` | Preventivi `saved`/`sent`/`completed`; righe, lavoro, prezzo, snapshot e risultato in JSONB |
+| Tabella             | Contenuto                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| `workspaces`        | Spazio; ID `text` stabile; `kind` `personal` o `shared`                                     |
+| `profiles`          | Nome visibile unico per utente; leggibile solo via RPC                                      |
+| `workspace_members` | Membership `owner`/`editor`; PK `(workspace_id, user_id)`, FK a `auth.users`                |
+| `workspace_invites` | Codici invito monouso; solo hash SHA-256, scadenza, ruolo e revoca                          |
+| `settings`          | Una riga per workspace, campi scalari di `Settings`                                         |
+| `energy_tariffs`    | Tariffe energia con `effective_from`                                                        |
+| `printers`          | Stampanti, profili potenza JSONB, `archived_at`                                             |
+| `materials`         | Materiali, famiglia, prezzo al kg, `archived_at`                                            |
+| `extras`            | Extra `perUnit`/`perJob`, `archived_at`                                                     |
+| `quotes`            | Preventivi `saved`/`sent`/`completed`; righe, lavoro, prezzo, snapshot e risultato in JSONB |
 
 Le tabelle dati (`energy_tariffs`, `printers`, `materials`, `extras`, `quotes`) hanno **PK `(workspace_id, id)`**: ogni spazio può riusare gli stessi ID di seed (`printer-kobra-3`, `material-pla`, …). Le FK restano confinate allo spazio, per esempio `printers (workspace_id, energy_tariff_id) → energy_tariffs (workspace_id, id)`.
 

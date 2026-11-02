@@ -80,6 +80,7 @@ test('l’app non chiama servizi esterni', async ({ page }) => {
     '/#/quotes',
     '/#/compare',
     '/#/printers',
+    '/#/printers/catalog',
     '/#/materials',
     '/#/tariffs',
     '/#/extras',
