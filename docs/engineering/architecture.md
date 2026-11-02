@@ -1,6 +1,6 @@
 # Architettura
 
-**Stato:** v1.0.0 — MVP funzionale; landing pubblica EVO-5 (ADR-0029); documentazione in-app e Suggerimenti EVO-6 (ADR-0030); profili, nomi visibili e tag attività EVO-7 (ADR-0031); catalogo stampanti (ADR-0033), tutto distribuito in produzione tranne il catalogo, verificato in locale
+**Stato:** v1.0.0 — MVP funzionale; landing pubblica EVO-5 (ADR-0029); documentazione in-app e Suggerimenti EVO-6 (ADR-0030); profili, nomi visibili e tag attività EVO-7 (ADR-0031); catalogo stampanti (ADR-0033), tutto distribuito in produzione
 
 ---
 

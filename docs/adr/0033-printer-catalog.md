@@ -1,6 +1,6 @@
 # ADR-0033 — Catalogo statico di profili stampante
 
-**Stato:** Accettato; implementato e verificato in locale il 2 novembre 2026
+**Stato:** Accettato; implementato, verificato e distribuito in produzione il 2 novembre 2026 (build `index-qC6ZIM_A.js` / `index-BJQMHja1.css`)
 **Data:** 2 novembre 2026
 **Relazione:** aggiunge preset non persistiti; non cambia formule, `engineVersion`, schema dati, backup o sync
 
