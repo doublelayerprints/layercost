@@ -363,7 +363,7 @@ La sidebar raggruppa i link in tre sezioni — Lavoro, Configurazione, Aiuto —
 - `inspect.mjs --app` a 1440/768/390: **0 FAIL, 1 WARN** in tema chiaro (T4.4) e **0 FAIL, 1 WARN** con il sistema in tema scuro (T4.7). Il WARN è `ragged-row`: il pannello risultato è una rail sticky alta meno del form, come da wireframe §3.4 della direzione. Non è una coppia di card affiancate da bilanciare: mentre si scorre, il pannello resta in vista.
 - Tastiera: skip link con anello da 2 px `#5b21b6`; apertura e chiusura con Esc del dialogo di condivisione; focus restituito al pulsante che l’ha aperto.
 - A 390 px nessuna delle route (calcolatore, preventivi, dettaglio, stampanti, materiali, tariffe, extra, impostazioni, confronto, link condiviso) produce scroll orizzontale della pagina. Le tabelle larghe scorrono dentro il proprio contenitore (`relative overflow-x-auto`).
-- Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari non era verificato in T4.4; la release 1.0 copre l'engine WebKit e il PDF A4, mentre una prova su stampante fisica resta manuale.
+- Stampa: PDF A4 generato da Chrome con `@page` 14 mm, stack in toni di grigio, totali allineati, footer presente. Safari è stato provato sulla produzione il 02/11/2026; la release 1.0 copre l'engine WebKit e il PDF A4, mentre una prova su stampante fisica resta manuale.
 - Produzione Vercel: deploy `759ed0f` (T4.5) verificato su https://layercost.vercel.app con lo stesso gate (0 FAIL, 1 WARN); prezzo 3,70 € con il nuovo seed, conferma della bozza e alert di salvataggio verificati. Le preview deployment sono protette da SSO; la produzione è pubblica.
 - `font-not-dealt` è un redraw documentato (Geist → Archivo + Source Serif 4); il gate si esegue con `--allow font-not-dealt`.
 
@@ -424,7 +424,7 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Safari e stampa (T3.8).** Il flusso critico gira su WebKit; la stampa è verificata con `@media print` su WebKit e con un PDF A4 su Chromium, anche partendo dal tema scuro.
 - **Accessibilità (T3.11).** `@axe-core/playwright` esegue 25 scansioni su tutte le route in chiaro e scuro, menu mobile e modali inclusi: 0 violazioni WCAG 2.2 AA. Le tabelle con scroll orizzontale hanno `role="region"`, nome accessibile e `tabIndex={0}`.
 - **Regressione visiva (T3.12).** 15 screenshot a 1440/768/390 px con baseline Linux; i test girano in CI e sono saltati su macOS.
-- **Resta manuale:** prova su stampante fisica e con screen reader reale.
+- **Resta manuale:** prova su stampante fisica. VoiceOver è stato provato il 02/11/2026; resta consigliata una prova con NVDA.
 - Nessun cambio a token, formule, unità, snapshot o persistenza senza un nuovo ADR/test.
 
 ### 8.4 Dark mode — esito (T4.7)

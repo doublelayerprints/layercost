@@ -139,19 +139,20 @@ La root è indicizzabile: `index.html` contiene la landing italiana pre-renderiz
 | `docs/design/ui-brief.md`               | Requisiti per la fase design                                    |
 | `docs/design/directions.md`             | Direzioni e scelta visiva                                       |
 | `docs/design/design-system.md`          | Token, componenti, accessibilità                                |
-| `docs/adr/`                             | 31 decisioni architetturali                                     |
+| `docs/adr/`                             | 31 ADR + 0027 riservato a EVO-2                                  |
 
 ## Stato
 
 - **v1.0.0:** fasi 0–4 complete e rilasciate; tag `v1.0.0` su `cc949b3`.
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
-- **Verifiche:** 297 unitari, 84 E2E (62 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante), 91 test pgTAP (33 RLS + 41 multi-workspace + 17 profili), 42 screenshot di regressione, 68 scansioni axe con 0 violazioni, smoke test di produzione, keep-alive, backup cifrato e budget.
-- **Fuori v1:** sync cloud (richiesto), magazzino bobine e PWA (non in scope attuale).
+- **Verifiche:** 298 unitari, 90 E2E (68 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante), 91 test pgTAP (33 RLS + 41 multi-workspace + 17 profili), 42 screenshot di regressione, axe su tutte le route con 0 violazioni, smoke test di produzione, keep-alive, backup cifrato e budget.
+- **Fuori v1:** magazzino bobine e PWA (non in scope attuale).
 - **Landing:** EVO-5 implementata il 29/10/2026 e distribuita il 30/10/2026 (ADR-0029): route `/#/`, `/#/calculator`, `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot; smoke di produzione verde.
 - **Nomi visibili e tag attività:** EVO-7 implementata, distribuita e verificata in produzione il 31/10/2026 (ADR-0031, PR #50, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`): nome profilo unico in **Impostazioni → Profilo**, tag “Creato da …” e “Ultima modifica di …” con data nella lista Preventivi degli spazi condivisi, nomi visibili nel dettaglio, 17 pgTAP profili, 297 unitari, 5 E2E sync; budget 229,9/232 KB. Migrazione applicata dopo backup verificato, smoke e verifica reale con due account.
+- **Rifiniture post-EVO-7 (1–2/11/2026):** select in stile applicazione senza menu nativo (ADR-0032), tag audit come colonne nella lista Preventivi (#54), nomi lunghi contenuti nelle card compresse (#55) e ripristino corretto della route dopo una navigazione rapida. Build di produzione `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`; 298 unitari, 90 E2E (68 passati, 22 saltati), budget 232,2/236 KB iniziali e 299,5/350 KB totali.
 - **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password), **T5.4.4 chiuso** (sync, outbox e conflitti), **T5.4.5 chiuso** (workspace condiviso, runbook e audit) e **T5.4.6 chiuso** (keep-alive, backup, CI database, budget e deploy). Il cloud è **live** su https://layercost.vercel.app con Supabase Free EU e due account owner. **EVO-4 — spazi separati** (ADR-0028) è **distribuito in produzione il 30/10/2026** (build `index-eT8g6H47.js`, smoke verde): ogni utente ha uno spazio personale e può appartenere a più spazi condivisi, con inviti tramite codice. Piano in `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-4-multi-workspace.md`, runbook in `docs/engineering/workspace-runbook.md`, backup in `docs/engineering/backup-restore.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.
 - **Repo GitHub:** https://github.com/doublelayerprints/layercost (privata).
-- **CI:** verde su GitHub (`check` + `e2e`).
+- **CI:** verde su GitHub (`check` + `e2e` + `database`).
 - **Deploy Vercel:** live su https://layercost.vercel.app, collegato alla repo; cloud Supabase attivo con due account owner.
 
 La directory locale e il repository GitHub sono `layercost`; il nome del prodotto è **LayerCost**. Per lo stato aggiornato vedi `STATUS.md`.

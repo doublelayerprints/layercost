@@ -28,7 +28,7 @@ Il committente ha chiesto un menu dell'applicazione, coerente con la superficie,
 
 8. **Accessibilità.** Label associata dal `Field` al pulsante, `aria-describedby`/`aria-invalid` ereditati dal contesto, `aria-selected` sulle opzioni, `aria-disabled` sulle opzioni non selezionabili, lista non renderizzata quando non ci sono opzioni. Il valore corrente resta leggibile come contenuto del combobox.
 
-9. **Budget.** Il componente aggiunge **2,2 KB gzip** al bundle iniziale (da 230,0 a 232,1 KB). Il limite iniziale passa da **232 KB a 236 KB**; il totale iniziale misurato è 299,4 KB su 350 KB. La motivazione è la sostituzione di un controllo trasversale, usato in tutte le schermate, con un widget accessibile e senza dipendenze.
+9. **Budget.** Il componente aggiunge **2,2 KB gzip** al bundle iniziale (da 230,0 a 232,2 KB). Il limite iniziale passa da **232 KB a 236 KB**; il totale iniziale misurato è 299,5 KB su 350 KB. La motivazione è la sostituzione di un controllo trasversale, usato in tutte le schermate, con un widget accessibile e senza dipendenze.
 
 10. **Nessun impatto sul dominio.** Non cambiano formule, `engineVersion`, snapshot, `AppData`, schema locale, sync, backup o chiamate di rete.
 

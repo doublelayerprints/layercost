@@ -1,9 +1,9 @@
 # Fase 5 — Piano operativo
 
-**Stato:** **Fase 5 chiusa** — T5.3, T5.6, T5.12, T5.13–T5.22 e T5.4.0–T5.4.6 completati. Le evolutive EVO-1, EVO-3a, EVO-4, EVO-5, EVO-6 ed EVO-7 sono distribuite in produzione; il prossimo task è **EVO-2 — tetti utenti/preventivi** (ADR-0027).
-**Data:** 1 novembre 2026
+**Stato:** **Fase 5 chiusa** — T5.3, T5.6, T5.12, T5.13–T5.22 e T5.4.0–T5.4.6 completati. Le evolutive EVO-1, EVO-3a, EVO-4, EVO-5, EVO-6 ed EVO-7 e le rifiniture post-EVO-7 (ADR-0032) sono distribuite in produzione; il prossimo task è **EVO-2 — tetti utenti/preventivi** (ADR-0027).
+**Data:** 2 novembre 2026
 **Base:** v1.0.0, commit `cc949b3`
-**Prossima sessione:** fase 5 chiusa. Prossimo task **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi EVO-3b. Evolutive completate in `docs/planning/evolutive.md`; piano EVO-7 in `docs/planning/evo-7-quote-audit-tags.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`; smoke test in `docs/engineering/deployment.md` §13.
+**Prossima sessione:** fase 5 chiusa. Prossimo task **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi EVO-3b. Le rifiniture post-EVO-7 sono distribuite e le verifiche manuali Safari/VoiceOver, la misura `.3mf` da 150–250 MB, il confronto di `prediction` e il feedback sui seed sono chiusi; `prediction` e i valori di seed sono stati confermati. Evolutive completate in `docs/planning/evolutive.md`; piano EVO-7 in `docs/planning/evo-7-quote-audit-tags.md`; runbook in `docs/engineering/workspace-runbook.md`; backup in `docs/engineering/backup-restore.md`; smoke test in `docs/engineering/deployment.md` §13.
 **Regole:** un ADR prima del codice, nessun cambio a formule/`engineVersion`/snapshot senza ADR e test, documentazione e test nello stesso commit.
 
 ---
@@ -77,7 +77,7 @@ Fixture ridotte in `tests/fixtures/3mf/`, con README e valori attesi:
 - `plater_name` è vuoto nei fixture: il fallback nome file + “piatto N” è necessario.
 - `3D/3dmodel.model` → `Application` è `BambuStudio-2.0.0.3` anche nei file Anycubic. Gli header `X-ACNext-Client-Version` (Anycubic) e `X-BBL-Client-Version` (Bambu) sono più affidabili di `Application`.
 - Un file Bambu Studio 01.10.02.73 (P1S, 8 piatti) è stato verificato localmente: stessa struttura, `printer_model_id` = `C12`, `weight` = somma `used_g` entro 0,01 g. Non è committato per la licenza del modello; serve un fixture Bambu con permesso o modello neutro in T5.3.2.
-- Non è stato possibile verificare se `prediction` include il riscaldamento iniziale: serve il confronto con una stampa reale (domanda 2).
+- Il confronto di `prediction` con una stampa reale è stato eseguito il 02/11/2026 e il valore è stato accettato; non serve una correzione al motore (domanda 2).
 
 ### 2.3 Pipeline
 
@@ -117,7 +117,7 @@ Parser implementato in `src/data/three-mf/`; il tipo normalizzato è in `src/dom
 | piatti multipli                      | righe multiple                | Ogni piatto selezionato è una riga con quantità 1; i tempi si sommano nel totale.                                    |
 | `used_g` totale                      | grammi                        | Già comprensivo di supporti, purge, flush e prime tower. Nessun supplemento.                                         |
 
-**Attenzione:** `prediction` è una stima dello slicer e può non includere i minuti di avvio della stampante. Il motore aggiunge `startupMinutes` per riga; non si deve aggiungere una seconda volta. Documentare l'assunzione e verificarla con una stampa reale.
+**Attenzione:** `prediction` è una stima dello slicer e può non includere i minuti di avvio della stampante. Il motore aggiunge `startupMinutes` per riga; non si deve aggiungere una seconda volta. L'assunzione è stata verificata con una stampa reale il 02/11/2026 ed è stata accettata.
 
 ### 2.4.1 Esito T5.3.3 (26/10/2026)
 
@@ -183,13 +183,13 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 - **Fixture**: file reali ridotti, con permesso d'uso; niente dati personali. Salvarli in `tests/fixtures/3mf/` con README che indica slicer e versione. Il fixture Bambu reale è ancora da autorizzare.
 - **Performance**: un file da 50 MB viene letto senza bloccare la UI; target < 3 s su MacBook recente.
 
-**Stato T5.3.2:** 18 test in `src/data/three-mf/parse.test.ts`. Coperti Anycubic reale, Bambu sintetico, multi-piatto, XML/DOCTYPE, `project_settings`, pesi, materiali, fallback G-code e limiti ZIP. Orca reale, file da 50–250 MB e worker in browser restano da verificare in T5.3.5.
+**Stato T5.3.2:** 18 test in `src/data/three-mf/parse.test.ts`. Coperti Anycubic reale, Bambu sintetico, multi-piatto, XML/DOCTYPE, `project_settings`, pesi, materiali, fallback G-code e limiti ZIP. Il worker in browser è coperto dall'E2E di import; la misura con un file reale da 150–250 MB è stata completata il 02/11/2026.
 
 **Stato T5.3.3:** 15 test in `src/domain/three-mf-mapping.test.ts` (unitari + property), 75 unitari totali. Coperti mapping, aggregazione per materiale, zero grammi, errori di mapping, proposte exact/contains/family/ambiguous/missing e filtro archiviati.
 
 **Stato T5.3.4:** 8 E2E in `tests/e2e/import.spec.ts`: file input, drag & drop, multi-piatto, mappatura ambigua, conferma append/replace, errore non slicato, salvataggio/reload e overflow a 375 px. Aggiunta una scansione axe nel modale mobile scuro: 26 E2E e 26 scansioni totali, 0 violazioni. Il test browser del worker è coperto dall'import E2E.
 
-**Stato T5.3.5:** performance verificata con un file reale esportato dallo slicer (`1026-1206-prova volpe_plate(01)_PLA_0.12_6h32m3s.gcode.3mf`, 22 MB compressi, 75 MB di G-code decompresso): dialogo in 915 ms in produzione, 70,05 g, 6h 32m, PLA, Kobra 3. Archivio sintetico da 50 MB in 95–107 ms; progetto non slicato `rayquaza+230.3mf` (15 MB, 14 piatti) rifiutato in 100–102 ms. Aggiunti 3 screenshot di regressione del modale import (18 totali); il fixture Bambu reale resta da autorizzare o sostituire con un modello neutro.
+**Stato T5.3.5:** performance verificata con un file reale esportato dallo slicer (`1026-1206-prova volpe_plate(01)_PLA_0.12_6h32m3s.gcode.3mf`, 22 MB compressi, 75 MB di G-code decompresso): dialogo in 915 ms in produzione, 70,05 g, 6h 32m, PLA, Kobra 3. Archivio sintetico da 50 MB in 95–107 ms; progetto non slicato `rayquaza+230.3mf` (15 MB, 14 piatti) rifiutato in 100–102 ms. Il 02/11/2026 è stata completata la misura con un file reale nella fascia 150–250 MB. Aggiunti 3 screenshot di regressione del modale import (18 totali); il fixture Bambu reale resta da autorizzare o sostituire con un modello neutro.
 
 ### 2.9 Criteri di accettazione
 
@@ -199,17 +199,17 @@ Mapping puro in `src/domain/three-mf-mapping.ts`:
 - Nessuna richiesta di rete; nessun dato lascia il browser.
 - Test unitari, E2E e axe verdi; documentazione aggiornata.
 
-**Esito T5.3 (26/10/2026):** criteri soddisfatti. Performance: archivio sintetico 50 MB in ~100 ms, progetto non slicato 15 MB rifiutato in ~100 ms. Il fixture Bambu reale resta opzionale; il percorso è coperto da un test sintetico.
+**Esito T5.3 (26/10/2026):** criteri soddisfatti. Performance: archivio sintetico 50 MB in ~100 ms, progetto non slicato 15 MB rifiutato in ~100 ms. Il 02/11/2026 è stata completata anche la misura con un file reale nella fascia 150–250 MB. Il fixture Bambu reale resta opzionale; il percorso è coperto da un test sintetico.
 
 ### 2.10 Domande aperte / spike iniziale
 
 1. **File reale Anycubic Slicer Next:** **verificato** con Anycubic Slicer Next 2.0.0.3. Produce `slice_info.config` con `prediction`, `weight` e `<filament>`, stessa struttura di Orca/Bambu ma header `X-ACNext-Client-Version`. Dettagli in §2.2.1.
-2. **`prediction` e avvio:** **aperto.** I valori sono in secondi, ma non è verificato se includano il riscaldamento iniziale; serve il confronto con una stampa reale.
+2. **`prediction` e avvio:** **verificato il 02/11/2026.** Il confronto con una stampa reale è stato eseguito e il valore è stato accettato; nessuna modifica al motore.
 3. **Multi-piatto:** **confermato** dal fixture a 2 piatti: ogni `<plate>` è una riga separata; l'avvio del motore resta per riga.
 4. **Materiali multipli dello stesso tipo:** **risolto in T5.3.3.** Ogni filamento viene mappato a un materiale scelto; i grammi si sommano solo quando due filamenti finiscono sullo stesso materiale. La proposta automatica è per famiglia e, se ci sono più materiali della stessa famiglia, chiede conferma.
 5. **Dipendenza ZIP:** **risolto in T5.3.2:** `fflate` 0.8.3 come dipendenza runtime; nota tecnica in `docs/engineering/architecture.md` §9.
 6. **XML:** **risolto in T5.3.2/T5.3.4:** `DOMParser` nativo nel thread principale, `@xmldom/xmldom` nel Web Worker (dove `DOMParser` non esiste) e nei test Node; DOCTYPE/ENTITY rifiutati.
-7. **Limite dimensione:** **aperto.** Limiti di sicurezza impostati a 250 MiB compressi e 1 GiB decompressi; vanno misurati con file reali da 50–250 MB in T5.3.5.
+7. **Limite dimensione:** **verificato il 02/11/2026.** Limiti di sicurezza impostati a 250 MiB compressi e 1 GiB decompressi; la misura con un file reale nella fascia 150–250 MB è stata completata.
 8. **Tracciabilità:** **rimandato.** `PrintLine.source` non serve al costo; valutare dopo il prototipo.
 9. **Import UI — aggiungere o sostituire:** **risolto in T5.3.4.** Se la bozza ha contenuto, il dialogo offre “Aggiungi alla bozza”, “Sostituisci le righe” e “Indietro”; nome, cliente, costi di lavoro e prezzo restano invariati.
 10. **Fixture Bambu committabile:** **aperto.** Il percorso Bambu è coperto da test sintetico; il fixture reale attende il permesso del modello o un modello neutro.
@@ -532,7 +532,7 @@ Refactor async del repository: 1–2 giorni. Schema/RLS/trigger e auth: 2–3 gi
 
 Prompt sintetico da riusare:
 
-> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5 e sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1 e §13, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.22 e T5.4.0–T5.4.6 sono chiusi; il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner e workspace `ws-doublelayer`. `main` = `origin/main` = `4017c36` (T5.4 + docs); CI `main`, smoke test, keep-alive e backup verdi. Per le evolutive future (Google login, tetti utenti/preventivi) il punto di partenza è `docs/planning/evolutive.md`. `.env.local` contiene le credenziali di produzione ed è gitignored; su Vercel ci sono solo le due env pubbliche. Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` e il job CI `database` verdi.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (fase 5 e sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/t5.4-cloud-sync.md` (incluso §0), `docs/planning/phase-5.md` §4, `docs/engineering/architecture.md` §4, `docs/engineering/deployment.md` §1.1 e §13, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/testing.md`, `docs/domain/data-model.md` §7 e ADR-0024. T5.3, T5.6, T5.12, T5.13–T5.22 e T5.4.0–T5.4.6 sono chiusi; il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account owner e workspace `ws-doublelayer`. `main` = `origin/main` fino a `b2fd798`; CI `main`, smoke test, keep-alive e backup verdi. Per le evolutive già distribuite e per i prossimi tetti utenti/preventivi il punto di partenza è `docs/planning/evolutive.md`. `.env.local` contiene le credenziali di produzione ed è gitignored; su Vercel ci sono solo le env pubbliche (Supabase, flag Google e endpoint Formspree). Non cambiare formule, `engineVersion` o snapshot economici senza un nuovo ADR. Un task = un commit; `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` e il job CI `database` verdi.
 
 ---
 

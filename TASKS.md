@@ -1,13 +1,15 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 in corso; EVO-7 distribuita e verificata in produzione; CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7 e rifiniture post-EVO-7 (ADR-0032) distribuite e verificate in produzione; prossimo EVO-2; CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
-**Data:** 31 ottobre 2026
+**Data:** 2 novembre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
 
 Legenda: `[ ]` da fare · `[~]` parziale/da verificare · `[x]` fatto · `[!]` bloccato
 
-**Stato al 31/10/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.22** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti, card comprimibili e rinomina dal titolo) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). **EVO-5 — Landing page pubblica** (ADR-0029) è implementata e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`): route `/#/`, `/#/calculator` e `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot e budget JS 218,2/230 KB, HTML 6,0/10 KB; smoke verde. **EVO-6 — Documentazione in-app e Suggerimenti** (ADR-0030) è implementata, configurata e **distribuita in produzione il 30/10/2026** (PR #36, squash `ec321fb`, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`): guida a dieci sezioni con indice e link diretti, screenshot reali, form Formspree separato con env locale/Vercel, Restrict to Domain e submission di test verificata; budget iniziale 220,2/230 KB. Restano submission di produzione e pulizia di quella di test. **T5.22 — Rinomina del preventivo dal titolo** è chiuso e distribuito in produzione il 30/10/2026 (PR #42, squash `f48097b`): titolo con sottolineatura viola e click-to-edit, input senza focus ring né selezione automatica, Invio/blur/Esc e campo duplicato rimosso dalla card Preventivo; smoke e verifica reale verdi. **EVO-7 — Nomi visibili e tag attività dei preventivi** (ADR-0031) è implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, squash `ce8c207`, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`): tabella `profiles`, nome visibile in Impostazioni → Profilo, tag creatore/ultima modifica nella lista, nomi nel dettaglio, 17 pgTAP profili (91 totali), 297 unitari e 5 E2E sync verdi; migrazione applicata dopo backup verificato, smoke e verifica reale con due account, cleanup completo. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist) ed EVO-4 (multi-workspace, ADR-0028). Le prove manuali Safari/VoiceOver sono rimandate e non bloccanti. Le 42 baseline visive (36 app + 6 landing) sono state verificate su Linux con EVO-5; le baseline app sono state rigenerate per EVO-6.
+**Stato al 02/11/2026:** Fase 0–4 completata e rilasciata come **v1.0.0**. Fase 5 chiusa per **T5.3** (import `.3mf`), **T5.6** (interfaccia inglese), **T5.12** (export `.xlsx`), **T5.13–T5.22** (preventivi, card, preferenze, colore filamento, utile, vista cliente, composizione, sconti, card comprimibili e rinomina dal titolo) e **T5.4.0–T5.4.6** (sync cloud, workspace condiviso, operazioni e deploy). Il cloud è **live in produzione** su Supabase Free EU con due account owner e signup disabilitato. **EVO-1 — Google login** (ADR-0025) è mergiato (PR #24) e distribuito il 29/10/2026; **entrambi gli account hanno Google** (2 identità su 2). **EVO-3a — Richiedi accesso** (ADR-0026) è implementato, configurato con Formspree e distribuito il 29/10/2026 (PR #26, squash `125f0d5`): route lazy, form di produzione e test, notifica email verificata, i18n IT/EN, axe e budget 210 KB; submission reale e smoke verdi. Il limite dell’import `.3mf` è stato portato a **250 MiB compressi / 1 GiB decompressi** e distribuito il 29/10/2026 (PR #28, squash `338d693`). **EVO-5 — Landing page pubblica** (ADR-0029) è implementata e distribuita in produzione il 30/10/2026 (PR #30, squash `29b954b`; copy gratuita PR #32, squash `294c6f1`; top bar PR #34, squash `8d7d2e2`): route `/#/`, `/#/calculator` e `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot e budget JS 218,2/230 KB, HTML 6,0/10 KB; smoke verde. **EVO-6 — Documentazione in-app e Suggerimenti** (ADR-0030) è implementata, configurata e **distribuita in produzione il 30/10/2026** (PR #36, squash `ec321fb`, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`): guida a dieci sezioni con indice e link diretti, screenshot reali, form Formspree separato con env locale/Vercel, Restrict to Domain e submission di test verificata; budget iniziale 220,2/230 KB. Restano submission di produzione e pulizia di quella di test. **T5.22 — Rinomina del preventivo dal titolo** è chiuso e distribuito in produzione il 30/10/2026 (PR #42, squash `f48097b`): titolo con sottolineatura viola e click-to-edit, input senza focus ring né selezione automatica, Invio/blur/Esc e campo duplicato rimosso dalla card Preventivo; smoke e verifica reale verdi. **EVO-7 — Nomi visibili e tag attività dei preventivi** (ADR-0031) è implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, squash `ce8c207`, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`): tabella `profiles`, nome visibile in Impostazioni → Profilo, tag creatore/ultima modifica nella lista, nomi nel dettaglio, 17 pgTAP profili (91 totali), 297 unitari e 5 E2E sync verdi; migrazione applicata dopo backup verificato, smoke e verifica reale con due account, cleanup completo. Prossimo: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (allowlist); EVO-4 (multi-workspace, ADR-0028) è già distribuito. Le prove manuali Safari/VoiceOver sono state eseguite il 02/11/2026; restano facoltative stampa fisica e NVDA. Le 42 baseline visive (36 app + 6 landing) sono state verificate su Linux; le baseline app sono state rigenerate per EVO-6 e per la select ADR-0032.
+
+**Aggiornamento 2/11/2026:** le rifiniture post-EVO-7 sono distribuite in produzione (select in stile applicazione ADR-0032, tag audit come colonne #54, nomi lunghi nelle card #55, fix del ripristino route; build `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`). Verifiche: 298 unitari, 90 E2E (68 passati, 22 saltati) più 2 nello stato senza endpoint, budget 232,2/236 KB iniziali e 299,5/350 KB totali. Le verifiche manuali Safari/VoiceOver, la misura dell'import `.3mf` da 150–250 MB, il confronto di `prediction` con una stampa reale e il feedback sui valori di seed sono stati chiusi; `prediction` e i valori di seed sono stati confermati. Restano EVO-2 (tetti utenti/preventivi, ADR-0027), EVO-3b (allowlist/Auth Hook) e i follow-up visual/feedback.
 
 ---
 
@@ -614,7 +616,7 @@ Un task è chiuso solo se:
 **Dipende da:** T3.2–T3.9
 **Stato:** `[x]`
 
-**Nota:** Label, focus, contrasto e struttura presenti; T4.4 ha verificato skip link, Esc sul dialogo, focus restituito e nessun overflow a 390 px. La release 1.0 aggiunge `@axe-core/playwright`: 25 scansioni su tutte le route in tema chiaro e scuro, menu mobile e modali inclusi, con **0 violazioni** WCAG 2.0/2.1/2.2 AA. Corretto l'unico difetto trovato: le tabelle con scroll orizzontale ora hanno `role="region"`, nome accessibile e `tabIndex={0}`. Resta consigliata una prova con screen reader reale.
+**Nota:** Label, focus, contrasto e struttura presenti; T4.4 ha verificato skip link, Esc sul dialogo, focus restituito e nessun overflow a 390 px. La release 1.0 aggiunge `@axe-core/playwright`: 25 scansioni su tutte le route in tema chiaro e scuro, menu mobile e modali inclusi, con **0 violazioni** WCAG 2.0/2.1/2.2 AA. Corretto l'unico difetto trovato: le tabelle con scroll orizzontale ora hanno `role="region"`, nome accessibile e `tabIndex={0}`. VoiceOver è stato provato il 02/11/2026; resta consigliata una prova con NVDA.
 
 - Label, `aria-describedby` per errori, focus visibile.
 - Navigazione da tastiera.
@@ -723,7 +725,7 @@ Un task è chiuso solo se:
 **Dipende da:** T4.5
 **Stato:** `[x]`
 
-**Nota:** release **v1.0.0** del 24/10/2026. Verifiche: `npm run check` verde con budget del bundle (206 KB gzip su 350 KB); **18 E2E** (16 Chromium + 2 WebKit, 3 visual su CI); **25 scansioni axe** con 0 violazioni WCAG 2.2 AA; PDF A4 valido anche partendo dal tema scuro; nessuna richiesta esterna; gate visivo 0 FAIL/1 WARN motivato. Documentazione in `docs/engineering/release.md`, `CHANGELOG.md`, `STATUS.md`. Tag `v1.0.0` su `cc949b3` e deploy Vercel di produzione verificati il 24/10/2026. Le prove manuali su stampante fisica e con screen reader sono **rimandate** il 26/10/2026 (non bloccanti).
+**Nota:** release **v1.0.0** del 24/10/2026. Verifiche: `npm run check` verde con budget del bundle (206 KB gzip su 350 KB); **18 E2E** (16 Chromium + 2 WebKit, 3 visual su CI); **25 scansioni axe** con 0 violazioni WCAG 2.2 AA; PDF A4 valido anche partendo dal tema scuro; nessuna richiesta esterna; gate visivo 0 FAIL/1 WARN motivato. Documentazione in `docs/engineering/release.md`, `CHANGELOG.md`, `STATUS.md`. Tag `v1.0.0` su `cc949b3` e deploy Vercel di produzione verificati il 24/10/2026. VoiceOver è stato provato il 02/11/2026; la prova su stampante fisica resta facoltativa.
 
 - Review UX, accessibilità, performance, cross-browser.
 - Checklist di release.
@@ -768,7 +770,7 @@ Un task è chiuso solo se:
 
 # Fase 5 — Backlog
 
-**Stato:** in corso dal 26/10/2026. T5.3, T5.6, T5.12, T5.13–T5.21 chiusi; **T5.4.0–T5.4.6 chiusi** (piano/ADR, refactor async, schema/RLS/mapper, auth email/password, sync/outbox/conflitti, workspace/runbook/audit, keep-alive, backup, CI database, budget e deploy). Il cloud è live in produzione; resta come follow-up opzionale la baseline visual delle schermate cloud. Piano completo in `docs/planning/t5.4-cloud-sync.md`, runbook in `docs/engineering/workspace-runbook.md`, backup in `docs/engineering/backup-restore.md`, riepilogo in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
+**Stato:** chiusa il 02/11/2026. T5.3, T5.6, T5.12, T5.13–T5.22 chiusi; **T5.4.0–T5.4.6 chiusi** (piano/ADR, refactor async, schema/RLS/mapper, auth email/password, sync/outbox/conflitti, workspace/runbook/audit, keep-alive, backup, CI database, budget e deploy). Il cloud è live in produzione; resta come follow-up opzionale la baseline visual delle schermate cloud. Piano completo in `docs/planning/t5.4-cloud-sync.md`, runbook in `docs/engineering/workspace-runbook.md`, backup in `docs/engineering/backup-restore.md`, riepilogo in `docs/planning/phase-5.md` §4. Ordine: **T5.3 → T5.6 → T5.12 → T5.13–T5.21 → T5.4**.
 
 **Nota di scope (26/10/2026):** il committente ha indicato che T5.1, T5.2, T5.5 e T5.7–T5.11 sono fatte, non volute o svolte direttamente. Non sono più nel perimetro; restano **T5.4 sync** (richiesto) e **T5.12 export `.xlsx`** (chiuso).
 
@@ -777,7 +779,7 @@ Un task è chiuso solo se:
 **Dipende da:** v1.0.0
 **Stato:** `[x]`
 
-**Nota:** creati `docs/planning/phase-5.md`, ADR-0017 (import `.3mf`), ADR-0018 (sync free, rimandato all’epoca) e ADR-0019 (inglese). Nessun codice. Le tre iniziative richieste dal committente sono documentate con scope, architettura, test, criteri di accettazione e stime. Il sync è stato richiesto il 26/10/2026 e resta da implementare.
+**Nota:** creati `docs/planning/phase-5.md`, ADR-0017 (import `.3mf`), ADR-0018 (sync free, rimandato all’epoca) e ADR-0019 (inglese). Nessun codice. Le tre iniziative richieste dal committente sono documentate con scope, architettura, test, criteri di accettazione e stime. Il sync è stato richiesto il 26/10/2026 ed è stato implementato e distribuito con T5.4.
 
 **Accettazione:** piano leggibile da una nuova sessione; ADR e fonti presenti; `TASKS.md`, `PLAN.md` e `STATUS.md` allineati.
 
@@ -1224,7 +1226,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 # Evolutive (dopo T5.4)
 
 **Piano:** `docs/planning/evolutive.md`
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e distribuito il 30/10/2026; EVO-6 implementato, configurato e distribuito il 30/10/2026; EVO-4 implementato, distribuito e verificato in produzione il 30/10/2026; EVO-7 implementato, distribuito e verificato in produzione il 31/10/2026; EVO-2–EVO-3b proposte
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026; EVO-3a implementato il 29/10/2026 (configurazione Formspree e deploy manuali); EVO-5 implementato e distribuito il 30/10/2026; EVO-6 implementato, configurato e distribuito il 30/10/2026; EVO-4 implementato, distribuito e verificato in produzione il 30/10/2026; EVO-7 implementato, distribuito e verificato in produzione il 31/10/2026; rifiniture post-EVO-7 distribuite il 1–2/11/2026 (ADR-0032); EVO-2–EVO-3b proposte
 **Regola:** ogni evolutiva richiede un ADR e un branch/PR; nessuna modifica a formule, `engineVersion`, snapshot o schema locale.
 
 ## EVO-1 — Google login
@@ -1343,3 +1345,19 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - **EVO-7.6 Docs:** ADR-0031, data-model §7, workspace runbook, i18n inventory, STATUS, CHANGELOG e questo task. Budget iniziale 229,9/232 KB, totale 297,2/350 KB.
 - **EVO-7.7 Deploy:** backup di produzione del 31/10/2026 scaricato, checksum e `pg_restore --list` verificati; migrazione `20261031120000_profiles.sql` applicata a `layercost-prod`; PR #50 mergiata con squash `ce8c207` e follow-up docs/test PR #51 (`b62c0f1`, `waitForSynced` sul nome accessibile); Vercel produzione `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`; due profili backfillati da Google; smoke di produzione e verifica reale con due account temporanei (tag, Profilo, propagazione del nome) verdi, cleanup completo.
 - Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4 o RLS delle tabelle dati.
+
+## Rifiniture post-EVO-7 — 1–2 novembre 2026
+
+**Stato:** `[x]` — distribuite in produzione con build `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`
+**ADR:** 0032
+
+- [x] **Select in stile applicazione (ADR-0032):** combobox con listbox portale, tastiera, type-ahead, Escape/Tab/click esterno, opzioni 36/44 px e nessuna dipendenza esterna. Aggiornati `SelectField`, import `.3mf`, righe di stampa e Suggerimenti.
+- [x] **Tag audit in colonna (#54):** la lista Preventivi mostra creatore e ultima modifica come colonne su desktop e in forma compatta su mobile; il dettaglio continua a usare il nome visibile.
+- [x] **Nomi lunghi nelle card (#55):** il nome della stampa resta dentro la card compressa senza overflow.
+- [x] **Ripristino route:** corretto il ripristino della route del preventivo dopo una navigazione rapida.
+- [x] **Verifiche:** 298 unitari, 90 E2E (68 passati, 22 saltati) più 2 nello stato senza endpoint, axe sul menu select, budget 232,2/236 KB iniziali e 299,5/350 KB totali.
+- [x] **Verifiche manuali e dati:** Safari/VoiceOver eseguiti il 02/11/2026; import `.3mf` da 150–250 MB verificato; `prediction` confrontata con una stampa reale e accettata; feedback sui valori di seed raccolto e confermato.
+
+## Prossimi task
+
+**EVO-2 — Tetti utenti e preventivi** è il prossimo task (`[ ]`), seguito da **EVO-3b — apertura controllata**. EVO-2 richiede ancora ADR-0027 e le decisioni su tetti globali/per workspace, valori iniziali e gestione UI vs SQL.

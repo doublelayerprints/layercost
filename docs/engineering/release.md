@@ -40,7 +40,7 @@ Non include, per scelta di scope: backend, account, sincronizzazione, analytics,
 - [x] Versione `package.json` portata a 1.0.0.
 - [x] Tag `v1.0.0` creato e pushato.
 - [x] Deploy Vercel di produzione verificato.
-- [ ] Prova manuale su una stampante fisica e con VoiceOver: **rimandata** il 26/10/2026, non bloccante (checklist in `manual-checks.md`).
+- [x] Prova manuale con VoiceOver: eseguita il 02/11/2026 (checklist in `manual-checks.md`). La prova su stampante fisica resta facoltativa.
 
 ---
 
@@ -87,7 +87,7 @@ Tag verificati: WCAG 2.0 A/AA, WCAG 2.1 A/AA, WCAG 2.2 AA. Zero violazioni in te
 
 Correzione inclusa nella release: i contenitori di tabella con scroll orizzontale hanno `role="region"`, un nome accessibile e `tabIndex={0}`, così sono raggiungibili da tastiera anche a 390 px.
 
-Restano verifiche manuali consigliate con uno screen reader reale (VoiceOver/NVDA), non automatizzabili in modo affidabile.
+VoiceOver è stato provato sulla produzione il 02/11/2026; resta consigliata una prova con NVDA, non automatizzabile in modo affidabile.
 
 ---
 
@@ -95,7 +95,7 @@ Restano verifiche manuali consigliate con uno screen reader reale (VoiceOver/NVD
 
 - **Chromium:** flusso completo, PDF A4, token di stampa chiari anche con tema scuro.
 - **WebKit:** calcolo, salvataggio, reload, link condiviso, cambio tema e `@media print`.
-- **Safari reale e stampante fisica:** non automatizzati. La release è verificata sull'engine WebKit e sul PDF; una prova su carta resta consigliata.
+- **Safari reale e stampante fisica:** Safari è stato provato il 02/11/2026; la stampante fisica resta manuale. La release è verificata sull'engine WebKit e sul PDF.
 
 La stampa usa sempre fondo bianco e testo nero, nasconde la navigazione e, nella versione interna, mantiene la composizione del costo in grigi; la stampa standard per il cliente mostra solo prezzi, IVA e note.
 
@@ -119,14 +119,16 @@ Nessuna richiesta di rete oltre agli asset statici same-origin: il test `l'app n
 
 ---
 
-## 7. Limiti noti
+## 7. Limiti noti della v1.0.0 (storico)
+
+> Dalla fase 5 sono stati superati: sync cloud, import `.3mf`, export `.xlsx` e interfaccia inglese. Restano fuori magazzino bobine e actual/estimated.
 
 - Nessuna sincronizzazione cloud, account o backup remoto.
 - Nessun import diretto da slicer o da presa intelligente.
 - Nessun magazzino bobine né confronto actual/estimated.
 - Migrazioni schema minime: le versioni future vengono rifiutate.
 - Baseline visuali generate su Linux: i test visuali girano in CI, non su macOS.
-- Prova manuale su stampante fisica e screen reader reale **rimandata** il 26/10/2026, non bloccante. Checklist operativa in `manual-checks.md`.
+- Prova manuale su stampante fisica ancora facoltativa; VoiceOver è stato provato il 02/11/2026. Checklist operativa in `manual-checks.md`.
 
 ---
 
@@ -171,7 +173,7 @@ gh workflow run visual-baselines.yml --ref main
 
 ## 10. Dopo la release
 
-- Raccogliere feedback reale sulle due stampanti e sui valori di seed.
-- Fase 5 in corso in `docs/planning/phase-5.md` (`.3mf`, inglese, `.xlsx`, sync richiesto); ADR-0017/0018/0019.
-- Valutare un audit con screen reader e una prova su stampante fisica.
+- Feedback reale sulle due stampanti e sui valori di seed: raccolto il 02/11/2026, valori confermati.
+- Fase 5 chiusa in `docs/planning/phase-5.md` (`.3mf`, inglese, `.xlsx`, sync); ADR-0017/0018/0019/0024.
+- VoiceOver è stato provato il 02/11/2026; restano facoltative una prova con NVDA e una stampa fisica.
 - Aggiornare le baseline visuali solo con una modifica intenzionale dell'interfaccia.

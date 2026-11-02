@@ -55,7 +55,7 @@
 
 - Backend, ORM, auth, database (eccezione pianificata: Supabase in fase 5, ADR-0024).
 
-> Fase 5 (in corso): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` è caricato lazy solo per login/sync (ADR-0024). T5.4.2 ha aggiunto schema, RLS, trigger, tipi e mapper; T5.4.3 client e auth; T5.4.4 gateway dati, outbox e conflitti. In modalità ospite l'app resta statica e non chiama la rete.
+> Fase 5 (chiusa): Supabase Free per auth, Postgres e RLS; `@supabase/supabase-js` è caricato lazy solo per login/sync (ADR-0024). T5.4.2 ha aggiunto schema, RLS, trigger, tipi e mapper; T5.4.3 client e auth; T5.4.4 gateway dati, outbox e conflitti. In modalità ospite l'app resta statica e non chiama la rete.
 - Librerie di componenti (shadcn/Radix/MUI/Ant).
 - Librerie di grafici.
 - Librerie di money/decimal (le unità intere bastano).
