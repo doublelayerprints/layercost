@@ -14,6 +14,17 @@ export const catalogsEn: Record<keyof typeof catalogsIt, string> = {
   'printers.archive': 'Archive',
   'printers.restore': 'Restore',
   'printers.catalog': 'Printer catalog',
+  'printers.tableLabel': 'Printer list',
+  'printers.colPrinter': 'Printer',
+  'printers.colPrice': 'Price',
+  'printers.colWear': 'Wear/h',
+  'printers.colVolume': 'Volume',
+  'printers.colActions': 'Actions',
+  'printers.details': 'Details',
+  'printers.catalogPromoTitle': '29 ready-made models',
+  'printers.catalogPromoBody':
+    'Pick your printer from the catalog: price, volume and power are already filled in and stay editable.',
+  'printers.catalogPromoCta': 'Browse the catalog',
 
   'printerCatalog.title': 'Printer catalog',
   'printerCatalog.description':

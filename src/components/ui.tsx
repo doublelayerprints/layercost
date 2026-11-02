@@ -89,7 +89,7 @@ export function ChevronDown({
       viewBox="0 0 16 16"
       aria-hidden="true"
       className={cn(
-        'size-3.5 shrink-0 transition-transform duration-150',
+        'size-3.5 shrink-0 transition-transform duration-150 motion-reduce:transition-none',
         open && 'rotate-180',
         className,
       )}

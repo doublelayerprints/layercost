@@ -15,6 +15,17 @@ export const catalogsIt = {
   'printers.archive': 'Archivia',
   'printers.restore': 'Ripristina',
   'printers.catalog': 'Catalogo stampanti',
+  'printers.tableLabel': 'Elenco stampanti',
+  'printers.colPrinter': 'Stampante',
+  'printers.colPrice': 'Prezzo',
+  'printers.colWear': 'Usura/h',
+  'printers.colVolume': 'Volume',
+  'printers.colActions': 'Azioni',
+  'printers.details': 'Dettagli',
+  'printers.catalogPromoTitle': '29 modelli pronti all’uso',
+  'printers.catalogPromoBody':
+    'Scegli la stampante dal catalogo: prezzo, volume e consumi sono già compilati e restano modificabili.',
+  'printers.catalogPromoCta': 'Sfoglia il catalogo',
 
   'printerCatalog.title': 'Catalogo stampanti',
   'printerCatalog.description':

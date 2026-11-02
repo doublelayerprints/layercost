@@ -534,6 +534,15 @@ Top three problems: nessuno dei tre del round 1 è più visibile; resta il resid
 - **Correzione.** `min-w-0` sul `<fieldset>`: la card resta larga quanto la colonna e il nome compresso usa `truncate` con ellissi; il nome completo resta nel `<legend>` per gli screen reader e nell'input quando la riga è aperta. Nessun cambio a dati, formule o `engineVersion`.
 - **Test.** Nuovo caso E2E in `tests/e2e/collapsible-cards.spec.ts`: nome lungo senza spazi, card compressa a 390 px, nessun overflow di pagina, card entro il contenitore e nome effettivamente troncato.
 
+### 8.17 Lista stampanti compatta (02/11/2026)
+
+- **Desktop.** Sotto `xl` la lista usa card separate; da `xl` in su diventa una tabella con colonne Stampante, Prezzo, Usura/h, Volume, Azioni e Dettagli. Le righe hanno `py-3` e `border-t border-rule`, senza una card esterna che le inglobi.
+- **Dettagli.** Il pulsante Dettagli è esplicito, con `aria-expanded` e `aria-controls`; apre una riga o un pannello con residuo, vita utile, manutenzione, avvio, tariffa, potenze per famiglia e note. Il chevron ruota e rispetta `prefers-reduced-motion`. Il click sull'intera riga non apre nulla, così le azioni restano indipendenti.
+- **Mobile.** Ogni stampante è una card con bordo e raggio propri, separate da `gap-3`. La parte chiusa mostra nome, badge, modello con volume, usura/h, prezzo e Dettagli; Modifica e Archivia stanno nel pannello aperto.
+- **Catalogo.** Una banda con accento `data` sopra l'avviso sulle stime annuncia “29 modelli pronti all'uso” e porta a `/#/printers/catalog` con “Sfoglia il catalogo”. Il link in testata resta come scorciatoia; la banda non importa il catalogo e resta lazy.
+- **Accessibilità.** Tabella con caption, `scope="col"` e `scope="row"`; il pulsante Dettagli ha il nome visibile “Dettagli” più il nome della stampante in `sr-only`, quindi rispetta Label in Name. axe verde con il pannello aperto a 375 px.
+- **Verifiche.** 310 unitari, 95 E2E (73 passati, 22 saltati) più 2 senza endpoint, 49 scansioni axe totali; budget **234,7/236 KB** iniziali, **77,7/80 KB** lazy e **302,0/350 KB** totali.
+
 ## 9. Mappa dei file
 
 | File                                              | Contenuto                                                                                                                                                  |

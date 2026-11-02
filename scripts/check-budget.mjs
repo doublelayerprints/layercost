@@ -49,6 +49,7 @@ const checks = [
     // ADR-0032 replaces the native select menu with the app listbox: 232.1 KB
     // gzip, limit raised to 236 KB to cover the accessible combobox.
     // ADR-0033 adds the printer catalog: 233.6 KB gzip, within the same limit.
+    // The compact printer list adds 1.1 KB: 234.7 KB gzip, still within 236 KB.
     limit: 236 * KB,
   },
   {

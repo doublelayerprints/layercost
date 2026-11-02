@@ -32,13 +32,15 @@ test('cerca, filtra e aggiunge stampanti dal catalogo', async ({ page }) => {
   await page.getByRole('link', { name: 'Vai alle stampanti' }).click()
 
   await expect(page).toHaveURL(/#\/printers$/)
-  await expect(page.getByRole('heading', { name: 'A1 mini', level: 2 })).toHaveCount(2)
-  await expect(page.getByText(/179,00/)).toHaveCount(2)
+  const table = page.getByRole('table', { name: 'Elenco stampanti' })
+  await expect(page.getByRole('rowheader', { name: /A1 mini/ })).toHaveCount(2)
+  await expect(table.getByText(/179,00/)).toHaveCount(2)
 
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'A1 mini', level: 2 })).toHaveCount(2)
+  await expect(page.getByRole('rowheader', { name: /A1 mini/ })).toHaveCount(2)
   await expect(page.getByText('Base price without AMS Lite')).toHaveCount(0)
-  await expect(page.getByText(/Prezzo base senza AMS Lite/)).toHaveCount(2)
+  await page.getByRole('button', { name: 'Dettagli A1 mini' }).first().click()
+  await expect(table.getByText(/Prezzo base senza AMS Lite/).first()).toBeVisible()
 })
 
 test('il catalogo è usabile a 375 px e mostra i dettagli', async ({ page }) => {
