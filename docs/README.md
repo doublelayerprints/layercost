@@ -1,20 +1,20 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 + T5.3/T5.6.5/T5.12/T5.20 + EVO-1/EVO-3a/EVO-5 — fase 5 in corso
-**Data:** 29 ottobre 2026
+**Stato:** v1.0.0 + fase 5 chiusa + EVO-1/EVO-3a/EVO-4/EVO-5/EVO-6/EVO-7 + rifiniture post-EVO-7; prossimo EVO-2
+**Data:** 2 novembre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 in corso: import `.3mf` chiuso (T5.3, ADR-0017); interfaccia inglese (T5.6.1–T5.6.5, ADR-0019), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14, ADR-0020), vista interna/cliente (T5.18, ADR-0022), composizione del prezzo e righe cliccabili (T5.19), sconti di riga e preventivo (T5.20, ADR-0023); sync cloud implementato e **live in produzione** (ADR-0018 e ADR-0024: Supabase Free, email/password, workspace condiviso); piano in `planning/t5.4-cloud-sync.md`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`, T5.4.0–T5.4.6 chiusi; evolutive in `planning/evolutive.md`. **EVO-1** Google login (ADR-0025) è distribuito; **EVO-3a** pagina “Richiedi accesso” (ADR-0026) è implementata, configurata con Formspree e distribuita: piano in `planning/evo-3a-access-request.md`, runbook in `engineering/access-requests.md`. Il limite dell’import `.3mf` è a **250 MiB compressi / 1 GiB decompressi**. **EVO-5** landing pubblica (ADR-0029) è implementata e distribuita il 30/10/2026: piano in `planning/evo-5-landing-page.md`, route `/#/`, `/#/calculator`, `/#/welcome`, pre-render SEO, copy gratuita (PR #32), switch tema/lingua in top bar (PR #34), build `index-CciHjhFo.js` / `index-DicimwUj.css` e smoke verde.
+- Fase 5 chiusa: import `.3mf` (T5.3, ADR-0017); interfaccia inglese (T5.6, ADR-0019); export `.xlsx` (T5.12); preventivi modificabili, card, preferenze, colore filamento, utile/cliente, sconti e rinomina (T5.13–T5.22); sync cloud **live in produzione** (ADR-0018 e ADR-0024, T5.4.0–T5.4.6). Evolutive: EVO-1 Google login (ADR-0025), EVO-3a “Richiedi accesso” (ADR-0026), EVO-4 spazi separati (ADR-0028), EVO-5 landing pubblica (ADR-0029), EVO-6 documentazione e Suggerimenti (ADR-0030), EVO-7 nomi visibili e tag attività (ADR-0031). Rifiniture post-EVO-7: select in stile applicazione (ADR-0032), tag audit in colonna (#54), nomi lunghi (#55) e fix route. Prossimo task: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi EVO-3b. Piani in `planning/`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
-- Test: 297 unitari + 84 E2E (62 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante) + 91 pgTAP (33 RLS + 41 multi-workspace + 17 profili); axe 68 scansioni, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi.
+- Test: 298 unitari + 90 E2E (68 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante) più 2 nello stato senza endpoint + 91 pgTAP (33 RLS + 41 multi-workspace + 17 profili); axe su tutte le route, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi. Verifiche manuali Safari/VoiceOver, import `.3mf` da 150–250 MB, confronto di `prediction` e feedback sui seed chiusi il 02/11/2026.
 - Repo GitHub: `doublelayerprints/layercost` (privata).
 - CI: verde su GitHub (`check` + `e2e` + `database`).
-- Deploy: live su https://layercost.vercel.app; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`), deploy cloud T5.4 (`1bf641e`), EVO-1 (`51d3fb9`), EVO-3a (`125f0d5`), limite `.3mf` (`338d693`) ed EVO-5 (`8d7d2e2`, build `index-CciHjhFo.js` / `index-DicimwUj.css`) verificati; le preview sono protette da SSO.
+- Deploy: live su https://layercost.vercel.app con build `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`; progetto collegato alla repo GitHub; release `v1.0.0` (tag su `cc949b3`), deploy cloud T5.4 (`1bf641e`), EVO-1 (`51d3fb9`), EVO-3a (`125f0d5`), limite `.3mf` (`338d693`), EVO-5 (`8d7d2e2`), EVO-4 (`2f2767d`), EVO-6 (`ec321fb`), EVO-7 (`ce8c207`) e rifiniture post-EVO-7 (`b2fd798`) verificati; le preview sono protette da SSO.
 
 ---
 
@@ -607,15 +607,15 @@ Sezioni:
 
 ### 5.26 `docs/planning/evolutive.md`
 
-**Scopo:** piano delle evolutive future: Google login, tetti utenti/preventivi e apertura multi-workspace.
+**Scopo:** piano delle evolutive: Google login, richiesta accesso, landing, docs/feedback, spazi separati, nomi/tag e tetti utenti/preventivi.
 
 Sezioni:
 
 - stato di partenza e file rilevanti;
-- Google OAuth: Google Cloud, Supabase, app, account esistenti, test e rollback;
-- tetti: `workspace_limits`, trigger membri/preventivi, Auth Hook, UI e test;
-- decisione multi-workspace con impatto su PK, sync, cache e onboarding;
-- roadmap EVO-1–EVO-4, domande aperte e prompt di handoff.
+- Google OAuth (EVO-1), richiesta accesso (EVO-3a), landing (EVO-5), docs/feedback (EVO-6), spazi separati (EVO-4), nomi/tag (EVO-7) e rifiniture post-EVO-7 (ADR-0032);
+- tetti EVO-2: `workspace_limits`, trigger membri/preventivi, UI e test;
+- apertura controllata EVO-3b (allowlist/Auth Hook) e decisione multi-workspace;
+- roadmap, domande aperte e prompt di handoff.
 
 **Aggiornare quando:** si decide o si implementa una evolutiva, o cambiano i limiti del piano.
 

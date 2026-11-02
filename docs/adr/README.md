@@ -35,8 +35,9 @@ Le decisioni architetturali di LayerCost. Un ADR accettato non si riscrive: se c
 | 0029 | [Landing page pubblica, routing `/calculator` e pre-render SEO](0029-public-landing-page.md)                    |
 | 0030 | [Documentazione in-app e pagina “Suggerimenti” con Formspree](0030-docs-and-feedback.md)                        |
 | 0031 | [Nomi visibili e tag di audit dei preventivi](0031-display-names-and-quote-audit.md)                            |
+| 0032 | [Menu delle select in stile applicazione](0032-app-select.md)                                                    |
 
-> **EVO-4** (multi-workspace) è **ADR-0028**, **EVO-5** (landing pubblica) è **ADR-0029**, **EVO-6** (documentazione e suggerimenti) è **ADR-0030**, **EVO-7** (nomi visibili e tag attività) è **ADR-0031**. **EVO-2** (tetti utenti/preventivi) userà **ADR-0027**.
+> **EVO-4** (multi-workspace) è **ADR-0028**, **EVO-5** (landing pubblica) è **ADR-0029**, **EVO-6** (documentazione e suggerimenti) è **ADR-0030**, **EVO-7** (nomi visibili e tag attività) è **ADR-0031**. **ADR-0032** (select in stile applicazione) è una rifinitura trasversale post-EVO-7. **EVO-2** (tetti utenti/preventivi) userà **ADR-0027**.
 
 ---
 

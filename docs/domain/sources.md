@@ -97,7 +97,7 @@
 | Kobra 3   | 250×250×260 | 400 W    | 190 W | 200 W | 180 W |   380 W |   200 W | media            |
 | Kobra X   | 260×260×260 | 1450 W   | 220 W | 230 W | 200 W |   420 W |   230 W | bassa            |
 
-I valori Kobra X sono stime: non esiste una misura media pubblica affidabile. Devono essere marcati “stimato” e verificati con una presa intelligente.
+I valori Kobra X sono stime: non esiste una misura media pubblica affidabile. Devono essere marcati “stimato” e verificati con una presa intelligente. Il 02/11/2026 il committente ha confermato che i valori di seed delle due stampanti vanno bene per l'uso attuale; restano stime aggiornabili con misure reali.
 
 ---
 

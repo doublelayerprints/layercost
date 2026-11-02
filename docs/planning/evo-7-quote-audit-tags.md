@@ -1,6 +1,6 @@
 # EVO-7 — Nomi visibili e tag attività dei preventivi
 
-**Stato:** implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, squash `ce8c207`, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`)
+**Stato:** implementato, distribuito e verificato in produzione il 31/10/2026 (PR #50, squash `ce8c207`, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`); follow-up #54 (tag audit in colonna) e #55 (nomi lunghi) distribuiti con le rifiniture post-EVO-7 (build `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`)
 **ADR:** `docs/adr/0031-display-names-and-quote-audit.md`
 **Relazione:** estende l'audit cloud di T5.4.5 e ADR-0024/ADR-0028; non cambia formule, `engineVersion`, snapshot economici, schema locale v4, auth o RLS dei dati esistenti
 

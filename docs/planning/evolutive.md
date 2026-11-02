@@ -1,10 +1,10 @@
 # Evolutive — Google login, richiesta accesso, landing pubblica, tetti utenti/preventivi e apertura
 
-**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato, configurato e distribuito il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-7 implementato, distribuito e verificato il 31/10/2026 (ADR-0031, nomi visibili e tag attività); EVO-2–EVO-3b proposte
-**Data:** 30 ottobre 2026
+**Stato:** EVO-1 implementato e distribuito il 29/10/2026 (ADR-0025, PR #24); EVO-3a implementato e distribuito il 29/10/2026 (ADR-0026, pagina “Richiedi accesso”); EVO-5 distribuito il 30/10/2026 (ADR-0029, landing pubblica); EVO-6 implementato, configurato e distribuito il 30/10/2026 (ADR-0030, documentazione in-app e Suggerimenti); EVO-7 implementato, distribuito e verificato il 31/10/2026 (ADR-0031, nomi visibili e tag attività); rifiniture post-EVO-7 distribuite il 1–2/11/2026 (ADR-0032); EVO-2–EVO-3b proposte
+**Data:** 2 novembre 2026
 **Contesto:** T5.4 chiuso; cloud live in produzione
 **Piano collegato:** `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-5-landing-page.md`, `docs/planning/evo-6-docs-feedback.md`
-**ADR:** 0025 (Google OAuth), **0026 (pagina Richiedi accesso)**, **0029 (landing pubblica)**, **0030 (documentazione e Suggerimenti)**; **0027** (tetti e signup) e **0028** (multi-workspace) solo se si implementano EVO-2/EVO-4
+**ADR:** 0025 (Google OAuth), **0026 (pagina Richiedi accesso)**, **0028 (multi-workspace)**, **0029 (landing pubblica)**, **0030 (documentazione e Suggerimenti)**, **0032 (select in stile applicazione)**; **0027** (tetti e signup) è ancora da scrivere per EVO-2
 
 Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a riprendere il lavoro in una nuova sessione senza ricostruire il contesto.
 
@@ -20,7 +20,7 @@ Questo documento raccoglie le evolutive discusse dopo il deploy T5.4. Serve a ri
 - **Membri:** due account `owner`; le email non sono nel repository.
 - **Dati attuali:** 2 stampanti, 8 materiali, 5 extra, 2 preventivi (29/10/2026).
 - **Auth:** email + password, signup pubblico disabilitato, nessun SMTP; reset amministrativo.
-- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; il 29/10/2026 EVO-1 porta a `index-BN8y8TA2.js` / `index-B2c8cUBY.css`, EVO-3a a `index-B6Cg37Ap.js` / `index-G-eqO2lr.css`, il limite `.3mf` a `index-BR5hKjFi.js` / `index-G-eqO2lr.css` e EVO-5 a `index-CciHjhFo.js` / `index-DicimwUj.css` (copy gratuita PR #32, top bar PR #34). Cloud, Google, richiesta accesso, landing pubblica e import `.3mf` fino a 250 MiB sono attivi in produzione.
+- **Deploy:** prima di EVO-1, build `index-D9pxS7o0.js` / `index-BPCFEMKa.css`; il 29/10/2026 EVO-1 porta a `index-BN8y8TA2.js` / `index-B2c8cUBY.css`, EVO-3a a `index-B6Cg37Ap.js` / `index-G-eqO2lr.css`, il limite `.3mf` a `index-BR5hKjFi.js` / `index-G-eqO2lr.css` e EVO-5 a `index-CciHjhFo.js` / `index-DicimwUj.css` (copy gratuita PR #32, top bar PR #34). EVO-4, EVO-6 ed EVO-7 portano rispettivamente a `index-eT8g6H47.js`, `index-BE8ZeH6G.js` e `index-C3vr3Bvd.js`; le rifiniture post-EVO-7 arrivano a `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`. Cloud, Google, richiesta accesso, landing pubblica, docs/feedback, select applicativa e import `.3mf` fino a 250 MiB sono attivi in produzione.
 - **Operazioni:** keep-alive giornaliero e backup settimanale cifrato attivi e verificati.
 - **Segreti:** `.env.local` contiene credenziali di produzione ed è gitignored; su Vercel ci sono solo `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e i flag pubblici (`VITE_AUTH_GOOGLE_ENABLED`, `VITE_ACCESS_REQUEST_ENDPOINT`; Production = form reale, Preview/Development = form di test).
 
@@ -513,6 +513,19 @@ Per il modello B serve:
 
 ---
 
+## 5D. Rifiniture post-EVO-7
+
+**Obiettivo:** chiudere i controlli e le rifiniture emerse dopo EVO-7 senza cambiare dominio o dati.
+**Stato:** distribuite in produzione il 1–2/11/2026 (ADR-0032, #54, #55, `930cd5b`).
+
+- **Select in stile applicazione (ADR-0032):** combobox/listbox portale, tastiera, type-ahead, Escape/Tab/click esterno, opzioni 36/44 px e nessuna dipendenza esterna.
+- **Tag audit in colonna (#54):** creatore e ultima modifica sono colonne nella lista Preventivi su desktop e righe compatte su mobile.
+- **Nomi lunghi (#55):** il nome della stampa resta dentro la card compressa.
+- **Ripristino route:** la route del preventivo non viene ripristinata dopo una navigazione rapida.
+- **Verifiche:** 298 unitari, 90 E2E (68 passati, 22 saltati) più 2 nello stato senza endpoint, budget 232,2/236 KB iniziali e 299,5/350 KB totali; Safari e VoiceOver reali, import `.3mf` da 150–250 MB, `prediction` e seed chiusi il 02/11/2026.
+
+---
+
 ## 6. Roadmap consigliata
 
 | Fase       | Contenuto                                                 | Stima        | Dipendenze               |
@@ -526,7 +539,7 @@ Per il modello B serve:
 | **EVO-3b** | Invite-only/allowlist, eventuale tetto globale            | 1–2 giorni   | EVO-2, EVO-3a            |
 | **EVO-4**  | Multi-workspace (solo se serve)                           | 3–5 giorni   | ADR-0028, migrazione     |
 
-Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-6 → EVO-4 → EVO-7 → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita.
+Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-6 → EVO-4 → EVO-7 → EVO-2 → EVO-3b**. EVO-4 solo dopo una decisione esplicita. Le rifiniture post-EVO-7 (ADR-0032, #54, #55, fix route) sono già distribuite e non modificano l'ordine.
 
 ---
 
@@ -549,7 +562,7 @@ Ordine consigliato: **EVO-1 → EVO-3a → EVO-5 → EVO-6 → EVO-4 → EVO-7 �
 
 Copiare e incollare:
 
-> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/evo-3a-access-request.md`, `docs/planning/evo-5-landing-page.md`, `docs/engineering/access-requests.md`, `docs/planning/t5.4-cloud-sync.md` §0, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/deployment.md` §1.1 e §13, ADR-0024, ADR-0025, ADR-0026, ADR-0029 e i file `src/data/cloud/{client,auth}.ts`, `src/state/auth-store.ts`, `src/features/auth/LoginPage.tsx`, `src/features/settings/SyncSettings.tsx`, `src/features/access/`, `src/features/landing/`, `src/app/PublicLayout.tsx`, `src/app/AppShell.tsx`, `tests/e2e/auth.spec.ts`, `tests/e2e/landing.spec.ts`. Il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), workspace `ws-doublelayer`, due account owner e signup disabilitato. EVO-1, EVO-3a ed EVO-5 sono implementati; la landing è distribuita e verificata in produzione dal 30/10/2026. Il prossimo task è **EVO-2 — tetti utenti/preventivi** con **ADR-0027**; EVO-4 userà **ADR-0028**. Non riaprire EVO-3a se non per configurare il form o correggere un bug. Servono accesso a Formspree, Vercel e Supabase; non mettere secret nel repository, nel bundle o su Vercel. Testa prima in locale/staging, poi produzione. Mantieni email/password come fallback. Non cambiare formule, `engineVersion`, snapshot o schema locale; non committare `.env.local`; non eseguire `test:e2e:sync` contro la produzione. Usa un branch e una PR, non push diretto su `main`. Gate: `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` solo dopo un deploy. Aggiorna STATUS, TASKS, docs, CHANGELOG e la documentazione privacy/auth.
+> Leggi `AGENTS.md`, `STATUS.md` §8, `TASKS.md` (sezione Evolutive), `docs/planning/evolutive.md`, `docs/planning/evo-3a-access-request.md`, `docs/planning/evo-5-landing-page.md`, `docs/engineering/access-requests.md`, `docs/planning/t5.4-cloud-sync.md` §0, `docs/engineering/workspace-runbook.md`, `docs/engineering/backup-restore.md`, `docs/engineering/deployment.md` §1.1 e §13, ADR-0024, ADR-0025, ADR-0026, ADR-0029 e i file `src/data/cloud/{client,auth}.ts`, `src/state/auth-store.ts`, `src/features/auth/LoginPage.tsx`, `src/features/settings/SyncSettings.tsx`, `src/features/access/`, `src/features/landing/`, `src/app/PublicLayout.tsx`, `src/app/AppShell.tsx`, `tests/e2e/auth.spec.ts`, `tests/e2e/landing.spec.ts`. Il cloud è live su https://layercost.vercel.app con Supabase `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), workspace `ws-doublelayer`, due account owner e signup disabilitato. EVO-1, EVO-3a, EVO-4, EVO-5, EVO-6 ed EVO-7 sono implementati e distribuiti; le rifiniture post-EVO-7 (ADR-0032) sono in produzione. Il prossimo task è **EVO-2 — tetti utenti/preventivi** con **ADR-0027**; EVO-4 ha usato **ADR-0028**. Non riaprire EVO-3a se non per configurare il form o correggere un bug. Servono accesso a Formspree, Vercel e Supabase; non mettere secret nel repository, nel bundle o su Vercel. Testa prima in locale/staging, poi produzione. Mantieni email/password come fallback. Non cambiare formule, `engineVersion`, snapshot o schema locale; non committare `.env.local`; non eseguire `test:e2e:sync` contro la produzione. Usa un branch e una PR, non push diretto su `main`. Gate: `npm run check`, `npm run db:test`, `npm run test:e2e`, `npm run test:e2e:auth`, `npm run test:e2e:sync`, `npm run smoke:production` solo dopo un deploy. Aggiorna STATUS, TASKS, docs, CHANGELOG e la documentazione privacy/auth.
 
 ---
 

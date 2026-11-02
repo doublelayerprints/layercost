@@ -1,14 +1,14 @@
 # LayerCost — Piano di prodotto e tecnico
 
-**Stato:** **v1.0.0 rilasciata** (fasi 0–4); fase 5 ed EVO-1/3a/4/5/6/7 distribuite; prossimo EVO-2; CI verde su GitHub; deploy Vercel live
-**Data:** 1 novembre 2026
+**Stato:** **v1.0.0 rilasciata** (fasi 0–4); fase 5 ed EVO-1/3a/4/5/6/7 distribuite; rifiniture post-EVO-7 distribuite (ADR-0032); prossimo EVO-2; CI verde su GitHub; deploy Vercel live
+**Data:** 2 novembre 2026
 **Lingua:** UI e documentazione in italiano; codice e identificatori in inglese
 **Decisioni già prese:** nome **LayerCost**; local-first con sincronizzazione richiesta il 26/10/2026 (Supabase Free, email/password, workspace condiviso; ADR-0024); preventivi snapshot con aggiornamento esplicito su copia; scope v1 completo; costo + prezzo; deploy su Vercel; fase 5: import `.3mf`, interfaccia inglese, export `.xlsx`, sync gratuito (ADR-0017/0018/0019/0024)
 
 ## Stato implementazione
 
-- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5). Release **v1.0.0** (T4.6) del 24/10/2026, tag `v1.0.0` su `cc949b3`, con axe WCAG 2.2 AA, WebKit, stampa/PDF, regressione visiva e budget del bundle. Fase 5: import `.3mf` (T5.3), interfaccia inglese (T5.6), preventivi modificabili fino all'invio (T5.13), card del calcolatore (T5.14), preferenze rapide (T5.15), azioni del preventivo in alto (T5.16), colore filamento (T5.17), export `.xlsx` (T5.12) e barra “Aggiungi riga” sotto le card del calcolatore. Evolutive distribuite: Google login (EVO-1), richiesta accesso (EVO-3a), spazi separati (EVO-4), landing pubblica (EVO-5), documentazione e Suggerimenti (EVO-6), nomi visibili e tag attività (EVO-7).
-- **Da fare:** **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (apertura controllata/allowlist). Il cloud, le evolutive EVO-1/3a/4/5/6/7 e il resto del backlog sono chiusi e distribuiti. Restano come follow-up opzionali la baseline visual delle schermate cloud/accesso/docs/feedback e le prove manuali su stampante fisica e screen reader. Dettagli in `docs/planning/evolutive.md`, `TASKS.md` e `STATUS.md`.
+- **Fatto:** motore di calcolo, configurazione, persistenza locale, export/import, calcolatore singolo/lotto, confronto stampanti, storico con snapshot, link condivisibile, stampa/PDF, test unitari e E2E, CI verde su GitHub, repo `doublelayerprints/layercost`, deploy live su https://layercost.vercel.app, documentazione e ADR. Fase 4: direzione Strato, design system e redesign delle schermate (PR #1, squash `42e60b7`, deploy di produzione verificato); dark mode Sistema/Chiaro/Scuro con ADR-0016 (PR #2, squash `a0960d3`, deploy di produzione verificato); stati e rifiniture con conferme accessibili, alert di successo e vuoti con azione (T4.5). Release **v1.0.0** (T4.6) del 24/10/2026, tag `v1.0.0` su `cc949b3`, con axe WCAG 2.2 AA, WebKit, stampa/PDF, regressione visiva e budget del bundle. Fase 5: import `.3mf` (T5.3), interfaccia inglese (T5.6), preventivi modificabili fino all'invio (T5.13), card del calcolatore (T5.14), preferenze rapide (T5.15), azioni del preventivo in alto (T5.16), colore filamento (T5.17), export `.xlsx` (T5.12) e barra “Aggiungi riga” sotto le card del calcolatore. Evolutive distribuite: Google login (EVO-1), richiesta accesso (EVO-3a), spazi separati (EVO-4), landing pubblica (EVO-5), documentazione e Suggerimenti (EVO-6), nomi visibili e tag attività (EVO-7). Rifiniture post-EVO-7 del 1–2/11/2026: select in stile applicazione (ADR-0032), tag audit come colonne (#54), nomi lunghi nelle card (#55) e fix del ripristino route; verifiche manuali Safari/VoiceOver, import `.3mf` da 150–250 MB, confronto di `prediction` e feedback sui seed chiusi; `prediction` e i valori di seed sono stati confermati.
+- **Da fare:** **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi **EVO-3b** (apertura controllata/allowlist). Il cloud, le evolutive EVO-1/3a/4/5/6/7 e il resto del backlog sono chiusi e distribuiti. Restano come follow-up opzionali la baseline visual delle schermate cloud/accesso/docs/feedback e le prove su stampante fisica e NVDA. Dettagli in `docs/planning/evolutive.md`, `TASKS.md` e `STATUS.md`.
 - **Non fatto (fuori v1):** magazzino bobine e PWA. Import da slicer, interfaccia inglese, sync cloud ed evolutive EVO-1/3a/4/5/6/7 sono completati.
 
 ---
@@ -114,7 +114,7 @@ Il progetto deve essere:
 - Gestione clienti e listini.
 - Confronto actual vs estimated.
 
-La fase 5 riprende alcune di queste voci: import `.3mf` e interfaccia inglese (chiusi), export `.xlsx` (chiuso) e sync gratuito (richiesto, da implementare). Vedi `docs/planning/phase-5.md`.
+La fase 5 riprende alcune di queste voci: import `.3mf`, interfaccia inglese, export `.xlsx` e sync gratuito sono chiusi e distribuiti. Vedi `docs/planning/phase-5.md`.
 
 ---
 
@@ -417,7 +417,7 @@ La specifica operativa è in `docs/README.md`; le regole per il coding agent son
 
 **MVP:** fasi 0–3 implementate. Deploy Vercel live su https://layercost.vercel.app.
 **v1.0:** fase 4 completata e rilasciata il 24/10/2026.
-**Fase 5:** in corso dal 26/10/2026 in `docs/planning/phase-5.md`; T5.3, T5.6, T5.12, T5.13–T5.21 e T5.4.0–T5.4.6 chiusi. Il cloud è live in produzione; follow-up opzionale: baseline visual cloud.
+**Fase 5:** chiusa; T5.3, T5.6, T5.12, T5.13–T5.22 e T5.4.0–T5.4.6 chiusi. Il cloud è live in produzione; le rifiniture post-EVO-7 sono distribuite (ADR-0032). Follow-up opzionale: baseline visual cloud.
 Le stime sono indicative e si riferiscono a lavoro assistito da agente, non a giornate umane.
 
 ---
@@ -550,7 +550,7 @@ Altri candidati (non in scope attuale, salvo richiesta esplicita):
 
 Non bloccano l'implementazione:
 
-- Prezzi di acquisto reali delle due stampanti e ore di vita stimate.
+- Prezzi di acquisto reali delle due stampanti e ore di vita stimate: i valori di seed sono stati confermati dall'uso reale il 02/11/2026; restano da aggiornare se cambiano.
 - Se e quando inizierete a vendere, e con quale regime IVA.
 - Provider di sincronizzazione: **Supabase Free** (scelto il 26/10/2026). Auth **email/password**, workspace condiviso e RLS per membership (ADR-0024, 28/10/2026).
 - Se il repository sarà pubblico o privato.

@@ -278,6 +278,7 @@ Scrivi il blocco in `TASKS.md` e spiega cosa serve per sbloccarlo.
 - `docs/adr/0029-public-landing-page.md` — landing pubblica, routing `/#/calculator`, pre-render SEO e budget.
 - `docs/adr/0030-docs-and-feedback.md` — documentazione in-app, Suggerimenti, Formspree e budget.
 - `docs/adr/0031-display-names-and-quote-audit.md` — profili, nome visibile, tag creatore/ultima modifica e privacy.
+- `docs/adr/0032-app-select.md` — select in stile applicazione, listbox accessibile, tastiera e budget.
 - `docs/planning/evo-3a-access-request.md` — piano di EVO-3a.
 - `docs/engineering/access-requests.md` — runbook amministratore per richieste, approvazione manuale, retention e cancellazione.
 - `docs/engineering/feedback.md` — configurazione e gestione del form Suggerimenti.
