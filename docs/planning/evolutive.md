@@ -241,10 +241,11 @@ Resta:
 
 ## 4. EVO-2 — Tetti utenti e preventivi
 
+**Stato:** decisioni prese il 02/11/2026; spec in `docs/planning/evo-2-user-quote-caps.md`, decisione in `docs/adr/0027-signup-cap-and-workspace-limits.md`; implementazione da fare. Il presente capitolo resta come analisi storica.
 **Obiettivo:** aprire a più utenti con limiti configurabili, senza dipendere solo dai limiti del piano.
 **Stima:** 1–2 giorni.
 **Dipende da:** EVO-4 per i tetti per workspace (la creazione di spazi è già limitata a 10 per utente nella RPC).
-**ADR:** `docs/adr/0027-*` (da creare; EVO-2 passa ad ADR-0027 dopo EVO-3a/ADR-0026).
+**ADR:** `docs/adr/0027-signup-cap-and-workspace-limits.md`.
 
 ### 4.1 Perché non basta Supabase
 
@@ -534,7 +535,7 @@ Per il modello B serve:
 | **EVO-3a** | Pagina “Richiedi accesso” con Formspree Free              | 0,5–1 giorno | Formspree + env pubblica |
 | **EVO-5**  | Landing pubblica, pre-render SEO e routing `/calculator`  | 1–2 giorni   | —                        |
 | **EVO-6**  | Documentazione in-app e pagina Suggerimenti con Formspree | 1–2 giorni   | Formspree + env pubblica |
-| **EVO-7**  | Nomi visibili e tag attività dei preventivi               | 1–2 giorni   | EVO-4, T5.4.5             |
+| **EVO-7**  | Nomi visibili e tag attività dei preventivi               | 1–2 giorni   | EVO-4, T5.4.5            |
 | **EVO-2**  | `workspace_limits`, trigger membri/preventivi, UI quota   | 1–2 giorni   | EVO-1 o indipendente     |
 | **EVO-3b** | Invite-only/allowlist, eventuale tetto globale            | 1–2 giorni   | EVO-2, EVO-3a            |
 | **EVO-4**  | Multi-workspace (solo se serve)                           | 3–5 giorni   | ADR-0028, migrazione     |
