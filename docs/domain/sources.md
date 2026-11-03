@@ -152,8 +152,8 @@ Questi dati non sono stimabili in modo affidabile da fonti esterne: il wizard in
 ### 6.2 Servizi gratuiti per il sync
 
 - **Supabase — Pricing:** https://supabase.com/pricing
-  - **Dati usati:** Free: 500 MB DB, 50.000 MAU, 5 GB egress, 1 GB storage, pausa dopo una settimana di inattività, 2 progetti attivi.
-  - **Confidenza:** alta (fonte ufficiale, consultata il 26/10/2026); i limiti possono cambiare.
+  - **Dati usati:** Free: 500 MB DB, 50.000 MAU, 5 GB egress (+5 GB cached), 1 GB storage, pausa dopo una settimana di inattività, 2 progetti attivi. Ri-verificato il 02/11/2026 per EVO-2 (ADR-0027): utenti auth totali **illimitati** sul Free, MAU 50.000, backup automatici/PITR non inclusi, log retention 1 giorno (auth audit 1 ora), Auth Hook Postgres `before-user-created` disponibile. Il tetto utenti 1000 è quindi una scelta di prodotto, non un limite del piano.
+  - **Confidenza:** alta (fonte ufficiale, consultata il 26/10/2026 e ri-verificata il 02/11/2026); i limiti possono cambiare.
 - **Cloudflare — Workers Pricing:** https://developers.cloudflare.com/workers/platform/pricing/
   - **Dati usati:** Free: 100.000 richieste/giorno, 10 ms CPU; D1 5 GB, 5M righe lette/giorno, 100k righe scritte/giorno; KV 1 GB, 100k letture/giorno, 1k scritture/giorno.
   - **Confidenza:** alta (fonte ufficiale, aggiornata il 2/10/2026).

@@ -1,6 +1,6 @@
 # ADR-0026 — Pagina pubblica “Richiedi accesso” con Formspree Free
 
-**Stato:** Accettato
+**Stato:** Superseded da ADR-0027 (signup aperto a tetto numerico, 2 novembre 2026); pagina ritirata con EVO-2
 **Data:** 29 ottobre 2026
 **Piano:** `docs/planning/evo-3a-access-request.md`
 **Relazione:** estende ADR-0024 (signup disabilitato e utenti creati dall’amministratore); non cambia auth, RLS, schema, sync o formule
