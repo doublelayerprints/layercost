@@ -84,7 +84,6 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
     await page.getByRole('radio', { name: 'Registrati' }).check()
     await expect(page.getByRole('heading', { name: 'Registrati' })).toBeVisible()
     await page.getByRole('radio', { name: 'Accedi' }).check()
-
     await page.getByLabel('Email').fill(account.email)
     await page.getByLabel('Password').fill(account.password)
     await page.getByRole('button', { name: 'Accedi' }).click()
@@ -109,6 +108,7 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
       await logoutDialog.getByRole('button', { name: 'Esci' }).click()
     }
     await expect(page.getByRole('button', { name: 'Accedi' })).toBeVisible()
+    await page.goto('/#/login')
     await expect(page.getByRole('radio', { name: 'Registrati' })).toBeVisible()
   } finally {
     await deleteUser(account.id)
@@ -144,9 +144,9 @@ test('signup: crea un account, apre la sessione e mostra la quota dello spazio',
     await page.goto('/#/settings')
     await expect(page.getByText(email)).toBeVisible()
     const spazio = page.getByRole('region', { name: 'Spazio' })
-    await expect(spazio.getByText('Membri')).toBeVisible()
+    await expect(spazio.getByRole('term').filter({ hasText: 'Membri' })).toBeVisible()
     await expect(spazio.getByText('1/20')).toBeVisible()
-    await expect(spazio.getByText('Preventivi')).toBeVisible()
+    await expect(spazio.getByRole('term').filter({ hasText: 'Preventivi' })).toBeVisible()
     await expect(spazio.getByText('0/500')).toBeVisible()
     await audit(page)
   } finally {

@@ -90,13 +90,18 @@ async function seedOtherWorkspace(workspaceId: string): Promise<void> {
     throw new Error(`Creazione settings fallita: ${settings.status} ${await settings.text()}`)
   }
 
+  await seedQuote(workspaceId, `q-other-${Date.now()}`, 'Altro workspace')
+}
+
+/** Inserts one active quote via the admin API, like the runbook's SQL would. */
+async function seedQuote(workspaceId: string, id: string, name: string): Promise<void> {
   const quote = await admin('/rest/v1/quotes', {
     method: 'POST',
     body: JSON.stringify({
-      id: `q-other-${Date.now()}`,
+      id,
       workspace_id: workspaceId,
       status: 'saved',
-      name: 'Altro workspace',
+      name,
       quote_date: '2026-10-28',
       locale: 'it',
       lines: [],
@@ -451,12 +456,14 @@ test('il tetto preventivi mostra la quota e un errore chiaro senza perdere i dat
 
     // The Spazio section shows members and quotes usage from workspace_usage.
     const spazio = page.getByRole('region', { name: 'Spazio' })
-    await expect(spazio.getByText('Membri')).toBeVisible()
+    await expect(spazio.getByRole('term').filter({ hasText: 'Membri' })).toBeVisible()
     await expect(spazio.getByText('1/20')).toBeVisible()
 
     // Fill the single slot allowed by the lowered cap, then save a quote.
+    // The first login already imported the seed configuration (settings row
+    // included), so only the quote needs seeding here.
     await setQuoteCap(workspaceId, 1)
-    await seedOtherWorkspace(workspaceId)
+    await seedQuote(workspaceId, `q-cap-${Date.now()}`, 'Preventivo occupante')
 
     await page.goto('/#/calculator')
     await page.locator('input[aria-label="Ore"]').first().fill('10')
@@ -475,6 +482,7 @@ test('il tetto preventivi mostra la quota e un errore chiaro senza perdere i dat
 
     // Raising the cap via SQL lets the queued quote sync.
     await setQuoteCap(workspaceId, 500)
+    await page.goto('/#/settings')
     await page.getByRole('button', { name: 'Sincronizza ora' }).click()
     await waitForSynced(page)
     await page.goto('/#/quotes')

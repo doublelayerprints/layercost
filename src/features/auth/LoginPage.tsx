@@ -69,7 +69,7 @@ function ModeSwitch({
         {(['signin', 'signup'] as const).map((value) => (
           <label
             key={value}
-            className="cursor-pointer rounded-control text-center text-sm font-medium has-[:checked]:bg-surface has-[:checked]:text-ink has-[:disabled]:cursor-not-allowed"
+            className="relative grid h-10 cursor-pointer place-items-center rounded-control px-3 text-center text-sm font-medium text-muted hover:text-ink has-[:checked]:bg-surface has-[:checked]:font-semibold has-[:checked]:text-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-data has-[:disabled]:cursor-not-allowed"
           >
             <input
               type="radio"
@@ -78,9 +78,10 @@ function ModeSwitch({
               checked={mode === value}
               onChange={() => onChange(value)}
               disabled={disabled}
-              className="sr-only"
+              aria-label={value === 'signin' ? t('auth.mode.signin') : t('auth.mode.signup')}
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
             />
-            <span className="block px-3 py-1.5 text-muted has-[:checked]:text-ink">
+            <span className="pointer-events-none">
               {value === 'signin' ? t('auth.mode.signin') : t('auth.mode.signup')}
             </span>
           </label>
