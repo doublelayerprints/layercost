@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Navigate, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { Alert, Button, Card, EmptyState, Field, Input, PageHeader } from '@/components/ui'
@@ -111,6 +111,13 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<'email' | 'password', MessageKey>>>({})
+
+  // The URL is the source of truth for the entry mode: navigating to /#/login
+  // without ?mode=signup goes back to the sign-in form (the manual switch does
+  // not change the URL, so it is never overridden).
+  useEffect(() => {
+    setMode(searchParams.get('mode') === 'signup' ? 'signup' : 'signin')
+  }, [searchParams])
 
   const googleEnabled = isGoogleAuthEnabled()
 
