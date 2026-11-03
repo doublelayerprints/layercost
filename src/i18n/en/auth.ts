@@ -19,7 +19,6 @@ export const authEn: Record<keyof typeof authIt, string> = {
     'Link your Google account to sign in without a password. Email and password stay available.',
   'auth.google.linkedHint':
     'You can sign in with Google on this and other devices.',
-  'auth.noSignup': 'Registration is closed. Accounts are created by the administrator.',
   'auth.forgotPassword': 'Forgot your password? Ask the administrator.',
   'auth.backToApp': 'Back to the calculator',
   'auth.unconfigured.title': 'Cloud not configured',
@@ -34,6 +33,12 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'auth.error.tooManyRequests': 'Too many attempts. Try again in a few minutes.',
   'auth.error.network': 'Could not reach the cloud. Check your connection.',
   'auth.error.notConfigured': 'Cloud not configured.',
+  'auth.error.signupLimitReached': 'No spots left. Try again later.',
+  'auth.error.emailExists': 'An account with this email already exists. Sign in.',
+  'auth.error.emailRequired': 'Enter your email.',
+  'auth.error.emailInvalid': 'Enter a valid email address.',
+  'auth.error.passwordRequired': 'Enter a password.',
+  'auth.error.passwordTooShort': 'The password must be at least 6 characters.',
   'auth.error.oauthCancelled': 'Google sign-in was cancelled.',
   'auth.error.oauthProviderDisabled': 'Google sign-in is not enabled. Use email and password.',
   'auth.error.oauthSignupDisabled':
@@ -100,6 +105,8 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'sync.error.noWorkspace': 'This account is not linked to a workspace. Ask the administrator.',
   'sync.error.rateLimited': 'Too many requests. Try again in a few minutes.',
   'sync.error.limit': 'The free plan reached a limit. The app stays local.',
+  'sync.error.quoteLimit':
+    'You reached the workspace quote limit. Export or delete old quotes; archiving does not free a slot.',
   'sync.error.invalidData': 'Cloud data is invalid. The app stays on the local copy.',
   'sync.error.backupFailed': 'Backup failed. No data was changed.',
   'sync.error.unknown': 'Sync failed. Try again.',

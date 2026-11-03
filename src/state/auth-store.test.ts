@@ -22,6 +22,7 @@ function createFakeGateway(initialSession: AuthSession | null = null): FakeGatew
   let listener: ((session: AuthSession | null, event: AuthChangeEvent) => void) | undefined
   const getSession = vi.fn(async () => initialSession)
   const signIn = vi.fn(async () => initialSession as AuthSession)
+  const signUp = vi.fn(async () => initialSession as AuthSession)
   const signInWithOAuth = vi.fn(async () => {})
   const linkIdentity = vi.fn(async () => {})
   const exchangeCodeForSession = vi.fn(async () => initialSession as AuthSession)
@@ -29,6 +30,7 @@ function createFakeGateway(initialSession: AuthSession | null = null): FakeGatew
   const gateway: AuthGateway = {
     getSession,
     signIn,
+    signUp,
     signInWithOAuth,
     linkIdentity,
     exchangeCodeForSession,

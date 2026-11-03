@@ -511,6 +511,39 @@ export type Database = {
           },
         ]
       }
+      workspace_limits: {
+        Row: {
+          max_members: number
+          max_quotes: number
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          max_members?: number
+          max_quotes?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          max_members?: number
+          max_quotes?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'workspace_limits_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: true
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -578,6 +611,7 @@ export type Database = {
       create_workspace: { Args: { p_name: string }; Returns: string }
       ensure_personal_workspace: { Args: Record<PropertyKey, never>; Returns: string }
       get_my_profile: { Args: Record<PropertyKey, never>; Returns: string }
+      handle_before_user_created: { Args: { payload: Json }; Returns: Json }
       is_workspace_member: { Args: { target_workspace_id: string }; Returns: boolean }
       is_workspace_owner: { Args: { target_workspace_id: string }; Returns: boolean }
       keepalive: { Args: Record<PropertyKey, never>; Returns: string }
@@ -615,6 +649,7 @@ export type Database = {
         }[]
       }
       max_owned_workspaces: { Args: Record<PropertyKey, never>; Returns: number }
+      max_users: { Args: Record<PropertyKey, never>; Returns: number }
       max_workspace_members: { Args: Record<PropertyKey, never>; Returns: number }
       profile_name_from_user: {
         Args: { p_display_name: string; p_email: string; p_full_name: string; p_name: string }
@@ -623,6 +658,15 @@ export type Database = {
       redeem_invite: { Args: { p_token: string }; Returns: string }
       revoke_invite: { Args: { p_invite_id: string }; Returns: undefined }
       set_my_profile: { Args: { p_display_name: string }; Returns: string }
+      workspace_usage: {
+        Args: { p_workspace_id: string }
+        Returns: {
+          max_members: number
+          max_quotes: number
+          members: number
+          quotes: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

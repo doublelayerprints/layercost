@@ -116,8 +116,16 @@ describe('auth error mapping', () => {
   it('mantiene gli errori esistenti', () => {
     expect(mapAuthError({ code: 'invalid_credentials' }).code).toBe('invalidCredentials')
     expect(mapAuthError({ code: 'email_not_confirmed' }).code).toBe('emailNotConfirmed')
+    expect(mapAuthError({ code: 'user_already_exists' }).code).toBe('emailExists')
     expect(mapAuthError({ code: 'over_request_rate_limit' }).code).toBe('tooManyRequests')
     expect(mapAuthError({ code: 'un_codice_nuovo' }).code).toBe('unknown')
+  })
+
+  it('riconosce il tetto del signup dall’errore dell’Auth Hook', () => {
+    // The before-user-created hook surfaces as a raw Postgres error.
+    expect(
+      mapAuthError({ code: 'P0001', message: 'signup_limit_reached' }).code,
+    ).toBe('signupLimitReached')
   })
 
   it('riconosce la rete e non rimappa un AuthError', () => {

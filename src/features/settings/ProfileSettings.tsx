@@ -13,6 +13,7 @@ const PROFILE_ERROR_KEYS: Record<WorkspaceErrorCode, MessageKey> = {
   auth: 'profile.error.auth',
   workspaceLimit: 'profile.error.unknown',
   memberLimit: 'profile.error.unknown',
+  quoteLimit: 'profile.error.unknown',
   inviteInvalid: 'profile.error.unknown',
   inviteExpired: 'profile.error.unknown',
   inviteRevoked: 'profile.error.unknown',

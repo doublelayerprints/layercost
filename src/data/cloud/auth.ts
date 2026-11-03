@@ -27,6 +27,8 @@ export type AuthErrorCode =
   | 'tooManyRequests'
   | 'network'
   | 'notConfigured'
+  | 'signupLimitReached'
+  | 'emailExists'
   | 'oauthCancelled'
   | 'oauthProviderDisabled'
   | 'oauthSignupDisabled'
@@ -49,6 +51,7 @@ export class AuthError extends Error {
 export interface AuthGateway {
   getSession: () => Promise<AuthSession | null>
   signIn: (email: string, password: string) => Promise<AuthSession>
+  signUp: (email: string, password: string) => Promise<AuthSession>
   signInWithOAuth: (provider: OAuthProvider, redirectTo: string) => Promise<void>
   linkIdentity: (provider: OAuthProvider, redirectTo: string) => Promise<void>
   exchangeCodeForSession: (code: string) => Promise<AuthSession>
@@ -96,6 +99,11 @@ function mapEvent(event: string): AuthChangeEvent {
   }
 }
 
+/**
+ * The signup cap lives in the `before-user-created` Auth Hook (EVO-2,
+ * ADR-0027): when it rejects, GoTrue surfaces the raw Postgres error as
+ * `{ code: 'P0001', message: 'signup_limit_reached' }`.
+ */
 export function mapAuthError(error: unknown): AuthError {
   if (error instanceof AuthError) return error
 
@@ -103,6 +111,9 @@ export function mapAuthError(error: unknown): AuthError {
   if (isRecord(error) && error.name === 'AuthRetryableFetchError') {
     return new AuthError('network')
   }
+
+  const message = isRecord(error) && typeof error.message === 'string' ? error.message : ''
+  if (message.includes('signup_limit_reached')) return new AuthError('signupLimitReached')
 
   const code = isRecord(error) && typeof error.code === 'string' ? error.code : undefined
   if (code) {
@@ -115,6 +126,8 @@ export function mapAuthError(error: unknown): AuthError {
       return new AuthError('invalidCredentials')
     case 'email_not_confirmed':
       return new AuthError('emailNotConfirmed')
+    case 'user_already_exists':
+      return new AuthError('emailExists')
     case 'over_request_rate_limit':
     case 'over_email_send_rate_limit':
     case 'too_many_requests':
@@ -137,6 +150,16 @@ export async function createSupabaseAuthGateway(): Promise<AuthGateway> {
 
     async signIn(email, password) {
       const { data, error } = await client.auth.signInWithPassword({ email, password })
+      if (error) throw mapAuthError(error)
+      const session = toSession(data.session)
+      if (!session) throw new AuthError('emailNotConfirmed')
+      return session
+    },
+
+    // With auto-confirm (EVO-2) the session starts immediately; the first
+    // login dialog and the automatic personal workspace handle the rest.
+    async signUp(email, password) {
+      const { data, error } = await client.auth.signUp({ email, password })
       if (error) throw mapAuthError(error)
       const session = toSession(data.session)
       if (!session) throw new AuthError('emailNotConfirmed')

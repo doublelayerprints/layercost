@@ -6,6 +6,7 @@ export const workspaceErrorKeys: Record<WorkspaceErrorCode, MessageKey> = {
   auth: 'workspace.error.auth',
   workspaceLimit: 'workspace.error.workspaceLimit',
   memberLimit: 'workspace.error.memberLimit',
+  quoteLimit: 'workspace.error.quoteLimit',
   invalidName: 'workspace.error.invalidName',
   inviteInvalid: 'workspace.error.inviteInvalid',
   inviteExpired: 'workspace.error.inviteExpired',

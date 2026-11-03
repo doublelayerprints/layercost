@@ -18,6 +18,7 @@ export type CloudErrorCode =
   | 'noWorkspace'
   | 'rateLimited'
   | 'limit'
+  | 'quoteLimit'
   | 'unknown'
 
 export type WorkspaceRole = 'owner' | 'editor'
@@ -56,6 +57,7 @@ export type WorkspaceErrorCode =
   | 'auth'
   | 'workspaceLimit'
   | 'memberLimit'
+  | 'quoteLimit'
   | 'invalidName'
   | 'inviteInvalid'
   | 'inviteExpired'
@@ -65,6 +67,13 @@ export type WorkspaceErrorCode =
   | 'notOwner'
   | 'notMember'
   | 'unknown'
+
+export interface WorkspaceUsage {
+  members: number
+  maxMembers: number
+  quotes: number
+  maxQuotes: number
+}
 
 export class WorkspaceError extends Error {
   readonly code: WorkspaceErrorCode
@@ -108,6 +117,7 @@ export interface CloudGateway {
   revokeInvite: (inviteId: string) => Promise<void>
   redeemInvite: (token: string) => Promise<string>
   leaveWorkspace: (workspaceId: string) => Promise<void>
+  getUsage: (workspaceId: string) => Promise<WorkspaceUsage>
   getProfile: () => Promise<string | null>
   saveProfile: (displayName: string) => Promise<string>
   pull: (workspaceId: string) => Promise<CloudSnapshot>
@@ -145,6 +155,8 @@ export function mapCloudError(error: unknown): CloudError {
     if (candidate.name === 'AuthRetryableFetchError') return new CloudError('network')
     const message = typeof candidate.message === 'string' ? candidate.message : ''
     if (isNetworkMessage(message)) return new CloudError('network', message)
+    // The quote cap trigger (EVO-2) surfaces as P0001 with a business message.
+    if (isQuoteCapError(candidate)) return new CloudError('quoteLimit', message)
     if (candidate.status === 401 || candidate.status === 403) {
       return new CloudError('auth', message || 'auth')
     }
@@ -159,6 +171,11 @@ export function mapCloudError(error: unknown): CloudError {
 const WORKSPACE_ERRORS: Record<string, WorkspaceErrorCode> = {
   workspace_limit: 'workspaceLimit',
   member_limit: 'memberLimit',
+  // `member_limit_reached` is the trigger message (EVO-2); the RPC pre-checks
+  // keep the historical `member_limit`. Both map to the same user-facing code.
+  member_limit_reached: 'memberLimit',
+  quote_limit_reached: 'quoteLimit',
+  workspace_not_found: 'notMember',
   invalid_name: 'invalidName',
   invalid_role: 'invalidName',
   invalid_expiry: 'invalidName',
@@ -198,6 +215,11 @@ function isDuplicate(error: PostgrestErrorLike | undefined): boolean {
 
 function isLockedQuote(error: PostgrestErrorLike | undefined): boolean {
   return error?.code === 'P0001' && (error.message ?? '').includes('quote_locked')
+}
+
+/** Raised by the `quotes_cap` trigger when the workspace is full (EVO-2). */
+function isQuoteCapError(error: PostgrestErrorLike | undefined): boolean {
+  return error?.code === 'P0001' && (error.message ?? '').includes('quote_limit_reached')
 }
 
 function result(row: { updated_at: string }): CloudPushResult {
@@ -737,6 +759,23 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
     async leaveWorkspace(workspaceId) {
       const { error } = await client.rpc('leave_workspace', { p_workspace_id: workspaceId })
       if (error) throw mapWorkspaceError(error)
+    },
+
+    // Members/quotes counts and caps from the workspace_usage RPC (EVO-2):
+    // the DB triggers are the source of truth, this is only a display.
+    async getUsage(workspaceId) {
+      const { data, error } = await client.rpc('workspace_usage', {
+        p_workspace_id: workspaceId,
+      })
+      if (error) throw mapWorkspaceError(error)
+      const row = data?.[0]
+      if (!row) throw new WorkspaceError('unknown')
+      return {
+        members: row.members,
+        maxMembers: row.max_members,
+        quotes: row.quotes,
+        maxQuotes: row.max_quotes,
+      }
     },
 
     pull: pullSnapshot,
