@@ -104,7 +104,7 @@ export const landingIt = {
 
   'landing.privacy.title': 'I tuoi numeri restano tuoi.',
   'landing.privacy.body':
-    'LayerCost funziona subito nel browser. Il calcolatore e i preventivi restano lì; il cloud è un extra gratuito per chi lo chiede.',
+    'LayerCost funziona subito nel browser. Il calcolatore e i preventivi restano lì; il cloud è un extra gratuito per chi crea un account.',
   'landing.privacy.account.title': 'Nessun account per iniziare',
   'landing.privacy.account.body':
     'Apri il calcolatore e lavora. L’account serve solo per il cloud, gratuito e opzionale.',
@@ -120,13 +120,13 @@ export const landingIt = {
 
   'landing.sync.title': 'Se vuoi, anche altrove.',
   'landing.sync.body':
-    'Il calcolatore e il cloud sono gratuiti. Il cloud si attiva su richiesta di accesso e non è obbligatorio.',
-  'landing.sync.request.title': 'Richiedi l’accesso',
+    'Il calcolatore e il cloud sono gratuiti. Il cloud è un extra: crei un account solo se vuoi sincronizzare.',
+  'landing.sync.request.title': 'Crea l’account',
   'landing.sync.request.body':
-    'Apri il modulo e inserisci la tua email.',
-  'landing.sync.approve.title': 'Attendi l’attivazione',
+    'Da Registrati inserisci email e password, oppure usa Google.',
+  'landing.sync.approve.title': 'Il tuo spazio è pronto',
   'landing.sync.approve.body':
-    'Ti avvisiamo quando l’accesso è pronto.',
+    'Ogni account ha uno spazio personale nel cloud.',
   'landing.sync.signin.title': 'Accedi',
   'landing.sync.signin.body':
     'Entra con il tuo account.',
@@ -138,24 +138,25 @@ export const landingIt = {
   'landing.faq.title': 'Domande prima di iniziare.',
   'landing.faq.account.question': 'Serve un account?',
   'landing.faq.account.answer':
-    'No. Il calcolatore, i preventivi e gli export funzionano senza account. L’account serve solo per il cloud, che è gratuito e si attiva su richiesta.',
+    'No. Il calcolatore, i preventivi e gli export funzionano senza account. L’account serve solo per il cloud: la registrazione è aperta e gratuita.',
   'landing.faq.cost.question': 'Quanto costa?',
   'landing.faq.cost.answer':
-    'Tutto è gratuito: calcolatore, export e cloud. Il cloud si attiva su richiesta di accesso. Non ci sono abbonamenti.',
+    'Tutto è gratuito: calcolatore, export e cloud. La registrazione è aperta e non ci sono abbonamenti.',
   'landing.faq.data.question': 'Dove sono i dati?',
   'landing.faq.data.answer':
     'Senza account, nel browser. Con l’account, nel cloud, così li ritrovi sui tuoi dispositivi. Puoi esportare un backup completo in ogni momento.',
   'landing.faq.devices.question': 'Si può usare da più dispositivi?',
   'landing.faq.devices.answer':
     'Sì, con l’account: i tuoi dati si allineano sui dispositivi. Senza account, esporta un backup completo e importalo sull’altro dispositivo.',
-  'landing.faq.access.question': 'Come si richiede l’accesso?',
+  'landing.faq.access.question': 'Come mi registro?',
   'landing.faq.access.answer':
-    'Apri la pagina Richiedi accesso, inserisci email e consenso. Ti avvisiamo quando l’accesso è attivo.',
+    'Nella pagina di accesso scegli Registrati e inserisci email e password: lo spazio nel cloud è subito pronto. Puoi anche continuare con Google.',
 
   'landing.cta.title': 'Metti i tuoi numeri.',
   'landing.cta.body':
     'Apri il calcolatore con i valori di partenza, poi sostituisci prezzi, potenze e vita utile con i tuoi.',
   'landing.cta.note': 'Nessun account richiesto.',
+  'landing.cta.signup': 'Registrati',
 
   'landing.footer.product': 'Prodotto',
   'landing.footer.app': 'App',

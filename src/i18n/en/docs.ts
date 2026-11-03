@@ -222,7 +222,7 @@ export const docsEn = {
   'docs.cloud.intro':
     'LayerCost is local-first: without an account, data stays in the browser. The cloud is optional and lets two or more devices share the same archive.',
   'docs.cloud.p1':
-    'With an account you can use the shared workspace: configuration and quotes sync across devices. Access is by request and the administrator creates the account. You can sign in with email and password or with Google.',
+    'With an account you can use the shared workspace: configuration and quotes sync across devices. Registration is open: choose Sign up and enter your email and password. You can sign in with email and password or with Google.',
   'docs.cloud.p2':
     'If you work offline, changes stay queued and are replayed when you return. If the same data changes on two devices, LayerCost asks which version to keep. On logout the local cloud copy is removed when there are no pending writes.',
   'docs.cloud.p3':
@@ -241,7 +241,6 @@ export const docsEn = {
   'docs.cloud.imageAlt':
     'Settings page with sections for price, appearance, language and data and backup.',
   'docs.cloud.imageCaption': 'Settings also contains data export, import and restore.',
-  'docs.cloud.linkRequest': 'Request cloud access',
   'docs.cloud.linkSettings': 'Open Settings',
 
   'docs.suggerimenti.label': 'Suggestions',

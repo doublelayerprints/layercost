@@ -21,12 +21,6 @@ import { OAuthCallbackRedirect } from '@/features/auth/OAuthCallbackRedirect'
 import { NotFoundPage } from '@/features/NotFoundPage'
 import { LandingRoute } from '@/features/landing/LandingRoute'
 
-const RequestAccessPage = lazy(() =>
-  import('@/features/access/RequestAccessPage').then((module) => ({
-    default: module.RequestAccessPage,
-  })),
-)
-
 const DocsPage = lazy(() =>
   import('@/features/docs/DocsPage').then((module) => ({
     default: module.DocsPage,
@@ -122,14 +116,6 @@ export default function App() {
               element={
                 <Suspense fallback={<RouteLoading />}>
                   <FeedbackPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="request-access"
-              element={
-                <Suspense fallback={<RouteLoading />}>
-                  <RequestAccessPage />
                 </Suspense>
               }
             />

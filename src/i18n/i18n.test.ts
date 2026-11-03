@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { en } from './en'
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isLocale, plural, translate } from './index'
 import { authIt } from './it/auth'
-import { accessIt } from './it/access'
 import { calculatorIt } from './it/calculator'
 import { feedbackIt } from './it/feedback'
 import { landingIt } from './it/landing'
@@ -31,7 +30,6 @@ describe('dizionari i18n', () => {
       profileIt,
       xlsxIt,
       authIt,
-      accessIt,
       landingIt,
       feedbackIt,
       workspaceIt,

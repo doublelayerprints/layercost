@@ -60,10 +60,10 @@ export function LandingPage() {
                   <ArrowIcon />
                 </Link>
                 <Link
-                  to="/request-access"
+                  to="/login?mode=signup"
                   className={landingButtonClassName({ variant: 'secondary', size: 'lg' })}
                 >
-                  {t('access.requestAccess')}
+                  {t('landing.cta.signup')}
                 </Link>
               </div>
               <p className="landing-small mt-4 text-muted">{t('landing.hero.note')}</p>
@@ -320,8 +320,8 @@ export function LandingPage() {
           </Reveal>
 
           <Reveal className="mt-10 flex flex-wrap items-center gap-3" delay={120}>
-            <Link to="/request-access" className={landingButtonClassName({ size: 'md' })}>
-              {t('access.requestAccess')}
+            <Link to="/login?mode=signup" className={landingButtonClassName({ size: 'md' })}>
+              {t('landing.cta.signup')}
             </Link>
             <Link
               to="/login"
@@ -380,10 +380,10 @@ export function LandingPage() {
                   <ArrowIcon />
                 </Link>
                 <Link
-                  to="/request-access"
+                  to="/login?mode=signup"
                   className={landingButtonClassName({ variant: 'secondary', size: 'lg' })}
                 >
-                  {t('access.requestAccess')}
+                  {t('landing.cta.signup')}
                 </Link>
               </div>
               <p className="mt-4 text-[13px] text-muted md:text-right">{t('landing.cta.note')}</p>

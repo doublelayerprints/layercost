@@ -37,7 +37,7 @@ describe('SEO e pre-render della landing', () => {
     expect(html).toContain('I tuoi numeri restano tuoi.')
     expect(html).toContain('Domande prima di iniziare.')
     expect(html).toContain('href="#/calculator"')
-    expect(html).toContain('href="#/request-access"')
+    expect(html).toContain('href="#/login?mode=signup"')
     expect(html).not.toContain('The real cost of 3D prints.')
     expect(html).not.toContain('layercost:data')
   })

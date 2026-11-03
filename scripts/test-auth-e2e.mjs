@@ -53,4 +53,5 @@ run('npx', ['playwright', 'test', 'tests/e2e/auth.spec.ts', '--project=chromium'
   E2E_AUTH: '1',
   SUPABASE_URL: url,
   SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey,
+  SUPABASE_DB_URL: local.DB_URL,
 })

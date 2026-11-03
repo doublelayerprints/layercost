@@ -106,7 +106,7 @@ export const landingEn: Record<keyof typeof landingIt, string> = {
 
   'landing.privacy.title': 'Your numbers stay yours.',
   'landing.privacy.body':
-    'LayerCost works right away in your browser. The calculator and quotes stay there; the cloud is a free extra for those who ask for it.',
+    'LayerCost works right away in your browser. The calculator and quotes stay there; the cloud is a free extra for those who create an account.',
   'landing.privacy.account.title': 'No account to start',
   'landing.privacy.account.body':
     'Open the calculator and work. The account is only for the free, optional cloud.',
@@ -122,13 +122,13 @@ export const landingEn: Record<keyof typeof landingIt, string> = {
 
   'landing.sync.title': 'Elsewhere, if you want.',
   'landing.sync.body':
-    'The calculator and the cloud are free. The cloud is activated on request and is optional.',
-  'landing.sync.request.title': 'Request access',
+    'The calculator and the cloud are free. The cloud is an extra: you create an account only if you want to sync.',
+  'landing.sync.request.title': 'Create the account',
   'landing.sync.request.body':
-    'Open the form and enter your email.',
-  'landing.sync.approve.title': 'Wait for activation',
+    'From Sign up enter your email and password, or use Google.',
+  'landing.sync.approve.title': 'Your workspace is ready',
   'landing.sync.approve.body':
-    'We will let you know when access is ready.',
+    'Every account gets a personal cloud workspace.',
   'landing.sync.signin.title': 'Sign in',
   'landing.sync.signin.body':
     'Enter with your account.',
@@ -140,24 +140,25 @@ export const landingEn: Record<keyof typeof landingIt, string> = {
   'landing.faq.title': 'Questions before you start.',
   'landing.faq.account.question': 'Do I need an account?',
   'landing.faq.account.answer':
-    'No. The calculator, quotes and exports work without an account. The account is only for the cloud, which is free and activated on request.',
+    'No. The calculator, quotes and exports work without an account. The account is only for the cloud: registration is open and free.',
   'landing.faq.cost.question': 'How much does it cost?',
   'landing.faq.cost.answer':
-    'Everything is free: calculator, exports and cloud. The cloud is activated on request. There are no subscriptions.',
+    'Everything is free: calculator, exports and cloud. Registration is open and there are no subscriptions.',
   'landing.faq.data.question': 'Where is the data?',
   'landing.faq.data.answer':
     'Without an account, in your browser. With an account, in the cloud, so you can find it on your devices. You can export a complete backup at any time.',
   'landing.faq.devices.question': 'Can I use it on more devices?',
   'landing.faq.devices.answer':
     'Yes, with the account: your data stays aligned across devices. Without an account, export a complete backup and import it on the other device.',
-  'landing.faq.access.question': 'How do I request access?',
+  'landing.faq.access.question': 'How do I sign up?',
   'landing.faq.access.answer':
-    'Open the Request access page, enter your email and consent. We will let you know when access is active.',
+    'On the sign-in page choose Sign up and enter your email and password: your cloud workspace is ready right away. You can also continue with Google.',
 
   'landing.cta.title': 'Put in your numbers.',
   'landing.cta.body':
     'Open the calculator with the starting values, then replace prices, power and useful life with yours.',
   'landing.cta.note': 'No account required.',
+  'landing.cta.signup': 'Sign up',
 
   'landing.footer.product': 'Product',
   'landing.footer.app': 'App',

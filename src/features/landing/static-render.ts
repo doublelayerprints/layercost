@@ -166,7 +166,7 @@ export function renderStaticLanding(): string {
             <p class="landing-lead mt-6 max-w-[46ch] text-muted">${escapeHtml(t('landing.hero.body'))}</p>
             <div class="mt-8 flex flex-wrap items-center gap-3">
               ${action('#/calculator', t('landing.nav.open'), 'primary', 'lg', '',)}
-              ${action('#/request-access', t('access.requestAccess'), 'secondary', 'lg')}
+              ${action('#/login?mode=signup', t('landing.cta.signup'), 'secondary', 'lg')}
             </div>
             <p class="landing-small mt-4 text-muted">${escapeHtml(t('landing.hero.note'))}</p>
           </div>
@@ -269,7 +269,7 @@ export function renderStaticLanding(): string {
             ).join('')}
           </ol>
           <div class="mt-10 flex flex-wrap items-center gap-3">
-            ${action('#/request-access', t('access.requestAccess'))}
+            ${action('#/login?mode=signup', t('landing.cta.signup'))}
             ${action('#/login', t('auth.loginAction'), 'secondary')}
             <p class="text-[13px] text-muted">${escapeHtml(t('landing.sync.note'))}</p>
           </div>
@@ -295,7 +295,7 @@ export function renderStaticLanding(): string {
             <div class="md:col-span-5">
               <div class="flex flex-wrap gap-3 md:justify-end">
                 ${action('#/calculator', t('landing.nav.open'), 'primary', 'lg')}
-                ${action('#/request-access', t('access.requestAccess'), 'secondary', 'lg')}
+                ${action('#/login?mode=signup', t('landing.cta.signup'), 'secondary', 'lg')}
               </div>
               <p class="mt-4 text-[13px] text-muted md:text-right">${escapeHtml(t('landing.cta.note'))}</p>
             </div>
@@ -325,7 +325,7 @@ export function renderStaticLanding(): string {
             <ul class="mt-3 space-y-1">
               <li><a href="#/calculator" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">${escapeHtml(t('landing.nav.open'))}</a></li>
               <li><a href="#/login" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">${escapeHtml(t('auth.loginAction'))}</a></li>
-              <li><a href="#/request-access" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">${escapeHtml(t('access.requestAccess'))}</a></li>
+              <li><a href="#/login?mode=signup" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">${escapeHtml(t('landing.cta.signup'))}</a></li>
             </ul>
           </nav>
           <div class="lg:col-span-3">

@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
+import { spawnSync } from 'node:child_process'
 
 const authEnabled = process.env.E2E_AUTH === '1'
 const supabaseUrl = process.env.SUPABASE_URL
@@ -39,6 +40,31 @@ async function deleteUser(id: string): Promise<void> {
   })
 }
 
+/** Removes the account created by the open signup together with its workspace. */
+function deleteSignupData(email: string): void {
+  const dbUrl = process.env.SUPABASE_DB_URL
+  if (!dbUrl) return
+  const result = spawnSync(
+    'psql',
+    [
+      dbUrl,
+      '-v',
+      'ON_ERROR_STOP=1',
+      '-c',
+      `delete from public.workspaces where id in (
+         select m.workspace_id from public.workspace_members m
+         join auth.users u on u.id = m.user_id where u.email = '${email}'
+       );`,
+      '-c',
+      `delete from auth.users where email = '${email}';`,
+    ],
+    { encoding: 'utf8' },
+  )
+  if (result.status !== 0) {
+    throw new Error(`Cleanup signup fallito: ${result.stderr || result.stdout}`)
+  }
+}
+
 async function audit(page: import('@playwright/test').Page) {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze()
   expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
@@ -50,17 +76,14 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
     await page.setViewportSize({ width: 375, height: 844 })
     await page.goto('/#/login')
     await expect(page.getByRole('heading', { name: 'Accedi' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Richiedi accesso' })).toHaveAttribute(
-      'href',
-      '#/request-access',
-    )
     await audit(page)
     await page.setViewportSize({ width: 1440, height: 900 })
     await audit(page)
 
-    await page.getByRole('link', { name: 'Richiedi accesso' }).click()
-    await expect(page.getByRole('heading', { name: 'Richiedi accesso' })).toBeVisible()
-    await page.goto('/#/login')
+    // The mode switch sends new users to the signup form (EVO-2).
+    await page.getByRole('radio', { name: 'Registrati' }).check()
+    await expect(page.getByRole('heading', { name: 'Registrati' })).toBeVisible()
+    await page.getByRole('radio', { name: 'Accedi' }).check()
 
     await page.getByLabel('Email').fill(account.email)
     await page.getByLabel('Password').fill(account.password)
@@ -86,9 +109,48 @@ test('login, sessione persistente, impostazioni sync e logout', async ({ page })
       await logoutDialog.getByRole('button', { name: 'Esci' }).click()
     }
     await expect(page.getByRole('button', { name: 'Accedi' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Richiedi accesso' })).toBeVisible()
+    await expect(page.getByRole('radio', { name: 'Registrati' })).toBeVisible()
   } finally {
     await deleteUser(account.id)
+  }
+})
+
+test('signup: crea un account, apre la sessione e mostra la quota dello spazio', async ({
+  page,
+}) => {
+  const email = `signup-e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.test`
+  const password = 'Signup-password-123!'
+  try {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/#/login?mode=signup')
+    await expect(page.getByRole('heading', { name: 'Registrati' })).toBeVisible()
+    await audit(page)
+
+    // Client-side validation with messages tied to the fields.
+    await page.getByRole('button', { name: 'Crea account' }).click()
+    await expect(page.getByText('Inserisci la tua email.')).toBeVisible()
+    await expect(page.getByText('Inserisci una password.')).toBeVisible()
+    await page.getByLabel('Email').fill(email)
+    await page.getByLabel('Password').fill('abc')
+    await page.getByRole('button', { name: 'Crea account' }).click()
+    await expect(page.getByText('La password deve avere almeno 6 caratteri.')).toBeVisible()
+    await audit(page)
+
+    // Happy path: with auto-confirm the session starts immediately.
+    await page.getByLabel('Password').fill(password)
+    await page.getByRole('button', { name: 'Crea account' }).click()
+    await page.waitForURL(/#\/calculator$/)
+
+    await page.goto('/#/settings')
+    await expect(page.getByText(email)).toBeVisible()
+    const spazio = page.getByRole('region', { name: 'Spazio' })
+    await expect(spazio.getByText('Membri')).toBeVisible()
+    await expect(spazio.getByText('1/20')).toBeVisible()
+    await expect(spazio.getByText('Preventivi')).toBeVisible()
+    await expect(spazio.getByText('0/500')).toBeVisible()
+    await audit(page)
+  } finally {
+    deleteSignupData(email)
   }
 })
 

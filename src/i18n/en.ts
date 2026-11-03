@@ -1,5 +1,4 @@
 import { authEn } from './en/auth'
-import { accessEn } from './en/access'
 import { calculatorEn } from './en/calculator'
 import { feedbackEn } from './en/feedback'
 import { landingEn } from './en/landing'
@@ -128,7 +127,6 @@ export const en: Messages = {
   ...profileEn,
   ...xlsxEn,
   ...authEn,
-  ...accessEn,
   ...landingEn,
   ...feedbackEn,
   ...workspaceEn,
