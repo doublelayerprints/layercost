@@ -178,7 +178,9 @@ enable_refresh_token_rotation = true
 # Requires enable_refresh_token_rotation = true.
 refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
-enable_signup = false
+# Signup is open since EVO-2 (ADR-0027): the global cap is enforced by the
+# `before-user-created` hook below, not by disabling signup.
+enable_signup = true
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
@@ -283,10 +285,13 @@ max_frequency = "5s"
 # Force log out if the user has been inactive longer than the specified duration.
 # inactivity_timeout = "8h"
 
-# This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
-# [auth.hook.before_user_created]
-# enabled = true
-# uri = "pg-functions://postgres/auth/before-user-created-hook"
+# This hook runs before a new user is created and enforces the global signup
+# cap (EVO-2, ADR-0027). The function is created by the migration
+# 20261102120000_signup_cap_and_workspace_limits.sql. In production the hook is
+# wired in the dashboard (Authentication → Hooks), see the workspace runbook.
+[auth.hook.before_user_created]
+enabled = true
+uri = "pg-functions://postgres/public/handle_before_user_created"
 
 # This hook runs before a token is issued and allows you to add additional claims based on the authentication method used.
 # [auth.hook.custom_access_token]
