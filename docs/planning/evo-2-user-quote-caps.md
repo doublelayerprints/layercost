@@ -1,6 +1,6 @@
 # EVO-2 — Tetti utenti e preventivi (signup aperto a tetto numerico)
 
-**Stato:** spec approvata il 2 novembre 2026; implementazione da fare
+**Stato:** implementata, distribuita e attiva in produzione il 3 novembre 2026 (PR #62, squash `e50c719`, build `index-izqyKv9M.js` / `index-DMAw7o4c.css`; operazioni §8 chiuse lo stesso giorno, esiti nel runbook §16.3)
 **Data:** 2 novembre 2026
 **ADR:** `docs/adr/0027-signup-cap-and-workspace-limits.md`
 **Runbook:** `docs/engineering/workspace-runbook.md` (backup e migrazioni), `docs/engineering/feedback.md` (Formspree)

@@ -1,6 +1,6 @@
 # Suggerimenti — configurazione e gestione
 
-**Stato:** distribuito in produzione il 30/10/2026 (PR #36, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`); form Formspree di produzione e test creati, `VITE_FEEDBACK_ENDPOINT` configurata in `.env.local` e su Vercel (Production/Preview/Development), Restrict to Domain attivo e submission reale sul form di test verificata; submission di produzione da fare
+**Stato:** distribuito in produzione il 30/10/2026 (PR #36, build `index-BE8ZeH6G.js` / `index-VqC-Ge2M.css`); form Formspree di produzione e test creati, `VITE_FEEDBACK_ENDPOINT` configurata in `.env.local` e su Vercel (Production/Preview/Development), Restrict to Domain attivo; submission di produzione eseguita e submission di test cancellate il 02/11/2026
 **ADR:** `docs/adr/0030-docs-and-feedback.md`
 **Piano:** `docs/planning/evo-6-docs-feedback.md`
 **Pagina:** `/#/feedback`

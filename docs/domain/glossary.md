@@ -1,11 +1,12 @@
 # Glossario
 
-**Stato:** v1.0.0 + T5.20 + EVO-7
+**Stato:** v1.0.0 + T5.20 + EVO-7 + EVO-2
 
 | Termine                   | Significato                                                                                                    |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **Ammortamento**          | Quota del prezzo della stampante consumata dalle ore di stampa: `(prezzo − valore residuo) / ore di vita`.     |
 | **AMS / ACE**             | Sistemi multicolore. La Kobra X usa ACE 2 Pro; nel progetto “multicolore” è il termine generico.               |
+| **Auto-confirm**          | Email confermata automaticamente alla registrazione: nessuna verifica via email, sessione immediata (EVO-2).   |
 | **Basis point (bp)**      | Centesimo di punto percentuale. 100% = 10.000 bp; 5% = 500 bp.                                                 |
 | **Brim**                  | Bordo di adesione al piatto, già incluso nei grammi dello slicer.                                              |
 | **Catalogo stampanti**    | Elenco statico di 29 preset non persistiti; l’aggiunta copia i valori in una stampante normale e modificabile. |
@@ -16,6 +17,7 @@
 | **Centigrammo (cg)**      | Un centesimo di grammo. 100 g = 10.000 cg.                                                                     |
 | **Flush / purge**         | Filamento espulso durante i cambi colore. È già incluso nei grammi totali dello slicer.                        |
 | **Grammi slicer**         | Totale di filamento riportato dallo slicer, comprensivo di supporti, brim, purge e prime tower.                |
+| **Hook before-user-created** | Auth Hook Postgres eseguito prima della creazione di un utente; applica il tetto signup con `signup_limit_reached` (EVO-2). |
 | **Manutenzione**          | Riserva €/h per ugello, piatto, cinghie, lubrificante e altri consumabili.                                     |
 | **Margine**               | Percentuale sul prezzo: `prezzo = costo / (1 − margine)`.                                                      |
 | **Margine effettivo**     | `(prezzo netto − costo totale) / prezzo netto`, dopo sconto e arrotondamento.                                  |
@@ -30,11 +32,15 @@
 | **Sconto del preventivo** | Sconto commerciale sul totale, applicato dopo gli sconti di riga.                                              |
 | **Snapshot**              | Copia della configurazione usata al momento del salvataggio di un preventivo.                                  |
 | **Slicer**                | Software che genera il G-code e stima tempo e filamento.                                                       |
+| **Spazio**                | Workspace: contenitore dei dati su cloud, `personal` (automatico per utente) o `shared` (condiviso a invito).  |
 | **Tag attività**          | Etichette “Creato da …” e “Ultima modifica di …” con data nella lista Preventivi degli spazi condivisi.        |
 | **Tasso guasti**          | Probabilità che una stampa fallisca e debba essere rifatta.                                                    |
 | **Tariffa energia**       | Costo marginale al kWh, con decorrenza.                                                                        |
 | **Tema**                  | Preferenza dell'interfaccia: sistema, chiaro o scuro. Vive sul dispositivo, fuori dai dati del preventivo.     |
 | **Tempo effettivo**       | Tempo slicer maggiorato e sommato ai minuti di avvio.                                                          |
+| **Tetto utenti**          | Limite globale di 1000 account applicato dall'hook al signup; configurabile via SQL con `max_users()` (EVO-2). |
+| **Tetti per workspace**   | `max_members` (default 20) e `max_quotes` (default 500) in `workspace_limits`, applicati da trigger e modificabili solo via SQL. I preventivi archiviati contano, i soft-deleted no. |
+| **Uso dello spazio**      | Righe “Membri x/20” e “Preventivi x/500” in Impostazioni → Spazio, dalla RPC `workspace_usage` (EVO-2).        |
 | **Usura**                 | Ammortamento + manutenzione della stampante.                                                                   |
 | **Utile (guadagno)**      | Prezzo netto meno costo pieno, in euro. Valore di visualizzazione della vista interna; può essere negativo.    |
 | **Valore residuo**        | Valore della stampante a fine vita, in percentuale del prezzo di acquisto.                                     |
