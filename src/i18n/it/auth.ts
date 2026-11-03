@@ -2,6 +2,16 @@ export const authIt = {
   'auth.title': 'Accedi',
   'auth.description':
     'Accedi per sincronizzare configurazione e preventivi tra i tuoi dispositivi. Il cloud è opzionale: senza account l’app resta locale.',
+  'auth.mode.legend': 'Scegli se accedere o creare un account',
+  'auth.mode.signin': 'Accedi',
+  'auth.mode.signup': 'Registrati',
+  'auth.signup.description':
+    'Crea un account per sincronizzare configurazione e preventivi tra i tuoi dispositivi. Ogni account ha uno spazio personale nel cloud.',
+  'auth.signup.passwordHint': 'Almeno 6 caratteri.',
+  'auth.signup.submit': 'Crea account',
+  'auth.signup.submitting': 'Creazione account…',
+  'auth.signup.hint':
+    'Il cloud è opzionale: senza account il calcolatore resta locale. Creando un account ottieni uno spazio personale nel cloud.',
   'auth.email': 'Email',
   'auth.password': 'Password',
   'auth.submit': 'Accedi',

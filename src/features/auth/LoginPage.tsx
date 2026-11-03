@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate, Link, useNavigate } from 'react-router-dom'
+import { Navigate, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { Alert, Button, Card, EmptyState, Field, Input, PageHeader } from '@/components/ui'
 import type { AuthErrorCode } from '@/data/cloud/auth'
@@ -13,6 +13,8 @@ const errorKeys: Record<AuthErrorCode, MessageKey> = {
   tooManyRequests: 'auth.error.tooManyRequests',
   network: 'auth.error.network',
   notConfigured: 'auth.error.notConfigured',
+  signupLimitReached: 'auth.error.signupLimitReached',
+  emailExists: 'auth.error.emailExists',
   oauthCancelled: 'auth.error.oauthCancelled',
   oauthProviderDisabled: 'auth.error.oauthProviderDisabled',
   oauthSignupDisabled: 'auth.error.oauthSignupDisabled',
@@ -22,6 +24,10 @@ const errorKeys: Record<AuthErrorCode, MessageKey> = {
   manualLinkingDisabled: 'auth.error.manualLinkingDisabled',
   unknown: 'auth.error.unknown',
 }
+
+type LoginMode = 'signin' | 'signup'
+
+const MIN_PASSWORD_LENGTH = 6
 
 function GoogleIcon() {
   return (
@@ -46,20 +52,64 @@ function GoogleIcon() {
   )
 }
 
+function ModeSwitch({
+  mode,
+  onChange,
+  disabled,
+}: {
+  mode: LoginMode
+  onChange: (mode: LoginMode) => void
+  disabled: boolean
+}) {
+  const { t } = useI18n()
+  return (
+    <fieldset disabled={disabled} className="min-w-0">
+      <legend className="sr-only">{t('auth.mode.legend')}</legend>
+      <div className="grid grid-cols-2 gap-1 rounded-control bg-raised p-1">
+        {(['signin', 'signup'] as const).map((value) => (
+          <label
+            key={value}
+            className="cursor-pointer rounded-control text-center text-sm font-medium has-[:checked]:bg-surface has-[:checked]:text-ink has-[:disabled]:cursor-not-allowed"
+          >
+            <input
+              type="radio"
+              name="login-mode"
+              value={value}
+              checked={mode === value}
+              onChange={() => onChange(value)}
+              disabled={disabled}
+              className="sr-only"
+            />
+            <span className="block px-3 py-1.5 text-muted has-[:checked]:text-ink">
+              {value === 'signin' ? t('auth.mode.signin') : t('auth.mode.signup')}
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  )
+}
+
 export function LoginPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const status = useAuthStore((state) => state.status)
   const user = useAuthStore((state) => state.user)
   const error = useAuthStore((state) => state.error)
   const oauth = useAuthStore((state) => state.oauth)
   const oauthCallbackError = useAuthStore((state) => state.oauthCallback?.error)
   const signIn = useAuthStore((state) => state.signIn)
+  const signUp = useAuthStore((state) => state.signUp)
   const signInWithGoogle = useAuthStore((state) => state.signInWithGoogle)
   const initialize = useAuthStore((state) => state.initialize)
+  const [mode, setMode] = useState<LoginMode>(() =>
+    searchParams.get('mode') === 'signup' ? 'signup' : 'signin',
+  )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<'email' | 'password', MessageKey>>>({})
 
   const googleEnabled = isGoogleAuthEnabled()
 
@@ -84,17 +134,46 @@ export function LoginPage() {
   const busy = emailBusy || oauth !== 'idle'
   const displayError = oauthCallbackError ?? error
 
+  const switchMode = (next: LoginMode) => {
+    setMode(next)
+    setFieldErrors({})
+  }
+
+  const validate = (): boolean => {
+    const next: Partial<Record<'email' | 'password', MessageKey>> = {}
+    const trimmedEmail = email.trim()
+    if (trimmedEmail === '') {
+      next.email = 'auth.error.emailRequired'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      next.email = 'auth.error.emailInvalid'
+    }
+    if (password === '') {
+      next.password = 'auth.error.passwordRequired'
+    } else if (password.length < MIN_PASSWORD_LENGTH) {
+      next.password = 'auth.error.passwordTooShort'
+    }
+    setFieldErrors(next)
+    return Object.keys(next).length === 0
+  }
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (mode === 'signup' && !validate()) return
     setSubmitting(true)
-    const ok = await signIn(email, password)
+    const ok =
+      mode === 'signup' ? await signUp(email, password) : await signIn(email, password)
     setSubmitting(false)
     if (ok) navigate('/calculator', { replace: true })
   }
 
+  const title = mode === 'signup' ? t('auth.mode.signup') : t('auth.title')
+  const description =
+    mode === 'signup' ? t('auth.signup.description') : t('auth.description')
+  const passwordError = fieldErrors.password
+
   return (
     <div className="mx-auto max-w-xl">
-      <PageHeader title={t('auth.title')} description={t('auth.description')} />
+      <PageHeader title={title} description={description} />
 
       {status === 'expired' ? (
         <div className="mt-6">
@@ -124,8 +203,10 @@ export function LoginPage() {
           </div>
         ) : null}
 
+        <ModeSwitch mode={mode} onChange={switchMode} disabled={busy} />
+
         {googleEnabled ? (
-          <div className="space-y-4">
+          <div className="mt-5 space-y-4">
             <Button
               variant="secondary"
               className="w-full"
@@ -144,8 +225,9 @@ export function LoginPage() {
         ) : null}
 
         <form
-          className={googleEnabled ? 'mt-5 space-y-5' : 'space-y-5'}
+          className={googleEnabled ? 'mt-5 space-y-5' : 'mt-5 space-y-5'}
           onSubmit={(event) => void handleSubmit(event)}
+          noValidate={mode === 'signup'}
         >
           <Field label={t('auth.email')} htmlFor="login-email" required>
             <Input
@@ -156,10 +238,19 @@ export function LoginPage() {
               autoCapitalize="none"
               spellCheck={false}
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value)
+                setFieldErrors((current) => ({ ...current, email: undefined }))
+              }}
               required
               disabled={busy}
+              aria-describedby={fieldErrors.email ? 'login-email-error' : undefined}
             />
+            {fieldErrors.email ? (
+              <p id="login-email-error" className="mt-1.5 text-xs text-negative">
+                {t(fieldErrors.email)}
+              </p>
+            ) : null}
           </Field>
 
           <Field label={t('auth.password')} htmlFor="login-password" required>
@@ -167,17 +258,43 @@ export function LoginPage() {
               id="login-password"
               type="password"
               name="password"
-              autoComplete="current-password"
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value)
+                setFieldErrors((current) => ({ ...current, password: undefined }))
+              }}
               required
               disabled={busy}
+              aria-describedby={
+                passwordError
+                  ? 'login-password-error'
+                  : mode === 'signup'
+                    ? 'login-password-hint'
+                    : undefined
+              }
             />
+            {passwordError ? (
+              <p id="login-password-error" className="mt-1.5 text-xs text-negative">
+                {t(passwordError)}
+              </p>
+            ) : null}
+            {mode === 'signup' && !passwordError ? (
+              <p id="login-password-hint" className="mt-1.5 text-xs text-muted">
+                {t('auth.signup.passwordHint')}
+              </p>
+            ) : null}
           </Field>
 
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" disabled={busy}>
-              {emailBusy ? t('auth.submitting') : t('auth.submit')}
+              {emailBusy
+                ? mode === 'signup'
+                  ? t('auth.signup.submitting')
+                  : t('auth.submitting')
+                : mode === 'signup'
+                  ? t('auth.signup.submit')
+                  : t('auth.submit')}
             </Button>
             <Link
               to="/calculator"
@@ -188,17 +305,14 @@ export function LoginPage() {
           </div>
 
           <div className="space-y-1 border-t border-line pt-4 text-xs leading-relaxed text-muted">
-            <p>{t('auth.noSignup')}</p>
-            <p>
-              {t('access.noAccount')}{' '}
-              <Link
-                to="/request-access"
-                className="font-medium text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
-              >
-                {t('access.requestAccess')}
-              </Link>
-            </p>
-            <p>{t('auth.forgotPassword')}</p>
+            {mode === 'signin' ? (
+              <>
+                <p>{t('auth.signup.hint')}</p>
+                <p>{t('auth.forgotPassword')}</p>
+              </>
+            ) : (
+              <p>{t('auth.signup.hint')}</p>
+            )}
           </div>
         </form>
       </Card>

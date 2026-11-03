@@ -4,6 +4,16 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'auth.title': 'Sign in',
   'auth.description':
     'Sign in to sync configuration and quotes across your devices. The cloud is optional: without an account the app stays local.',
+  'auth.mode.legend': 'Choose whether to sign in or create an account',
+  'auth.mode.signin': 'Sign in',
+  'auth.mode.signup': 'Sign up',
+  'auth.signup.description':
+    'Create an account to sync configuration and quotes across your devices. Every account gets a personal cloud workspace.',
+  'auth.signup.passwordHint': 'At least 6 characters.',
+  'auth.signup.submit': 'Create account',
+  'auth.signup.submitting': 'Creating account…',
+  'auth.signup.hint':
+    'The cloud is optional: without an account the calculator stays local. Creating an account gives you a personal cloud workspace.',
   'auth.email': 'Email',
   'auth.password': 'Password',
   'auth.submit': 'Sign in',
