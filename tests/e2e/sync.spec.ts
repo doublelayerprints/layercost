@@ -139,6 +139,28 @@ function deleteWorkspace(workspaceId: string): void {
   }
 }
 
+/** Lowers the workspace quote cap via SQL, like the runbook does. */
+function setQuoteCap(workspaceId: string, maxQuotes: number): void {
+  const dbUrl = process.env.SUPABASE_DB_URL
+  if (!dbUrl) return
+  const result = spawnSync(
+    'psql',
+    [
+      dbUrl,
+      '-v',
+      'ON_ERROR_STOP=1',
+      '-c',
+      `insert into public.workspace_limits (workspace_id, max_quotes)
+       values ('${workspaceId}', ${maxQuotes})
+       on conflict (workspace_id) do update set max_quotes = ${maxQuotes};`,
+    ],
+    { encoding: 'utf8' },
+  )
+  if (result.status !== 0) {
+    throw new Error(`Modifica del tetto fallita: ${result.stderr || result.stdout}`)
+  }
+}
+
 async function deleteUser(id: string): Promise<void> {
   await admin(`/auth/v1/admin/users/${encodeURIComponent(id)}`, { method: 'DELETE' })
 }
@@ -413,6 +435,56 @@ test('un invito aggiunge un utente allo spazio condiviso', async ({ browser, pag
     await guestContext.close()
     deleteWorkspace(workspaceId)
     await Promise.all([deleteUser(owner.id), deleteUser(guest.id)])
+  }
+})
+
+test('il tetto preventivi mostra la quota e un errore chiaro senza perdere i dati', async ({
+  page,
+}) => {
+  const account = await createUser('cap')
+  const workspaceId = await createWorkspace([account])
+  try {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await login(page, account)
+    await page.goto('/#/settings')
+    await waitForSynced(page)
+
+    // The Spazio section shows members and quotes usage from workspace_usage.
+    const spazio = page.getByRole('region', { name: 'Spazio' })
+    await expect(spazio.getByText('Membri')).toBeVisible()
+    await expect(spazio.getByText('1/20')).toBeVisible()
+
+    // Fill the single slot allowed by the lowered cap, then save a quote.
+    await setQuoteCap(workspaceId, 1)
+    await seedOtherWorkspace(workspaceId)
+
+    await page.goto('/#/calculator')
+    await page.locator('input[aria-label="Ore"]').first().fill('10')
+    await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
+    await page.getByRole('button', { name: 'Salva preventivo' }).click()
+    await page.waitForURL(/#\/quotes\/.+/)
+
+    // The push fails with quote_limit_reached: the message is clear and the
+    // quote stays in the local archive.
+    await page.goto('/#/settings')
+    await expect(
+      page.getByText(/Hai raggiunto il limite di preventivi/).first(),
+    ).toBeVisible({ timeout: 30_000 })
+    await page.goto('/#/quotes')
+    await expect(page.getByText('Nuovo preventivo').first()).toBeVisible()
+
+    // Raising the cap via SQL lets the queued quote sync.
+    await setQuoteCap(workspaceId, 500)
+    await page.getByRole('button', { name: 'Sincronizza ora' }).click()
+    await waitForSynced(page)
+    await page.goto('/#/quotes')
+    await expect(page.getByText('Nuovo preventivo').first()).toBeVisible()
+    await page.goto('/#/settings')
+    const spazio2 = page.getByRole('region', { name: 'Spazio' })
+    await expect(spazio2.getByText('2/500')).toBeVisible({ timeout: 15_000 })
+  } finally {
+    deleteWorkspace(workspaceId)
+    await deleteUser(account.id)
   }
 })
 
