@@ -8,6 +8,7 @@ import {
   type WorkspaceMember,
   type WorkspaceRole,
   type WorkspaceSummary,
+  type WorkspaceUsage,
 } from '@/data/cloud/gateway'
 import { isCloudConfigured } from '@/data/cloud/client'
 import {
@@ -29,6 +30,7 @@ export interface WorkspaceState {
   invites: WorkspaceInvite[]
   detailsStatus: DetailsStatus
   detailsError?: WorkspaceErrorCode
+  usage?: WorkspaceUsage
   profileStatus: ProfileStatus
   profileName?: string
   profileError?: WorkspaceErrorCode
@@ -41,6 +43,7 @@ export interface WorkspaceState {
   leave: (workspaceId: string) => Promise<boolean>
   rename: (workspaceId: string, name: string) => Promise<boolean>
   loadDetails: () => Promise<void>
+  loadUsage: () => Promise<void>
   loadProfile: () => Promise<void>
   saveProfile: (displayName: string) => Promise<boolean>
   createInvite: (role: WorkspaceRole, days: number) => Promise<string | undefined>
@@ -106,9 +109,13 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
         invites: [],
         detailsStatus: 'idle',
         detailsError: undefined,
+        usage: undefined,
       })
       const workspace = get().workspaces.find((candidate) => candidate.id === workspaceId)
-      if (workspace?.kind === 'shared') void get().loadDetails()
+      if (workspace?.kind === 'shared') {
+        void get().loadDetails()
+        void get().loadUsage()
+      }
     }
 
     const loadProfile = async (): Promise<void> => {
@@ -196,6 +203,7 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
       invites: [],
       detailsStatus: 'idle',
       detailsError: undefined,
+      usage: undefined,
       profileStatus: 'idle',
       profileName: undefined,
       profileError: undefined,
@@ -303,6 +311,21 @@ export function createWorkspaceStore(deps: WorkspaceStoreDeps) {
         } catch (error) {
           if (get().activeId !== activeId) return
           set({ detailsStatus: 'error', detailsError: errorCode(error) })
+        }
+      },
+
+      // Members/quotes counts and caps for the Spazio section (EVO-2). The
+      // section refreshes after each sync, so the display follows the writes.
+      loadUsage: async () => {
+        const { activeId } = get()
+        if (!activeId) return
+        try {
+          const client = await ensureGateway()
+          const usage = await client.getUsage(activeId)
+          if (get().activeId !== activeId) return
+          set({ usage })
+        } catch {
+          // The usage is a read-only display: a failure keeps the last value.
         }
       },
 
