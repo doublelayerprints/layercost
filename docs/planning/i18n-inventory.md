@@ -1,8 +1,8 @@
 # Inventario stringhe i18n
 
-**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1, EVO-3a, EVO-5, EVO-6, EVO-7, catalogo stampanti (ADR-0033) e lista stampanti compatta incluse
-**Data:** 2 novembre 2026
-**Riferimenti:** ADR-0019, ADR-0025, ADR-0026, `docs/planning/phase-5.md` §3
+**Stato:** T5.6.1–T5.6.5 — interfaccia inglese completa; aree EVO-1, EVO-5, EVO-6, EVO-7, catalogo stampanti (ADR-0033), lista stampanti compatta ed EVO-2 incluse; area EVO-3a ritirata
+**Data:** 3 novembre 2026
+**Riferimenti:** ADR-0019, ADR-0025, ADR-0027, `docs/planning/phase-5.md` §3
 
 ---
 
@@ -41,7 +41,8 @@
 | Impostazioni         | `SettingsPage`, `SyncSettings`                                                                                     | manodopera, rischio, prezzo, arrotondamento, IVA, backup, reset, tema, lingua, sync                      | Sezione Lingua in T5.6.4; sync in T5.4.3                                         |
 | Profilo              | `ProfileSettings`, `workspace-store`                                                                               | nome visibile, hint, salvataggio, caricamento, conferma, errori                                          | Area `profile` aggiunta in EVO-7; 12 chiavi IT/EN                                |
 | Auth e sync          | `LoginPage`, `auth-store`, `sync-store`, `SyncSettings`, `SyncIndicator`, dialoghi primo login/conflitto           | login, errori auth, sessione scaduta, stato sync, primo login, conflitti, logout                         | Area `auth` aggiunta in T5.4.3; dialoghi sync in T5.4.4                          |
-| Richiesta accesso    | `RequestAccessPage`, `request-access.ts`, `LoginPage`, `SyncSettings`                                              | titolo, intro, campi, limiti, privacy, invio, stati, errori, conferma, link                              | Area `access` aggiunta in EVO-3a; 36 chiavi IT/EN                                |
+| Auth (signup EVO-2)  | `LoginPage`, `state/auth-store.ts`, `data/cloud/auth.ts`                                                            | modalità Accedi/Registrati, validazione email/password, errori `signup_limit_reached`/email esistente    | Area `auth`; 14 chiavi `auth.signup.*`/`auth.mode.*`/errori aggiunte in EVO-2    |
+| Uso dello spazio     | `WorkspaceSettings`, `state/workspace-store.ts`                                                                      | righe “Membri x/20”, “Preventivi x/500”                                                                  | Area `workspace`; 5 chiavi `workspace.usage.*` aggiunte in EVO-2                 |
 | Suggerimenti         | `FeedbackPage`, `feedback.ts`                                                                                      | tipo, area, titolo, descrizione, email, privacy, invio, stati, errori, conferma, validazione             | Area `feedback` aggiunta in EVO-6; 54 chiavi IT/EN                               |
 | Documentazione       | `DocsPage`, `content.ts`, `docs/i18n.ts`                                                                           | titolo, indice, dieci sezioni, passi, avvisi, didascalie, link, precedente/successiva, CTA feedback      | Area `docs` aggiunta in EVO-6; 179 chiavi IT/EN, nel chunk lazy della guida      |
 | Landing pubblica     | `src/features/landing/`, `PublicLayout`, `PublicHeader`, `PublicFooter`, `PublicTopBarControls`, `LivePriceDemo`   | meta, nav, hero, funzionalità, demo, privacy, cloud, FAQ, CTA, footer, top bar                           | Area `landing` aggiunta in EVO-5; 116 chiavi IT/EN                               |
@@ -79,7 +80,7 @@
 
 **Stato EVO-1:** aggiunte 16 chiavi OAuth nell’area `auth` (pulsante, reindirizzamento, collegamento, errori, account Google). Parità it/en a **1023** chiavi; l’inventario non era stato aggiornato nel commit EVO-1.
 
-**Stato EVO-3a:** aggiunte 36 chiavi nell’area `access` per titolo/descrizione, campi e limiti, privacy, invio, stati success/error/endpoint mancante, validazione, link da login e sync. Parità it/en a **1059** chiavi; il test delle aree include `accessIt` e l’E2E copre IT/EN e axe.
+**Stato EVO-3a (ritirata):** le 36 chiavi dell’area `access` sono state aggiunte il 29/10/2026 e **rimosse con EVO-2** (ADR-0027); l’area non è più nel test delle aree.
 
 **Stato EVO-5:** aggiunte **116 chiavi** nell’area `landing` per meta, navigazione, hero, tabella delle funzionalità, passi e demo, privacy, cloud, FAQ, CTA, footer e interruttori tema/lingua della top bar, più `nav.overview` per la voce **Panoramica** della sidebar. Parità it/en a **1176** chiavi; il test delle aree include `landingIt`. La landing usa gli stessi dizionari tipizzati e cambia lingua senza ricaricare la pagina.
 
@@ -110,4 +111,5 @@
 - Typecheck: una chiave mancante in `en.ts` è un errore.
 - Dopo l'estrazione: E2E in inglese, persistenza, `<html lang>`, stampa/link nella lingua del preventivo, axe e visual.
 - La migrazione `Quote.locale`, la formattazione locale, il selettore, la persistenza e le verifiche in inglese sono implementati in T5.6.3–T5.6.5.
-- EVO-3a: `access.spec.ts` verifica IT/EN a 375/1440, inclusi errori e conferma; `access-missing.spec.ts` verifica lo stato senza endpoint in entrambe le lingue. La parità globale è a **1362** chiavi dopo la lista stampanti compatta.
+- EVO-3a (ritirata con EVO-2): `access.spec.ts` e `access-missing.spec.ts` sono stati rimossi insieme all’area `access`.
+- EVO-2 (ADR-0027): **−36** chiavi `access.*`, **−1** `auth.noSignup`, **−1** `docs.cloud.linkRequest`; **+14** chiavi `auth.mode.*`/`auth.signup.*`/errori di validazione signup, **+5** `workspace.usage.*`, **+1** `landing.cta.signup`; copy di landing e guida aggiornate al signup aperto (FAQ, passi cloud, nota privacy) senza cambiare le chiavi. Parità globale misurata **1346** chiavi IT/EN.

@@ -1,9 +1,9 @@
 # Richieste di accesso — runbook amministratore
 
-**Stato:** EVO-3a implementato e configurato il 29/10/2026
-**Ambito:** lettura delle richieste, creazione manuale dell’utente, retention, cancellazione e troubleshooting
-**Decisione:** `docs/adr/0026-request-access-formspree.md`
-**Piano:** `docs/planning/evo-3a-access-request.md`
+**Stato:** STORICO dal 03/11/2026 — pagina ritirata con EVO-2 (ADR-0027 supersede ADR-0026): il signup è aperto a tetto numerico e la pagina `/#/request-access` non esiste più. Questo documento resta come riferimento per l’archivio Formspree (30 giorni) e per il contesto di EVO-3a; le nuove entrate passano dal signup o dagli inviti (`docs/engineering/workspace-runbook.md` §16).
+**Ambito (storico):** lettura delle richieste, creazione manuale dell’utente, retention, cancellazione e troubleshooting
+**Decisione:** `docs/adr/0026-request-access-formspree.md` (superseded), `docs/adr/0027-signup-cap-and-workspace-limits.md`
+**Piano:** `docs/planning/evo-3a-access-request.md` (ritirata con EVO-2), `docs/planning/evo-2-user-quote-caps.md`
 
 **Stato configurazione (29/10/2026):** form Formspree di produzione e test creati; endpoint impostati in `.env.local` e su Vercel (Production/Preview/Development); notifica email all’amministratore verificata; progetti separati; **Restrict to Domain = `layercost.vercel.app`** sul progetto di produzione. Pagina distribuita in produzione (`index-B6Cg37Ap.js`), submission reale e smoke verdi. Resta la pulizia delle submission di prova.
 

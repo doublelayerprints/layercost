@@ -1,6 +1,6 @@
 # ADR-0027 — Signup aperto a tetto numerico e tetti per workspace
 
-**Stato:** Accettato il 2 novembre 2026; implementazione in EVO-2 (`docs/planning/evo-2-user-quote-caps.md`); da distribuire
+**Stato:** Implementato il 3 novembre 2026 (EVO-2); sostituisce ADR-0026
 **Data:** 2 novembre 2026
 **Relazione:** supersede **ADR-0026** (Richiedi accesso, ritirata); integra **ADR-0028** (multi-workspace) con tetti configurabili; assorbe **EVO-3b** (allowlist, non più necessaria)
 
@@ -29,8 +29,8 @@ Il signup pubblico è disabilitato dal deploy del cloud (T5.4) e gli account son
 
 - Migrazione unica `20261102120000_signup_cap_and_workspace_limits.sql`: `max_users()`, hook, `workspace_limits` (RLS sola lettura + backfill), due trigger con advisory lock, pre-check nelle RPC `add_member`/`redeem_invite` letto dai limiti configurabili, RPC `workspace_usage`.
 - Nuovo form **Registrati** nella login; chiavi i18n `auth.signup.*`; errori `signup_limit_reached`, `member_limit_reached`, `quote_limit_reached` mappati per codice.
-- Parità i18n: **−36** chiavi `access.*` (1326) e **+~14** `auth.signup.*`; il form access e la sua env `VITE_ACCESS_REQUEST_ENDPOINT` cessano (Formspree chiuso il 02/11/2026: submission produzione fatta, test pulite).
-- Budget: il margine iniziale è 1,3 KB (234,7/236 KB); se il form signup supera il limite, alzo a **240 KB** con motivazione qui e in `scripts/check-budget.mjs`.
+- Parità i18n: **−36** chiavi `access.*` e **−2** (`auth.noSignup`, `docs.cloud.linkRequest`), **+14** `auth.signup.*`/errori di validazione, **+5** `workspace.usage.*` e **+1** `landing.cta.signup`: parità misurata **1346** chiavi IT/EN.
+- Budget: il ritiro della pagina access compensa il form signup: **235,1/236 KB** gzip iniziale dopo il build, nessun aumento necessario (i precedenti aumenti sono motivati in ADR-0026, ADR-0029, ADR-0031 e ADR-0032).
 - Niente backup automatici sul Free: il runbook di backup manuale resta obbligatorio prima della migrazione.
 - Monitoraggio: egress Supabase dopo l’apertura; il tetto 1000 è la guardia principale.
 - Rollback: ri-chiudere il signup nel dashboard (nessun dato cambia); disattivare hook e trigger è sicuro; “Richiedi accesso” non si ripristina.

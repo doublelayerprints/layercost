@@ -35,6 +35,7 @@ export const syncErrorKeys: Record<SyncErrorCode, MessageKey> = {
   noWorkspace: 'sync.error.noWorkspace',
   rateLimited: 'sync.error.rateLimited',
   limit: 'sync.error.limit',
+  quoteLimit: 'sync.error.quoteLimit',
   invalidData: 'sync.error.invalidData',
   backupFailed: 'sync.error.backupFailed',
   unknown: 'sync.error.unknown',

@@ -357,10 +357,7 @@ export const DOCS_SECTIONS = [
         captionKey: 'docs.cloud.imageCaption',
       },
     ],
-    links: [
-      { to: '/request-access', labelKey: 'docs.cloud.linkRequest' },
-      { to: '/settings', labelKey: 'docs.cloud.linkSettings' },
-    ],
+    links: [{ to: '/settings', labelKey: 'docs.cloud.linkSettings' }],
   },
   {
     id: 'suggerimenti',

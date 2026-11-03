@@ -1,13 +1,13 @@
 # Workspace condiviso — runbook operativo
 
-**Stato:** T5.4.5 chiuso il 28/10/2026; spazi separati (EVO-4/ADR-0028) dal 30/10/2026
-**Ambito:** creazione e manutenzione degli spazi Supabase, utenti, membership, inviti, audit e isolamento
-**Decisione:** ADR-0024, ADR-0028
-**Piano:** `docs/planning/t5.4-cloud-sync.md` §11, `docs/planning/evo-4-multi-workspace.md`
+**Stato:** T5.4.5 chiuso il 28/10/2026; spazi separati (EVO-4/ADR-0028) dal 30/10/2026; **EVO-2 (ADR-0027) dal 03/11/2026**: signup aperto a tetto numerico con Auth Hook, tetti per workspace configurabili via SQL
+**Ambito:** creazione e manutenzione degli spazi Supabase, utenti, membership, inviti, audit, isolamento, tetti e signup
+**Decisione:** ADR-0024, ADR-0027, ADR-0028
+**Piano:** `docs/planning/t5.4-cloud-sync.md` §11, `docs/planning/evo-4-multi-workspace.md`, `docs/planning/evo-2-user-quote-caps.md`
 
 Questo runbook è la procedura amministrativa per il cloud opzionale di LayerCost. Non contiene password, chiavi o UUID reali: i valori tra `<...>` vanno sostituiti al momento dell'esecuzione e non vanno committati.
 
-**Stato produzione (2/11/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello spazio condiviso `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. **EVO-4 distribuito il 30/10/2026** (build `index-eT8g6H47.js`): ogni utente ha anche uno spazio personale automatico e può appartenere a più spazi condivisi. **EVO-7 distribuito il 31/10/2026** (build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`): tabella `profiles`, nome visibile in **Impostazioni → Profilo**, tag creatore/ultima modifica nella lista Preventivi e nomi nel dettaglio; entrambi gli account hanno il nome backfillato da Google. **Rifiniture post-EVO-7 (1–2/11/2026):** select applicativa (ADR-0032), tag audit in colonna e nomi lunghi nelle card; build di produzione `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`. Le email dei membri non sono nel repository. Dal 29/10/2026 è attivo anche il provider Google (EVO-1, ADR-0025), controllato dal flag pubblico `VITE_AUTH_GOOGLE_ENABLED`; email/password resta il fallback.
+**Stato produzione (2/11/2026):** progetto `layercost-prod` (`jcxkfhjgstdgrjazlnpq`, `eu-central-1`), due account `owner` nello spazio condiviso `ws-doublelayer`, signup pubblico disabilitato, deploy https://layercost.vercel.app con cloud attivo, keep-alive e backup verificati. **EVO-2 (ADR-0027) preparato il 03/11/2026:** migrazione `20261102120000_signup_cap_and_workspace_limits` e hook `before-user-created` da applicare/configurare in produzione secondo la checklist §16.3 (signup aperto a tetto 1000, tetti 20/500). **EVO-4 distribuito il 30/10/2026** (build `index-eT8g6H47.js`): ogni utente ha anche uno spazio personale automatico e può appartenere a più spazi condivisi. **EVO-7 distribuito il 31/10/2026** (build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`): tabella `profiles`, nome visibile in **Impostazioni → Profilo**, tag creatore/ultima modifica nella lista Preventivi e nomi nel dettaglio; entrambi gli account hanno il nome backfillato da Google. **Rifiniture post-EVO-7 (1–2/11/2026):** select applicativa (ADR-0032), tag audit in colonna e nomi lunghi nelle card; build di produzione `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`. Le email dei membri non sono nel repository. Dal 29/10/2026 è attivo anche il provider Google (EVO-1, ADR-0025), controllato dal flag pubblico `VITE_AUTH_GOOGLE_ENABLED`; email/password resta il fallback.
 
 ---
 
@@ -20,7 +20,9 @@ Questo runbook è la procedura amministrativa per il cloud opzionale di LayerCos
 - Configurazione o troubleshooting del login Google (EVO-1).
 - Verifica dell'isolamento tra workspace.
 - Offboarding di una persona.
-- Diagnosi di errori `noWorkspace`, `last_owner`, `42501` o `quote_locked`.
+- Configurazione o verifica del signup aperto e del tetto utenti (EVO-2).
+- Modifica dei tetti per workspace (`max_members`, `max_quotes`) via SQL (EVO-2).
+- Diagnosi di errori `noWorkspace`, `last_owner`, `42501`, `quote_locked`, `signup_limit_reached`, `member_limit_reached` o `quote_limit_reached`.
 
 Il setup del progetto cloud, delle env Vercel e del deploy è pianificato in **T5.4.6**. Questo documento copre le operazioni sul database e sull'autenticazione.
 
@@ -32,7 +34,7 @@ Il setup del progetto cloud, delle env Vercel e del deploy è pianificato in **T
 - Accesso amministrativo al dashboard Supabase e allo SQL editor.
 - CLI Supabase installata (`npx supabase`) per il database locale e le migrazioni.
 - Due persone con un indirizzo email ciascuna e un password manager condiviso.
-- Migrazioni applicate: `20261028120000_init`, `20261028130000_service_role_grants`, `20261028140000_admin_last_owner`.
+- Migrazioni applicate: `20261028120000_init`, `20261028130000_service_role_grants`, `20261028140000_admin_last_owner`, `20261030120000_multi_workspace`, `20261031120000_profiles`, `20261102120000_signup_cap_and_workspace_limits`.
 - Nessuna service role key nel repository, nel bundle o nelle env Vercel.
 
 ---
@@ -40,11 +42,13 @@ Il setup del progetto cloud, delle env Vercel e del deploy è pianificato in **T
 ## 3. Setup iniziale del progetto cloud
 
 1. Creare il progetto `layercost-prod` su Supabase, regione **EU (Frankfurt)**, piano **Free**.
-2. In **Authentication → Providers → Email**:
+2. In **Authentication → Sign In / Up**:
    - provider email **abilitato**;
-   - **Allow new users to sign up** disattivato;
-   - conferma email disattivata: gli utenti vengono creati già confermati dall'amministratore.
-3. In **Authentication → URL Configuration**:
+   - **Allow new users to sign up** attivato (EVO-2: il signup è aperto a tetto numerico);
+   - conferma email disattivata (auto-confirm): il signup crea la sessione subito, senza SMTP;
+   - i due account storici restano pre-creati con auto-confirm e password robusta generata dal password manager.
+3. In **Authentication → Hooks → Before user created** selezionare `public.handle_before_user_created` (EVO-2, tetto utenti; vedi §17).
+4. In **Authentication → URL Configuration**:
    - Site URL: `https://layercost.vercel.app`;
    - redirect URL: `https://layercost.vercel.app/**` e, per lo sviluppo, `http://localhost:5173/**`.
 4. Creare i due utenti da **Authentication → Users → Add user**, con auto-confirm e password robusta generata dal password manager.
@@ -54,7 +58,7 @@ Il setup del progetto cloud, delle env Vercel e del deploy è pianificato in **T
 8. Impostare su Vercel `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` per Production e Preview. La service role key non entra in Vercel.
 9. Eseguire lo smoke test del §8.
 
-> **Trappola locale:** in `supabase/config.toml`, `[auth].enable_signup = false` blocca solo la registrazione pubblica. `[auth.email].enable_signup` deve restare `true`, altrimenti il login email risponde `email_provider_disabled`. Nel progetto cloud il provider email va abilitato dal dashboard.
+> **Trappola locale:** in `supabase/config.toml`, `[auth].enable_signup` è `true` da EVO-2 (il tetto è applicato dall'hook `before_user_created`, non disabilitando il signup). `[auth.email].enable_signup` deve restare `true`, altrimenti il login email risponde `email_provider_disabled`. Nel progetto cloud il provider email e il signup si abilitano dal dashboard (§16.3).
 
 ---
 
@@ -144,11 +148,9 @@ values ('ws-doublelayer', '<uuid-nuovo-utente>', 'editor')
 on conflict (workspace_id, user_id) do update set role = 'editor';
 ```
 
-Il ruolo può essere `owner` o `editor`. Il nuovo utente deve esistere in `auth.users` ed essere già confermato. Il tetto è 20 membri per spazio; il codice invito si revoca dalla stessa pagina o con `select public.revoke_invite('<id-invito>');`.
+Il ruolo può essere `owner` o `editor`. Il nuovo utente deve esistere in `auth.users` ed essere già confermato. Il tetto membri è configurabile in `workspace_limits` (default 20, vedi §17); il codice invito si revoca dalla stessa pagina o con `select public.revoke_invite('<id-invito>');`.
 
-Le richieste che arrivano dalla pagina pubblica `/#/request-access` **non** creano utenti, account o membership: vanno lette con `docs/engineering/access-requests.md`, valutate manualmente e, solo se accolte, seguono questa procedura. La notifica Formspree contiene l’email del richiedente in `_replyto`; non copiare dati del workspace nella richiesta.
-
-### 6.2 Rimuovere un membro
+Con EVO-2 la pagina pubblica `/#/request-access` è stata **ritirata** (ADR-0026 superseded): il signup è aperto a tetto numerico e chi vuole entrare si registra da solo o riceve un invito. Il runbook `docs/engineering/access-requests.md` resta come riferimento storico.### 6.2 Rimuovere un membro
 
 ```sql
 delete from public.workspace_members
@@ -287,7 +289,7 @@ Automatico: `npm run smoke:production` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROL
 | Utente senza membership          | Nessuno (la RPC crea il personale) | Nessuno                    | Negata (`42501`)            |
 | `anon`                           | Nessuno                            | Nessuno                    | Negata, salvo `keepalive()` |
 
-La verifica automatica è `npm run db:test`: 33 asserzioni su quote condivise, audit, isolamento e ultimo owner, 41 asserzioni su PK composte, spazio personale, inviti, tetti ed email dei membri, più 17 asserzioni su profili, creazione lazy, backfill, nomi visibili e directory.
+La verifica automatica è `npm run db:test`: 33 asserzioni su quote condivise, audit, isolamento e ultimo owner, 41 asserzioni su PK composte, spazio personale, inviti, tetti ed email dei membri, più 17 asserzioni su profili, creazione lazy, backfill, nomi visibili e directory e 23 asserzioni su signup cap, `workspace_limits`, trigger membri/preventivi e `workspace_usage` (EVO-2).
 
 ---
 
@@ -310,7 +312,7 @@ npm run db:test
 Comandi di verifica:
 
 ```bash
-npm run db:test          # 91 asserzioni pgTAP/RLS
+npm run db:test          # 114 asserzioni pgTAP/RLS (tetti EVO-2 inclusi)
 npm run test:e2e:auth    # login, reload, impostazioni, logout
 npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 ```
@@ -326,7 +328,9 @@ npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 | `email_provider_disabled`         | Provider email disattivato                      | Nel cloud abilitare Email; in locale `[auth.email].enable_signup = true` |
 | `noWorkspace`                     | RPC `ensure_personal_workspace` non applicata   | Applicare la migrazione `20261030120000_multi_workspace`                 |
 | `workspace_limit`                 | 10 spazi condivisi posseduti                    | Archiviare o eliminare uno spazio condiviso                              |
-| `member_limit`                    | 20 membri nello spazio                          | Rimuovere un membro o creare un nuovo spazio                             |
+| `member_limit` / `member_limit_reached` | Tetto membri dello spazio raggiunto (default 20) | Rimuovere un membro o alzare `max_members` via SQL (§16.2)               |
+| `signup_limit_reached`            | Tetto utenti globale raggiunto (1000)           | Alzare `max_users()` via SQL o ri-chiudere il signup (§16.5)              |
+| `quote_limit_reached`             | Tetto preventivi dello spazio raggiunto (500)   | Esportare o eliminare preventivi; l'archiviazione non libera il posto; alzare `max_quotes` via SQL (§16.2) |
 | `invite_invalid` / `invite_expired` | Codice errato, scaduto o mai esistito         | Generare un nuovo codice dalla pagina Spazio                             |
 | `invite_revoked` / `invite_exhausted` | Codice revocato o già usato                  | Generare un nuovo codice                                                 |
 | `last_owner`                      | Rimozione o uscita dell'ultimo owner            | Aggiungere un altro owner o usare la pulizia admin                       |
@@ -356,7 +360,7 @@ npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 ## 13. Checklist di chiusura
 
 - [ ] Progetto Free in regione EU, senza carta.
-- [ ] Signup pubblico disattivato; provider email attivo.
+- [ ] Signup aperto a tetto numerico (EVO-2): Email signup attivo, Confirm email OFF, hook `before-user-created` collegato (§16.3).
 - [ ] Due utenti creati con auto-confirm e password nel password manager.
 - [ ] Workspace `ws-doublelayer` (`kind = 'shared'`) e due membership `owner`.
 - [ ] Ogni account ha uno spazio personale automatico, creato al primo accesso.
@@ -366,10 +370,11 @@ npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 - [ ] Un utente di un altro workspace non vede i dati condivisi.
 - [ ] `created_by`/`updated_by` popolati; dettaglio con “Workspace condiviso” e nome visibile.
 - [ ] **Impostazioni → Profilo** salva il nome; la lista Preventivi mostra i due tag di audit.
-- [ ] `npm run db:test` verde (91 asserzioni).
-- [ ] `npm run test:e2e:sync` verde (5 test).
+- [ ] `npm run db:test` verde (114 asserzioni, tetti inclusi).
+- [ ] `npm run test:e2e:sync` verde (6 test, tetto preventivi incluso).
 - [ ] Nessun segreto nel repository o nelle env Vercel.
 - [ ] Backup e keep-alive pianificati in T5.4.6.
+- [ ] Impostazioni → Spazio mostra “Membri” e “Preventivi” con i valori di `workspace_usage` (EVO-2).
 
 ---
 
@@ -398,7 +403,7 @@ Risposta attesa: `"ok"`.
 
 ## 15. Google OAuth (EVO-1, ADR-0025)
 
-Il login Google è un provider **aggiuntivo**: email/password resta sempre disponibile. Il signup pubblico resta disabilitato e gli utenti devono esistere già in `auth.users`.
+Il login Google è un provider **aggiuntivo**: email/password resta sempre disponibile. Con EVO-2 anche la registrazione email/password è aperta; gli utenti Google nuovi creano l'account al primo accesso, sotto il tetto utenti.
 
 ### 15.1 Google Cloud
 
@@ -426,7 +431,7 @@ Il login Google è un provider **aggiuntivo**: email/password resta sempre dispo
    - Site URL: `https://layercost.vercel.app`;
    - redirect: `https://layercost.vercel.app/**`, `http://localhost:5173/**` e, se serve, `http://127.0.0.1:5173/**`.
 4. In **Authentication → Providers** abilitare **Allow manual linking**: serve al fallback “Collega Google” per gli account già esistenti.
-5. Lasciare **Allow new users to sign up** disattivato. Il provider email deve restare abilitato.
+5. Da EVO-2 il signup è aperto (§16): **Allow new users to sign up** resta attivo e il tetto è applicato dall'hook `before-user-created`. Il provider email deve restare abilitato.
 6. Impostare su Vercel, per Production e Preview, la variabile **pubblica** `VITE_AUTH_GOOGLE_ENABLED=true` solo dopo aver verificato il provider. Senza il flag il pulsante Google non compare e la UI resta invariata.
 
 ### 15.3 Sviluppo locale
@@ -485,7 +490,69 @@ Con un account esistente:
 
 ---
 
-## 16. Riferimenti
+## 16. Signup aperto, tetto utenti e tetti per workspace (EVO-2, ADR-0027)
+
+Dal 03/11/2026 il signup è **aperto** con un tetto numerico globale e ogni workspace ha tetti configurabili. Il database è la fonte di verità: trigger con advisory lock; la UI mostra solo l'uso.
+
+### 16.1 Come funziona
+
+- **Tetto utenti globale**: `public.max_users()` restituisce `1000`; l'Auth Hook Postgres `before-user-created` (`public.handle_before_user_created`) rifiuta il signup con `signup_limit_reached` quando `auth.users` raggiunge il tetto. Il lock `pg_advisory_xact_lock(hashtext('users:signup'))` evita le race sul conteggio.
+- **Tetti per workspace**: tabella `workspace_limits` con `max_members` (default **20**) e `max_quotes` (default **500**). I trigger `workspace_members_cap` e `quotes_cap` rifiutano insert/ripristini oltre tetto con `member_limit_reached` / `quote_limit_reached`. I preventivi archiviati contano; i soft-deleted no; il ripristino di un tombstone riverifica il tetto.
+- **RPC pre-check**: `create_invite` e `redeem_invite` leggono il limite da `workspace_limits` (fallback 20) e rifiutano in anticipo con `member_limit`; il trigger resta la fonte di verità.
+- **Uso in UI**: la RPC `workspace_usage` alimenta le righe “Membri” e “Preventivi” in **Impostazioni → Spazio**; il client ha solo `select` su `workspace_limits`.
+
+### 16.2 Modifica dei limiti (solo SQL, nessuna UI)
+
+```sql
+-- Tetto utenti globale (prossimi signup)
+create or replace function public.max_users()
+returns integer language sql immutable as $$
+  select 1000;
+$$;
+
+-- Tetti di uno spazio (membri, preventivi attivi)
+update public.workspace_limits
+set max_members = 30, max_quotes = 800, updated_by = '<uuid-admin>', updated_at = now()
+where workspace_id = 'ws-doublelayer';
+
+-- Spazio senza riga in workspace_limits: default 20/500
+insert into public.workspace_limits (workspace_id, max_members, max_quotes)
+values ('<workspace>', 20, 500)
+on conflict (workspace_id) do update set max_members = 20, max_quotes = 500;
+```
+
+Il valore è attivo immediatamente: nessun riavvio, nessun deploy. La modifica va registrata nella descrizione del commit del runbook o nel ticket operativo; non esiste una UI amministrativa (scelta ADR-0027).
+
+### 16.3 Configurazione manuale su Supabase (dopo il deploy)
+
+1. **Backup di produzione verificato** (checksum + `pg_restore --list`, vedi `docs/engineering/backup-restore.md`), poi applicare `supabase/migrations/20261102120000_signup_cap_and_workspace_limits.sql`.
+2. **Authentication → Sign In / Up**: abilitare **Email signup** e impostare **Confirm email = OFF** (auto-confirm).
+3. **Authentication → Hooks → Before user created**: selezionare `public.handle_before_user_created`.
+4. Provider Google: invariato (§15).
+5. Vercel: rimuovere `VITE_ACCESS_REQUEST_ENDPOINT` da Production, Preview e Development e rifare il deploy.
+6. **Verifica**: creare un account di prova, controllare lo spazio personale automatico e le righe “Membri: x/20” / “Preventivi: x/500” in Impostazioni → Spazio; (opzionale) test del tetto con `max_users()` temporaneamente basso via SQL, poi ripristinare 1000.
+
+### 16.4 Verifica locale
+
+```bash
+npm run db:start
+npm run db:reset   # applica la migrazione e collega l'hook in supabase/config.toml
+npm run db:test    # 114 asserzioni pgTAP, incluse 23 sui tetti
+npm run test:e2e:auth   # signup felice, validazione, quota in Spazio
+```
+
+Il signup di prova via API risponde con `{"code":"P0001","message":"signup_limit_reached"}` quando il tetto è raggiunto.
+
+### 16.5 Rollback
+
+- **Chiudere il signup**: in **Sign In / Up** disattivare Email signup (o riportare `max_users()` al valore attuale per bloccare i nuovi ingressi): nessun dato cambia.
+- **Disattivare l'hook**: Dashboard → Hooks, oppure `drop function public.handle_before_user_created(jsonb)`.
+- **Tetti**: i trigger possono restare; per disattivarli `drop trigger quotes_cap on public.quotes;` e `drop trigger workspace_members_cap on public.workspace_members;`. La tabella `workspace_limits` può restare anche senza trigger.
+- La pagina “Richiedi accesso” **non** si ripristina: il ritiro è definitivo (ADR-0026 superseded).
+
+---
+
+## 17. Riferimenti
 
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace e operazioni free.
 - `docs/adr/0025-google-oauth.md` — provider Google, PKCE, link manuale, segreti e rollback.
@@ -497,3 +564,6 @@ Con un account esistente:
 - `supabase/migrations/20261028120000_init.sql` — tabelle, RLS, trigger e `keepalive`.
 - `supabase/tests/rls.test.sql` — 33 asserzioni di isolamento e audit.
 - `supabase/tests/profiles.test.sql` — 17 asserzioni su creazione lazy, backfill, nome visibile, validazione e directory.
+- `supabase/migrations/20261102120000_signup_cap_and_workspace_limits.sql` — tetto utenti, hook, `workspace_limits`, trigger e `workspace_usage` (EVO-2).
+- `supabase/tests/caps.test.sql` — 23 asserzioni sui tetti (EVO-2).
+- `docs/adr/0027-signup-cap-and-workspace-limits.md` e `docs/planning/evo-2-user-quote-caps.md` — decisioni e spec.

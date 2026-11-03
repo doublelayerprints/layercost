@@ -195,6 +195,7 @@ function createGateway(clouds: Record<string, CloudSnapshot>, initial = WS): Fak
     revokeInvite: async () => {},
     redeemInvite: async () => WS,
     leaveWorkspace: async () => {},
+    getUsage: async () => ({ members: 1, maxMembers: 20, quotes: 0, maxQuotes: 500 }),
     getProfile: async () => null,
     saveProfile: async (displayName) => displayName,
     pull: async (workspaceId) => {

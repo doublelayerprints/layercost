@@ -60,8 +60,8 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link to="/request-access" className={linkClass}>
-                  {t('access.requestAccess')}
+                <Link to="/login?mode=signup" className={linkClass}>
+                  {t('landing.cta.signup')}
                 </Link>
               </li>
             </ul>

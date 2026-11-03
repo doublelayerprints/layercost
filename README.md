@@ -25,7 +25,7 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Divide il prezzo netto in costo pieno e guadagno con due barre, e apre un preventivo cliccando tutta la riga nella lista.
 - Comprime le card del calcolatore e le singole stampe in righe compatte con drop down, con una sintesi sempre leggibile.
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
-- Funziona **local-first**: senza account tutti i dati restano nel browser, senza backend, account o analytics. Il cloud è opzionale (ADR-0024) e si attiva su richiesta di accesso; la pagina “Richiedi accesso” e la pagina “Suggerimenti” inviano a Formspree solo su azione esplicita (ADR-0026, ADR-0030).
+- Funziona **local-first**: senza account tutti i dati restano nel browser, senza backend, account o analytics. Il cloud è opzionale (ADR-0024). La registrazione è aperta con un tetto numerico di utenti e tetti per spazio configurabili via SQL (ADR-0027); la pagina “Suggerimenti” invia a Formspree solo su azione esplicita (ADR-0030).
 - Negli spazi condivisi mostra **Creato da …** e **Ultima modifica di …** con data nella lista Preventivi, e il nome visibile nel dettaglio; il nome si sceglie in **Impostazioni → Profilo** (ADR-0031).
 - La root è una landing pubblica in italiano e inglese, pre-renderizzata in `index.html` per i crawler e per chi non ha JavaScript; il calcolatore vive su `/#/calculator` e `/#/welcome` riapre la landing anche da utenti esistenti (ADR-0029).
 - Include una **documentazione in-app** con indice per sezioni, screenshot reali e link diretti (`/#/docs/primi-passi`), e una pagina **Suggerimenti** per inviare migliorie o segnalazioni (`/#/feedback`).
@@ -87,9 +87,9 @@ La build senza variabili Supabase resta **local-only**: login, sync e chunk clou
 2. copia i valori `API_URL` e `PUBLISHABLE_KEY` da `npx supabase status -o env` in `.env.local` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
 3. `npm run dev` e apri `#/login`
 
-Gli account sono creati dall'amministratore; la registrazione è disabilitata. Con `VITE_AUTH_GOOGLE_ENABLED=true` compare anche “Continua con Google”; il flag è pubblico e va attivato solo dopo aver configurato il provider Google in Supabase (ADR-0025). Il Client Secret non entra mai nel repository, nel bundle o su Vercel: sta solo nel dashboard Supabase e, per lo sviluppo locale, in una variabile d'ambiente non committata.
+La registrazione è **aperta** (EVO-2, ADR-0027): da “Registrati” si crea l'account con email e password (auto-confirm, niente verifica email) oppure con Google; ogni account riceve uno spazio personale nel cloud. Un Auth Hook Postgres (`before-user-created`) applica il tetto globale di 1000 utenti; ogni spazio ha tetti configurabili (20 membri, 500 preventivi) applicati da trigger con advisory lock e modificabili solo via SQL (runbook §16). Con `VITE_AUTH_GOOGLE_ENABLED=true` compare anche “Continua con Google”; il flag è pubblico e va attivato solo dopo aver configurato il provider Google in Supabase (ADR-0025). Il Client Secret non entra mai nel repository, nel bundle o su Vercel: sta solo nel dashboard Supabase e, per lo sviluppo locale, in una variabile d'ambiente non committata.
 
-Chi non ha un account può aprire `#/request-access` e inviare una richiesta all'amministratore. Il form usa **Formspree Free** con `VITE_ACCESS_REQUEST_ENDPOINT` (endpoint pubblico, non un segreto) e non crea utenti o account: l'amministratore legge la richiesta e crea l'utente manualmente. Il richiedente non riceve un'email automatica: la conferma è nella pagina; la notifica arriva solo all'amministratore con `_replyto` impostato all'email indicata. Formspree conserva le submission per 30 giorni; l'email dell'amministratore viene cancellata dopo la decisione o entro 12 mesi. Nessun analytics, cookie first-party o newsletter. Dettagli in `docs/engineering/access-requests.md` e ADR-0026.
+La pagina “Richiedi accesso” (ADR-0026, Formspree) è stata **ritirata** con EVO-2: il signup aperto la rende superflua e il suo runbook (`docs/engineering/access-requests.md`) resta come riferimento storico. Il form Suggerimenti (ADR-0030) resta invariato: invia a **Formspree Free** solo su azione esplicita, non crea account e non invia dati dell'app.
 
 Con l'account attivo, configurazione e preventivi vivono nel **workspace condiviso**; bozza, tema e lingua restano locali. Le modifiche offline entrano in una coda persistita e vengono inviate al ritorno della rete; se lo stesso dato è cambiato su un altro dispositivo, l'app mostra un conflitto e chiede come risolverlo. Il primo accesso propone di importare i dati locali dopo aver scaricato un backup JSON. Al logout la copia locale dei dati cloud viene rimossa (o conservata se ci sono modifiche ancora in sospeso). Il database locale viene azzerato da `npm run test:e2e:sync`, non dalla build normale.
 
@@ -113,7 +113,7 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 - Framework preset: Vite
 - Build: `npm run build`
 - Output: `dist`
-- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, più `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il login Google (pubblico, nessun segreto), `VITE_ACCESS_REQUEST_ENDPOINT` per la pagina “Richiedi accesso” e `VITE_FEEDBACK_ENDPOINT` per la pagina “Suggerimenti” (pubblici, nessun segreto)
+- Nessuna variabile d'ambiente obbligatoria; per il cloud opzionale `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, più `VITE_AUTH_GOOGLE_ENABLED=true` per mostrare il login Google (pubblico, nessun segreto) e `VITE_FEEDBACK_ENDPOINT` per la pagina “Suggerimenti” (pubblico, nessun segreto)
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 

@@ -1,14 +1,14 @@
 # LayerCost — Documentazione
 
-**Stato:** v1.0.0 + fase 5 chiusa + EVO-1/EVO-3a/EVO-4/EVO-5/EVO-6/EVO-7 + rifiniture post-EVO-7; prossimo EVO-2
-**Data:** 2 novembre 2026
+**Stato:** v1.0.0 + fase 5 chiusa + EVO-1/EVO-3a (ritirata con EVO-2)/EVO-4/EVO-5/EVO-6/EVO-7 + rifiniture post-EVO-7 + EVO-2 implementato su branch
+**Data:** 3 novembre 2026
 **Scopo:** definire quale documentazione esiste, cosa contiene, quando si aggiorna e come si evita che diverga dal codice.
 
 ## Stato attuale
 
 - Fasi 0–3 implementate: fondamenta, motore, configurazione/persistenza, UI funzionale.
 - Fase 4 completata e rilasciata come **v1.0.0**: T4.1–T4.7 chiusi (direzione **A — Strato**, ADR-0015, design system, redesign, stati e rifiniture, dark mode con ADR-0016, release con axe/WebKit/stampa/visual/budget).
-- Fase 5 chiusa: import `.3mf` (T5.3, ADR-0017); interfaccia inglese (T5.6, ADR-0019); export `.xlsx` (T5.12); preventivi modificabili, card, preferenze, colore filamento, utile/cliente, sconti e rinomina (T5.13–T5.22); sync cloud **live in produzione** (ADR-0018 e ADR-0024, T5.4.0–T5.4.6). Evolutive: EVO-1 Google login (ADR-0025), EVO-3a “Richiedi accesso” (ADR-0026), EVO-4 spazi separati (ADR-0028), EVO-5 landing pubblica (ADR-0029), EVO-6 documentazione e Suggerimenti (ADR-0030), EVO-7 nomi visibili e tag attività (ADR-0031). Rifiniture post-EVO-7: select in stile applicazione (ADR-0032), tag audit in colonna (#54), nomi lunghi (#55) e fix route. Prossimo task: **EVO-2 — tetti utenti/preventivi** (ADR-0027), poi EVO-3b. Piani in `planning/`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`.
+- Fase 5 chiusa: import `.3mf` (T5.3, ADR-0017); interfaccia inglese (T5.6, ADR-0019); export `.xlsx` (T5.12); preventivi modificabili, card, preferenze, colore filamento, utile/cliente, sconti e rinomina (T5.13–T5.22); sync cloud **live in produzione** (ADR-0018 e ADR-0024, T5.4.0–T5.4.6). Evolutive: EVO-1 Google login (ADR-0025), EVO-3a “Richiedi accesso” (ADR-0026), EVO-4 spazi separati (ADR-0028), EVO-5 landing pubblica (ADR-0029), EVO-6 documentazione e Suggerimenti (ADR-0030), EVO-7 nomi visibili e tag attività (ADR-0031). Rifiniture post-EVO-7: select in stile applicazione (ADR-0032), tag audit in colonna (#54), nomi lunghi (#55) e fix route. **EVO-2 — signup a tetto numerico e tetti per workspace** (ADR-0027) implementato il 03/11/2026 su `feat/evo-2-caps`; EVO-3b (allowlist) è assorbita e ADR-0026 (Richiedi accesso) è superseded. Piani in `planning/`, runbook in `engineering/workspace-runbook.md`, backup in `engineering/backup-restore.md`.
 - Inventario i18n in `planning/i18n-inventory.md`.
 - Documenti normativi: `domain/cost-model.md`, `domain/data-model.md`.
 - Test: 298 unitari + 90 E2E (68 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante) più 2 nello stato senza endpoint + 91 pgTAP (33 RLS + 41 multi-workspace + 17 profili); axe su tutte le route, 0 violazioni; CI `main`, smoke test di produzione, keep-alive e backup verdi. Verifiche manuali Safari/VoiceOver, import `.3mf` da 150–250 MB, confronto di `prediction` e feedback sui seed chiusi il 02/11/2026.

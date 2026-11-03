@@ -113,7 +113,7 @@ test('la sidebar include la Panoramica e riapre la landing', async ({ page }) =>
   ).toBeVisible()
 })
 
-test('login e richiesta accesso sono raggiungibili dalla landing', async ({ page }) => {
+test('login e registrazione sono raggiungibili dalla landing', async ({ page }) => {
   await openLanding(page)
 
   await page.getByRole('link', { name: 'Accedi' }).first().click()
@@ -121,8 +121,11 @@ test('login e richiesta accesso sono raggiungibili dalla landing', async ({ page
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
   await page.goto('/#/welcome')
-  await page.getByRole('link', { name: 'Richiedi accesso' }).first().click()
-  await expect(page.getByRole('heading', { name: 'Richiedi accesso' })).toBeVisible()
+  await page.getByRole('link', { name: 'Registrati' }).first().click()
+  await page.waitForURL(/#\/login\?mode=signup$/)
+  // Configured builds render the Registrati form; the E2E build has no cloud
+  // credentials and shows the unconfigured empty state on the same route.
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 })
 
 test('la lingua cambia, si persiste e aggiorna titolo e lang', async ({ page }) => {

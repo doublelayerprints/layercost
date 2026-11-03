@@ -2,6 +2,16 @@ export const authIt = {
   'auth.title': 'Accedi',
   'auth.description':
     'Accedi per sincronizzare configurazione e preventivi tra i tuoi dispositivi. Il cloud è opzionale: senza account l’app resta locale.',
+  'auth.mode.legend': 'Scegli se accedere o creare un account',
+  'auth.mode.signin': 'Accedi',
+  'auth.mode.signup': 'Registrati',
+  'auth.signup.description':
+    'Crea un account per sincronizzare configurazione e preventivi tra i tuoi dispositivi. Ogni account ha uno spazio personale nel cloud.',
+  'auth.signup.passwordHint': 'Almeno 6 caratteri.',
+  'auth.signup.submit': 'Crea account',
+  'auth.signup.submitting': 'Creazione account…',
+  'auth.signup.hint':
+    'Il cloud è opzionale: senza account il calcolatore resta locale. Creando un account ottieni uno spazio personale nel cloud.',
   'auth.email': 'Email',
   'auth.password': 'Password',
   'auth.submit': 'Accedi',
@@ -17,8 +27,6 @@ export const authIt = {
     'Collega il tuo account Google per accedere senza password. Email e password restano disponibili.',
   'auth.google.linkedHint':
     'Puoi accedere con Google da questo e da altri dispositivi.',
-  'auth.noSignup':
-    'La registrazione è chiusa. Gli account sono creati dall’amministratore.',
   'auth.forgotPassword': 'Password dimenticata? Chiedi all’amministratore.',
   'auth.backToApp': 'Torna al calcolatore',
   'auth.unconfigured.title': 'Cloud non configurato',
@@ -33,6 +41,12 @@ export const authIt = {
   'auth.error.tooManyRequests': 'Troppi tentativi. Riprova tra qualche minuto.',
   'auth.error.network': 'Impossibile raggiungere il cloud. Controlla la connessione.',
   'auth.error.notConfigured': 'Cloud non configurato.',
+  'auth.error.signupLimitReached': 'Posti esauriti. Riprova più tardi.',
+  'auth.error.emailExists': 'Esiste già un account con questa email. Accedi.',
+  'auth.error.emailRequired': 'Inserisci la tua email.',
+  'auth.error.emailInvalid': 'Inserisci un indirizzo email valido.',
+  'auth.error.passwordRequired': 'Inserisci una password.',
+  'auth.error.passwordTooShort': 'La password deve avere almeno 6 caratteri.',
   'auth.error.oauthCancelled': 'Accesso con Google annullato.',
   'auth.error.oauthProviderDisabled':
     'L’accesso con Google non è abilitato. Usa email e password.',
@@ -103,6 +117,8 @@ export const authIt = {
     'Questo account non è associato a un workspace. Chiedi all’amministratore.',
   'sync.error.rateLimited': 'Troppe richieste. Riprova tra qualche minuto.',
   'sync.error.limit': 'Il piano gratuito ha raggiunto un limite. L’app resta locale.',
+  'sync.error.quoteLimit':
+    'Hai raggiunto il limite di preventivi dello spazio. Esporta o elimina i preventivi vecchi; l’archiviazione non libera il posto.',
   'sync.error.invalidData':
     'I dati del cloud non sono validi. L’app resta sulla copia locale.',
   'sync.error.backupFailed': 'Backup non riuscito. Nessun dato è stato modificato.',

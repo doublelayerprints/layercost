@@ -236,7 +236,7 @@ export const docsIt = {
   'docs.cloud.intro':
     'LayerCost è local-first: senza account i dati restano nel browser. Il cloud è opzionale e serve a condividere lo stesso archivio tra due o più dispositivi.',
   'docs.cloud.p1':
-    'Con un account puoi usare il workspace condiviso: configurazione e preventivi si sincronizzano tra i dispositivi. L’accesso è su richiesta e l’amministratore crea l’account. Puoi entrare con email e password oppure con Google.',
+    'Con un account puoi usare il workspace condiviso: configurazione e preventivi si sincronizzano tra i dispositivi. La registrazione è aperta: da Registrati inserisci email e password. Puoi entrare con email e password oppure con Google.',
   'docs.cloud.p2':
     'Se lavori offline le modifiche restano in coda e vengono riprodotte al ritorno. Se lo stesso dato cambia su due dispositivi, LayerCost chiede quale versione tenere. Al logout la copia locale del cloud viene rimossa se non ci sono scritture in sospeso.',
   'docs.cloud.p3':
@@ -257,7 +257,6 @@ export const docsIt = {
     'Pagina Impostazioni con le sezioni per prezzo, aspetto, lingua e dati e backup.',
   'docs.cloud.imageCaption':
     'In Impostazioni trovi anche esportazione, importazione e ripristino dei dati.',
-  'docs.cloud.linkRequest': 'Richiedi accesso al cloud',
   'docs.cloud.linkSettings': 'Apri Impostazioni',
 
   'docs.suggerimenti.label': 'Suggerimenti',

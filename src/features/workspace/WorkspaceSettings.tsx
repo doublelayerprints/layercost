@@ -7,6 +7,7 @@ import type { WorkspaceRole, WorkspaceSummary } from '@/data/cloud/gateway'
 import { copyText } from '@/lib/share'
 import { useAppStore } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
+import { useSyncStore } from '@/state/sync-store'
 import { useWorkspaceStore } from '@/state/workspace-store'
 import { workspaceErrorKeys } from './messages'
 
@@ -43,11 +44,14 @@ function WorkspaceSettingsSection({ workspace }: { workspace: WorkspaceSummary }
   const invites = useWorkspaceStore((state) => state.invites)
   const detailsStatus = useWorkspaceStore((state) => state.detailsStatus)
   const detailsError = useWorkspaceStore((state) => state.detailsError)
+  const usage = useWorkspaceStore((state) => state.usage)
   const loadDetails = useWorkspaceStore((state) => state.loadDetails)
+  const loadUsage = useWorkspaceStore((state) => state.loadUsage)
   const rename = useWorkspaceStore((state) => state.rename)
   const createInvite = useWorkspaceStore((state) => state.createInvite)
   const revokeInvite = useWorkspaceStore((state) => state.revokeInvite)
   const leave = useWorkspaceStore((state) => state.leave)
+  const syncStatus = useSyncStore((state) => state.status)
 
   const isOwner = workspace.role === 'owner'
   const isLastOwner = isOwner && members.filter((member) => member.role === 'owner').length <= 1
@@ -62,7 +66,14 @@ function WorkspaceSettingsSection({ workspace }: { workspace: WorkspaceSummary }
 
   useEffect(() => {
     void loadDetails()
-  }, [loadDetails])
+    void loadUsage()
+  }, [loadDetails, loadUsage])
+
+  // The usage rows follow the writes: after every successful sync (e.g. a
+  // saved quote) the counts come back from the workspace_usage RPC.
+  useEffect(() => {
+    if (syncStatus === 'synced') void loadUsage()
+  }, [syncStatus, loadUsage])
 
   const errorMessage = detailsError ? t(workspaceErrorKeys[detailsError]) : undefined
   const activeInvites = invites.filter((invite) => invite.revokedAt === undefined)
@@ -112,6 +123,22 @@ function WorkspaceSettingsSection({ workspace }: { workspace: WorkspaceSummary }
             {isOwner ? t('workspace.roleOwner') : t('workspace.roleEditor')}
           </Badge>
         </p>
+        {usage ? (
+          <dl className="mt-3 space-y-1 text-sm" aria-label={t('workspace.usage.title')}>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">{t('workspace.usage.members')}</dt>
+              <dd className="tabular-nums text-ink">
+                {t('workspace.usage.value', { used: usage.members, max: usage.maxMembers })}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">{t('workspace.usage.quotes')}</dt>
+              <dd className="tabular-nums text-ink">
+                {t('workspace.usage.value', { used: usage.quotes, max: usage.maxQuotes })}
+              </dd>
+            </div>
+          </dl>
+        ) : null}
         {!isOwner ? <p className="mt-2 text-xs text-muted">{t('workspace.ownerOnly')}</p> : null}
       </div>
 

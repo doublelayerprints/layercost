@@ -1,5 +1,4 @@
 import { authIt } from './it/auth'
-import { accessIt } from './it/access'
 import { calculatorIt } from './it/calculator'
 import { feedbackIt } from './it/feedback'
 import { landingIt } from './it/landing'
@@ -131,7 +130,6 @@ export const it = {
   ...profileIt,
   ...xlsxIt,
   ...authIt,
-  ...accessIt,
   ...landingIt,
   ...feedbackIt,
   ...workspaceIt,

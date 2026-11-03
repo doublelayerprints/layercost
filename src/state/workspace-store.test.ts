@@ -58,6 +58,7 @@ function createGateway(options: {
       listMembers: async () => [],
       listInvites: async () => [],
       createInvite: async () => 'token',
+      getUsage: async () => ({ members: 1, maxMembers: 20, quotes: 0, maxQuotes: 500 }),
       revokeInvite: async () => {},
       redeemInvite: async () => {
         const id = options.redeemed ?? 'ws-shared'

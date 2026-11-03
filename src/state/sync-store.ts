@@ -65,6 +65,7 @@ export type SyncErrorCode =
   | 'noWorkspace'
   | 'rateLimited'
   | 'limit'
+  | 'quoteLimit'
   | 'invalidData'
   | 'backupFailed'
   | 'unknown'
@@ -195,6 +196,8 @@ function syncErrorCode(error: unknown): SyncErrorCode {
       return 'rateLimited'
     case 'limit':
       return 'limit'
+    case 'quoteLimit':
+      return 'quoteLimit'
     default:
       return 'unknown'
   }

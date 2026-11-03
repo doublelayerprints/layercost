@@ -42,6 +42,7 @@ export interface AuthState {
 
   initialize: () => Promise<void>
   signIn: (email: string, password: string) => Promise<boolean>
+  signUp: (email: string, password: string) => Promise<boolean>
   signInWithGoogle: () => Promise<void>
   linkGoogle: () => Promise<void>
   signOut: () => Promise<void>
@@ -266,6 +267,32 @@ export function createAuthStore(deps: AuthStoreDeps) {
         try {
           const client = await ensureGateway()
           const session = await client.signIn(email.trim(), password)
+          applySession(session, 'signedIn')
+          return true
+        } catch (error) {
+          set({
+            status: 'idle',
+            user: null,
+            error: errorCode(error),
+            oauth: 'idle',
+          })
+          return false
+        }
+      },
+
+      // Open signup with a numeric cap (EVO-2, ADR-0027). With auto-confirm
+      // the session starts immediately: the sync first-login dialog and the
+      // automatic personal workspace keep working unchanged.
+      signUp: async (email, password) => {
+        if (!deps.isConfigured()) {
+          set({ status: 'unconfigured', error: 'notConfigured', user: null, oauth: 'idle' })
+          return false
+        }
+
+        set({ status: 'loading', error: undefined, oauthCallback: undefined })
+        try {
+          const client = await ensureGateway()
+          const session = await client.signUp(email.trim(), password)
           applySession(session, 'signedIn')
           return true
         } catch (error) {

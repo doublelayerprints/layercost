@@ -90,13 +90,18 @@ async function seedOtherWorkspace(workspaceId: string): Promise<void> {
     throw new Error(`Creazione settings fallita: ${settings.status} ${await settings.text()}`)
   }
 
+  await seedQuote(workspaceId, `q-other-${Date.now()}`, 'Altro workspace')
+}
+
+/** Inserts one active quote via the admin API, like the runbook's SQL would. */
+async function seedQuote(workspaceId: string, id: string, name: string): Promise<void> {
   const quote = await admin('/rest/v1/quotes', {
     method: 'POST',
     body: JSON.stringify({
-      id: `q-other-${Date.now()}`,
+      id,
       workspace_id: workspaceId,
       status: 'saved',
-      name: 'Altro workspace',
+      name,
       quote_date: '2026-10-28',
       locale: 'it',
       lines: [],
@@ -136,6 +141,28 @@ function deleteWorkspace(workspaceId: string): void {
   )
   if (result.status !== 0) {
     throw new Error(`Cleanup workspace fallito: ${result.stderr || result.stdout}`)
+  }
+}
+
+/** Lowers the workspace quote cap via SQL, like the runbook does. */
+function setQuoteCap(workspaceId: string, maxQuotes: number): void {
+  const dbUrl = process.env.SUPABASE_DB_URL
+  if (!dbUrl) return
+  const result = spawnSync(
+    'psql',
+    [
+      dbUrl,
+      '-v',
+      'ON_ERROR_STOP=1',
+      '-c',
+      `insert into public.workspace_limits (workspace_id, max_quotes)
+       values ('${workspaceId}', ${maxQuotes})
+       on conflict (workspace_id) do update set max_quotes = ${maxQuotes};`,
+    ],
+    { encoding: 'utf8' },
+  )
+  if (result.status !== 0) {
+    throw new Error(`Modifica del tetto fallita: ${result.stderr || result.stdout}`)
   }
 }
 
@@ -413,6 +440,59 @@ test('un invito aggiunge un utente allo spazio condiviso', async ({ browser, pag
     await guestContext.close()
     deleteWorkspace(workspaceId)
     await Promise.all([deleteUser(owner.id), deleteUser(guest.id)])
+  }
+})
+
+test('il tetto preventivi mostra la quota e un errore chiaro senza perdere i dati', async ({
+  page,
+}) => {
+  const account = await createUser('cap')
+  const workspaceId = await createWorkspace([account])
+  try {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await login(page, account)
+    await page.goto('/#/settings')
+    await waitForSynced(page)
+
+    // The Spazio section shows members and quotes usage from workspace_usage.
+    const spazio = page.getByRole('region', { name: 'Spazio' })
+    await expect(spazio.getByRole('term').filter({ hasText: 'Membri' })).toBeVisible()
+    await expect(spazio.getByText('1/20')).toBeVisible()
+
+    // Fill the single slot allowed by the lowered cap, then save a quote.
+    // The first login already imported the seed configuration (settings row
+    // included), so only the quote needs seeding here.
+    await setQuoteCap(workspaceId, 1)
+    await seedQuote(workspaceId, `q-cap-${Date.now()}`, 'Preventivo occupante')
+
+    await page.goto('/#/calculator')
+    await page.locator('input[aria-label="Ore"]').first().fill('10')
+    await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
+    await page.getByRole('button', { name: 'Salva preventivo' }).click()
+    await page.waitForURL(/#\/quotes\/.+/)
+
+    // The push fails with quote_limit_reached: the message is clear and the
+    // quote stays in the local archive.
+    await page.goto('/#/settings')
+    await expect(
+      page.getByText(/Hai raggiunto il limite di preventivi/).first(),
+    ).toBeVisible({ timeout: 30_000 })
+    await page.goto('/#/quotes')
+    await expect(page.getByText('Nuovo preventivo').first()).toBeVisible()
+
+    // Raising the cap via SQL lets the queued quote sync.
+    await setQuoteCap(workspaceId, 500)
+    await page.goto('/#/settings')
+    await page.getByRole('button', { name: 'Sincronizza ora' }).click()
+    await waitForSynced(page)
+    await page.goto('/#/quotes')
+    await expect(page.getByText('Nuovo preventivo').first()).toBeVisible()
+    await page.goto('/#/settings')
+    const spazio2 = page.getByRole('region', { name: 'Spazio' })
+    await expect(spazio2.getByText('2/500')).toBeVisible({ timeout: 15_000 })
+  } finally {
+    deleteWorkspace(workspaceId)
+    await deleteUser(account.id)
   }
 })
 

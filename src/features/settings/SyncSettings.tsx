@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { useFormat } from '@/app/use-format'
 import { Alert, Badge, Button, Modal } from '@/components/ui'
@@ -127,15 +127,6 @@ export function SyncSettings() {
               </div>
               <div className="space-y-2">
                 <Button onClick={() => navigate('/login')}>{t('sync.login')}</Button>
-                <p className="text-xs leading-relaxed text-muted">
-                  {t('access.noAccount')}{' '}
-                  <Link
-                    to="/request-access"
-                    className="font-medium text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
-                  >
-                    {t('access.requestAccess')}
-                  </Link>
-                </p>
               </div>
             </>
           ) : null}

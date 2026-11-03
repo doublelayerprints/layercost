@@ -85,7 +85,6 @@ test('l’app non chiama servizi esterni', async ({ page }) => {
     '/#/tariffs',
     '/#/extras',
     '/#/settings',
-    '/#/request-access',
     '/#/nope',
   ]) {
     await page.goto(path)
