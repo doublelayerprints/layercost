@@ -15,5 +15,7 @@ export const workspaceErrorKeys: Record<WorkspaceErrorCode, MessageKey> = {
   lastOwner: 'workspace.error.lastOwner',
   notOwner: 'workspace.error.notOwner',
   notMember: 'workspace.error.notMember',
+  notAdmin: 'workspace.error.notAdmin',
+  invalidLimit: 'workspace.error.invalidLimit',
   unknown: 'workspace.error.unknown',
 }

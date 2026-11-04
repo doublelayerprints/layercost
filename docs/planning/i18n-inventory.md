@@ -92,7 +92,9 @@
 
 **Stato ADR-0033 (catalogo stampanti):** aggiunte **41 chiavi** in `catalogs`: `printers.catalog` e l’area `printerCatalog.*` per titolo, descrizione, ricerca, filtro marca, conteggi plurali, stato vuoto, azioni, conferma, dettagli, potenze stimate, badge multicolore/chiusa, fonte, data, confidenza e nota sui seed. Parità globale it/en a **1352** chiavi. La pagina è lazy ma le chiavi restano nel dizionario globale, come per Richiedi accesso.
 
-**Stato lista stampanti compatta (02/11/2026):** aggiunte **10 chiavi** nell’area `printers` per etichetta della tabella, colonne (Stampante, Prezzo, Usura/h, Volume, Azioni, Dettagli), pulsante Dettagli e banda catalogo (titolo, descrizione, CTA). Parità globale it/en a **1362** chiavi; nessun cambio ai dizionari lazy.
+**Stato lista stampanti compatta (02/11/2026):** aggiunte **10 chiavi** nell’area `printers` per etichetta della tabella, colonne (Stampante, Prezzo, Usura/h, Volume, Azioni, Dettagli), pulsante Dettagli e banda catalogo (titolo, descrizione, CTA). Parità globale it/en a **1362** chiavi; nessun cambio ai dizionari lazy. EVO-2 (03/11/2026) aggiorna il totale misurato a **1346** (vedi §5).
+
+**Stato EVO-8 (04/11/2026):** aggiunta l'area **`admin`** con **53 chiavi** (`admin.title`, `admin.description`, stati riservato/errore/verifica, `admin.overview.*`, `admin.users.*` con plurali, `admin.provider.*`, `admin.workspaces.*` con uso, dettagli, membri, editor tetti, avviso sotto l'uso e validazione), **2 chiavi** `workspace.error.notAdmin`/`workspace.error.invalidLimit` e **2 chiavi** di navigazione (`nav.administration`, `nav.admin`). Parità globale it/en a **1403** chiavi; il test delle aree include `adminIt`. La pagina è lazy ma le chiavi restano nel dizionario globale, come per il catalogo stampanti.
 
 ## 4. Ordine di estrazione consigliato (T5.6.2)
 

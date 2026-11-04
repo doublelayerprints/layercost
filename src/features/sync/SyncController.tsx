@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useAuthStore } from '@/state/auth-store'
 import { useSyncStore } from '@/state/sync-store'
 import { useWorkspaceStore } from '@/state/workspace-store'
+import { useAdminStore } from '@/state/admin-store'
 
 /**
  * Bridges the auth lifecycle to the workspace list and the cloud sync engine.
@@ -19,6 +20,8 @@ export function SyncController() {
   const loadWorkspaces = useWorkspaceStore((state) => state.load)
   const loadWorkspaceDetails = useWorkspaceStore((state) => state.loadDetails)
   const resetWorkspaces = useWorkspaceStore((state) => state.reset)
+  const checkAdmin = useAdminStore((state) => state.checkAdmin)
+  const resetAdmin = useAdminStore((state) => state.reset)
   const connect = useSyncStore((state) => state.connect)
   const disconnect = useSyncStore((state) => state.disconnect)
   const markExpired = useSyncStore((state) => state.markExpired)
@@ -30,6 +33,7 @@ export function SyncController() {
     if (!initialized) return
     if (authStatus === 'authenticated' && userId) {
       void loadWorkspaces()
+      void checkAdmin()
       return
     }
     if (authStatus === 'expired') {
@@ -38,9 +42,20 @@ export function SyncController() {
     }
     if (authStatus === 'idle') {
       resetWorkspaces()
+      resetAdmin()
       void disconnect()
     }
-  }, [authStatus, disconnect, initialized, loadWorkspaces, markExpired, resetWorkspaces, userId])
+  }, [
+    authStatus,
+    checkAdmin,
+    disconnect,
+    initialized,
+    loadWorkspaces,
+    markExpired,
+    resetAdmin,
+    resetWorkspaces,
+    userId,
+  ])
 
   useEffect(() => {
     if (authStatus !== 'authenticated' || !userId || !activeWorkspaceId) return

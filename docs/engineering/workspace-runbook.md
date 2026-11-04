@@ -1,6 +1,6 @@
 # Workspace condiviso — runbook operativo
 
-**Stato:** T5.4.5 chiuso il 28/10/2026; spazi separati (EVO-4/ADR-0028) dal 30/10/2026; **EVO-2 (ADR-0027) dal 03/11/2026**: signup aperto a tetto numerico con Auth Hook, tetti per workspace configurabili via SQL
+**Stato:** T5.4.5 chiuso il 28/10/2026; spazi separati (EVO-4/ADR-0028) dal 30/10/2026; **EVO-2 (ADR-0027) dal 03/11/2026**: signup aperto a tetto numerico con Auth Hook, tetti per workspace configurabili; **EVO-8 (ADR-0034) console admin dal 04/11/2026**: `profiles.is_admin`, RPC admin e modifica tetti via `/#/admin` (§17)
 **Ambito:** creazione e manutenzione degli spazi Supabase, utenti, membership, inviti, audit, isolamento, tetti e signup
 **Decisione:** ADR-0024, ADR-0027, ADR-0028
 **Piano:** `docs/planning/t5.4-cloud-sync.md` §11, `docs/planning/evo-4-multi-workspace.md`, `docs/planning/evo-2-user-quote-caps.md`
@@ -21,8 +21,9 @@ Questo runbook è la procedura amministrativa per il cloud opzionale di LayerCos
 - Verifica dell'isolamento tra workspace.
 - Offboarding di una persona.
 - Configurazione o verifica del signup aperto e del tetto utenti (EVO-2).
-- Modifica dei tetti per workspace (`max_members`, `max_quotes`) via SQL (EVO-2).
-- Diagnosi di errori `noWorkspace`, `last_owner`, `42501`, `quote_locked`, `signup_limit_reached`, `member_limit_reached` o `quote_limit_reached`.
+- Modifica dei tetti per workspace (`max_members`, `max_quotes`) dalla console admin `/#/admin` (EVO-8) o via SQL (EVO-2).
+- Verifica o revoca del flag admin (`profiles.is_admin`, EVO-8).
+- Diagnosi di errori `noWorkspace`, `last_owner`, `42501`, `quote_locked`, `signup_limit_reached`, `member_limit_reached`, `quote_limit_reached` o `not_admin`.
 
 Il setup del progetto cloud, delle env Vercel e del deploy è pianificato in **T5.4.6**. Questo documento copre le operazioni sul database e sull'autenticazione.
 
@@ -312,7 +313,7 @@ npm run db:test
 Comandi di verifica:
 
 ```bash
-npm run db:test          # 114 asserzioni pgTAP/RLS (tetti EVO-2 inclusi)
+npm run db:test          # 148 asserzioni pgTAP/RLS (tetti EVO-2 e admin EVO-8 inclusi)
 npm run test:e2e:auth    # login, reload, impostazioni, logout
 npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 ```
@@ -330,6 +331,7 @@ npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 | `workspace_limit`                 | 10 spazi condivisi posseduti                    | Archiviare o eliminare uno spazio condiviso                              |
 | `member_limit` / `member_limit_reached` | Tetto membri dello spazio raggiunto (default 20) | Rimuovere un membro o alzare `max_members` via SQL (§16.2)               |
 | `signup_limit_reached`            | Tetto utenti globale raggiunto (1000)           | Alzare `max_users()` via SQL o ri-chiudere il signup (§16.5)              |
+| `not_admin`                       | RPC admin chiamata senza il flag `profiles.is_admin` | Verificare il flag con §17.2; la console resta nascosta per i non-admin |
 | `quote_limit_reached`             | Tetto preventivi dello spazio raggiunto (500)   | Esportare o eliminare preventivi; l'archiviazione non libera il posto; alzare `max_quotes` via SQL (§16.2) |
 | `invite_invalid` / `invite_expired` | Codice errato, scaduto o mai esistito         | Generare un nuovo codice dalla pagina Spazio                             |
 | `invite_revoked` / `invite_exhausted` | Codice revocato o già usato                  | Generare un nuovo codice                                                 |
@@ -370,11 +372,12 @@ npm run test:e2e:sync    # spazi, inviti, offline, conflitto, isolamento
 - [ ] Un utente di un altro workspace non vede i dati condivisi.
 - [ ] `created_by`/`updated_by` popolati; dettaglio con “Workspace condiviso” e nome visibile.
 - [ ] **Impostazioni → Profilo** salva il nome; la lista Preventivi mostra i due tag di audit.
-- [ ] `npm run db:test` verde (114 asserzioni, tetti inclusi).
-- [ ] `npm run test:e2e:sync` verde (6 test, tetto preventivi incluso).
+- [ ] `npm run db:test` verde (148 asserzioni, tetti e admin inclusi).
+- [ ] `npm run test:e2e:sync` verde (8 test: 6 sync + 2 console admin).
 - [ ] Nessun segreto nel repository o nelle env Vercel.
 - [ ] Backup e keep-alive pianificati in T5.4.6.
 - [ ] Impostazioni → Spazio mostra “Membri” e “Preventivi” con i valori di `workspace_usage` (EVO-2).
+- [ ] L'account admin ha `profiles.is_admin = true` e la console `/#/admin` mostra overview, utenti e spazi (EVO-8).
 
 ---
 
@@ -501,7 +504,11 @@ Dal 03/11/2026 il signup è **aperto** con un tetto numerico globale e ogni work
 - **RPC pre-check**: `create_invite` e `redeem_invite` leggono il limite da `workspace_limits` (fallback 20) e rifiutano in anticipo con `member_limit`; il trigger resta la fonte di verità.
 - **Uso in UI**: la RPC `workspace_usage` alimenta le righe “Membri” e “Preventivi” in **Impostazioni → Spazio**; il client ha solo `select` su `workspace_limits`.
 
-### 16.2 Modifica dei limiti (solo SQL, nessuna UI)
+### 16.2 Modifica dei limiti (via UI dalla console admin, SQL come fallback)
+
+Dal 4 novembre 2026 la via normale è la **console admin** (`/#/admin` → Spazi → Dettagli → Tetti dello spazio), riservata al flag `profiles.is_admin` (EVO-8, ADR-0034, §17): valida i valori, registra `updated_by` e non richiede l'accesso al SQL editor.
+
+Il fallback SQL resta valido e ha lo stesso effetto immediato:
 
 ```sql
 -- Tetto utenti globale (prossimi signup)
@@ -521,7 +528,7 @@ values ('<workspace>', 20, 500)
 on conflict (workspace_id) do update set max_members = 20, max_quotes = 500;
 ```
 
-Il valore è attivo immediatamente: nessun riavvio, nessun deploy. La modifica va registrata nella descrizione del commit del runbook o nel ticket operativo; non esiste una UI amministrativa (scelta ADR-0027).
+Il valore è attivo immediatamente: nessun riavvio, nessun deploy. La modifica va registrata nella descrizione del commit del runbook o nel ticket operativo; la prima iterazione non aveva UI (scelta ADR-0027), la console admin la aggiunge con EVO-8 (ADR-0034).
 
 ### 16.3 Configurazione su Supabase (eseguita il 03/11/2026)
 
@@ -539,7 +546,7 @@ Il valore è attivo immediatamente: nessun riavvio, nessun deploy. La modifica v
 ```bash
 npm run db:start
 npm run db:reset   # applica la migrazione e collega l'hook in supabase/config.toml
-npm run db:test    # 114 asserzioni pgTAP, incluse 23 sui tetti
+npm run db:test    # 148 asserzioni pgTAP, incluse 23 sui tetti e 34 sulla console admin
 npm run test:e2e:auth   # signup felice, validazione, quota in Spazio
 ```
 
@@ -554,7 +561,38 @@ Il signup di prova via API risponde con `{"code":"P0001","message":"signup_limit
 
 ---
 
-## 17. Riferimenti
+## 17. Console admin (EVO-8, ADR-0034)
+
+Dal 4 novembre 2026 l'app ha una console di amministrazione su `/#/admin`, visibile solo all'account con `profiles.is_admin = true` (unico admin: Tancredi Bosi). Perimetro: **monitoraggio + modifica tetti** — panoramica (utenti vs tetto 1000, spazi per tipo, preventivi attivi), lista utenti (email, nome visibile, provider, creato, ultimo accesso, n. spazi), lista spazi con uso vs tetti, membri per spazio, modifica `max_members`/`max_quotes`. Nessuna azione distruttiva: cancellazione/disattivazione account resta su dashboard/Admin API (§6.6), gestione inviti resta agli owner nella pagina Spazio.
+
+### 17.1 Come funziona
+
+- Il flag vive in `profiles.is_admin` (default `false`): nessun ruolo nuovo, nessuna policy RLS nuova o modificata.
+- Sei RPC `security definer` con guardia `is_app_admin()`: rifiutano i non-admin con `not_admin` (42501); `admin_update_workspace_limits` valida `> 0` (`invalid_limit`, 22023) e registra `updated_by`/`updated_at` in `workspace_limits`. I trigger dei tetti restano la fonte di verità: un valore sotto l'uso attuale è ammesso e vale solo per i nuovi ingressi/ripristini.
+- La UI è a difesa in profondità: voce in sidebar e route utili solo col flag, RPC che rifiutano comunque.
+- Decrementare un tetto sotto l'uso non rimuove nulla: la UI avvisa prima del salvataggio.
+
+### 17.2 Attivazione (una-tantum, dopo il deploy della migrazione)
+
+1. Backup di produzione verificato (checksum + `pg_restore --list`).
+2. Applicare `supabase/migrations/20261104000000_admin_console.sql` con `supabase db push`.
+3. Impostare il flag con lo SQL editor (UUID mai nel repository; la riga profilo esiste già per gli account EVO-7, l'`on conflict` copre anche i profili mancanti):
+   ```sql
+   insert into public.profiles (user_id, display_name, is_admin)
+   values ('<uuid-admin>', '<nome visibile>', true)
+   on conflict (user_id) do update set is_admin = true, updated_at = now();
+   ```
+4. Accedere con l'account, verificare la voce **Console admin** in sidebar, l'overview e la modifica di un tetto (riflessa subito in Impostazioni → Spazio). Eseguire lo smoke di produzione.
+5. Un secondo admin (se mai servisse) è la stessa SQL con il suo UUID.
+
+### 17.3 Rollback
+
+- **Revoca admin**: `update public.profiles set is_admin = false where user_id = '<uuid-admin>';` — voce e route spariscono, nessun dato cambia.
+- **Ritiro console**: `drop function` delle sei RPC (o della sola `admin_update_workspace_limits` per renderla di sola lettura); la colonna `is_admin` può restare senza effetti.
+
+---
+
+## 18. Riferimenti
 
 - `docs/adr/0024-supabase-auth-workspace.md` — auth email/password, workspace e operazioni free.
 - `docs/adr/0025-google-oauth.md` — provider Google, PKCE, link manuale, segreti e rollback.
@@ -568,4 +606,6 @@ Il signup di prova via API risponde con `{"code":"P0001","message":"signup_limit
 - `supabase/tests/profiles.test.sql` — 17 asserzioni su creazione lazy, backfill, nome visibile, validazione e directory.
 - `supabase/migrations/20261102120000_signup_cap_and_workspace_limits.sql` — tetto utenti, hook, `workspace_limits`, trigger e `workspace_usage` (EVO-2).
 - `supabase/tests/caps.test.sql` — 23 asserzioni sui tetti (EVO-2).
+- `supabase/tests/admin.test.sql` — 34 asserzioni sulla console admin (EVO-8).
 - `docs/adr/0027-signup-cap-and-workspace-limits.md` e `docs/planning/evo-2-user-quote-caps.md` — decisioni e spec.
+- `docs/adr/0034-admin-console.md` e `docs/planning/evo-8-admin-console.md` — console admin: flag `is_admin`, RPC e perimetro.

@@ -45,6 +45,7 @@ async function auditRoutes(page: Page, quotePath: string, label: string) {
     ['tariffe', '/#/tariffs'],
     ['extra', '/#/extras'],
     ['impostazioni', '/#/settings'],
+    ['console admin riservata', '/#/admin'],
     ['documentazione', '/#/docs/primi-passi'],
     ['documentazione materiali', '/#/docs/materiali'],
     ['suggerimenti', '/#/feedback'],

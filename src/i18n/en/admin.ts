@@ -1,0 +1,65 @@
+/**
+ * English dictionary for the administration area (EVO-8).
+ * Cloud error messages stay in the workspace module; the console reuses them
+ * through the mapping in `features/admin/messages.ts`.
+ */
+export const adminEn = {
+  'admin.title': 'Administration',
+  'admin.description': 'Service overview, registered users and workspaces with their caps.',
+  'admin.checking': 'Checking your access…',
+  'admin.reserved.title': 'Restricted area',
+  'admin.reserved.body': 'This console is only visible to the LayerCost administrator.',
+  'admin.error.title': 'Verification failed',
+  'admin.retry': 'Try again',
+
+  'admin.overview.title': 'Overview',
+  'admin.overview.users': 'Users',
+  'admin.overview.usersHint': 'Signup cap: {max}',
+  'admin.overview.personal': 'Personal workspaces',
+  'admin.overview.shared': 'Shared workspaces',
+  'admin.overview.quotes': 'Active quotes',
+  'admin.overview.membershipsHint': 'Total memberships: {count}',
+
+  'admin.users.title': 'Users',
+  'admin.users.tableLabel': 'Registered users',
+  'admin.users.searchLabel': 'Search users',
+  'admin.users.searchPlaceholder': 'Search by email or name',
+  'admin.users.results.one': '{count} user',
+  'admin.users.results.other': '{count} users',
+  'admin.users.empty': 'No user matches the search.',
+  'admin.users.email': 'Email',
+  'admin.users.name': 'Name',
+  'admin.users.providers': 'Sign-in',
+  'admin.users.workspaces': 'Workspaces',
+  'admin.users.createdAt': 'Created',
+  'admin.users.lastSignIn': 'Last sign-in',
+  'admin.users.never': 'Never',
+  'admin.provider.email': 'Email',
+  'admin.provider.google': 'Google',
+
+  'admin.workspaces.title': 'Workspaces',
+  'admin.workspaces.tableLabel': 'Workspaces and caps',
+  'admin.workspaces.name': 'Workspace',
+  'admin.workspaces.empty': 'No workspace.',
+  'admin.workspaces.kind.personal': 'Personal',
+  'admin.workspaces.kind.shared': 'Shared',
+  'admin.workspaces.usage.value': '{used}/{max}',
+  'admin.workspaces.atCap': 'At cap',
+  'admin.workspaces.createdAt': 'Created',
+  'admin.workspaces.details': 'Details',
+  'admin.workspaces.membersTitle': 'Members',
+  'admin.workspaces.membersLoading': 'Loading members…',
+  'admin.workspaces.membersEmpty': 'No member in this workspace.',
+  'admin.workspaces.memberJoined': 'Joined',
+  'admin.workspaces.limitsTitle': 'Workspace caps',
+  'admin.workspaces.limitsHint':
+    'The values apply to new members and new quotes: existing resources stay.',
+  'admin.workspaces.maxMembers': 'Max members',
+  'admin.workspaces.maxQuotes': 'Max quotes',
+  'admin.workspaces.limitsSave': 'Save caps',
+  'admin.workspaces.limitsSaving': 'Saving…',
+  'admin.workspaces.limitsSaved': 'Caps updated.',
+  'admin.workspaces.belowUsageWarning':
+    'The value is below the current usage: existing resources stay, the limit applies to new entries.',
+  'admin.workspaces.limitInvalid': 'Enter a whole number greater than zero.',
+} as const

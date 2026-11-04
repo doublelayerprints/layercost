@@ -6,6 +6,7 @@ import { QuickPreferences } from '@/app/QuickPreferences'
 import { TopBar } from '@/app/TopBar'
 import { useAppStore, type AppWarning } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
+import { useAdminStore } from '@/state/admin-store'
 import { SyncIndicator } from '@/features/sync/SyncIndicator'
 import { WorkspaceMenu } from '@/features/workspace/WorkspaceMenu'
 import { Alert } from '@/components/ui'
@@ -15,6 +16,9 @@ import { ENGINE_VERSION } from '@/domain/version'
 
 function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const { t } = useI18n()
+  // The admin group only appears for the flagged administrator (EVO-8):
+  // until `is_app_admin()` answers true the sidebar stays unchanged.
+  const isAdmin = useAdminStore((state) => state.isAdmin)
   const groupIdPrefix = useId()
   const navGroups = [
     {
@@ -43,6 +47,14 @@ function NavItems({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate
         { to: '/feedback', label: t('nav.feedback') },
       ],
     },
+    ...(isAdmin
+      ? [
+          {
+            label: t('nav.administration'),
+            items: [{ to: '/admin', label: t('nav.admin') }],
+          },
+        ]
+      : []),
   ]
 
   return (

@@ -50,7 +50,11 @@ const checks = [
     // gzip, limit raised to 236 KB to cover the accessible combobox.
     // ADR-0033 adds the printer catalog: 233.6 KB gzip, within the same limit.
     // The compact printer list adds 1.1 KB: 234.7 KB gzip, still within 236 KB.
-    limit: 236 * KB,
+    // EVO-8 (ADR-0034) adds the admin console bootstrap: the `admin.*` IT/EN
+    // keys live in the eager dictionaries and the admin store is wired into the
+    // session bootstrap for the sidebar flag. The console itself stays lazy
+    // (17.9 KB / 3.8 KB gzip): measured 239.0 KB gzip, limit raised to 240 KB.
+    limit: 240 * KB,
   },
   {
     label: 'Chunk lazy',

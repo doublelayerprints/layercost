@@ -21,6 +21,8 @@ const PROFILE_ERROR_KEYS: Record<WorkspaceErrorCode, MessageKey> = {
   lastOwner: 'profile.error.unknown',
   notOwner: 'profile.error.unknown',
   notMember: 'profile.error.unknown',
+  notAdmin: 'profile.error.unknown',
+  invalidLimit: 'profile.error.unknown',
   unknown: 'profile.error.unknown',
 }
 

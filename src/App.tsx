@@ -39,6 +39,12 @@ const PrinterCatalogPage = lazy(() =>
   })),
 )
 
+const AdminPage = lazy(() =>
+  import('@/features/admin/AdminPage').then((module) => ({
+    default: module.AdminPage,
+  })),
+)
+
 function RouteLoading() {
   const { t } = useI18n()
   return (
@@ -116,6 +122,14 @@ export default function App() {
               element={
                 <Suspense fallback={<RouteLoading />}>
                   <FeedbackPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="admin"
+              element={
+                <Suspense fallback={<RouteLoading />}>
+                  <AdminPage />
                 </Suspense>
               }
             />
