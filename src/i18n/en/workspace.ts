@@ -69,6 +69,8 @@ export const workspaceEn = {
   'workspace.error.lastOwner': 'The last owner cannot leave the workspace.',
   'workspace.error.notOwner': 'Only an owner can perform this action.',
   'workspace.error.notMember': 'You are not a member of this workspace.',
+  'workspace.error.notAdmin': 'This area is reserved to administrators.',
+  'workspace.error.invalidLimit': 'Caps must be whole numbers greater than zero.',
   'workspace.error.network': 'Network error. Try again.',
   'workspace.error.auth': 'Session expired. Sign in again.',
   'workspace.error.unknown': 'The operation failed.',

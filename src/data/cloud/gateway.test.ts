@@ -47,6 +47,15 @@ describe('mapWorkspaceError', () => {
     expect(mapWorkspaceError({ message: 'last_owner' }).code).toBe('lastOwner')
   })
 
+  it('riconosce gli errori della console admin (EVO-8)', () => {
+    expect(mapWorkspaceError({ message: 'not_admin', code: '42501', status: 403 }).code).toBe(
+      'notAdmin',
+    )
+    expect(mapWorkspaceError({ message: 'invalid_limit', code: '22023', status: 400 }).code).toBe(
+      'invalidLimit',
+    )
+  })
+
   it('distingue rete, sessione scaduta e errore sconosciuto', () => {
     expect(mapWorkspaceError({ message: 'Failed to fetch' }).code).toBe('network')
     expect(mapWorkspaceError(new TypeError('Failed to fetch')).code).toBe('network')

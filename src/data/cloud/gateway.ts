@@ -59,6 +59,7 @@ export type WorkspaceErrorCode =
   | 'memberLimit'
   | 'quoteLimit'
   | 'invalidName'
+  | 'invalidLimit'
   | 'inviteInvalid'
   | 'inviteExpired'
   | 'inviteRevoked'
@@ -66,6 +67,7 @@ export type WorkspaceErrorCode =
   | 'lastOwner'
   | 'notOwner'
   | 'notMember'
+  | 'notAdmin'
   | 'unknown'
 
 export interface WorkspaceUsage {
@@ -123,6 +125,70 @@ export interface CloudGateway {
   pull: (workspaceId: string) => Promise<CloudSnapshot>
   push: (workspaceId: string, operation: SyncOperation) => Promise<CloudPushResult>
   importAll: (workspaceId: string, data: AppData) => Promise<CloudSnapshot>
+}
+
+// ---------------------------------------------------------------------------
+// Admin console (EVO-8 / ADR-0034). Read-only monitoring plus the workspace
+// caps editor. Every RPC is guarded server-side by `is_app_admin()`; the
+// client treats any error as fail-closed.
+// ---------------------------------------------------------------------------
+
+export interface AdminOverview {
+  totalUsers: number
+  maxUsersLimit: number
+  totalPersonalWorkspaces: number
+  totalSharedWorkspaces: number
+  totalQuotes: number
+  totalMemberships: number
+}
+
+export interface AdminUser {
+  userId: string
+  email?: string
+  displayName?: string
+  /** Auth providers, e.g. `['email']` or `['email', 'google']`. */
+  providers: string[]
+  workspaceCount: number
+  createdAt: string
+  /** Absent for accounts that never signed in. */
+  lastSignInAt?: string
+}
+
+export interface AdminWorkspace {
+  id: string
+  name: string
+  kind: WorkspaceKind
+  members: number
+  maxMembers: number
+  quotes: number
+  maxQuotes: number
+  createdAt: string
+}
+
+export interface AdminWorkspaceMember {
+  userId: string
+  email?: string
+  displayName?: string
+  role: WorkspaceRole
+  joinedAt: string
+}
+
+export interface AdminWorkspaceLimits {
+  maxMembers: number
+  maxQuotes: number
+}
+
+export interface AdminGateway {
+  isAdmin: () => Promise<boolean>
+  adminOverview: () => Promise<AdminOverview>
+  adminListUsers: () => Promise<AdminUser[]>
+  adminListWorkspaces: () => Promise<AdminWorkspace[]>
+  adminWorkspaceMembers: (workspaceId: string) => Promise<AdminWorkspaceMember[]>
+  adminUpdateWorkspaceLimits: (
+    workspaceId: string,
+    maxMembers: number,
+    maxQuotes: number,
+  ) => Promise<AdminWorkspaceLimits>
 }
 
 interface PostgrestErrorLike {
@@ -187,6 +253,9 @@ const WORKSPACE_ERRORS: Record<string, WorkspaceErrorCode> = {
   not_owner: 'notOwner',
   not_member: 'notMember',
   not_authenticated: 'auth',
+  // Admin console (EVO-8): the RPC guard and the limits validation.
+  not_admin: 'notAdmin',
+  invalid_limit: 'invalidLimit',
 }
 
 /** Maps the RPC `raise exception` messages and the PostgREST errors. */
@@ -238,7 +307,7 @@ function toWorkspaceKind(value: string | null | undefined): WorkspaceKind {
   return value === 'personal' ? 'personal' : 'shared'
 }
 
-export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
+export async function createSupabaseCloudGateway(): Promise<CloudGateway & AdminGateway> {
   const client = await loadSupabaseClient()
 
   async function fetchSettings(workspaceId: string): Promise<Tables<'settings'> | null> {
@@ -776,6 +845,86 @@ export async function createSupabaseCloudGateway(): Promise<CloudGateway> {
         quotes: row.quotes,
         maxQuotes: row.max_quotes,
       }
+    },
+
+    // Admin console RPCs (EVO-8). The DB guard rejects non-admins with
+    // `not_admin`; callers treat every error as fail-closed. The SQL
+    // expressions behind some columns are nullable at runtime even though
+    // the generated types say otherwise, hence the defensive `?? undefined`.
+    async isAdmin() {
+      const { data, error } = await client.rpc('is_app_admin')
+      if (error) throw mapWorkspaceError(error)
+      return data === true
+    },
+
+    async adminOverview() {
+      const { data, error } = await client.rpc('admin_overview')
+      if (error) throw mapWorkspaceError(error)
+      const row = data?.[0]
+      if (!row) throw new WorkspaceError('unknown')
+      return {
+        totalUsers: row.total_users,
+        maxUsersLimit: row.max_users_limit,
+        totalPersonalWorkspaces: row.total_personal_workspaces,
+        totalSharedWorkspaces: row.total_shared_workspaces,
+        totalQuotes: row.total_quotes,
+        totalMemberships: row.total_memberships,
+      }
+    },
+
+    async adminListUsers() {
+      const { data, error } = await client.rpc('admin_list_users')
+      if (error) throw mapWorkspaceError(error)
+      return (data ?? []).map((row) => ({
+        userId: row.user_id,
+        email: row.email ?? undefined,
+        displayName: row.display_name ?? undefined,
+        providers: row.providers ? row.providers.split(',') : [],
+        workspaceCount: row.workspace_count,
+        createdAt: row.created_at,
+        lastSignInAt: row.last_sign_in_at ?? undefined,
+      }))
+    },
+
+    async adminListWorkspaces() {
+      const { data, error } = await client.rpc('admin_list_workspaces')
+      if (error) throw mapWorkspaceError(error)
+      return (data ?? []).map((row) => ({
+        id: row.workspace_id,
+        name: row.name,
+        kind: toWorkspaceKind(row.kind),
+        members: row.members,
+        maxMembers: row.max_members,
+        quotes: row.quotes,
+        maxQuotes: row.max_quotes,
+        createdAt: row.created_at,
+      }))
+    },
+
+    async adminWorkspaceMembers(workspaceId) {
+      const { data, error } = await client.rpc('admin_workspace_members', {
+        p_workspace_id: workspaceId,
+      })
+      if (error) throw mapWorkspaceError(error)
+      return (data ?? []).map((row) => ({
+        userId: row.user_id,
+        email: row.email ?? undefined,
+        displayName: row.display_name ?? undefined,
+        role: toRole(row.role),
+        joinedAt: row.joined_at,
+      }))
+    },
+
+    async adminUpdateWorkspaceLimits(workspaceId, maxMembers, maxQuotes) {
+      const { data, error } = await client.rpc('admin_update_workspace_limits', {
+        p_workspace_id: workspaceId,
+        p_max_members: maxMembers,
+        p_max_quotes: maxQuotes,
+      })
+      if (error) throw mapWorkspaceError(error)
+      const row = data?.[0]
+      if (!row) throw new WorkspaceError('unknown')
+      return { maxMembers: row.max_members, maxQuotes: row.max_quotes }
     },
 
     pull: pullSnapshot,

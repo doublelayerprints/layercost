@@ -1,4 +1,5 @@
 import { authEn } from './en/auth'
+import { adminEn } from './en/admin'
 import { calculatorEn } from './en/calculator'
 import { feedbackEn } from './en/feedback'
 import { landingEn } from './en/landing'
@@ -26,6 +27,8 @@ const baseEn: Record<BaseMessageKey, string> = {
   'nav.work': 'Work',
   'nav.configuration': 'Configuration',
   'nav.help': 'Help',
+  'nav.administration': 'Administration',
+  'nav.admin': 'Admin console',
   'nav.docs': 'Documentation',
   'nav.feedback': 'Suggestions',
   'nav.overview': 'Overview',
@@ -130,4 +133,5 @@ export const en: Messages = {
   ...landingEn,
   ...feedbackEn,
   ...workspaceEn,
+  ...adminEn,
 }

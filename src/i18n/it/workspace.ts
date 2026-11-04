@@ -69,6 +69,9 @@ export const workspaceIt = {
   'workspace.error.lastOwner': 'L’ultimo owner non può uscire dallo spazio.',
   'workspace.error.notOwner': 'Solo un owner può eseguire questa operazione.',
   'workspace.error.notMember': 'Non fai parte di questo spazio.',
+  'workspace.error.notAdmin': 'Area riservata agli amministratori.',
+  'workspace.error.invalidLimit':
+    'I tetti devono essere numeri interi maggiori di zero.',
   'workspace.error.network': 'Errore di rete. Riprova.',
   'workspace.error.auth': 'Sessione scaduta. Accedi di nuovo.',
   'workspace.error.unknown': 'Operazione non riuscita.',

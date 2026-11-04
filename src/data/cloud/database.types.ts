@@ -292,6 +292,7 @@ export type Database = {
         Row: {
           created_at: string
           display_name: string
+          is_admin: boolean
           updated_at: string
           user_id: string
         }
@@ -299,12 +300,14 @@ export type Database = {
         Insert: {
           created_at?: string
           display_name: string
+          is_admin?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           display_name?: string
+          is_admin?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -604,6 +607,59 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          display_name: string
+          email: string
+          last_sign_in_at: string
+          providers: string
+          user_id: string
+          workspace_count: number
+        }[]
+      }
+      admin_list_workspaces: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          kind: string
+          max_members: number
+          max_quotes: number
+          members: number
+          name: string
+          quotes: number
+          workspace_id: string
+        }[]
+      }
+      admin_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          max_users_limit: number
+          total_memberships: number
+          total_personal_workspaces: number
+          total_quotes: number
+          total_shared_workspaces: number
+          total_users: number
+        }[]
+      }
+      admin_update_workspace_limits: {
+        Args: { p_max_members: number; p_max_quotes: number; p_workspace_id: string }
+        Returns: {
+          max_members: number
+          max_quotes: number
+        }[]
+      }
+      admin_workspace_members: {
+        Args: { p_workspace_id: string }
+        Returns: {
+          display_name: string
+          email: string
+          joined_at: string
+          role: string
+          user_id: string
+        }[]
+      }
       create_invite: {
         Args: { p_days: number; p_role: string; p_workspace_id: string }
         Returns: string
@@ -612,6 +668,7 @@ export type Database = {
       ensure_personal_workspace: { Args: Record<PropertyKey, never>; Returns: string }
       get_my_profile: { Args: Record<PropertyKey, never>; Returns: string }
       handle_before_user_created: { Args: { payload: Json }; Returns: Json }
+      is_app_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_workspace_member: { Args: { target_workspace_id: string }; Returns: boolean }
       is_workspace_owner: { Args: { target_workspace_id: string }; Returns: boolean }
       keepalive: { Args: Record<PropertyKey, never>; Returns: string }

@@ -1,6 +1,6 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata il 04/11/2026**, distribuzione da completare (runbook §17.2); CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 2 novembre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
@@ -1386,6 +1386,21 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - [x] **Documentazione:** design `docs/design/printers-compact-list.md`, design system §8.17, testing, i18n inventory, CHANGELOG, STATUS e PLAN.
 - [x] **Preview e deploy:** preview Vercel verificata a 375, 768 e 1440 px (tabella/card corrette, dettagli aperti con `aria-expanded`, pannello e azioni visibili, nessun overflow o errore in console); mergiata con la PR #59 (squash `8b07085`) e distribuita in produzione il 02/11/2026 con build `index-BjqdEKE_.js` / `index--nSacJA8.css`; verifica pubblica a 375, 768 e 1440 px verde.
 
+## EVO-8 — Console admin: utenti, spazi e tetti
+
+**Stato:** `[x]` — implementata il 04/11/2026 secondo la spec `docs/planning/evo-8-admin-console.md`; resta la distribuzione di produzione (backup → migrazione → SQL `is_admin` per l'account admin → smoke, runbook §17.2)
+**Dipende da:** EVO-2 (tetti e `workspace_limits`), EVO-4 (multi-workspace), EVO-7 (profili)
+**ADR:** 0034
+
+- [x] **Migrazione unica** `20261104000000_admin_console.sql`: `profiles.is_admin boolean not null default false`, helper `is_app_admin()`, RPC `admin_overview`, `admin_list_users`, `admin_list_workspaces`, `admin_workspace_members`, `admin_update_workspace_limits` con guardia `not_admin` (42501), `invalid_limit` (22023) e `workspace_not_found` (P0001); grant a `authenticated` con revoke da `public, anon`. Nessuna policy RLS nuova o modificata.
+- [x] **pgTAP** `supabase/tests/admin.test.sql`: 34 asserzioni — default false, rifiuto del non-admin su ogni RPC, conteggi overview, fallback 20/500, email visibile a admin non membro, update con `updated_by`, validazioni (148 totali).
+- [x] **Data layer**: `AdminGateway` separata (sei metodi) restituita dalla stessa factory `createSupabaseCloudGateway`, tipi `AdminOverview`/`AdminUser`/`AdminWorkspace`/`AdminWorkspaceMember`, mapping `not_admin`/`invalid_limit`; `npm run db:types` rigenerato (+57 righe).
+- [x] **Stato**: `src/state/admin-store.ts` con factory iniettata (`checkAdmin` fail-closed, `load`, `selectWorkspace`, `updateLimits` con refresh silenzioso, `reset`), aggancio a `SyncController` al bootstrap della sessione e al logout; gruppo sidebar **Amministrazione** visibile solo se `isAdmin`.
+- [x] **UI**: route lazy `/#/admin` con stato riservato per i non-admin; Panoramica (utenti vs tetto con evidenza a tetto, spazi per tipo, preventivi); Utenti (tabella ≥1280/card, filtro email+nome, pill provider); Spazi (uso vs tetti con badge “A tetto”, pannello Dettagli con membri ed editor tetti con validazione e avviso sotto l'uso); i18n area `admin.*` IT/EN (+57 chiavi, parità 1403).
+- [x] **Test**: 10 unitari store + 1 mapping gateway (307 totali); E2E `admin.spec.ts` nella runner sync (2 test: console completa con modifica tetti riflessa in Impostazioni → Spazio, stato riservato non-admin); suite predefinita 68 passati/25 saltati; axe su `/#/admin` (53 scansioni); budget iniziale 239,0/240 KB (aumento motivato in ADR-0034), lazy 79,1/80 KB con chunk admin da 3,8 KB gzip.
+- [x] **Docs**: runbook (§1, §11, §16.2 via UI, §13 checklist, nuova §17 EVO-8 con SQL admin e troubleshooting `not_admin`, riferimenti §18), ADR-0034 implementato, data-model §7 (invariante 12), testing.md, i18n inventory, TASKS.md. STATUS, README e CHANGELOG aggiornati alla chiusura.
+- Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, seed o RLS esistente.
+
 ## Prossimi task
 
-**EVO-2 — Tetti utenti e preventivi** è implementato (`[x]`, vedi sopra). **Operazioni post-deploy chiuse il 03/11/2026:** backup verificato → migrazione applicata → auth config via Management API (Email signup ON, Confirm email OFF, hook `before-user-created`) → `VITE_ACCESS_REQUEST_ENDPOINT` rimossa da Vercel e `.env.local` → tetto verificato live + account di prova pulito + smoke di produzione verde. EVO-2 è chiusa al completo. **EVO-3b** (allowlist) è assorbita; ADR-0026 è superseded. Follow-up opzionali: baseline visual cloud/docs/feedback, stampa fisica, NVDA.
+**EVO-8 — Console admin** è implementata (`[x]`, vedi sopra); restano le operazioni di produzione: backup verificato → migrazione `20261104000000_admin_console.sql` → SQL `is_admin = true` per l'account admin → deploy → smoke (runbook §17.2). Il backlog pianificato è vuoto: EVO-1→8 chiuse, EVO-3b assorbita, EVO-2 chiusa il 03/11/2026 con le operazioni post-deploy. Follow-up opzionali: baseline visual cloud/docs/feedback/admin, stampa fisica, NVDA.

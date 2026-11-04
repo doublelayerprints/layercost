@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { en } from './en'
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isLocale, plural, translate } from './index'
 import { authIt } from './it/auth'
+import { adminIt } from './it/admin'
 import { calculatorIt } from './it/calculator'
 import { feedbackIt } from './it/feedback'
 import { landingIt } from './it/landing'
@@ -33,6 +34,7 @@ describe('dizionari i18n', () => {
       landingIt,
       feedbackIt,
       workspaceIt,
+      adminIt,
     ]
     const keys = parts.flatMap((part) => Object.keys(part))
     expect(new Set(keys).size).toBe(keys.length)

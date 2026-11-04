@@ -1,6 +1,6 @@
 # EVO-8 — Console admin: utenti, spazi e tetti
 
-**Stato:** pianificata
+**Stato:** implementata il 4 novembre 2026; resta la distribuzione di produzione (backup → migrazione → SQL `is_admin` → smoke, runbook §17.2)
 **Data:** 4 novembre 2026
 **ADR:** `docs/adr/0034-admin-console.md`
 **Runbook:** `docs/engineering/workspace-runbook.md` (§16 tetti, offboarding §6.6)
@@ -62,7 +62,7 @@ L'utente senza sessione ottiene `false` (coalesce); il pattern è lo stesso di `
 
 ### 3.3 RPC di lettura
 
-Tutte `security definer`, `search_path = ''`, `stable`, con la stessa guardia; errori per codice come nelle migrazioni precedenti (`not_admin` → `42501`, `invalid_limit` → `22023`, `workspace_not_found` → `P0001`).
+Tutte `security definer`, `search_path = ''`, le letture `stable` (la scrittura è volatile, vedi §3.4), con la stessa guardia; errori per codice come nelle migrazioni precedenti (`not_admin` → `42501`, `invalid_limit` → `22023`, `workspace_not_found` → `P0001`).
 
 ```sql
 create or replace function public.admin_overview()
@@ -244,7 +244,9 @@ create or replace function public.admin_update_workspace_limits(
   p_max_quotes integer
 )
 returns table (max_members integer, max_quotes integer)
-language plpgsql stable security definer set search_path = ''
+language plpgsql
+security definer
+set search_path = ''
 as $$
 begin
   if not public.is_app_admin() then
@@ -280,7 +282,7 @@ end;
 $$;
 ```
 
-I vincoli `check (> 0)` di `workspace_limits` restano come seconda rete. Nessuna policy di scrittura nuova: l'update passa dalla RPC definer, il client continua a non poter scrivere la tabella direttamente.
+Volatili le sole funzioni di scrittura: `admin_update_workspace_limits` non è `stable` (esegue INSERT/UPDATE; il resto sono letture pure). I vincoli `check (> 0)` di `workspace_limits` restano come seconda rete. Nessuna policy di scrittura nuova: l'update passa dalla RPC definer, il client continua a non poter scrivere la tabella direttamente.
 
 ### 3.5 Grant
 
@@ -361,14 +363,14 @@ La modifica dei tetti non deve mai perdere i valori inseriti in caso di errore: 
 
 ---
 
-## 8. Test e acceptance
+## 8. Test e acceptance (esito 04/11/2026)
 
-- **pgTAP** `supabase/tests/admin.test.sql` (~20 asserzioni): `is_app_admin()` false di default; ogni RPC rifiuta il non-admin con `not_admin`; con fixture admin: conteggi `admin_overview()` corretti, `admin_list_users()` con email/provider/nome fallback, `admin_list_workspaces()` con fallback 20/500, `admin_workspace_members()` mostra email a un admin non membro, update tetti persiste con `updated_by`, valori `<= 0` rifiutati con `invalid_limit`, workspace inesistente rifiutato con `workspace_not_found`.
-- **Unit**: factory `admin-store` con gateway finto (load, selectWorkspace, updateLimits con refresh, errori mappati, reset); mapping nuovi codici errore.
-- **E2E** `tests/e2e/admin.spec.ts` (nella runner sync, che ha psql e reset DB): fixture con `is_admin = true` per l'utente A via SQL; A vede la voce Admin in sidebar, l'overview con i numeri del DB locale, la lista utenti e spazi; A modifica il tetto membri di uno spazio e Impostazioni → Spazio riflette "Membri x/30"; l'utente B (non admin) non ha la voce in sidebar e `/#/admin` mostra lo stato riservato.
-- **axe**: scansioni a 375/1440 in IT/EN, incluso lo stato riservato.
-- **Budget**: nessun impatto sul bundle iniziale (chunk lazy); il budget lazy (80 KB, oggi 75,3) va verificato dopo il build e, se superato, alzato con motivazione in ADR-0034 e commento in `scripts/check-budget.mjs`.
-- **Gate:** `npm run check` verde, `db:test` verde, suite E2E complete, **nessuna modifica** a formule, `engineVersion`, schema locale v4, snapshot, seed o RLS esistente.
+- **pgTAP** `supabase/tests/admin.test.sql`: **34 asserzioni** (148 totali) — `is_app_admin()` false di default; ogni RPC rifiuta il non-admin con `not_admin`; con fixture admin: conteggi `admin_overview()` corretti, `admin_list_users()` con email/provider/nome fallback, `admin_list_workspaces()` con fallback 20/500, `admin_workspace_members()` mostra email a un admin non membro, update tetti persiste con `updated_by`, valori `<= 0` rifiutati con `invalid_limit`, workspace inesistente rifiutato con `workspace_not_found`.
+- **Unit**: 10 test sulla factory `admin-store` (checkAdmin fail-closed, load, selectWorkspace, updateLimits con refresh silenzioso, reset) e 1 sul mapping `not_admin`/`invalid_limit` nel gateway; **307 unitari totali**.
+- **E2E** `tests/e2e/admin.spec.ts` nella runner sync: la console mostra overview, utenti e spazi, la modifica dei tetti si riflette in "Membri 1/30" e "Preventivi 2/800" in Impostazioni → Spazio; il non-admin non ha la voce in sidebar e `/#/admin` mostra lo stato riservato. Runner: **8 test verdi** (6 sync + 2 admin). Suite predefinita: 68 passati, 25 saltati (+2 admin) più 1 senza endpoint.
+- **axe**: `/#/admin` (stato riservato) aggiunta alle scansioni a 375/1440 in IT/EN; **53 scansioni** totali, 0 violazioni.
+- **Budget (esito reale)**: il bundle **iniziale** passa da 234,7 a **239,0 KB** gzip (chiavi `admin.*` nei dizionari eager + `admin-store` nel bootstrap) — limite alzato a **240 KB** con motivazione in ADR-0034; chunk admin lazy **3,8 KB gzip**, lazy totale **79,1/80 KB**, worker 37,7/40, CSS 10,6/20, HTML 6,0/10, totale 306,4/350.
+- **Gate:** `npm run check` verde, `db:test` verde (148), suite E2E complete, **nessuna modifica** a formule, `engineVersion`, schema locale v4, snapshot, seed o RLS esistente.
 
 ---
 
@@ -380,7 +382,7 @@ La modifica dei tetti non deve mai perdere i valori inseriti in caso di errore: 
 | Email di tutti gli utenti esposte              | Solo al flag admin; nessun contenuto economico; ADR-0034 §5                 |
 | Decremento tetti sotto l'uso                   | Ammesso (come il SQL attuale), avviso esplicito in UI                       |
 | Race tra update tetti e insert simultanei      | I trigger restano la fonte di verità; la UI aggiorna solo i numeri          |
-| Budget lazy superato                           | Misurare dopo il build; aumento motivato in ADR-0034 se serve               |
+| Budget iniziale superato                        | Misurato: 239,0 KB → limite alzato a 240 KB in ADR-0034                     |
 | Fuga di dati in console per non-admin          | Route riservata + RPC che rifiutano; E2E dedicato con utente B              |
 | `profiles` senza riga per l'admin al deploy    | SQL di deploy con `insert … on conflict do update`                          |
 

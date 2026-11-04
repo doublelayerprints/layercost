@@ -53,11 +53,15 @@ run('npm', ['run', 'build'], {
   VITE_SUPABASE_PUBLISHABLE_KEY: publishableKey,
 })
 
-console.log('E2E sync con Supabase locale...')
-run('npx', ['playwright', 'test', 'tests/e2e/sync.spec.ts', '--project=chromium'], {
-  ...process.env,
-  E2E_SYNC: '1',
-  SUPABASE_URL: url,
-  SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey,
-  SUPABASE_DB_URL: dbUrl,
-})
+console.log('E2E sync e admin con Supabase locale...')
+run(
+  'npx',
+  ['playwright', 'test', 'tests/e2e/sync.spec.ts', 'tests/e2e/admin.spec.ts', '--project=chromium'],
+  {
+    ...process.env,
+    E2E_SYNC: '1',
+    SUPABASE_URL: url,
+    SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey,
+    SUPABASE_DB_URL: dbUrl,
+  },
+)

@@ -1,4 +1,5 @@
 import { authIt } from './it/auth'
+import { adminIt } from './it/admin'
 import { calculatorIt } from './it/calculator'
 import { feedbackIt } from './it/feedback'
 import { landingIt } from './it/landing'
@@ -28,6 +29,8 @@ export const baseIt = {
   'nav.work': 'Lavoro',
   'nav.configuration': 'Configurazione',
   'nav.help': 'Aiuto',
+  'nav.administration': 'Amministrazione',
+  'nav.admin': 'Console admin',
   'nav.docs': 'Documentazione',
   'nav.feedback': 'Suggerimenti',
   'nav.overview': 'Panoramica',
@@ -133,6 +136,7 @@ export const it = {
   ...landingIt,
   ...feedbackIt,
   ...workspaceIt,
+  ...adminIt,
 } as const
 
 export type BaseMessageKey = keyof typeof baseIt

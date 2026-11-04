@@ -1,6 +1,6 @@
 # ADR-0034 — Console admin in-app per utenti, spazi e tetti
 
-**Stato:** Proposta (EVO-8, in pianificazione)
+**Stato:** Implementato il 4 novembre 2026 (EVO-8); distribuzione in produzione da completare con backup, migrazione e SQL del flag admin (runbook §17.2)
 **Data:** 4 novembre 2026
 **Relazione:** integra **ADR-0027** (tetti via SQL → aggiunta la via UI), **ADR-0028** (multi-workspace), **ADR-0031** (profili); non sostituisce nessun ADR
 
@@ -27,10 +27,10 @@ Dal 3 novembre 2026 il signup è aperto a tetto numerico (ADR-0027) e ogni spazi
 
 ## Conseguenze
 
-- Migrazione unica `20261104000000_admin_console.sql`: colonna `is_admin`, helper `is_app_admin()`, sei RPC con guardia e grant minimi a `authenticated`. Nessuna policy RLS nuova o modificata.
+- Migrazione unica `20261104000000_admin_console.sql`: colonna `is_admin`, helper `is_app_admin()`, sei RPC con guardia e grant minimi a `authenticated` (la sola scrittura è volatile, le letture `stable`). Nessuna policy RLS nuova o modificata.
 - SQL una-tantum al deploy (runbook) per impostare `is_admin = true` sull'account amministratore; rollback immediato con `is_admin = false` (la UI si nasconde da sola) oppure droppando le RPC.
 - Data layer: sei metodi su `CloudGateway`, tipi `AdminOverview`/`AdminUser`/`AdminWorkspace`, codici `not_admin`/`invalid_limit` mappati; nuovo store `admin-store` con factory iniettata.
-- UI: chunk lazy `features/admin/` (Panoramica, Utenti, Spazi con pannello membri ed editor tetti), area i18n `admin.*` IT/EN, axe 375/1440. Il bundle iniziale non cambia; il budget lazy va verificato dopo il build e alzato con motivazione se superato (precedenti: ADR-0026/0029/0031/0032).
+- UI: chunk lazy `features/admin/` (Panoramica, Utenti, Spazi con pannello membri ed editor tetti), area i18n `admin.*` IT/EN, axe 375/1440. Esito misurato: il bundle **iniziale** passa da 234,7 a **239,0 KB** gzip (le chiavi `admin.*` vivono nei dizionari eager e `admin-store` è agganciato al bootstrap della sessione per la sidebar) — limite alzato a **240 KB** con questa motivazione (precedenti: ADR-0026/0029/0031/0032); il chunk admin pesa **3,8 KB gzip** e il lazy resta **79,1/80 KB**.
 - Runbook §16.2: la UI diventa la via normale per i tetti; il SQL resta il fallback documentato.
 - Le RPC admin leggono `auth.users`/`auth.identities` in qualità di definer (già prassi per l'hook e le directory): nessuna grant nuova sullo schema auth.
 - Limiti noti: nessuna paginazione (scala ≤ 1000 utenti), nessun filtro data, nessun grafico — valutabili in un'evolutiva futura se la scala cresce.
