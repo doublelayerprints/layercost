@@ -29,14 +29,18 @@ jobs:
         run: |
           npx supabase start
           npx supabase db reset
-          status="$(npx supabase status -o env)"
-          strip() { printf '%s' "${1#*=}" | tr -d '"'; }
-          {
-            echo "SUPABASE_URL=$(strip <<< "$(grep '^API_URL=' <<< "$status")")"
-            echo "SUPABASE_PUBLISHABLE_KEY=$(strip <<< "$(grep '^PUBLISHABLE_KEY=' <<< "$status")")"
-            echo "SUPABASE_SERVICE_ROLE_KEY=$(strip <<< "$(grep '^SERVICE_ROLE_KEY=' <<< "$status")")"
-            echo "SUPABASE_DB_URL=$(strip <<< "$(grep '^DB_URL=' <<< "$status")")"
-          } >> "$GITHUB_ENV"
+          npx supabase status -o env | grep -E '^(API_URL|PUBLISHABLE_KEY|ANON_KEY|SERVICE_ROLE_KEY|DB_URL)=' | while IFS= read -r line; do
+            key="${line%%=*}"
+            value="${line#*=}"
+            value="${value%\"}"
+            value="${value#\"}"
+            case "$key" in
+              API_URL) echo "SUPABASE_URL=$value" ;;
+              PUBLISHABLE_KEY|ANON_KEY) echo "SUPABASE_PUBLISHABLE_KEY=$value" ;;
+              SERVICE_ROLE_KEY) echo "SUPABASE_SERVICE_ROLE_KEY=$value" ;;
+              DB_URL) echo "SUPABASE_DB_URL=$value" ;;
+            esac
+          done >> "$GITHUB_ENV"
       - name: Install psql
         run: |
           sudo apt-get update
