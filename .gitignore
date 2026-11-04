@@ -32,4 +32,4 @@ playwright-report
 *.sw?
 
 # Visual regression baselines are Linux-only (CI); local darwin snapshots stay out.
-tests/e2e/visual.spec.ts-snapshots/*-darwin.png
+tests/e2e/*.spec.ts-snapshots/*-darwin.png

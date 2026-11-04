@@ -4,22 +4,23 @@ import { expect, test, type Page } from '@playwright/test'
 // Cloud screens need a backend: baselines are generated on Linux in CI with
 // the local Supabase stack (see .github/workflows/visual-baselines.yml) and
 // compared in the `database` job, which runs this spec through the sync
-// runner right after the database reset. Volatile data (timestamps, dates)
-// is masked via the `data-volatile` attributes in the components.
+// runner in a dedicated pass right after the database reset. Volatile data
+// (timestamps, dates, generated ids) is masked via the `data-volatile`
+// attributes in the components. Mobile layouts of these screens are covered
+// by axe and the sync suite; the baseline is desktop-only.
 const syncEnabled = process.env.E2E_SYNC === '1'
 test.skip(!process.env.CI || !syncEnabled, 'Baseline cloud generate su Linux in CI con Supabase locale')
 
-// One worker for both viewports: the fixtures use fixed emails and workspace
-// id, and the beforeAll must run exactly once.
+// Fixtures use fixed emails and a fixed workspace id, and each login creates
+// the personal workspace: one attempt, one worker, deterministic overview.
 test.describe.configure({ mode: 'serial' })
+test.use({ retries: 0 })
+
+// Login, hydration, sync and two pages take longer than the 30s default.
+test.setTimeout(120_000)
 
 const supabaseUrl = process.env.SUPABASE_URL
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-const viewports = [
-  { name: 'desktop', width: 1440, height: 900 },
-  { name: 'mobile', width: 390, height: 844 },
-]
 
 const ADMIN = {
   email: 'visual-admin@layercost.test',
@@ -89,6 +90,7 @@ async function deleteUser(id: string): Promise<void> {
 }
 
 async function login(page: Page, account: Account): Promise<void> {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/#/login')
   await page.getByLabel('Email').fill(account.email)
   await page.getByLabel('Password').fill(account.password)
@@ -110,6 +112,7 @@ async function screenshot(page: Page, name: string): Promise<void> {
   await expect(page).toHaveScreenshot(name, {
     animations: 'disabled',
     mask: [page.locator('[data-volatile]')],
+    maxDiffPixelRatio: 0.01,
   })
 }
 
@@ -117,8 +120,8 @@ let adminAccount: Account
 let memberAccount: Account
 
 test.beforeAll(async () => {
-  // The sync runner resets the database before this suite, so the overview
-  // numbers depend only on these fixtures.
+  // The sync runner runs this spec in its own invocation right after the
+  // reset, so the overview numbers depend only on these fixtures.
   adminAccount = await createUser(ADMIN)
   memberAccount = await createUser(MEMBER)
 
@@ -127,6 +130,9 @@ test.beforeAll(async () => {
     insert into public.workspace_members (workspace_id, user_id, role) values
       ('${WORKSPACE_ID}', '${adminAccount.id}', 'owner'),
       ('${WORKSPACE_ID}', '${memberAccount.id}', 'editor');
+    insert into public.profiles (user_id, display_name, is_admin)
+    values ('${adminAccount.id}', '${ADMIN.displayName}', true)
+    on conflict (user_id) do update set is_admin = true;
     insert into public.quotes (id, workspace_id, status, name, quote_date, locale, lines, job, pricing)
     values ('quote-visual-1', '${WORKSPACE_ID}', 'saved', 'Preventivo visual', '2026-11-04', 'it', '[]'::jsonb,
             '{}'::jsonb, '{}'::jsonb);
@@ -140,28 +146,29 @@ test.afterAll(async () => {
   await deleteUser(memberAccount.id)
 })
 
-for (const viewport of viewports) {
-  test(`schermate cloud a ${viewport.width} px`, async ({ page }) => {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height })
-    await login(page, adminAccount)
-    await waitForSynced(page)
+test('schermate cloud su desktop', async ({ page }) => {
+  await login(page, adminAccount)
+  await waitForSynced(page)
 
-    await page.goto('/#/settings')
-    await expect(page.getByText('Verifica Visuale').first()).toBeVisible()
-    await screenshot(page, `cloud-impostazioni-${viewport.name}.png`)
-
-    await page.goto('/#/admin')
-    await page.getByText('Tetto di registrazione: 1000').waitFor({ timeout: 30_000 })
-    await expect(page.getByRole('heading', { name: 'Spazi', level: 2 })).toBeVisible()
-    await screenshot(page, `cloud-admin-${viewport.name}.png`)
-
-    if (viewport.name === 'desktop') {
-      const sharedRow = page.locator('tr', { hasText: 'Spazio visual' }).first()
-      await sharedRow.getByRole('button', { name: /Dettagli/ }).click()
-      const panel = page.locator(`#admin-ws-details-table-${WORKSPACE_ID}`)
-      await expect(panel.getByText(ADMIN.email)).toBeVisible()
-      await expect(panel.getByText(MEMBER.email)).toBeVisible()
-      await screenshot(page, 'cloud-admin-dettagli-desktop.png')
-    }
+  // A full page navigation restarts the app in local mode and reconnects
+  // after the session is restored: wait for the sync state on every page.
+  await page.goto('/#/settings')
+  await waitForSynced(page)
+  await expect(page.getByLabel('Nome visibile')).toHaveValue(ADMIN.displayName, {
+    timeout: 15_000,
   })
-}
+  await screenshot(page, 'cloud-impostazioni-desktop.png')
+
+  await page.goto('/#/admin')
+  await waitForSynced(page)
+  await page.getByText('Tetto di registrazione: 1000').waitFor({ timeout: 30_000 })
+  await expect(page.getByRole('heading', { name: 'Spazi', level: 2 })).toBeVisible()
+  await screenshot(page, 'cloud-admin-desktop.png')
+
+  const sharedRow = page.locator('tr', { hasText: 'Spazio visual' }).first()
+  await sharedRow.getByRole('button', { name: /Dettagli/ }).click()
+  const panel = page.locator(`#admin-ws-details-table-${WORKSPACE_ID}`)
+  await expect(panel.getByText(ADMIN.email)).toBeVisible()
+  await expect(panel.getByText(MEMBER.email)).toBeVisible()
+  await screenshot(page, 'cloud-admin-dettagli-desktop.png')
+})

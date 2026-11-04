@@ -179,7 +179,9 @@ function WorkspacesTable({ workspaces, openId, onToggle }: ListProps) {
                     <span className="text-sm font-medium text-ink">{workspace.name}</span>
                     <KindBadge kind={workspace.kind} />
                   </div>
-                  <p className="mt-0.5 font-mono text-xs text-muted">{workspace.id}</p>
+                  <p className="mt-0.5 font-mono text-xs text-muted" data-volatile>
+                    {workspace.id}
+                  </p>
                 </th>
                 <td className="py-3 pr-4 text-right tabular-nums">
                   <UsageValue used={workspace.members} max={workspace.maxMembers} />
@@ -231,7 +233,9 @@ function WorkspaceCards({ workspaces, openId, onToggle }: ListProps) {
               <p className="text-sm font-medium text-ink">{workspace.name}</p>
               <KindBadge kind={workspace.kind} />
             </div>
-            <p className="mt-0.5 font-mono text-xs text-muted">{workspace.id}</p>
+            <p className="mt-0.5 font-mono text-xs text-muted" data-volatile>
+              {workspace.id}
+            </p>
             <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
               <div className="flex justify-between gap-3">
                 <dt className="text-muted">{t('admin.workspaces.membersTitle')}</dt>
