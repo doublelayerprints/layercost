@@ -9,6 +9,10 @@ import { expect, test, type Page } from '@playwright/test'
 const syncEnabled = process.env.E2E_SYNC === '1'
 test.skip(!process.env.CI || !syncEnabled, 'Baseline cloud generate su Linux in CI con Supabase locale')
 
+// One worker for both viewports: the fixtures use fixed emails and workspace
+// id, and the beforeAll must run exactly once.
+test.describe.configure({ mode: 'serial' })
+
 const supabaseUrl = process.env.SUPABASE_URL
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
