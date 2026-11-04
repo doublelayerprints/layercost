@@ -1,6 +1,6 @@
 # EVO-8 — Console admin: utenti, spazi e tetti
 
-**Stato:** implementata il 4 novembre 2026; resta la distribuzione di produzione (backup → migrazione → SQL `is_admin` → smoke, runbook §17.2)
+**Stato:** implementata, distribuita e attiva in produzione il 4 novembre 2026 (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni §8 chiuse lo stesso giorno, esiti nel runbook §17.2)
 **Data:** 4 novembre 2026
 **ADR:** `docs/adr/0034-admin-console.md`
 **Runbook:** `docs/engineering/workspace-runbook.md` (§16 tetti, offboarding §6.6)

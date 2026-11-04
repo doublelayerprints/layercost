@@ -1,6 +1,6 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata il 04/11/2026**, distribuzione da completare (runbook §17.2); CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata, distribuita e attiva in produzione il 04/11/2026** (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni chiuse, runbook §17.2); CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 2 novembre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
@@ -1388,7 +1388,7 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## EVO-8 — Console admin: utenti, spazi e tetti
 
-**Stato:** `[x]` — implementata il 04/11/2026 secondo la spec `docs/planning/evo-8-admin-console.md`; resta la distribuzione di produzione (backup → migrazione → SQL `is_admin` per l'account admin → smoke, runbook §17.2)
+**Stato:** `[x]` — implementata, distribuita e attiva in produzione il 04/11/2026 (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; backup verificato, migrazione applicata, flag `is_admin` impostato, smoke e verifica reale della console con account temporaneo verdi, runbook §17.2)
 **Dipende da:** EVO-2 (tetti e `workspace_limits`), EVO-4 (multi-workspace), EVO-7 (profili)
 **ADR:** 0034
 
@@ -1403,4 +1403,4 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 
 ## Prossimi task
 
-**EVO-8 — Console admin** è implementata (`[x]`, vedi sopra); restano le operazioni di produzione: backup verificato → migrazione `20261104000000_admin_console.sql` → SQL `is_admin = true` per l'account admin → deploy → smoke (runbook §17.2). Il backlog pianificato è vuoto: EVO-1→8 chiuse, EVO-3b assorbita, EVO-2 chiusa il 03/11/2026 con le operazioni post-deploy. Follow-up opzionali: baseline visual cloud/docs/feedback/admin, stampa fisica, NVDA.
+**EVO-8 — Console admin** è chiusa al completo: implementata, distribuita e attiva in produzione il 04/11/2026 con le operazioni post-deploy (backup verificato → migrazione → SQL `is_admin` sul profilo `Tancredi` → deploy `index-D6ixFw48.js` → smoke e verifica reale con account temporaneo, runbook §17.2). Il backlog pianificato è vuoto: EVO-1→8 chiuse, EVO-3b assorbita, EVO-2 chiusa il 03/11/2026. Follow-up opzionali: baseline visual cloud/docs/feedback/admin, stampa fisica, NVDA.

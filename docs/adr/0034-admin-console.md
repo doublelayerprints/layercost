@@ -1,6 +1,6 @@
 # ADR-0034 — Console admin in-app per utenti, spazi e tetti
 
-**Stato:** Implementato il 4 novembre 2026 (EVO-8); distribuzione in produzione da completare con backup, migrazione e SQL del flag admin (runbook §17.2)
+**Stato:** Implementato il 4 novembre 2026 (EVO-8); distribuito e attivo in produzione lo stesso giorno (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; backup verificato, migrazione applicata, flag admin impostato, smoke e verifica reale verdi, runbook §17.2)
 **Data:** 4 novembre 2026
 **Relazione:** integra **ADR-0027** (tetti via SQL → aggiunta la via UI), **ADR-0028** (multi-workspace), **ADR-0031** (profili); non sostituisce nessun ADR
 

@@ -574,6 +574,8 @@ Dal 4 novembre 2026 l'app ha una console di amministrazione su `/#/admin`, visib
 
 ### 17.2 Attivazione (una-tantum, dopo il deploy della migrazione)
 
+**Esito (04/11/2026):** workflow `Supabase backup` eseguito con successo in 47s, artifact `supabase-backup-41813531489` scaricato e verificato (checksum SHA-256 OK, decifratura AES-256 OK, `pg_restore --list` con le 11 tabelle public incluse `profiles`/`workspace_limits` e `users`/`identities`); migrazione `20261104000000_admin_console.sql` applicata con `supabase db push` (dry-run prima: solo la nuova migrazione in coda); flag impostato via SQL editor sul profilo `Tancredi` (un solo admin, `is_admin = true`); PR #63 mergiata con squash `8cfe37c` dopo CI verde (check + database + e2e); produzione aggiornata a `index-D6ixFw48.js` / `index-DMAw7o4c.css`; `npm run smoke:production` verde; verifica reale della console con account temporaneo flaggato via SQL (voce Amministrazione in sidebar, overview 3 utenti/tetto 1000, lista utenti con provider Email+Google, spazi con uso vs tetti e `ws-doublelayer` a 2/20 e 4/500, screenshot salvato), cleanup completo (utente, profilo e spazio temporanei rimossi; residui 0).
+
 1. Backup di produzione verificato (checksum + `pg_restore --list`).
 2. Applicare `supabase/migrations/20261104000000_admin_console.sql` con `supabase db push`.
 3. Impostare il flag con lo SQL editor (UUID mai nel repository; la riga profilo esiste già per gli account EVO-7, l'`on conflict` copre anche i profili mancanti):
