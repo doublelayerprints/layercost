@@ -146,10 +146,10 @@ function UsersTable({ users }: { users: AdminUser[] }) {
             <td className="py-3 pr-4 text-right tabular-nums text-ink">
               {user.workspaceCount}
             </td>
-            <td className="py-3 pr-4 text-right tabular-nums text-muted">
+            <td className="py-3 pr-4 text-right tabular-nums text-muted" data-volatile>
               {format.instantDate(user.createdAt)}
             </td>
-            <td className="py-3 pr-4 text-right tabular-nums text-muted">
+            <td className="py-3 pr-4 text-right tabular-nums text-muted" data-volatile>
               {user.lastSignInAt ? format.instantDate(user.lastSignInAt) : t('admin.users.never')}
             </td>
           </tr>
@@ -180,13 +180,13 @@ function UserCards({ users }: { users: AdminUser[] }) {
               <dt className="text-muted">{t('admin.users.workspaces')}</dt>
               <dd className="tabular-nums text-ink">{user.workspaceCount}</dd>
             </div>
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-3" data-volatile>
               <dt className="text-muted">{t('admin.users.lastSignIn')}</dt>
               <dd className="tabular-nums text-muted">
                 {user.lastSignInAt ? format.instantDate(user.lastSignInAt) : t('admin.users.never')}
               </dd>
             </div>
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-3" data-volatile>
               <dt className="text-muted">{t('admin.users.createdAt')}</dt>
               <dd className="tabular-nums text-muted">{format.instantDate(user.createdAt)}</dd>
             </div>

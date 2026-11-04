@@ -94,6 +94,15 @@ for (const viewport of viewports) {
 
     await page.goto('/#/settings')
     await screenshot(page, `${viewport.name}-impostazioni.png`)
+
+    await page.goto('/#/login')
+    await screenshot(page, `${viewport.name}-login.png`)
+
+    await page.goto('/#/docs/primi-passi')
+    await screenshot(page, `${viewport.name}-docs.png`)
+
+    await page.goto('/#/feedback')
+    await screenshot(page, `${viewport.name}-feedback.png`)
   })
 
   test(`regressione visiva inglese a ${viewport.width} px`, async ({ page }) => {
@@ -124,6 +133,15 @@ for (const viewport of viewports) {
 
     await page.goto('/#/settings')
     await screenshot(page, `en-${viewport.name}-impostazioni.png`)
+
+    await page.goto('/#/login')
+    await screenshot(page, `en-${viewport.name}-login.png`)
+
+    await page.goto('/#/docs/primi-passi')
+    await screenshot(page, `en-${viewport.name}-docs.png`)
+
+    await page.goto('/#/feedback')
+    await screenshot(page, `en-${viewport.name}-feedback.png`)
   })
 
   test(`landing a ${viewport.width} px`, async ({ page }) => {

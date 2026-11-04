@@ -14,13 +14,56 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run build
-      - run: npx playwright test tests/e2e/visual.spec.ts --update-snapshots
+      # The default E2E suite builds with the public Formspree test endpoint
+      # (scripts/test-e2e.mjs), so the baselines must come from the same build
+      # or the suggestions form would render a different state.
+      - name: Build with feedback test endpoint
+        run: npm run build
+        env:
+          VITE_FEEDBACK_ENDPOINT: https://formspree.io/f/layercost-feedback-e2e
+      - name: Standard visual baselines
+        run: npx playwright test tests/e2e/visual.spec.ts --update-snapshots
         env:
           CI: true
+      - name: Start local Supabase
+        run: |
+          npx supabase start
+          npx supabase db reset
+          status="$(npx supabase status -o env)"
+          strip() { printf '%s' "${1#*=}" | tr -d '"'; }
+          {
+            echo "SUPABASE_URL=$(strip <<< "$(grep '^API_URL=' <<< "$status")")"
+            echo "SUPABASE_PUBLISHABLE_KEY=$(strip <<< "$(grep '^PUBLISHABLE_KEY=' <<< "$status")")"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$(strip <<< "$(grep '^SERVICE_ROLE_KEY=' <<< "$status")")"
+            echo "SUPABASE_DB_URL=$(strip <<< "$(grep '^DB_URL=' <<< "$status")")"
+          } >> "$GITHUB_ENV"
+      - name: Install psql
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Build with local Supabase
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ env.SUPABASE_PUBLISHABLE_KEY }}
+          VITE_FEEDBACK_ENDPOINT: https://formspree.io/f/layercost-feedback-e2e
+      - name: Cloud visual baselines
+        run: npx playwright test tests/e2e/visual-cloud.spec.ts --update-snapshots
+        env:
+          CI: true
+          E2E_SYNC: '1'
+          SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_DB_URL: ${{ env.SUPABASE_DB_URL }}
       - uses: actions/upload-artifact@v4
         with:
           name: visual-baselines
           path: tests/e2e/visual.spec.ts-snapshots/
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-cloud-baselines
+          path: tests/e2e/visual-cloud.spec.ts-snapshots/
           retention-days: 7
           if-no-files-found: error

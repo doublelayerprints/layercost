@@ -56,7 +56,16 @@ run('npm', ['run', 'build'], {
 console.log('E2E sync e admin con Supabase locale...')
 run(
   'npx',
-  ['playwright', 'test', 'tests/e2e/sync.spec.ts', 'tests/e2e/admin.spec.ts', '--project=chromium'],
+  [
+    'playwright',
+    'test',
+    // visual-cloud runs first: right after the reset the database contains
+    // only its fixtures, so the admin overview numbers are deterministic.
+    'tests/e2e/visual-cloud.spec.ts',
+    'tests/e2e/sync.spec.ts',
+    'tests/e2e/admin.spec.ts',
+    '--project=chromium',
+  ],
   {
     ...process.env,
     E2E_SYNC: '1',
