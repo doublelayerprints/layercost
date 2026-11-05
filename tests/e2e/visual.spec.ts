@@ -98,7 +98,7 @@ for (const viewport of viewports) {
     await page.goto('/#/login')
     // The plain build has no Supabase env: the login page shows the
     // unconfigured state instead of the form.
-    await expect(page.getByText('Cloud non configurato')).toBeVisible()
+    await expect(page.getByText('Cloud non configurato').first()).toBeVisible()
     await screenshot(page, `${viewport.name}-login.png`)
 
     await page.goto('/#/docs/primi-passi')
@@ -142,7 +142,7 @@ for (const viewport of viewports) {
     await page.goto('/#/login')
     // The plain build has no Supabase env: the login page shows the
     // unconfigured state instead of the form.
-    await expect(page.getByText('Cloud not configured')).toBeVisible()
+    await expect(page.getByText('Cloud not configured').first()).toBeVisible()
     await screenshot(page, `en-${viewport.name}-login.png`)
 
     await page.goto('/#/docs/primi-passi')
