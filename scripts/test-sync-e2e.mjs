@@ -54,6 +54,17 @@ run('npm', ['run', 'build'], {
 })
 
 console.log('E2E sync e admin con Supabase locale...')
+// The cloud visual baselines run in a dedicated invocation right after the
+// reset: the database contains only their fixtures, so the admin overview
+// numbers are deterministic. Playwright would otherwise interleave the files.
+run('npx', ['playwright', 'test', 'tests/e2e/visual-cloud.spec.ts', '--project=chromium'], {
+  ...process.env,
+  E2E_SYNC: '1',
+  SUPABASE_URL: url,
+  SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey,
+  SUPABASE_DB_URL: dbUrl,
+})
+
 run(
   'npx',
   ['playwright', 'test', 'tests/e2e/sync.spec.ts', 'tests/e2e/admin.spec.ts', '--project=chromium'],

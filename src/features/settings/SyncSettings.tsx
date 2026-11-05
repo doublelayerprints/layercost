@@ -149,7 +149,9 @@ export function SyncSettings() {
                 </div>
                 <div>
                   <dt className="text-xs font-medium text-muted">{t('sync.lastSync')}</dt>
-                  <dd className="mt-0.5 text-ink">{lastSync}</dd>
+                  <dd className="mt-0.5 text-ink" data-volatile>
+                    {lastSync}
+                  </dd>
                 </div>
               </dl>
 

@@ -179,7 +179,9 @@ function WorkspacesTable({ workspaces, openId, onToggle }: ListProps) {
                     <span className="text-sm font-medium text-ink">{workspace.name}</span>
                     <KindBadge kind={workspace.kind} />
                   </div>
-                  <p className="mt-0.5 font-mono text-xs text-muted">{workspace.id}</p>
+                  <p className="mt-0.5 font-mono text-xs text-muted" data-volatile>
+                    {workspace.id}
+                  </p>
                 </th>
                 <td className="py-3 pr-4 text-right tabular-nums">
                   <UsageValue used={workspace.members} max={workspace.maxMembers} />
@@ -187,7 +189,7 @@ function WorkspacesTable({ workspaces, openId, onToggle }: ListProps) {
                 <td className="py-3 pr-4 text-right tabular-nums">
                   <UsageValue used={workspace.quotes} max={workspace.maxQuotes} />
                 </td>
-                <td className="py-3 pr-4 text-right tabular-nums text-muted">
+                <td className="py-3 pr-4 text-right tabular-nums text-muted" data-volatile>
                   {format.instantDate(workspace.createdAt)}
                 </td>
                 <td className="py-3 pr-4 text-right">
@@ -231,7 +233,9 @@ function WorkspaceCards({ workspaces, openId, onToggle }: ListProps) {
               <p className="text-sm font-medium text-ink">{workspace.name}</p>
               <KindBadge kind={workspace.kind} />
             </div>
-            <p className="mt-0.5 font-mono text-xs text-muted">{workspace.id}</p>
+            <p className="mt-0.5 font-mono text-xs text-muted" data-volatile>
+              {workspace.id}
+            </p>
             <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
               <div className="flex justify-between gap-3">
                 <dt className="text-muted">{t('admin.workspaces.membersTitle')}</dt>
@@ -245,7 +249,7 @@ function WorkspaceCards({ workspaces, openId, onToggle }: ListProps) {
                   <UsageValue used={workspace.quotes} max={workspace.maxQuotes} />
                 </dd>
               </div>
-              <div className="flex justify-between gap-3">
+              <div className="flex justify-between gap-3" data-volatile>
                 <dt className="text-muted">{t('admin.workspaces.createdAt')}</dt>
                 <dd className="tabular-nums text-muted">
                   {format.instantDate(workspace.createdAt)}
@@ -330,7 +334,7 @@ function MembersList({ workspaceId }: { workspaceId: string }) {
                     ? t('workspace.roleOwner')
                     : t('workspace.roleEditor')}
                 </Badge>
-                <span>
+                <span data-volatile>
                   {t('admin.workspaces.memberJoined')} {format.instantDate(member.joinedAt)}
                 </span>
               </span>

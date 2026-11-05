@@ -198,7 +198,7 @@ function WorkspaceSettingsSection({ workspace }: { workspace: WorkspaceSummary }
                         : t('workspace.roleEditor')}
                     </span>
                   </span>
-                  <span className="text-xs text-muted">
+                  <span className="text-xs text-muted" data-volatile>
                     {t('workspace.memberSince', {
                       date: formatDate(locale, member.joinedAt),
                     })}
