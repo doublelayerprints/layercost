@@ -46,4 +46,10 @@ vengono mai rinominati.
 
 - E2E in `landing.spec.ts`: con preferenza `en` la pagina Extra mostra «Zip bag»,
   «Box», «Shipping» e non «Sacchetto zip».
-- `npm run check` verde; PR, merge e verifica a seguire (§4.3).
+- `npm run check` verde.
+- **PR #67 (05/11/2026)**: primo run `e2e` rosso per le 3 baseline `en-materiali`
+  cambiate legittimamente (il seed inglese mostra «Generic»); rigenerate con il
+  workflow Visual baselines sul branch (le altre 60 sono byte-identiche), secondo
+  run tutto verde. Mergiata con squash `0be2ff9`, build di produzione
+  `index-BUyuaNKz.js` / `index-DMAw7o4c.css`. La verifica di produzione è
+  client-side (boot con preferenza `en` o pagina `/en/`) e resta coperta dall'E2E.

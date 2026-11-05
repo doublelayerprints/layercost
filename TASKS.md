@@ -1424,12 +1424,13 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - [x] **T10.3 test**: `src/data/seed.test.ts` (6 test: IT invariato, valori identici tra lingue, EN localizzato, ID stabili, `createInitialData` onora la lingua); 317→323 unitari.
 - [x] **T10.4 E2E**: sessione `en` → pagina Extra mostra «Zip bag»/«Shipping» e non «Sacchetto zip»; 95→96 E2E (71 passati in locale).
 - [x] **T10.5 docs**: ADR-0036, piano, testing, data-model, i18n inventory, architecture, TASKS, STATUS, CHANGELOG.
+- [x] **T10.6 merge e CI**: PR #67 (squash `0be2ff9`, build `index-BUyuaNKz.js`); primo run `e2e` rosso per le baseline `en-materiali` cambiate legittimamente dal seed inglese («Generic» al posto di «Generico») → workflow Visual baselines sul branch, 3 PNG committati, secondo run tutto verde; altre 60 baseline byte-identiche.
 
 ## Prossimi task
 
 **Storia recente:** EVO-8 console admin (ADR-0034, PR #63, `8cfe37c`, live in produzione), follow-up baseline visual cloud/login/docs/feedback (PR #64, `596456c`) e CLI Supabase v3.0.0 (PR #65, `caea2c3`) sono chiusi; il registro completo resta in `STATUS.md`.
 
-**EVO-9 — Indicizzazione inglese della landing** è chiusa il 05/11/2026 (ADR-0035, PR #66 squash `4db1acd`, build `index-DQLqfdfo.js`): pagina `en/index.html` pre-renderizzata con testa inglese (canonical `/en/`, hreflang a tre vie, OG/Twitter/JSON-LD EN, `og-image-en.jpg`), boot inglese dal path (l'URL vince sulla preferenza salvata), capture bilingue con `public/landing/en/`, sitemap con alternate `xhtml:link`, budget `HTML EN` a 10 KB. **Produzione verificata dopo il merge**: `/en/` 200 con lang/canonical/hreflang/JSON-LD corretti, asset EN 200, sitemap live, root italiana invariata. Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS, sync o seed. **Nota del follow-up:** i seed localizzati erano la nota conservata da EVO-9 e sono chiusi con EVO-10 (ADR-0036, stesso giorno).
+**EVO-9 — Indicizzazione inglese della landing** è chiusa il 05/11/2026 (ADR-0035, PR #66 squash `4db1acd`, build `index-DQLqfdfo.js`): pagina `en/index.html` pre-renderizzata con testa inglese (canonical `/en/`, hreflang a tre vie, OG/Twitter/JSON-LD EN, `og-image-en.jpg`), boot inglese dal path (l'URL vince sulla preferenza salvata), capture bilingue con `public/landing/en/`, sitemap con alternate `xhtml:link`, budget `HTML EN` a 10 KB. **Produzione verificata dopo il merge**: `/en/` 200 con lang/canonical/hreflang/JSON-LD corretti, asset EN 200, sitemap live, root italiana invariata. Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS, sync o seed. **Nota del follow-up:** i seed localizzati erano la nota conservata da EVO-9 e sono chiusi con EVO-10 (ADR-0036, stesso giorno, PR #67 `0be2ff9`).
 
 **Residuo della roadmap:**
 - Verifiche manuali: prova su stampante fisica, NVDA su Windows (Safari/VoiceOver già provati il 02/11/2026).
