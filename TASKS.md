@@ -1,6 +1,6 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata, distribuita e attiva in produzione il 04/11/2026** (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni chiuse, runbook §17.2); **EVO-9 landing inglese `/en` chiusa il 05/11/2026** (ADR-0035: `/en/` pre-renderizzata con hreflang, boot inglese dal path, budget HTML EN, sitemap alternati); CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata, distribuita e attiva in produzione il 04/11/2026** (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni chiuse, runbook §17.2); **EVO-9 landing inglese `/en` chiusa il 05/11/2026** (ADR-0035: `/en/` pre-renderizzata con hreflang, boot inglese dal path, budget HTML EN, sitemap alternati); **EVO-10 seed localizzati chiusi il 05/11/2026** (ADR-0036: tariffe, stampanti, materiali ed extra nascono nella lingua della sessione, ID e valori identici); CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 2 novembre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
@@ -1415,12 +1415,22 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - [x] **T9.8 verifiche**: +10 unitari (golden EN + separazione IT/EN, mapping testa e sync copia, `initialLocale`), 307→317 unitari totali e +2 E2E `/en/` (meta, hreflang, boot inglese, CTA, storage intatto); 70 e2e locali verdi, `npm run check` verde.
 - [x] **T9.9 docs**: ADR-0035, piano, README, deployment, testing, i18n inventory, architecture, TASKS, STATUS.
 
+## EVO-10 — Seed localizzati
+
+**Data:** 05/11/2026 · **ADR:** 0036 · **Piano:** `docs/planning/evo-10-localized-seeds.md`
+
+- [x] **T10.1 copy IT/EN in `seed.ts`**: `SEED_COPY` (tariffa, note stampanti e profili potenza, note materiali, fornitore, nomi e categorie extra); `createSeedConfig(locale = 'it')`; ID e valori economici identici; `seedIds` letterale; export `seedSettings` rimosso (nessun utilizzatore).
+- [x] **T10.2 lingua di sessione**: `createInitialData(locale = loadLocalePreference())` in `storage.ts`; `app-store` costruisce `initialData` con `loadLocalePreference()` (path `/en/` o preferenza salvata); il sync dei nuovi spazi personali eredita il default.
+- [x] **T10.3 test**: `src/data/seed.test.ts` (6 test: IT invariato, valori identici tra lingue, EN localizzato, ID stabili, `createInitialData` onora la lingua); 317→323 unitari.
+- [x] **T10.4 E2E**: sessione `en` → pagina Extra mostra «Zip bag»/«Shipping» e non «Sacchetto zip»; 95→96 E2E (71 passati in locale).
+- [x] **T10.5 docs**: ADR-0036, piano, testing, data-model, i18n inventory, architecture, TASKS, STATUS, CHANGELOG.
+
 ## Prossimi task
 
 **Storia recente:** EVO-8 console admin (ADR-0034, PR #63, `8cfe37c`, live in produzione), follow-up baseline visual cloud/login/docs/feedback (PR #64, `596456c`) e CLI Supabase v3.0.0 (PR #65, `caea2c3`) sono chiusi; il registro completo resta in `STATUS.md`.
 
-**EVO-9 — Indicizzazione inglese della landing** è chiusa il 05/11/2026 (ADR-0035, PR #66 squash `4db1acd`, build `index-DQLqfdfo.js`): pagina `en/index.html` pre-renderizzata con testa inglese (canonical `/en/`, hreflang a tre vie, OG/Twitter/JSON-LD EN, `og-image-en.jpg`), boot inglese dal path (l'URL vince sulla preferenza salvata), capture bilingue con `public/landing/en/`, sitemap con alternate `xhtml:link`, budget `HTML EN` a 10 KB. **Produzione verificata dopo il merge**: `/en/` 200 con lang/canonical/hreflang/JSON-LD corretti, asset EN 200, sitemap live, root italiana invariata. Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS, sync o seed. Nota conservata per il futuro: le etichette extra di seed sono nomi-dati in italiano anche in sessione inglese (es. «Sacchetto zip»).
+**EVO-9 — Indicizzazione inglese della landing** è chiusa il 05/11/2026 (ADR-0035, PR #66 squash `4db1acd`, build `index-DQLqfdfo.js`): pagina `en/index.html` pre-renderizzata con testa inglese (canonical `/en/`, hreflang a tre vie, OG/Twitter/JSON-LD EN, `og-image-en.jpg`), boot inglese dal path (l'URL vince sulla preferenza salvata), capture bilingue con `public/landing/en/`, sitemap con alternate `xhtml:link`, budget `HTML EN` a 10 KB. **Produzione verificata dopo il merge**: `/en/` 200 con lang/canonical/hreflang/JSON-LD corretti, asset EN 200, sitemap live, root italiana invariata. Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS, sync o seed. **Nota del follow-up:** i seed localizzati erano la nota conservata da EVO-9 e sono chiusi con EVO-10 (ADR-0036, stesso giorno).
 
 **Residuo della roadmap:**
 - Verifiche manuali: prova su stampante fisica, NVDA su Windows (Safari/VoiceOver già provati il 02/11/2026).
-- Evolutive candidate: reset password self-service via SMTP gratuito (EVO-10), dominio personalizzato solo se l'apertura lo richiede, fixture Bambu committabile con autorizzazione del modello, seed localizzati.
+- Evolutive candidate: reset password self-service via SMTP gratuito (EVO-11), dominio personalizzato solo se l'apertura lo richiede, fixture Bambu committabile con autorizzazione del modello.
