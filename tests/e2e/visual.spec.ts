@@ -96,7 +96,9 @@ for (const viewport of viewports) {
     await screenshot(page, `${viewport.name}-impostazioni.png`)
 
     await page.goto('/#/login')
-    await expect(page.getByRole('button', { name: 'Accedi' })).toBeVisible()
+    // The plain build has no Supabase env: the login page shows the
+    // unconfigured state instead of the form.
+    await expect(page.getByText('Cloud non configurato')).toBeVisible()
     await screenshot(page, `${viewport.name}-login.png`)
 
     await page.goto('/#/docs/primi-passi')
@@ -138,7 +140,9 @@ for (const viewport of viewports) {
     await screenshot(page, `en-${viewport.name}-impostazioni.png`)
 
     await page.goto('/#/login')
-    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible()
+    // The plain build has no Supabase env: the login page shows the
+    // unconfigured state instead of the form.
+    await expect(page.getByText('Cloud not configured')).toBeVisible()
     await screenshot(page, `en-${viewport.name}-login.png`)
 
     await page.goto('/#/docs/primi-passi')
