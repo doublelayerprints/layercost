@@ -96,12 +96,15 @@ for (const viewport of viewports) {
     await screenshot(page, `${viewport.name}-impostazioni.png`)
 
     await page.goto('/#/login')
+    await expect(page.getByRole('button', { name: 'Accedi' })).toBeVisible()
     await screenshot(page, `${viewport.name}-login.png`)
 
     await page.goto('/#/docs/primi-passi')
+    await expect(page.getByRole('heading', { name: 'Primi passi', level: 1 })).toBeVisible()
     await screenshot(page, `${viewport.name}-docs.png`)
 
     await page.goto('/#/feedback')
+    await expect(page.getByRole('heading', { name: 'Suggerimenti', level: 1 })).toBeVisible()
     await screenshot(page, `${viewport.name}-feedback.png`)
   })
 
@@ -135,12 +138,15 @@ for (const viewport of viewports) {
     await screenshot(page, `en-${viewport.name}-impostazioni.png`)
 
     await page.goto('/#/login')
+    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible()
     await screenshot(page, `en-${viewport.name}-login.png`)
 
     await page.goto('/#/docs/primi-passi')
+    await expect(page.getByRole('heading', { name: 'Getting started', level: 1 })).toBeVisible()
     await screenshot(page, `en-${viewport.name}-docs.png`)
 
     await page.goto('/#/feedback')
+    await expect(page.getByRole('heading', { name: 'Suggestions', level: 1 })).toBeVisible()
     await screenshot(page, `en-${viewport.name}-feedback.png`)
   })
 
