@@ -2,6 +2,7 @@ import { buttonClassName } from '../../components/button-styles'
 import { ENGINE_VERSION } from '../../domain/version'
 import { translate } from '../../i18n'
 import type { MessageKey } from '../../i18n/it'
+import type { Locale } from '../../i18n'
 import { displayCents, formatCents, formatCurrency } from '../../lib/format'
 import {
   LANDING_FAQS,
@@ -11,7 +12,7 @@ import {
 } from './content'
 import { PREVIEW_DEFAULTS, calculatePreview } from './preview'
 
-const t = (key: MessageKey): string => translate('it', key)
+type Translate = (key: MessageKey) => string
 
 function escapeHtml(value: string): string {
   return value
@@ -41,7 +42,16 @@ function caption(text: string): string {
   return `<figcaption class="mt-3 text-[13px] leading-relaxed text-muted">${escapeHtml(text)}</figcaption>`
 }
 
-function featureTable(): string {
+/**
+ * The public screenshots live in `public/landing/<locale>/`; the Italian page
+ * keeps the legacy `public/landing/` paths. `assetBase` solves the depth of
+ * the built page: `''` for `/index.html`, `'../'` for `/en/index.html`.
+ */
+function imgSrc(locale: Locale, assetBase: string, name: string): string {
+  return `${assetBase}landing${locale === 'it' ? '' : '/en'}/${name}`
+}
+
+function featureTable(t: Translate): string {
   const rows = LANDING_FEATURES.map((feature, index) => {
     const rowClass = index % 2 === 0 ? 'bg-surface' : 'bg-raised'
     return `<tr class="${rowClass}">
@@ -75,16 +85,16 @@ function featureTable(): string {
   </div>`
 }
 
-function staticDemo(): string {
+function staticDemo(locale: Locale, t: Translate): string {
   const result = calculatePreview(PREVIEW_DEFAULTS.grams, PREVIEW_DEFAULTS.hours)
   const priceCents = result?.netPriceCents ?? 0
   const costCents = result ? displayCents(result.totalCost) : 0
   const total = Math.max(priceCents, 1)
   const costPercent = Math.min(100, Math.max(0, (costCents / total) * 100))
   const gainPercent = Math.max(0, 100 - costPercent)
-  const price = result ? formatCents(result.netPriceCents) : '—'
-  const cost = result ? formatCurrency(result.totalCost) : '—'
-  const gain = result ? formatCurrency(result.gainMicro) : '—'
+  const price = result ? formatCents(result.netPriceCents, 2, locale) : '—'
+  const cost = result ? formatCurrency(result.totalCost, 2, locale) : '—'
+  const gain = result ? formatCurrency(result.gainMicro, 2, locale) : '—'
 
   return `<div data-ui class="rounded-card border border-line bg-surface p-5 sm:p-6">
     <h3 class="landing-h3 text-ink">${escapeHtml(t('landing.demo.title'))}</h3>
@@ -122,7 +132,7 @@ function staticDemo(): string {
   </div>`
 }
 
-function faqList(): string {
+function faqList(t: Translate): string {
   return LANDING_FAQS.map(
     (faq) => `<details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
       <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
@@ -135,11 +145,16 @@ function faqList(): string {
 }
 
 /**
- * The Italian landing rendered into `#root` at build time. Crawlers and a
+ * The public landing rendered into `#root` at build time. Crawlers and a
  * visitor without JavaScript get the complete public page; React replaces it
- * on the first client render. This function is pure and never touches storage.
+ * on the first client render. This function is pure and never touches storage:
+ * `locale = 'it'` with `assetBase = ''` produces the `landing-static.html`
+ * golden byte-for-byte, `locale = 'en'` with `assetBase = '../'` produces the
+ * golden used by `/en/`.
  */
-export function renderStaticLanding(): string {
+export function renderStaticLanding(locale: Locale = 'it', assetBase = ''): string {
+  const t: Translate = (key) => translate(locale, key)
+  const img = (name: string): string => imgSrc(locale, assetBase, name)
   return `<div class="bg-ground text-ink">
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-surface focus:px-3 focus:py-2 focus:text-base focus:text-ink">${escapeHtml(t('nav.skipToContent'))}</a>
     <header class="sticky top-0 z-40 bg-ground">
@@ -173,7 +188,7 @@ export function renderStaticLanding(): string {
           <div class="lg:col-span-7">
             <figure>
               <div class="overflow-hidden rounded-card bg-ground">
-                <img src="landing/calculator.jpg" width="1440" height="1000" alt="${attr(t('landing.hero.imageAlt'))}" fetchpriority="high" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain">
+                <img src="${attr(img('calculator.jpg'))}" width="1440" height="1000" alt="${attr(t('landing.hero.imageAlt'))}" fetchpriority="high" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain">
               </div>
               ${caption(t('landing.hero.imageCaption'))}
             </figure>
@@ -188,7 +203,7 @@ export function renderStaticLanding(): string {
               <h2 class="landing-h2 text-ink">${escapeHtml(t('landing.features.title'))}</h2>
               <p class="landing-body mt-5 max-w-[38ch] text-muted">${escapeHtml(t('landing.features.body'))}</p>
             </div>
-            <div class="lg:col-span-8">${featureTable()}</div>
+            <div class="lg:col-span-8">${featureTable(t)}</div>
           </div>
         </div>
       </section>
@@ -201,7 +216,7 @@ export function renderStaticLanding(): string {
           </div>
           <figure class="mt-10 lg:mt-14">
             <div class="overflow-hidden rounded-card bg-ground">
-              <img src="landing/quote-detail.jpg" width="1440" height="1000" alt="${attr(t('landing.showcase.imageAlt'))}" loading="lazy" decoding="async" class="aspect-[16/9] w-full bg-ground object-cover object-top">
+              <img src="${attr(img('quote-detail.jpg'))}" width="1440" height="1000" alt="${attr(t('landing.showcase.imageAlt'))}" loading="lazy" decoding="async" class="aspect-[16/9] w-full bg-ground object-cover object-top">
             </div>
             ${caption(t('landing.showcase.caption'))}
           </figure>
@@ -215,12 +230,12 @@ export function renderStaticLanding(): string {
             <p class="landing-body mt-5 text-muted">${escapeHtml(t('landing.steps.body'))}</p>
           </div>
           <div class="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-8">
-            <div class="lg:col-span-5"><div class="lg:sticky lg:top-24">${staticDemo()}</div></div>
+            <div class="lg:col-span-5"><div class="lg:sticky lg:top-24">${staticDemo(locale, t)}</div></div>
             <ol class="list-none space-y-14 lg:col-span-7">
               <li>
                 <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">${escapeHtml(t('landing.steps.one.lead'))}</strong> ${escapeHtml(t('landing.steps.one.body'))}</p>
                 <figure class="mt-5">
-                  <div class="overflow-hidden rounded-card bg-ground"><img src="landing/import.jpg" width="1440" height="1000" alt="${attr(t('landing.steps.one.imageAlt'))}" loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
+                  <div class="overflow-hidden rounded-card bg-ground"><img src="${attr(img('import.jpg'))}" width="1440" height="1000" alt="${attr(t('landing.steps.one.imageAlt'))}" loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
                   ${caption(t('landing.steps.one.caption'))}
                 </figure>
               </li>
@@ -230,7 +245,7 @@ export function renderStaticLanding(): string {
               <li>
                 <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">${escapeHtml(t('landing.steps.three.lead'))}</strong> ${escapeHtml(t('landing.steps.three.body'))}</p>
                 <figure class="mt-5">
-                  <div class="overflow-hidden rounded-card bg-ground"><img src="landing/share.jpg" width="1440" height="1000" alt="${attr(t('landing.steps.three.imageAlt'))}" loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
+                  <div class="overflow-hidden rounded-card bg-ground"><img src="${attr(img('share.jpg'))}" width="1440" height="1000" alt="${attr(t('landing.steps.three.imageAlt'))}" loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
                   ${caption(t('landing.steps.three.caption'))}
                 </figure>
               </li>
@@ -280,7 +295,7 @@ export function renderStaticLanding(): string {
         <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
           <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
             <div class="lg:col-span-4"><div class="lg:sticky lg:top-24"><h2 class="landing-h2 text-ink">${escapeHtml(t('landing.faq.title'))}</h2></div></div>
-            <div class="lg:col-span-8"><div class="landing-faq space-y-2">${faqList()}</div></div>
+            <div class="lg:col-span-8"><div class="landing-faq space-y-2">${faqList(t)}</div></div>
           </div>
         </div>
       </section>
@@ -336,7 +351,7 @@ export function renderStaticLanding(): string {
         <div class="mt-14 flex flex-col gap-3 bg-ground text-[13px] leading-relaxed text-ink sm:flex-row sm:items-end sm:justify-between">
           <p class="max-w-[58ch]">${escapeHtml(t('landing.footer.privacyNote'))}</p>
           <div class="flex flex-wrap items-center gap-x-5 gap-y-1 sm:justify-end">
-            <span class="text-ink">${escapeHtml(translate('it', 'app.engineVersion', { version: ENGINE_VERSION }))}</span>
+            <span class="text-ink">${escapeHtml(translate(locale, 'app.engineVersion', { version: ENGINE_VERSION }))}</span>
             <span class="text-ink">© LayerCost</span>
           </div>
         </div>

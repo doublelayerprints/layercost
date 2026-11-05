@@ -4,9 +4,14 @@ import { describe, expect, it } from 'vitest'
 const read = (path: string): string => readFileSync(path, 'utf8')
 
 describe('SEO e pre-render della landing', () => {
-  it('index.html espone canonical, Open Graph, Twitter e indicizzazione', () => {
+  it('index.html espone canonical, hreflang, Open Graph, Twitter e indicizzazione', () => {
     const html = read('index.html')
     expect(html).toContain('rel="canonical" href="https://layercost.vercel.app/"')
+    expect(html).toContain('rel="alternate" hreflang="it" href="https://layercost.vercel.app/"')
+    expect(html).toContain('rel="alternate" hreflang="en" href="https://layercost.vercel.app/en/"')
+    expect(html).toContain(
+      'rel="alternate" hreflang="x-default" href="https://layercost.vercel.app/"',
+    )
     expect(html).toContain('property="og:title"')
     expect(html).toContain('property="og:image"')
     expect(html).toContain('name="twitter:card"')
@@ -19,7 +24,7 @@ describe('SEO e pre-render della landing', () => {
     expect(read('vercel.json')).not.toContain('X-Robots-Tag')
   })
 
-  it('robots.txt e sitemap aprono la root', () => {
+  it('robots.txt e sitemap aprono la root e dichiarano /en/', () => {
     const robots = read('public/robots.txt')
     expect(robots).toContain('Allow: /')
     expect(robots).not.toContain('Disallow: /')
@@ -27,6 +32,10 @@ describe('SEO e pre-render della landing', () => {
 
     const sitemap = read('public/sitemap.xml')
     expect(sitemap).toContain('<loc>https://layercost.vercel.app/</loc>')
+    expect(sitemap).toContain('<loc>https://layercost.vercel.app/en/</loc>')
+    expect(sitemap).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"')
+    expect((sitemap.match(/hreflang="en"/g) ?? []).length).toBe(2)
+    expect(sitemap).toContain('hreflang="x-default"')
   })
 
   it('la pagina statica contiene la landing italiana completa', () => {
