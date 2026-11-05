@@ -101,5 +101,8 @@ della landing né dell'infrastruttura SEO esistente.
 - Verifiche: 317 unitari (+10), `test:e2e` 70 passati (+2 su `/en/`), `npm run check`
   verde. Nota conservata: le etichette extra di seed restano nomi-dati in italiano
   anche in sessione inglese (candidata evolutiva sui seed localizzati).
-- Merge e verifica di produzione a seguire: `/en/` 200 con `lang="en"`, canonical
-  `/en/`, hreflang, JSON-LD `inLanguage: "en"`, redirect `/en` → `/en/`, sitemap live.
+- **Merge e produzione (05/11/2026):** PR #66 mergiata (squash `4db1acd`, build
+  `index-DQLqfdfo.js`) con CI verde; produzione verificata: `/en/` 200 con
+  `lang="en"`, canonical `/en/`, hreflang a tre vie, JSON-LD `inLanguage: "en"`,
+  hero inglese, `/en` senza slash 200, sitemap live con entrambe le URL,
+  `og-image-en.jpg` e `landing/en/*.jpg` 200, root italiana invariata.
