@@ -6,6 +6,57 @@ const PORT = 5174
 const BASE = `http://127.0.0.1:${PORT}`
 const OUT = 'public/landing'
 
+const LOCALES = [
+  {
+    id: 'it',
+    out: OUT,
+    og: 'public/og-image.jpg',
+    ogHtmlLang: 'it',
+    sample: 'Portachiavi a strati',
+    ogTitle: 'Il costo vero<br />delle stampe 3D.',
+    ogBody: 'Materiali, energia, usura e manodopera. Poi ricarico, sconti e IVA. Tutto nel browser.',
+    label: {
+      newQuote: 'Nuovo preventivo',
+      onboarding: 'Ho capito, inizia',
+      rename: 'Rinomina preventivo',
+      quoteName: 'Nome preventivo',
+      hours: 'Ore',
+      grams: 'Grammi materiale 1',
+      price: /3,70/,
+      save: 'Salva preventivo',
+      closeAlert: 'Chiudi avviso',
+      share: 'Condividi',
+      link: 'Link',
+      shared: 'Preventivo condiviso',
+      importDialog: 'Importa .3mf',
+    },
+  },
+  {
+    id: 'en',
+    out: `${OUT}/en`,
+    og: 'public/og-image-en.jpg',
+    ogHtmlLang: 'en',
+    sample: 'Layered keychain',
+    ogTitle: 'The real cost<br />of 3D prints.',
+    ogBody: 'Materials, energy, wear and labor. Then markup, discounts and VAT. All in the browser.',
+    label: {
+      newQuote: 'New quote',
+      onboarding: 'Got it, start',
+      rename: 'Rename quote',
+      quoteName: 'Quote name',
+      hours: 'Hours',
+      grams: 'Material grams 1',
+      price: /3\.70/,
+      save: 'Save quote',
+      closeAlert: 'Close alert',
+      share: 'Share',
+      link: 'Link',
+      shared: 'Shared quote',
+      importDialog: 'Import .3mf',
+    },
+  },
+]
+
 async function waitForServer(timeoutMs = 60_000) {
   const started = Date.now()
   while (Date.now() - started < timeoutMs) {
@@ -32,80 +83,93 @@ async function main() {
   try {
     await waitForServer()
     browser = await chromium.launch({ channel: 'chrome' })
-    const context = await browser.newContext({
-      viewport: { width: 1440, height: 1000 },
-      locale: 'it-IT',
-      colorScheme: 'light',
-    })
-    const page = await context.newPage()
 
-    await page.goto(`${BASE}/#/calculator`)
-    await page.getByRole('heading', { name: 'Nuovo preventivo' }).first().waitFor()
-    const start = page.getByRole('button', { name: 'Ho capito, inizia' })
-    if (await start.isVisible().catch(() => false)) await start.click()
+    // Filter by CLI: `node scripts/capture-landing.mjs en` regenerates a
+    // single language without touching the other locales' artifacts.
+    const list = process.argv.length > 2 ? LOCALES.filter((locale2) => process.argv.slice(2).includes(locale2.id)) : LOCALES
+    for (const locale of list) {
+      mkdirSync(locale.out, { recursive: true })
+      const context = await browser.newContext({
+        viewport: { width: 1440, height: 1000 },
+        locale: locale.id === 'it' ? 'it-IT' : 'en-GB',
+        colorScheme: 'light',
+      })
+      // The UI language is a saved preference, not the browser language: seed
+      // it before the app boots so every screenshot is in the capture locale.
+      await context.addInitScript((value) => {
+        localStorage.setItem('layercost:locale', value)
+      }, locale.id)
+      const page = await context.newPage()
+      const label = locale.label
 
-    await page.getByRole('button', { name: 'Rinomina preventivo' }).click()
-    await page.getByLabel('Nome preventivo').fill('Portachiavi a strati')
-    await page.keyboard.press('Enter')
-    await page.locator('input[aria-label="Ore"]').first().fill('10')
-    await page.locator('input[aria-label="Grammi materiale 1"]').fill('100')
-    await page.getByText(/3,70/).first().waitFor({ timeout: 10_000 })
-    await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
-    await page.evaluate(() => document.fonts.ready)
-    await page.screenshot({
-      path: `${OUT}/calculator.jpg`,
-      type: 'jpeg',
-      quality: 88,
-    })
+      await page.goto(`${BASE}/#/calculator`)
+      await page.getByRole('heading', { name: label.newQuote }).first().waitFor()
+      const start = page.getByRole('button', { name: label.onboarding })
+      if (await start.isVisible().catch(() => false)) await start.click()
 
-    await page.getByRole('button', { name: 'Salva preventivo' }).click()
-    await page.waitForURL(/#\/quotes\/.+/)
-    const closeAlert = page.getByRole('button', { name: 'Chiudi avviso' })
-    if (await closeAlert.isVisible().catch(() => false)) await closeAlert.click()
-    await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
-    await page.evaluate(() => document.fonts.ready)
-    await page.screenshot({
-      path: `${OUT}/quote-detail.jpg`,
-      type: 'jpeg',
-      quality: 88,
-    })
+      await page.getByRole('button', { name: label.rename }).click()
+      await page.getByLabel(label.quoteName).fill(locale.sample)
+      await page.keyboard.press('Enter')
+      await page.locator(`input[aria-label="${label.hours}"]`).first().fill('10')
+      await page.locator(`input[aria-label="${label.grams}"]`).fill('100')
+      await page.getByText(label.price).first().waitFor({ timeout: 10_000 })
+      await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
+      await page.evaluate(() => document.fonts.ready)
+      await page.screenshot({
+        path: `${locale.out}/calculator.jpg`,
+        type: 'jpeg',
+        quality: 88,
+      })
 
-    await page.getByRole('button', { name: 'Condividi' }).first().click()
-    const shareUrl = await page.getByLabel('Link').inputValue()
-    await page.goto(shareUrl)
-    await page.getByText('Preventivo condiviso').first().waitFor()
-    await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
-    await page.evaluate(() => document.fonts.ready)
-    await page.screenshot({
-      path: `${OUT}/share.jpg`,
-      type: 'jpeg',
-      quality: 88,
-    })
+      await page.getByRole('button', { name: label.save }).click()
+      await page.waitForURL(/#\/quotes\/.+/)
+      const closeAlert = page.getByRole('button', { name: label.closeAlert })
+      if (await closeAlert.isVisible().catch(() => false)) await closeAlert.click()
+      await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
+      await page.evaluate(() => document.fonts.ready)
+      await page.screenshot({
+        path: `${locale.out}/quote-detail.jpg`,
+        type: 'jpeg',
+        quality: 88,
+      })
 
-    await page.goto(`${BASE}/#/calculator`)
-    await page.getByRole('heading', { name: 'Nuovo preventivo' }).first().waitFor()
-    await page.locator('input[type="file"]').first().setInputFiles(
-      'tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf',
-    )
-    await page.getByRole('dialog', { name: 'Importa .3mf' }).waitFor()
-    await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
-    await page.evaluate(() => document.fonts.ready)
-    await page.screenshot({
-      path: `${OUT}/import.jpg`,
-      type: 'jpeg',
-      quality: 88,
-    })
+      await page.getByRole('button', { name: label.share }).first().click()
+      const shareUrl = await page.getByLabel(label.link).inputValue()
+      await page.goto(shareUrl)
+      await page.getByText(label.shared).first().waitFor()
+      await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
+      await page.evaluate(() => document.fonts.ready)
+      await page.screenshot({
+        path: `${locale.out}/share.jpg`,
+        type: 'jpeg',
+        quality: 88,
+      })
 
-    await context.close()
+      await page.goto(`${BASE}/#/calculator`)
+      await page.getByRole('heading', { name: label.newQuote }).first().waitFor()
+      await page.locator('input[type="file"]').first().setInputFiles(
+        'tests/fixtures/3mf/anycubic-kobra3-pla.gcode.3mf',
+      )
+      await page.getByRole('dialog', { name: label.importDialog }).waitFor()
+      await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null)?.blur())
+      await page.evaluate(() => document.fonts.ready)
+      await page.screenshot({
+        path: `${locale.out}/import.jpg`,
+        type: 'jpeg',
+        quality: 88,
+      })
 
-    const social = await browser.newContext({
-      viewport: { width: 1200, height: 630 },
-      locale: 'it-IT',
-      colorScheme: 'light',
-    })
-    const socialPage = await social.newPage()
-    await socialPage.setContent(`<!doctype html>
-      <html lang="it">
+      await context.close()
+
+      const social = await browser.newContext({
+        viewport: { width: 1200, height: 630 },
+        locale: locale.id === 'it' ? 'it-IT' : 'en-GB',
+        colorScheme: 'light',
+      })
+      const socialPage = await social.newPage()
+      const shot = `${locale.out}/calculator.jpg`
+      await socialPage.setContent(`<!doctype html>
+      <html lang="${locale.ogHtmlLang}">
         <head>
           <meta charset="utf-8" />
           <style>
@@ -147,26 +211,27 @@ async function main() {
               LayerCost
             </div>
             <div>
-              <h1>Il costo vero<br />delle stampe 3D.</h1>
-              <p>Materiali, energia, usura e manodopera. Poi ricarico, sconti e IVA. Tutto nel browser.</p>
+              <h1>${locale.ogTitle}</h1>
+              <p>${locale.ogBody}</p>
             </div>
             <p class="url">layercost.vercel.app</p>
           </div>
-          <div class="shot"><img src="${BASE}/landing/calculator.jpg" alt="" /></div>
+          <div class="shot"><img src="${shot.replace('public/', `${BASE}/`)}" alt="" /></div>
         </body>
       </html>`)
-    await socialPage.evaluate(() => document.fonts.ready)
-    await socialPage.evaluate(() =>
-      Promise.all([...document.images].map((image) => image.decode().catch(() => undefined))),
-    )
-    await socialPage.screenshot({
-      path: 'public/og-image.jpg',
-      type: 'jpeg',
-      quality: 88,
-    })
-    await social.close()
+      await socialPage.evaluate(() => document.fonts.ready)
+      await socialPage.evaluate(() =>
+        Promise.all([...document.images].map((image) => image.decode().catch(() => undefined))),
+      )
+      await socialPage.screenshot({
+        path: locale.og,
+        type: 'jpeg',
+        quality: 88,
+      })
+      await social.close()
 
-    console.log('Screenshot landing generati in public/landing e public/og-image.jpg')
+      console.log(`Screenshot landing ${locale.id} generati in ${locale.out} e ${locale.og}`)
+    }
   } finally {
     await browser?.close()
     try {

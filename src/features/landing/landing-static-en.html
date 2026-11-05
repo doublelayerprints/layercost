@@ -1,0 +1,352 @@
+<div class="bg-ground text-ink">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-surface focus:px-3 focus:py-2 focus:text-base focus:text-ink">Skip to content</a>
+    <header class="sticky top-0 z-40 bg-ground">
+      <div class="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <a href="#/welcome" class="flex items-center gap-2.5 rounded-control" aria-label="LayerCost">
+          <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true" class="shrink-0 text-ink" fill="currentColor"><rect x="2" y="5" width="20" height="6" rx="2"></rect><rect x="6" y="13" width="20" height="6" rx="2"></rect><rect x="10" y="21" width="20" height="6" rx="2"></rect></svg>
+          <span class="text-base font-semibold tracking-title text-ink">LayerCost</span>
+        </a>
+        <nav class="hidden items-center gap-7 lg:flex" aria-label="Main navigation">
+          <a href="#features" class="rounded-control text-base text-muted transition-feedback hover:text-ink">Features</a>
+          <a href="#how-it-works" class="rounded-control text-base text-muted transition-feedback hover:text-ink">How it works</a>
+          <a href="#privacy" class="rounded-control text-base text-muted transition-feedback hover:text-ink">Privacy</a>
+          <a href="#faq" class="rounded-control text-base text-muted transition-feedback hover:text-ink">FAQ</a>
+        </nav>
+        <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-9 px-4 text-sm max-sm:h-11 max-sm:hidden landing-button">Open the calculator</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="bg-ground">
+        <div class="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-4 pb-16 pt-10 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:pb-24 lg:pt-16">
+          <div class="lg:col-span-5 lg:pt-8">
+            <h1 class="landing-display max-w-[17ch] text-ink">The real cost of 3D prints.</h1>
+            <p class="landing-lead mt-6 max-w-[46ch] text-muted">LayerCost adds up materials, energy, wear and labor, then applies markup, discounts and VAT. All in your browser, with your numbers.</p>
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-10 px-5 text-sm max-sm:h-11 landing-button">Open the calculator</a>
+              <a href="#/login?mode=signup" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-10 px-5 text-sm max-sm:h-11 landing-button">Sign up</a>
+            </div>
+            <p class="landing-small mt-4 text-muted">No account required. Data stays in your browser.</p>
+          </div>
+          <div class="lg:col-span-7">
+            <figure>
+              <div class="overflow-hidden rounded-card bg-ground">
+                <img src="../landing/en/calculator.jpg" width="1440" height="1000" alt="The LayerCost calculator with a 100 gram print: print lines on the left, the summary with full cost, profit and net price on the right." fetchpriority="high" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain">
+              </div>
+              <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">The real LayerCost interface, with the starting values.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="landing-section bg-ground">
+        <div class="mx-auto max-w-[1200px] px-4 pb-20 pt-4 sm:px-6 lg:px-8 lg:pb-28 lg:pt-8">
+          <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-4">
+              <h2 class="landing-h2 text-ink">Everything the price needs.</h2>
+              <p class="landing-body mt-5 max-w-[38ch] text-muted">Six things a spreadsheet does not do by itself. Each one starts from a number you already have: grams, hours, filament price.</p>
+            </div>
+            <div class="lg:col-span-8"><div class="overflow-hidden rounded-card bg-surface">
+    <table class="landing-feature-table w-full">
+      <caption class="sr-only">LayerCost compared with a spreadsheet</caption>
+      <thead class="hidden md:table-header-group">
+        <tr>
+          <th scope="col" class="w-[46%] px-5 py-5 text-base font-semibold text-ink">Capability</th>
+          <th scope="col" class="w-[27%] bg-ink px-5 py-5 text-base font-semibold text-surface">LayerCost</th>
+          <th scope="col" class="w-[27%] px-5 py-5 text-base font-semibold text-ink">A spreadsheet</th>
+        </tr>
+      </thead>
+      <tbody><tr class="bg-surface">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Cost engine</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Material, energy, wear, labor and risk all enter the same full cost.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Yes, with the documented formula.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">A spreadsheet</span>
+        Formulas rebuilt by hand.
+      </td>
+    </tr><tr class="bg-raised">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Multi-material</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Several filaments in the same line, with grams and price per material.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Yes, several materials per line.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">A spreadsheet</span>
+        One line per material, then sum.
+      </td>
+    </tr><tr class="bg-surface">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Quotes</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Price snapshots, editing until sending, duplication and archiving.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Yes, with frozen prices.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">A spreadsheet</span>
+        Copies that change price.
+      </td>
+    </tr><tr class="bg-raised">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">.3mf import</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Plates, times and grams already read by the slicer go into the quote.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Yes, with a plate preview.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">A spreadsheet</span>
+        Numbers typed again.
+      </td>
+    </tr><tr class="bg-surface">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">.xlsx and PDF export</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Three Excel sheets for external analysis and an A4 PDF for the customer.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Yes, all locally.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">A spreadsheet</span>
+        Copy, paste, lay out.
+      </td>
+    </tr><tr class="bg-raised">
+      <th scope="row" class="px-5 py-5">
+        <span class="block text-lg font-semibold tracking-title text-ink">Printer comparison</span>
+        <span class="mt-1 block text-base leading-relaxed text-muted">Kobra 3 and Kobra X on the same job, with the difference in euros.</span>
+      </th>
+      <td class="bg-ink px-5 py-5 text-base leading-relaxed text-surface">
+        <span class="mb-1 block text-[13px] font-semibold text-surface/80 md:hidden">LayerCost</span>
+        Yes, without touching the draft.
+      </td>
+      <td class="px-5 py-5 text-base leading-relaxed text-muted">
+        <span class="mb-1 block text-[13px] font-semibold text-muted md:hidden">A spreadsheet</span>
+        Two separate sheets.
+      </td>
+    </tr></tbody>
+    </table>
+  </div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-surface">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-6 lg:grid-cols-12 lg:gap-8">
+            <h2 class="landing-h2 text-ink lg:col-span-6">From calculation to customer.</h2>
+            <p class="landing-body max-w-[50ch] text-muted lg:col-span-5 lg:col-start-8">A saved quote keeps the prices it was created with. The customer view shows only prices, VAT and notes. The internal print keeps costs, profit and composition for you.</p>
+          </div>
+          <figure class="mt-10 lg:mt-14">
+            <div class="overflow-hidden rounded-card bg-ground">
+              <img src="../landing/en/quote-detail.jpg" width="1440" height="1000" alt="The detail of a LayerCost quote with net price, cost composition and print lines." loading="lazy" decoding="async" class="aspect-[16/9] w-full bg-ground object-cover object-top">
+            </div>
+            <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">Saved quote: frozen prices, lines and cost composition.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="landing-section bg-ground">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="max-w-[46ch]">
+            <h2 class="landing-h2 text-ink">Three steps, no spreadsheet.</h2>
+            <p class="landing-body mt-5 text-muted">From the sliced file to the price you send the customer.</p>
+          </div>
+          <div class="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-5"><div class="lg:sticky lg:top-24"><div data-ui class="rounded-card border border-line bg-surface p-5 sm:p-6">
+    <h3 class="landing-h3 text-ink">Try it with your numbers.</h3>
+    <p class="mt-2 text-base leading-relaxed text-muted">An example with Kobra 3 and PLA, 30% markup and no VAT. Change grams and hours: cost and price update.</p>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-card bg-ground px-4 py-3">
+        <span class="block text-[13px] font-medium text-muted">Grams</span>
+        <span class="mt-1 block text-lg font-semibold tabular-nums text-ink">100 g</span>
+      </div>
+      <div class="rounded-card bg-ground px-4 py-3">
+        <span class="block text-[13px] font-medium text-muted">Print hours</span>
+        <span class="mt-1 block text-lg font-semibold tabular-nums text-ink">10 h</span>
+      </div>
+    </div>
+    <div class="mt-5 rounded-card bg-ground p-4">
+      <div class="flex items-baseline justify-between gap-4">
+        <span class="text-base text-muted">Net price</span>
+        <span class="font-serif text-price-sm tabular-nums text-ink">€3.70</span>
+      </div>
+      <div class="mt-1 flex items-baseline justify-between gap-4">
+        <span class="text-base text-muted">Full cost</span>
+        <span class="font-serif text-2xl tabular-nums text-ink">€2.78</span>
+      </div>
+      <div role="img" aria-label="Net price split into full cost and profit." class="mt-4 flex h-2 overflow-hidden rounded-full bg-raised">
+        <span class="h-full bg-control" style="width:75.1%"></span>
+        <span class="h-full bg-data" style="width:24.9%"></span>
+      </div>
+      <dl class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-muted">
+        <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-control" aria-hidden="true"></span><dt class="text-ink">Full cost</dt><dd class="tabular-nums text-ink">€2.78</dd></div>
+        <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-data" aria-hidden="true"></span><dt class="text-ink">Profit</dt><dd class="tabular-nums text-ink">€0.92</dd></div>
+      </dl>
+    </div>
+    <p class="mt-3 text-[13px] leading-relaxed text-muted">Example with the starting values. Your numbers change everything.</p>
+    <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-8 px-3 text-xs max-sm:h-10 mt-4 landing-button">Open the calculator</a>
+  </div></div></div>
+            <ol class="list-none space-y-14 lg:col-span-7">
+              <li>
+                <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">Choose.</strong> Kobra 3 or Kobra X, PLA or PETG. Starting values are ready and stay editable at any time.</p>
+                <figure class="mt-5">
+                  <div class="overflow-hidden rounded-card bg-ground"><img src="../landing/en/import.jpg" width="1440" height="1000" alt="The .3mf import window with plates, times and grams read from the slicer." loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
+                  <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">.3mf import: plates, times and grams.</figcaption>
+                </figure>
+              </li>
+              <li>
+                <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">Enter.</strong> Use the slicer total grams and print time. Supports, purge and prime tower are already included: do not add supplements.</p>
+              </li>
+              <li>
+                <p class="landing-body max-w-[60ch] text-muted"><strong class="font-semibold text-ink">Read.</strong> See the full cost, profit and composition. Save the quote, export to Excel or share the customer view.</p>
+                <figure class="mt-5">
+                  <div class="overflow-hidden rounded-card bg-ground"><img src="../landing/en/share.jpg" width="1440" height="1000" alt="The shared view of a LayerCost quote with prices, VAT and notes, without internal costs." loading="lazy" decoding="async" class="aspect-[4/3] w-full bg-ground object-contain"></div>
+                  <figcaption class="mt-3 text-[13px] leading-relaxed text-muted">Customer view: prices, VAT and notes.</figcaption>
+                </figure>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="privacy" class="landing-section bg-ink text-ground">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-12 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-5">
+              <h2 class="landing-h2 max-w-[16ch] text-ground">Your numbers stay yours.</h2>
+              <p class="landing-lead mt-5 max-w-[42ch] text-ground/80">LayerCost works right away in your browser. The calculator and quotes stay there; the cloud is a free extra for those who create an account.</p>
+            </div>
+            <div class="lg:col-span-7">
+              <ul class="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+                <li><p class="text-base font-semibold text-ground">No account to start</p><p class="mt-2 text-base leading-relaxed text-ground/80">Open the calculator and work. The account is only for the free, optional cloud.</p></li><li><p class="text-base font-semibold text-ground">Data in your browser</p><p class="mt-2 text-base leading-relaxed text-ground/80">Configuration and quotes stay in your browser. Clearing browser data deletes them: the backup is the external copy.</p></li><li><p class="text-base font-semibold text-ground">Back up when you want</p><p class="mt-2 text-base leading-relaxed text-ground/80">Export a complete backup, import it into another browser or keep it outside the app.</p></li><li><p class="text-base font-semibold text-ground">No analytics</p><p class="mt-2 text-base leading-relaxed text-ground/80">No tracking cookies, no advertising, no analytics.</p></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-surface">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-6 lg:grid-cols-12 lg:gap-8">
+            <h2 class="landing-h2 text-ink lg:col-span-5">Elsewhere, if you want.</h2>
+            <p class="landing-lead text-muted lg:col-span-6 lg:col-start-7">The calculator and the cloud are free. The cloud is an extra: you create an account only if you want to sync.</p>
+          </div>
+          <ol class="mt-12 grid list-decimal gap-8 pl-5 marker:font-semibold marker:text-muted sm:grid-cols-2 lg:grid-cols-4">
+            <li class="pl-1"><h3 class="landing-h3 text-ink">Create the account</h3><p class="mt-2 text-base leading-relaxed text-muted">From Sign up enter your email and password, or use Google.</p></li><li class="pl-1"><h3 class="landing-h3 text-ink">Your workspace is ready</h3><p class="mt-2 text-base leading-relaxed text-muted">Every account gets a personal cloud workspace.</p></li><li class="pl-1"><h3 class="landing-h3 text-ink">Sign in</h3><p class="mt-2 text-base leading-relaxed text-muted">Enter with your account.</p></li><li class="pl-1"><h3 class="landing-h3 text-ink">Find everything again</h3><p class="mt-2 text-base leading-relaxed text-muted">Your data follows you on the devices you use.</p></li>
+          </ol>
+          <div class="mt-10 flex flex-wrap items-center gap-3">
+            <a href="#/login?mode=signup" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-9 px-4 text-sm max-sm:h-11 landing-button">Sign up</a>
+            <a href="#/login" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-9 px-4 text-sm max-sm:h-11 landing-button">Sign in</a>
+            <p class="text-[13px] text-muted">Everything is free, cloud included. The cloud is optional.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="landing-section bg-ground">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-4"><div class="lg:sticky lg:top-24"><h2 class="landing-h2 text-ink">Questions before you start.</h2></div></div>
+            <div class="lg:col-span-8"><div class="landing-faq space-y-2"><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Do I need an account?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">No. The calculator, quotes and exports work without an account. The account is only for the cloud: registration is open and free.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>How much does it cost?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">Everything is free: calculator, exports and cloud. Registration is open and there are no subscriptions.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Where is the data?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">Without an account, in your browser. With an account, in the cloud, so you can find it on your devices. You can export a complete backup at any time.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>Can I use it on more devices?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">Yes, with the account: your data stays aligned across devices. Without an account, export a complete backup and import it on the other device.</p>
+    </details><details name="landing-faq" class="group rounded-card bg-surface transition-feedback open:bg-pill-info-bg">
+      <summary class="flex min-h-[72px] items-center justify-between gap-4 px-5 py-4 text-lg font-medium text-ink transition-feedback hover:bg-raised group-open:bg-transparent group-open:text-pill-info-ink">
+        <span>How do I sign up?</span>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </summary>
+      <p class="max-w-[60ch] px-5 pb-5 text-base leading-relaxed text-ink">On the sign-in page choose Sign up and enter your email and password: your cloud workspace is ready right away. You can also continue with Google.</p>
+    </details></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-raised">
+        <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+          <div class="grid gap-8 md:grid-cols-12 md:items-end">
+            <div class="md:col-span-7">
+              <h2 class="landing-h2 text-ink">Put in your numbers.</h2>
+              <p class="landing-lead mt-5 max-w-[46ch] text-muted">Open the calculator with the starting values, then replace prices, power and useful life with yours.</p>
+            </div>
+            <div class="md:col-span-5">
+              <div class="flex flex-wrap gap-3 md:justify-end">
+                <a href="#/calculator" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-ink text-surface hover:bg-ink/90 h-10 px-5 text-sm max-sm:h-11 landing-button">Open the calculator</a>
+                <a href="#/login?mode=signup" class="inline-flex items-center justify-center gap-2 rounded-control font-medium transition-feedback disabled:cursor-not-allowed disabled:opacity-50 bg-raised text-ink hover:bg-line h-10 px-5 text-sm max-sm:h-11 landing-button">Sign up</a>
+              </div>
+              <p class="mt-4 text-[13px] text-muted md:text-right">No account required.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-ground">
+      <div class="mx-auto max-w-[1200px] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+          <div class="sm:col-span-2 lg:col-span-5">
+            <h2 class="landing-wordmark text-ink"><a href="#/welcome" aria-label="LayerCost" class="rounded-control transition-feedback hover:text-data">LayerCost</a></h2>
+            <p class="mt-4 max-w-[34ch] text-base leading-relaxed text-muted">Calculator for 3D prints. Everything free, cloud included.</p>
+          </div>
+          <nav class="lg:col-span-2" aria-label="Product">
+            <h3 class="text-[13px] font-semibold text-ink">Product</h3>
+            <ul class="mt-3 space-y-1">
+              <li><a href="#features" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Features</a></li>
+              <li><a href="#how-it-works" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">How it works</a></li>
+              <li><a href="#privacy" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Privacy</a></li>
+              <li><a href="#faq" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">FAQ</a></li>
+            </ul>
+          </nav>
+          <nav class="lg:col-span-2" aria-label="App">
+            <h3 class="text-[13px] font-semibold text-ink">App</h3>
+            <ul class="mt-3 space-y-1">
+              <li><a href="#/calculator" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Open the calculator</a></li>
+              <li><a href="#/login" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Sign in</a></li>
+              <li><a href="#/login?mode=signup" class="inline-flex min-h-11 items-center rounded-control text-base text-muted transition-feedback hover:text-ink sm:min-h-8">Sign up</a></li>
+            </ul>
+          </nav>
+          <div class="lg:col-span-3">
+            <h3 class="text-[13px] font-semibold text-ink">Data and privacy</h3>
+            <p class="mt-3 text-[13px] leading-relaxed text-muted">No analytics, no cookies. Only the data you enter.</p>
+          </div>
+        </div>
+        <div class="mt-14 flex flex-col gap-3 bg-ground text-[13px] leading-relaxed text-ink sm:flex-row sm:items-end sm:justify-between">
+          <p class="max-w-[58ch]">No analytics and no cookies. App data stays in your browser; the cloud is free and optional.</p>
+          <div class="flex flex-wrap items-center gap-x-5 gap-y-1 sm:justify-end">
+            <span class="text-ink">Engine v1.0.0</span>
+            <span class="text-ink">© LayerCost</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>

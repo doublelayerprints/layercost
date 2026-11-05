@@ -27,7 +27,7 @@ Calcolatore di costo e prezzo per stampe 3D, pensato per due stampanti reali: **
 - Tema chiaro, scuro o di sistema e lingua italiana o inglese, con selettori rapidi in fondo alla sidebar; la stampa è sempre in nero su bianco.
 - Funziona **local-first**: senza account tutti i dati restano nel browser, senza backend, account o analytics. Il cloud è opzionale (ADR-0024). La registrazione è aperta con un tetto numerico di utenti e tetti per spazio configurabili via SQL (ADR-0027); la pagina “Suggerimenti” invia a Formspree solo su azione esplicita (ADR-0030).
 - Negli spazi condivisi mostra **Creato da …** e **Ultima modifica di …** con data nella lista Preventivi, e il nome visibile nel dettaglio; il nome si sceglie in **Impostazioni → Profilo** (ADR-0031).
-- La root è una landing pubblica in italiano e inglese, pre-renderizzata in `index.html` per i crawler e per chi non ha JavaScript; il calcolatore vive su `/#/calculator` e `/#/welcome` riapre la landing anche da utenti esistenti (ADR-0029).
+- La root è una landing pubblica in italiano e inglese, pre-renderizzata in `index.html` per i crawler e per chi non ha JavaScript; la versione inglese indicizzabile vive su `/en/` (ADR-0035). Il calcolatore vive su `/#/calculator` e `/#/welcome` riapre la landing anche da utenti esistenti (ADR-0029).
 - Include una **documentazione in-app** con indice per sezioni, screenshot reali e link diretti (`/#/docs/primi-passi`), e una pagina **Suggerimenti** per inviare migliorie o segnalazioni (`/#/feedback`).
 
 ## Stack
@@ -49,7 +49,7 @@ Apri `http://localhost:5173` per la landing pubblica, `http://localhost:5173/#/c
 npm run dev          # sviluppo
 npm run build        # build di produzione
 npm run preview      # anteprima build
-npm run capture:landing # screenshot reali della landing (richiede Chrome)
+npm run capture:landing # screenshot reali della landing IT/EN (richiede Chrome)
 npm run capture:docs # screenshot reali della documentazione (richiede Chrome)
 npm run typecheck    # TypeScript
 npm run lint         # oxlint
@@ -117,7 +117,7 @@ Il progetto è una SPA statica con hash routing. Su Vercel:
 
 Sono possibili anche GitHub Pages, Netlify e Cloudflare Pages; vedi `docs/engineering/deployment.md`.
 
-La root è indicizzabile: `index.html` contiene la landing italiana pre-renderizzata, canonical, Open Graph e Twitter; `public/robots.txt` usa `Allow: /` e `public/sitemap.xml` elenca la root. Non c’è più `X-Robots-Tag: noindex`. L’inglese è disponibile nell’interfaccia, ma l’indicizzazione inglese separata è una decisione futura.
+La root è indicizzabile: `index.html` contiene la landing italiana pre-renderizzata, canonical, `hreflang` a tre vie (it/en/x-default), Open Graph e Twitter; `public/robots.txt` usa `Allow: /` e `public/sitemap.xml` elenca root e `/en/` con gli alternate `xhtml:link`. Non c’è più `X-Robots-Tag: noindex`. La pagina inglese pre-renderizzata vive su `/en/` (EVO-9, ADR-0035): canonical `/en/`, stessa struttura, schermate di prodotto in inglese e boot dell’app in inglese da quel path.
 
 ## Documentazione
 
@@ -149,7 +149,7 @@ La root è indicizzabile: `index.html` contiene la landing italiana pre-renderiz
 - **Design:** direzione A — Strato, design system, redesign, stati e dark mode.
 - **Verifiche:** 298 unitari, 90 E2E (68 passati, 22 saltati: 12 visual Linux, 5 sync, 3 auth, 2 endpoint mancante), 91 test pgTAP (33 RLS + 41 multi-workspace + 17 profili), 42 screenshot di regressione, axe su tutte le route con 0 violazioni, smoke test di produzione, keep-alive, backup cifrato e budget.
 - **Fuori v1:** magazzino bobine e PWA (non in scope attuale).
-- **Landing:** EVO-5 implementata il 29/10/2026 e distribuita il 30/10/2026 (ADR-0029): route `/#/`, `/#/calculator`, `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot; smoke di produzione verde.
+- **Landing:** EVO-5 implementata il 29/10/2026 e distribuita il 30/10/2026 (ADR-0029): route `/#/`, `/#/calculator`, `/#/welcome`, pre-render SEO, contenuti IT/EN, 249 unitari, 68 E2E, 42 screenshot; smoke di produzione verde. **EVO-9 (ADR-0035, 05/11/2026):** pagina inglese pre-renderizzata su `/en/` con canonical, hreflang a tre vie, OG/Twitter/JSON-LD EN, schermate in inglese e boot inglese dal path.
 - **Nomi visibili e tag attività:** EVO-7 implementata, distribuita e verificata in produzione il 31/10/2026 (ADR-0031, PR #50, build `index-C3vr3Bvd.js` / `index-bKgv1cL8.css`): nome profilo unico in **Impostazioni → Profilo**, tag “Creato da …” e “Ultima modifica di …” con data nella lista Preventivi degli spazi condivisi, nomi visibili nel dettaglio, 17 pgTAP profili, 297 unitari, 5 E2E sync; budget 229,9/232 KB. Migrazione applicata dopo backup verificato, smoke e verifica reale con due account.
 - **Rifiniture post-EVO-7 (1–2/11/2026):** select in stile applicazione senza menu nativo (ADR-0032), tag audit come colonne nella lista Preventivi (#54), nomi lunghi contenuti nelle card compresse (#55) e ripristino corretto della route dopo una navigazione rapida. Build di produzione `index-CQ3fLr-I.js` / `index-Cmj_upjM.css`; 298 unitari, 90 E2E (68 passati, 22 saltati), budget 232,2/236 KB iniziali e 299,5/350 KB totali.
 - **Fase 5:** import `.3mf` completo (T5.3); interfaccia inglese chiusa (T5.6.1–T5.6.5), export `.xlsx` (T5.12), preventivi modificabili fino all’invio e calcolatore a card (T5.13–T5.14), preferenze rapide, azioni in alto, colore filamento, utile e vista cliente, sconti e card comprimibili (T5.15–T5.21); sync gratuito richiesto (Supabase Free, email/password, workspace condiviso; ADR-0024), piano pronto, **T5.4.1 chiuso** (repository async), **T5.4.2 chiuso** (schema, RLS, trigger, mapper), **T5.4.3 chiuso** (auth email/password), **T5.4.4 chiuso** (sync, outbox e conflitti), **T5.4.5 chiuso** (workspace condiviso, runbook e audit) e **T5.4.6 chiuso** (keep-alive, backup, CI database, budget e deploy). Il cloud è **live** su https://layercost.vercel.app con Supabase Free EU e due account owner. **EVO-4 — spazi separati** (ADR-0028) è **distribuito in produzione il 30/10/2026** (build `index-eT8g6H47.js`, smoke verde): ogni utente ha uno spazio personale e può appartenere a più spazi condivisi, con inviti tramite codice. Piano in `docs/planning/t5.4-cloud-sync.md`, `docs/planning/evo-4-multi-workspace.md`, runbook in `docs/engineering/workspace-runbook.md`, backup in `docs/engineering/backup-restore.md`, riepilogo in `docs/planning/phase-5.md`, inventario in `docs/planning/i18n-inventory.md`.

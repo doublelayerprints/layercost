@@ -64,6 +64,43 @@ test('la prima visita mostra la landing e non crea dati locali', async ({ page }
   expect(stored).toEqual({ data: null, marker: null })
 })
 
+test('la pagina inglese /en/ mostra la landing pre-renderizzata in inglese', async ({
+  page,
+}) => {
+  await page.goto('/en/')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page).toHaveTitle('LayerCost — The real cost of 3D prints')
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'The real cost of 3D prints.' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Everything the price needs.' }),
+  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Your numbers stay yours.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Questions before you start.' })).toBeVisible()
+
+  const head = await page.evaluate(() => ({
+    canonical: document.querySelector('link[rel="canonical"]')?.getAttribute('href'),
+    alternates: [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map((link) =>
+      link.getAttribute('hreflang'),
+    ),
+  }))
+  expect(head).toEqual({
+    canonical: 'https://layercost.vercel.app/en/',
+    alternates: ['it', 'en', 'x-default'],
+  })
+})
+
+test('l’applicazione parte in inglese da /en/ senza preferenza salvata', async ({ page }) => {
+  await page.goto('/en/')
+  await page.getByRole('link', { name: 'Open the calculator' }).first().click()
+  await page.waitForURL(/#\/calculator$/)
+  await expect(page.getByRole('heading', { name: 'New quote' }).first()).toBeVisible()
+  // The `/en/` path drives the session language instead of storage: nothing
+  // is persisted until the visitor switches language deliberately.
+  expect(await page.evaluate(() => localStorage.getItem('layercost:locale'))).toBeNull()
+})
+
 test('la CTA apre il calcolatore e lascia il marker di visita', async ({ page }) => {
   await openLanding(page)
   await page.getByRole('link', { name: 'Apri il calcolatore' }).first().click()

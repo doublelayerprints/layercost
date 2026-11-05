@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import { gzipSync } from 'node:zlib'
 
@@ -35,6 +35,11 @@ const lazyBytes = gzipFiles(lazyFiles)
 const cssBytes = gzipFiles(files.filter((file) => file.endsWith('.css')))
 const fontBytes = gzipFiles(files.filter((file) => file.endsWith('.woff2')))
 const htmlBytes = gzipBytes('dist/index.html')
+// ADR-0035: the English landing is a second pre-rendered page with its own
+// budget. A missing page is a build regression, not an absence: fail loudly.
+const HTML_EN_PATH = 'dist/en/index.html'
+const htmlEnMissing = !existsSync(HTML_EN_PATH)
+const htmlEnBytes = htmlEnMissing ? Number.POSITIVE_INFINITY : gzipBytes(HTML_EN_PATH)
 
 const checks = [
   {
@@ -79,6 +84,14 @@ const checks = [
     limit: 10 * KB,
   },
   {
+    label: 'HTML EN',
+    bytes: htmlEnBytes,
+    // EVO-9 (ADR-0035): /en/index.html mirrors the Italian page (same head
+    // structure, English copy and hreflang). Same 10 KB envelope; the check
+    // also fails while the build does not produce the page.
+    limit: 10 * KB,
+  },
+  {
     label: 'Totale iniziale',
     bytes: initialJsBytes + cssBytes + fontBytes,
     limit: 350 * KB,
@@ -87,14 +100,13 @@ const checks = [
 
 let failed = false
 for (const check of checks) {
-  const used = (check.bytes / KB).toFixed(1)
+  const missing = check.bytes === Number.POSITIVE_INFINITY
+  const used = missing ? 'assente' : `${(check.bytes / KB).toFixed(1)} KB`
   const limit = (check.limit / KB).toFixed(0)
   const status = check.bytes <= check.limit ? 'ok' : 'SFIDATO'
   if (check.bytes > check.limit) failed = true
-  console.log(`${status.padEnd(8)} ${check.label.padEnd(22)} ${used.padStart(7)} KB / ${limit} KB`)
-}
-
-if (failed) {
+  console.log(`${status.padEnd(8)} ${check.label.padEnd(22)} ${used.padStart(7)} / ${limit} KB`)
+}if (failed) {
   console.error(
     '\nBudget di performance superato: riduci il bundle o aggiorna il budget con una motivazione.',
   )

@@ -1,6 +1,6 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata, distribuita e attiva in produzione il 04/11/2026** (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni chiuse, runbook §17.2); CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata, distribuita e attiva in produzione il 04/11/2026** (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni chiuse, runbook §17.2); **EVO-9 landing inglese `/en` chiusa il 05/11/2026** (ADR-0035: `/en/` pre-renderizzata con hreflang, boot inglese dal path, budget HTML EN, sitemap alternati); CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 2 novembre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
@@ -1401,6 +1401,26 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - [x] **Docs**: runbook (§1, §11, §16.2 via UI, §13 checklist, nuova §17 EVO-8 con SQL admin e troubleshooting `not_admin`, riferimenti §18), ADR-0034 implementato, data-model §7 (invariante 12), testing.md, i18n inventory, TASKS.md. STATUS, README e CHANGELOG aggiornati alla chiusura.
 - Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, seed o RLS esistente.
 
+## EVO-9 — Indicizzazione inglese della landing (`/en`)
+
+**Data:** 05/11/2026 · **ADR:** 0035 · **Piano:** `docs/planning/evo-9-landing-en.md`
+
+- [x] **T9.1 statico EN**: `renderStaticLanding(locale, assetBase)` puro; golden `landing-static-en.html` (immagini `../landing/en/`), golden italiano byte-identico, test anti-ibrido IT/EN.
+- [x] **T9.2 testa EN**: `src/features/landing/en-page.ts` (`buildEnglishIndexHtml`, nessun import, stringhe EN tenute allineate ai dizionari da test); lang, canonical `/en/`, OG/Twitter/JSON-LD inglesi, `og-image-en.jpg`, failure esplicito su template drift.
+- [x] **T9.3 build**: plugin `landingPages` con `closeBundle` → `dist/en/index.html` dentro `npm run build`; `hreflang` a tre vie nel template per entrambe le pagine.
+- [x] **T9.4 boot**: `initialLocale(pathname, stored)` in `src/data/locale.ts` — su `/en/` l'URL vince sulla preferenza, altrove resta la preferenza; test dei falsi prefissi.
+- [x] **T9.5 capture bilingue**: `npm run capture:landing` genera IT ed EN (filtro per lingua da CLI, pref salvato via `addInitScript`, nome preventivo dati per locale); `public/landing/en/*.jpg` + `public/og-image-en.jpg`; artifact italiani non ritoccati.
+- [x] **T9.6 budget**: voce `HTML EN` a 10 KB gzip con segnalazione dedicata se la pagina manca.
+- [x] **T9.7 SEO**: `sitemap.xml` con `xhtml:link` e URL `/en/` (priority 0.8); `robots.txt` invariato.
+- [x] **T9.8 verifiche**: +10 unitari (golden EN + separazione IT/EN, mapping testa e sync copia, `initialLocale`), 307→317 unitari totali e +2 E2E `/en/` (meta, hreflang, boot inglese, CTA, storage intatto); 70 e2e locali verdi, `npm run check` verde.
+- [x] **T9.9 docs**: ADR-0035, piano, README, deployment, testing, i18n inventory, architecture, TASKS, STATUS.
+
 ## Prossimi task
 
-**EVO-8 — Console admin** è chiusa al completo: implementata, distribuita e attiva in produzione il 04/11/2026 con le operazioni post-deploy (backup verificato → migrazione → SQL `is_admin` sul profilo `Tancredi` → deploy `index-D6ixFw48.js` → smoke e verifica reale con account temporaneo, runbook §17.2). Il **backlog pianificato è vuoto**: EVO-1→8 chiuse, EVO-3b assorbita, EVO-2 chiusa il 03/11/2026, **follow-up baseline visual chiuso con la PR #64 (04/11/2026)** e **CLI Supabase aggiornata a v3.0.0** (PR #65, `caea2c3`, mergiata il 05/11/2026: config `auth.email/sms.enabled` senza avvisi di deprecazione, `npm run db:types --local` di nuovo funzionante con tipi byte-identici, verifica completa dello stack locale) e attesa del contenuto di rotta prima degli screenshot sulle rotte lazy (fix del flake `e2e` su `mobile-feedback`, baseline rigenerate sul branch e verificate dal job `e2e` della stessa PR). Follow-up opzionali residui: stampa fisica, NVDA, indicizzazione inglese della landing.
+**Storia recente:** EVO-8 console admin (ADR-0034, PR #63, `8cfe37c`, live in produzione), follow-up baseline visual cloud/login/docs/feedback (PR #64, `596456c`) e CLI Supabase v3.0.0 (PR #65, `caea2c3`) sono chiusi; il registro completo resta in `STATUS.md`.
+
+**EVO-9 — Indicizzazione inglese della landing** è chiusa il 05/11/2026 (ADR-0035): pagina `en/index.html` pre-renderizzata con testa inglese (canonical `/en/`, hreflang a tre vie, OG/Twitter/JSON-LD EN, `og-image-en.jpg`), boot inglese dal path (l'URL vince sulla preferenza salvata), capture bilingue con `public/landing/en/`, sitemap con alternate `xhtml:link`, budget `HTML EN` a 10 KB. Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS, sync o seed. Nota conservata per il futuro: le etichette extra di seed sono nomi-dati in italiano anche in sessione inglese (es. «Sacchetto zip»).
+
+**Residuo della roadmap:**
+- Verifiche manuali: prova su stampante fisica, NVDA su Windows (Safari/VoiceOver già provati il 02/11/2026).
+- Evolutive candidate: reset password self-service via SMTP gratuito (EVO-10), dominio personalizzato solo se l'apertura lo richiede, fixture Bambu committabile con autorizzazione del modello, seed localizzati.
