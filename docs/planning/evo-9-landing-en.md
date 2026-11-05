@@ -99,8 +99,8 @@ della landing né dell'infrastruttura SEO esistente.
   fallisce con riga dedicata.
 - Sitemap con `/en/` (priority 0.8) e alternate `xhtml:link`; robots invariato.
 - Verifiche: 317 unitari (+10), `test:e2e` 70 passati (+2 su `/en/`), `npm run check`
-  verde. Nota conservata: le etichette extra di seed restano nomi-dati in italiano
-  anche in sessione inglese (candidata evolutiva sui seed localizzati).
+  verde. Nota poi risolta con EVO-10 (ADR-0036, stesso giorno): i seed ora nascono
+  nella lingua della sessione.
 - **Merge e produzione (05/11/2026):** PR #66 mergiata (squash `4db1acd`, build
   `index-DQLqfdfo.js`) con CI verde; produzione verificata: `/en/` 200 con
   `lang="en"`, canonical `/en/`, hreflang a tre vie, JSON-LD `inLanguage: "en"`,

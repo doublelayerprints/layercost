@@ -1,6 +1,8 @@
 import type { CostConfig, Quote } from '@/domain/types'
 import { StorageError } from './errors'
 import { createEmptyDraft, createSeedConfig } from './seed'
+import { loadLocalePreference } from './locale'
+import type { QuoteLocale } from '@/domain/types'
 import { parseAppData } from './schemas'
 
 export const STORAGE_KEY = 'layercost:data'
@@ -108,13 +110,13 @@ export interface AppData {
   draft: Quote
 }
 
-export function createInitialData(): AppData {
-  const config = createSeedConfig()
+export function createInitialData(locale: QuoteLocale = loadLocalePreference()): AppData {
+  const config = createSeedConfig(locale)
   return {
     schemaVersion: SCHEMA_VERSION,
     config,
     quotes: [],
-    draft: createEmptyDraft(config),
+    draft: createEmptyDraft(config, locale),
   }
 }
 

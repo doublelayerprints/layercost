@@ -24,90 +24,218 @@ import { EMPTY_DRAFT_NAMES, EMPTY_LINE_NAMES } from '@/lib/quote-defaults'
 
 export const SEED_TARIFF_ID = 'tariff-default'
 
-const seedTariff: EnergyTariff = {
-  id: SEED_TARIFF_ID,
-  label: 'Tariffa attuale',
-  pricePerKWh: euroToMicro(0.2),
-  effectiveFrom: '2026-01-01',
-  notes: 'Costo marginale indicativo. Aggiornalo con il prezzo della tua bolletta.',
+/**
+ * Natural-language copy of the seed data, per document language (ADR-0036).
+ * The IDs and every economic value are identical across locales: only names,
+ * notes, categories and the supplier are translated. The seed applies once,
+ * at first creation — existing data is never renamed when the language
+ * changes.
+ */
+interface SeedCopy {
+  tariff: { label: string; notes: string }
+  kobra3: {
+    notes: string
+    plaProfile: string
+    absProfile: string
+    asaProfile: string
+  }
+  kobraX: {
+    notes: string
+    plaProfile: string
+    absProfile: string
+    asaProfile: string
+  }
+  materials: {
+    supplier: string
+    pla: string
+    petg: string
+    tpu: string
+    abs: string
+    asa: string
+    plaCf: string
+    petgCf: string
+    pva: string
+  }
+  extras: {
+    zipBag: string
+    box: string
+    label: string
+    padding: string
+    shipping: string
+    packagingCategory: string
+    shippingCategory: string
+  }
 }
 
-const kobra3: Printer = {
-  id: 'printer-kobra-3',
-  name: 'Kobra 3',
-  model: 'Anycubic Kobra 3',
-  purchasePrice: euroToMicro(299),
-  residualValueBp: percentToBp(20),
-  expectedLifeHours: 15000,
-  maintenancePerHour: euroToMicro(0.01),
-  startupMinutes: 5,
-  multicolor: false,
-  buildVolumeMm: [250, 250, 260],
-  ratedPowerW: 400,
-  defaultAvgWatts: asWatts(200),
-  powerProfiles: {
-    PLA: {
-      avgWatts: asWatts(190),
-      source: 'estimated',
-      note: 'Intervallo misurato 180–205 W in PLA.',
+const SEED_COPY: Record<QuoteLocale, SeedCopy> = {
+  it: {
+    tariff: {
+      label: 'Tariffa attuale',
+      notes: 'Costo marginale indicativo. Aggiornalo con il prezzo della tua bolletta.',
     },
-    PETG: { avgWatts: asWatts(200), source: 'estimated' },
-    TPU: { avgWatts: asWatts(180), source: 'estimated' },
-    ABS: {
-      avgWatts: asWatts(380),
-      source: 'estimated',
-      note: 'Test indicativo ~400 W con letto a 100 °C.',
+    kobra3: {
+      notes: 'Senza sistema multicolore. Prezzo di acquisto e potenza sono stime modificabili.',
+      plaProfile: 'Intervallo misurato 180–205 W in PLA.',
+      absProfile: 'Test indicativo ~400 W con letto a 100 °C.',
+      asaProfile: 'Test indicativo ~400 W con letto a 100 °C.',
     },
-    ASA: {
-      avgWatts: asWatts(380),
-      source: 'estimated',
-      note: 'Test indicativo ~400 W con letto a 100 °C.',
+    kobraX: {
+      notes: 'ACE 2 Pro, 4 colori nativi. Prezzo di acquisto e potenza sono stime modificabili.',
+      plaProfile: 'Stima da verificare con una presa intelligente.',
+      absProfile: 'Stima da verificare; letto a 100 °C.',
+      asaProfile: 'Stima da verificare; letto a 100 °C.',
     },
-    PLA_CF: { avgWatts: asWatts(210), source: 'estimated' },
-    PETG_CF: { avgWatts: asWatts(220), source: 'estimated' },
-    PVA: { avgWatts: asWatts(190), source: 'estimated' },
+    materials: {
+      supplier: 'Generico',
+      pla: 'Materiale di riferimento per la maggior parte delle stampe.',
+      petg: 'Più resistente e meno fragile del PLA.',
+      tpu: 'Flessibile; richiede velocità basse.',
+      abs: 'Tasso guasti prudenziale per stampa su telaio aperto.',
+      asa: 'Tasso guasti prudenziale per stampa su telaio aperto.',
+      plaCf: 'Riempitivo in fibra di carbonio; ugello in acciaio consigliato.',
+      petgCf: 'Riempitivo in fibra di carbonio; ugello in acciaio consigliato.',
+      pva: 'Supporti solubili in acqua.',
+    },
+    extras: {
+      zipBag: 'Sacchetto zip',
+      box: 'Scatola',
+      label: 'Etichetta',
+      padding: 'Imbottitura',
+      shipping: 'Spedizione',
+      packagingCategory: 'Imballaggio',
+      shippingCategory: 'Spedizione',
+    },
   },
-  notes: 'Senza sistema multicolore. Prezzo di acquisto e potenza sono stime modificabili.',
-  archived: false,
+  en: {
+    tariff: {
+      label: 'Current tariff',
+      notes: 'Indicative marginal cost. Update it with the price from your energy bill.',
+    },
+    kobra3: {
+      notes: 'No multicolor system. Purchase price and power are editable estimates.',
+      plaProfile: 'Measured range 180–205 W in PLA.',
+      absProfile: 'Indicative test ~400 W with a 100 °C bed.',
+      asaProfile: 'Indicative test ~400 W with a 100 °C bed.',
+    },
+    kobraX: {
+      notes: 'ACE 2 Pro, 4 native colors. Purchase price and power are editable estimates.',
+      plaProfile: 'Estimate to verify with a smart plug.',
+      absProfile: 'Estimate to verify; 100 °C bed.',
+      asaProfile: 'Estimate to verify; 100 °C bed.',
+    },
+    materials: {
+      supplier: 'Generic',
+      pla: 'Reference material for most prints.',
+      petg: 'Tougher and less brittle than PLA.',
+      tpu: 'Flexible; requires low speeds.',
+      abs: 'Prudent failure rate for open-frame printing.',
+      asa: 'Prudent failure rate for open-frame printing.',
+      plaCf: 'Carbon fiber filler; a hardened steel nozzle is recommended.',
+      petgCf: 'Carbon fiber filler; a hardened steel nozzle is recommended.',
+      pva: 'Water-soluble supports.',
+    },
+    extras: {
+      zipBag: 'Zip bag',
+      box: 'Box',
+      label: 'Label',
+      padding: 'Padding',
+      shipping: 'Shipping',
+      packagingCategory: 'Packaging',
+      shippingCategory: 'Shipping',
+    },
+  },
 }
 
-const kobraX: Printer = {
-  id: 'printer-kobra-x',
-  name: 'Kobra X',
-  model: 'Anycubic Kobra X',
-  purchasePrice: euroToMicro(449),
-  residualValueBp: percentToBp(20),
-  expectedLifeHours: 20000,
-  maintenancePerHour: euroToMicro(0.01),
-  startupMinutes: 5,
-  multicolor: true,
-  buildVolumeMm: [260, 260, 260],
-  ratedPowerW: 1450,
-  defaultAvgWatts: asWatts(230),
-  powerProfiles: {
-    PLA: {
-      avgWatts: asWatts(220),
-      source: 'estimated',
-      note: 'Stima da verificare con una presa intelligente.',
+function seedTariff(copy: SeedCopy): EnergyTariff {
+  return {
+    id: SEED_TARIFF_ID,
+    label: copy.tariff.label,
+    pricePerKWh: euroToMicro(0.2),
+    effectiveFrom: '2026-01-01',
+    notes: copy.tariff.notes,
+  }
+}
+
+function kobra3(copy: SeedCopy): Printer {
+  return {
+    id: 'printer-kobra-3',
+    name: 'Kobra 3',
+    model: 'Anycubic Kobra 3',
+    purchasePrice: euroToMicro(299),
+    residualValueBp: percentToBp(20),
+    expectedLifeHours: 15000,
+    maintenancePerHour: euroToMicro(0.01),
+    startupMinutes: 5,
+    multicolor: false,
+    buildVolumeMm: [250, 250, 260],
+    ratedPowerW: 400,
+    defaultAvgWatts: asWatts(200),
+    powerProfiles: {
+      PLA: {
+        avgWatts: asWatts(190),
+        source: 'estimated',
+        note: copy.kobra3.plaProfile,
+      },
+      PETG: { avgWatts: asWatts(200), source: 'estimated' },
+      TPU: { avgWatts: asWatts(180), source: 'estimated' },
+      ABS: {
+        avgWatts: asWatts(380),
+        source: 'estimated',
+        note: copy.kobra3.absProfile,
+      },
+      ASA: {
+        avgWatts: asWatts(380),
+        source: 'estimated',
+        note: copy.kobra3.asaProfile,
+      },
+      PLA_CF: { avgWatts: asWatts(210), source: 'estimated' },
+      PETG_CF: { avgWatts: asWatts(220), source: 'estimated' },
+      PVA: { avgWatts: asWatts(190), source: 'estimated' },
     },
-    PETG: { avgWatts: asWatts(230), source: 'estimated' },
-    TPU: { avgWatts: asWatts(200), source: 'estimated' },
-    ABS: {
-      avgWatts: asWatts(420),
-      source: 'estimated',
-      note: 'Stima da verificare; letto a 100 °C.',
+    notes: copy.kobra3.notes,
+    archived: false,
+  }
+}
+
+function kobraX(copy: SeedCopy): Printer {
+  return {
+    id: 'printer-kobra-x',
+    name: 'Kobra X',
+    model: 'Anycubic Kobra X',
+    purchasePrice: euroToMicro(449),
+    residualValueBp: percentToBp(20),
+    expectedLifeHours: 20000,
+    maintenancePerHour: euroToMicro(0.01),
+    startupMinutes: 5,
+    multicolor: true,
+    buildVolumeMm: [260, 260, 260],
+    ratedPowerW: 1450,
+    defaultAvgWatts: asWatts(230),
+    powerProfiles: {
+      PLA: {
+        avgWatts: asWatts(220),
+        source: 'estimated',
+        note: copy.kobraX.plaProfile,
+      },
+      PETG: { avgWatts: asWatts(230), source: 'estimated' },
+      TPU: { avgWatts: asWatts(200), source: 'estimated' },
+      ABS: {
+        avgWatts: asWatts(420),
+        source: 'estimated',
+        note: copy.kobraX.absProfile,
+      },
+      ASA: {
+        avgWatts: asWatts(420),
+        source: 'estimated',
+        note: copy.kobraX.asaProfile,
+      },
+      PLA_CF: { avgWatts: asWatts(240), source: 'estimated' },
+      PETG_CF: { avgWatts: asWatts(250), source: 'estimated' },
+      PVA: { avgWatts: asWatts(220), source: 'estimated' },
     },
-    ASA: {
-      avgWatts: asWatts(420),
-      source: 'estimated',
-      note: 'Stima da verificare; letto a 100 °C.',
-    },
-    PLA_CF: { avgWatts: asWatts(240), source: 'estimated' },
-    PETG_CF: { avgWatts: asWatts(250), source: 'estimated' },
-    PVA: { avgWatts: asWatts(220), source: 'estimated' },
-  },
-  notes: 'ACE 2 Pro, 4 colori nativi. Prezzo di acquisto e potenza sono stime modificabili.',
-  archived: false,
+    notes: copy.kobraX.notes,
+    archived: false,
+  }
 }
 
 function material(
@@ -115,6 +243,7 @@ function material(
   name: string,
   family: Material['family'],
   pricePerKg: number,
+  supplier: string,
   options: Partial<Pick<Material, 'supplier' | 'color' | 'failureRateBp' | 'notes'>> = {},
 ): Material {
   return {
@@ -123,7 +252,7 @@ function material(
     family,
     pricePerKg: euroToMicro(pricePerKg),
     spoolNetWeightG: 1000,
-    supplier: options.supplier ?? 'Generico',
+    supplier: options.supplier ?? supplier,
     color: options.color,
     failureRateBp: options.failureRateBp,
     notes: options.notes,
@@ -131,82 +260,104 @@ function material(
   }
 }
 
-const materials: Material[] = [
-  material('material-pla', 'PLA', 'PLA', 20, {
-    notes: 'Materiale di riferimento per la maggior parte delle stampe.',
-  }),
-  material('material-petg', 'PETG', 'PETG', 24, {
-    notes: 'Più resistente e meno fragile del PLA.',
-  }),
-  material('material-tpu', 'TPU', 'TPU', 30, {
-    notes: 'Flessibile; richiede velocità basse.',
-  }),
-  material('material-abs', 'ABS', 'ABS', 25, {
-    failureRateBp: percentToBp(10),
-    notes: 'Tasso guasti prudenziale per stampa su telaio aperto.',
-  }),
-  material('material-asa', 'ASA', 'ASA', 30, {
-    failureRateBp: percentToBp(10),
-    notes: 'Tasso guasti prudenziale per stampa su telaio aperto.',
-  }),
-  material('material-pla-cf', 'PLA-CF', 'PLA_CF', 35, {
-    notes: 'Riempitivo in fibra di carbonio; ugello in acciaio consigliato.',
-  }),
-  material('material-petg-cf', 'PETG-CF', 'PETG_CF', 35, {
-    notes: 'Riempitivo in fibra di carbonio; ugello in acciaio consigliato.',
-  }),
-  material('material-pva', 'PVA', 'PVA', 60, {
-    notes: 'Supporti solubili in acqua.',
-  }),
-]
+function materials(copy: SeedCopy): Material[] {
+  const { supplier } = copy.materials
+  return [
+    material('material-pla', 'PLA', 'PLA', 20, supplier, {
+      notes: copy.materials.pla,
+    }),
+    material('material-petg', 'PETG', 'PETG', 24, supplier, {
+      notes: copy.materials.petg,
+    }),
+    material('material-tpu', 'TPU', 'TPU', 30, supplier, {
+      notes: copy.materials.tpu,
+    }),
+    material('material-abs', 'ABS', 'ABS', 25, supplier, {
+      failureRateBp: percentToBp(10),
+      notes: copy.materials.abs,
+    }),
+    material('material-asa', 'ASA', 'ASA', 30, supplier, {
+      failureRateBp: percentToBp(10),
+      notes: copy.materials.asa,
+    }),
+    material('material-pla-cf', 'PLA-CF', 'PLA_CF', 35, supplier, {
+      notes: copy.materials.plaCf,
+    }),
+    material('material-petg-cf', 'PETG-CF', 'PETG_CF', 35, supplier, {
+      notes: copy.materials.petgCf,
+    }),
+    material('material-pva', 'PVA', 'PVA', 60, supplier, {
+      notes: copy.materials.pva,
+    }),
+  ]
+}
 
-const extra = (
+function extra(
   id: string,
   name: string,
   amountEur: number,
   unit: Extra['unit'],
   category: string,
-): Extra => ({
-  id,
-  name,
-  amount: euroToMicro(amountEur),
-  unit,
-  category,
-  archived: false,
-})
-
-const extras: Extra[] = [
-  extra('extra-zip-bag', 'Sacchetto zip', 0.08, 'perUnit', 'Imballaggio'),
-  extra('extra-box', 'Scatola', 0.4, 'perUnit', 'Imballaggio'),
-  extra('extra-label', 'Etichetta', 0.03, 'perUnit', 'Imballaggio'),
-  extra('extra-bubble-wrap', 'Imbottitura', 0.1, 'perUnit', 'Imballaggio'),
-  extra('extra-shipping', 'Spedizione', 6, 'perJob', 'Spedizione'),
-]
-
-export const seedSettings: Settings = {
-  currency: 'EUR',
-  locale: 'it-IT',
-  tariffs: [seedTariff],
-  laborRatePerHour: euroToMicro(0),
-  failureRateBp: percentToBp(5),
-  timeOverheadBp: asBasisPoints(0),
-  pricingMode: 'markup',
-  markupBp: percentToBp(30),
-  marginBp: percentToBp(25),
-  roundingStep: euroToMicro(0.1),
-  roundingMode: 'up',
-  vatMode: 'none',
-  vatRateBp: percentToBp(22),
-  allocationMode: 'proportional',
-  onboardingComplete: false,
+): Extra {
+  return {
+    id,
+    name,
+    amount: euroToMicro(amountEur),
+    unit,
+    category,
+    archived: false,
+  }
 }
 
-export function createSeedConfig(): CostConfig {
+function extras(copy: SeedCopy): Extra[] {
+  const { extras: labels } = copy
+  return [
+    extra('extra-zip-bag', labels.zipBag, 0.08, 'perUnit', labels.packagingCategory),
+    extra('extra-box', labels.box, 0.4, 'perUnit', labels.packagingCategory),
+    extra('extra-label', labels.label, 0.03, 'perUnit', labels.packagingCategory),
+    extra('extra-bubble-wrap', labels.padding, 0.1, 'perUnit', labels.packagingCategory),
+    extra('extra-shipping', labels.shipping, 6, 'perJob', labels.shippingCategory),
+  ]
+}
+
+/**
+ * The `locale` field records the app's original default value and has no
+ * formatting consumers (ADR-0036 §2.4): formatting follows the UI language
+ * and `Quote.locale`.
+ */
+function seedSettingsFor(copy: SeedCopy): Settings {
   return {
-    settings: structuredClone(seedSettings),
-    printers: structuredClone([kobra3, kobraX]),
-    materials: structuredClone(materials),
-    extras: structuredClone(extras),
+    currency: 'EUR',
+    locale: 'it-IT',
+    tariffs: [seedTariff(copy)],
+    laborRatePerHour: euroToMicro(0),
+    failureRateBp: percentToBp(5),
+    timeOverheadBp: asBasisPoints(0),
+    pricingMode: 'markup',
+    markupBp: percentToBp(30),
+    marginBp: percentToBp(25),
+    roundingStep: euroToMicro(0.1),
+    roundingMode: 'up',
+    vatMode: 'none',
+    vatRateBp: percentToBp(22),
+    allocationMode: 'proportional',
+    onboardingComplete: false,
+  }
+}
+
+/**
+ * The seed configuration for a fresh install or a new workspace. The locale
+ * localizes names, notes, categories and the supplier only (ADR-0036): the
+ * IDs and every economic value are identical across locales, and existing
+ * data is never renamed afterwards.
+ */
+export function createSeedConfig(locale: QuoteLocale = 'it'): CostConfig {
+  const copy = SEED_COPY[locale]
+  return {
+    settings: structuredClone(seedSettingsFor(copy)),
+    printers: structuredClone([kobra3(copy), kobraX(copy)]),
+    materials: structuredClone(materials(copy)),
+    extras: structuredClone(extras(copy)),
   }
 }
 
@@ -259,10 +410,10 @@ export function createEmptyDraft(
 }
 
 export const seedIds = {
-  kobra3: kobra3.id,
-  kobraX: kobraX.id,
+  kobra3: 'printer-kobra-3',
+  kobraX: 'printer-kobra-x',
   pla: 'material-pla',
   petg: 'material-petg',
-  tariff: seedTariff.id,
+  tariff: SEED_TARIFF_ID,
   shipping: 'extra-shipping',
 }

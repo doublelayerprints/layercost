@@ -101,6 +101,16 @@ test('l’applicazione parte in inglese da /en/ senza preferenza salvata', async
   expect(await page.evaluate(() => localStorage.getItem('layercost:locale'))).toBeNull()
 })
 
+test('i dati di partenza nascono nella lingua della sessione', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('layercost:locale', 'en')
+  })
+  await page.goto('/#/extras')
+  await expect(page.getByText('Zip bag').first()).toBeVisible()
+  await expect(page.getByText('Shipping').first()).toBeVisible()
+  await expect(page.getByText('Sacchetto zip')).toHaveCount(0)
+})
+
 test('la CTA apre il calcolatore e lascia il marker di visita', async ({ page }) => {
   await openLanding(page)
   await page.getByRole('link', { name: 'Apri il calcolatore' }).first().click()

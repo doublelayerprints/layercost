@@ -26,6 +26,7 @@ import {
   QUOTE_REFRESH_SUFFIX,
 } from '@/lib/quote-defaults'
 import { createEmptyDraft, createEmptyLine, createSeedConfig } from '@/data/seed'
+import { loadLocalePreference } from '@/data/locale'
 import { SCHEMA_VERSION, type AppData } from '@/data/storage'
 import { localRepository, type DataRepository } from '@/data/repository'
 import { createCloudCacheRepository } from '@/data/cloud-cache'
@@ -172,11 +173,15 @@ export interface AppState {
 }
 
 const initialData = (() => {
-  const config = createSeedConfig()
+  // The boot language (path `/en/` or saved preference) localizes the seed
+  // names once, at first creation (ADR-0036): later language switches never
+  // rename existing data.
+  const locale = loadLocalePreference()
+  const config = createSeedConfig(locale)
   return {
     config,
     quotes: [] as Quote[],
-    draft: createEmptyDraft(config),
+    draft: createEmptyDraft(config, locale),
   }
 })()
 

@@ -82,6 +82,7 @@ La tariffa corrente è quella con `effectiveFrom` più recente e ≤ data del pr
 - `catalogEntryToPrinter(entry, locale)` restituisce `Omit<Printer, 'id'>` con `archived: false`, nessun `energyTariffId`, note nella lingua attiva e profili `source: 'estimated'`.
 - L'aggiunta usa il normale `addPrinter`, che genera l'ID e salva una copia modificabile. Lo stesso modello può essere aggiunto più volte.
 - Le due stampanti del seed (Kobra 3 e Kobra X) sono escluse dal catalogo perché già presenti nella configurazione iniziale.
+- I nomi, le note e le categorie del seed sono localizzati IT/EN (EVO-10, ADR-0036): gli ID e i valori economici sono identici nelle due lingue; il seed applica la lingua della sessione solo alla prima creazione e i dati esistenti non vengono mai rinominati.
 - Il campo `model` segue il nome dello slicer per essere proposto dall'import `.3mf` con match esatto.
 
 ### 2.4 `Material`
