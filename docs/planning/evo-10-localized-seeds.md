@@ -53,3 +53,9 @@ vengono mai rinominati.
   run tutto verde. Mergiata con squash `0be2ff9`, build di produzione
   `index-BUyuaNKz.js` / `index-DMAw7o4c.css`. La verifica di produzione è
   client-side (boot con preferenza `en` o pagina `/en/`) e resta coperta dall'E2E.
+- **Operazione dati una-tantum (consenso esplicito dell'owner):** rinominati i 5
+  extra di seed negli spazi di produzione (10 righe) con UPDATE exact-match
+  (`id` + nome italiano originale + `deleted_at IS NULL`) e `updated_at=now()`
+  per la propagazione via sync; post-verifica 10 EN / 0 IT. Tariffe, materiali
+  e note stampanti restano in italiano: rinominabili a mano o con la stessa
+  procedura su richiesta.
