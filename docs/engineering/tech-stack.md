@@ -32,7 +32,7 @@
 | Format        | Prettier               | 3.9      |
 | CI            | GitHub Actions         | —        |
 | Database (fase 5) | Supabase Free      | Postgres 17 |
-| Database CLI  | `supabase` (dev)       | 2.122    |
+| Database CLI  | `supabase` (dev)       | 3.0.0    |
 
 > Nota: il piano iniziale citava ESLint. In implementazione è stato scelto **oxlint** perché già integrato dallo scaffold Vite, più veloce e sufficiente per il progetto. La sostituzione è una deviazione consapevole, non un cambio di architettura.
 
