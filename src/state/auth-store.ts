@@ -17,15 +17,16 @@ import {
   type OAuthProvider,
 } from '@/data/cloud/oauth'
 
-export type AuthStatus =
-  | 'idle'
-  | 'loading'
-  | 'authenticated'
-  | 'expired'
-  | 'error'
-  | 'unconfigured'
+export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'expired' | 'error' | 'unconfigured'
 
 export type OAuthStatus = 'idle' | 'redirecting' | 'linking'
+
+/**
+ * Outcome of a signup: `confirmEmail` means the account exists but the session
+ * starts only after the link in the inbox is followed (email confirmation is
+ * enabled, ADR-0038 §2.6).
+ */
+export type SignUpOutcome = 'signedIn' | 'confirmEmail' | 'failed'
 
 /**
  * Password recovery (EVO-11): `requested` is the neutral confirmation shown
@@ -50,7 +51,7 @@ export interface AuthState {
 
   initialize: () => Promise<void>
   signIn: (email: string, password: string) => Promise<boolean>
-  signUp: (email: string, password: string) => Promise<boolean>
+  signUp: (email: string, password: string) => Promise<SignUpOutcome>
   requestPasswordReset: (email: string) => Promise<boolean>
   completePasswordReset: (password: string) => Promise<boolean>
   cancelPasswordReset: () => void
@@ -294,21 +295,30 @@ export function createAuthStore(deps: AuthStoreDeps) {
         }
       },
 
-      // Open signup with a numeric cap (EVO-2, ADR-0027). With auto-confirm
-      // the session starts immediately: the sync first-login dialog and the
-      // automatic personal workspace keep working unchanged.
+      // Open signup with a numeric cap (EVO-2, ADR-0027). Email confirmation is
+      // enabled (audit 06/11/2026, ADR-0038 §2.6): a new account has no session
+      // until the link is followed, so the caller shows the "check your inbox"
+      // state instead of entering the calculator.
       signUp: async (email, password) => {
         if (!deps.isConfigured()) {
           set({ status: 'unconfigured', error: 'notConfigured', user: null, oauth: 'idle' })
-          return false
+          return 'failed'
         }
 
         set({ status: 'loading', error: undefined, oauthCallback: undefined })
         try {
           const client = await ensureGateway()
-          const session = await client.signUp(email.trim(), password)
+          const { session, needsConfirmation } = await client.signUp(email.trim(), password)
+          if (needsConfirmation) {
+            set({ status: 'idle', user: null, error: undefined, oauth: 'idle' })
+            return 'confirmEmail'
+          }
+          if (!session) {
+            set({ status: 'idle', user: null, error: 'unknown', oauth: 'idle' })
+            return 'failed'
+          }
           applySession(session, 'signedIn')
-          return true
+          return 'signedIn'
         } catch (error) {
           set({
             status: 'idle',
@@ -316,7 +326,7 @@ export function createAuthStore(deps: AuthStoreDeps) {
             error: errorCode(error),
             oauth: 'idle',
           })
-          return false
+          return 'failed'
         }
       },
 
@@ -362,9 +372,7 @@ export function createAuthStore(deps: AuthStoreDeps) {
         ),
 
       linkGoogle: () =>
-        startOAuth('linking', (client, redirectTo) =>
-          client.linkIdentity(provider, redirectTo),
-        ),
+        startOAuth('linking', (client, redirectTo) => client.linkIdentity(provider, redirectTo)),
 
       signOut: async () => {
         set({ status: 'loading', error: undefined, oauth: 'idle', oauthCallback: undefined })
@@ -373,7 +381,13 @@ export function createAuthStore(deps: AuthStoreDeps) {
         } catch {
           // The local session is cleared below even if the network fails.
         }
-        set({ status: 'idle', user: null, error: undefined, oauth: 'idle', oauthCallback: undefined })
+        set({
+          status: 'idle',
+          user: null,
+          error: undefined,
+          oauth: 'idle',
+          oauthCallback: undefined,
+        })
       },
 
       clearError: () => set({ error: undefined, oauthCallback: undefined }),

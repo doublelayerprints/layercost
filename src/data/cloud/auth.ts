@@ -13,6 +13,12 @@ export interface AuthSession {
   user: AuthUser
 }
 
+/** Email confirmation is on (ADR-0038 §2.6): the account awaits the link. */
+export interface SignUpResult {
+  session: AuthSession | null
+  needsConfirmation: boolean
+}
+
 export type AuthChangeEvent =
   | 'initial'
   | 'signedIn'
@@ -54,7 +60,12 @@ export class AuthError extends Error {
 export interface AuthGateway {
   getSession: () => Promise<AuthSession | null>
   signIn: (email: string, password: string) => Promise<AuthSession>
-  signUp: (email: string, password: string) => Promise<AuthSession>
+  /**
+   * Creates an account. With email confirmation enabled there is no session
+   * until the link in the inbox is followed, so the caller distinguishes the
+   * two outcomes.
+   */
+  signUp: (email: string, password: string) => Promise<SignUpResult>
   signInWithOAuth: (provider: OAuthProvider, redirectTo: string) => Promise<void>
   linkIdentity: (provider: OAuthProvider, redirectTo: string) => Promise<void>
   /**
@@ -180,14 +191,18 @@ export async function createSupabaseAuthGateway(): Promise<AuthGateway> {
       return session
     },
 
-    // With auto-confirm (EVO-2) the session starts immediately; the first
-    // login dialog and the automatic personal workspace handle the rest.
+    // With email confirmation enabled (audit 06/11/2026, ADR-0038 §2.6) signUp
+    // returns a user but no session: the account exists and the confirmation
+    // email is on its way. A missing session here is the expected outcome, not
+    // an error, so the UI can show "check your inbox". A missing user means the
+    // address already belongs to a confirmed account (GoTrue obfuscates it to
+    // avoid enumeration) and the caller keeps the neutral "check your inbox"
+    // message as well.
     async signUp(email, password) {
       const { data, error } = await client.auth.signUp({ email, password })
       if (error) throw mapAuthError(error)
       const session = toSession(data.session)
-      if (!session) throw new AuthError('emailNotConfirmed')
-      return session
+      return { session, needsConfirmation: data.user !== null && session === null }
     },
 
     async signInWithOAuth(provider, redirectTo) {

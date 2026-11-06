@@ -15,7 +15,7 @@ I problemi reali sono tre e uno è potenzialmente critico: la registrazione non 
 
 | # | Gravità | Finding | Stato al 06/11/2026 |
 | --- | --- | --- | --- |
-| 1 | Critico se confermato | Auto-confirm email + auto-link Google | **da verificare** |
+| 1 | **Critico** | Auto-confirm email + auto-link Google | **confermato e corretto** (ADR-0038 §2.6) |
 | 2 | Alto | Link condiviso con snapshot e margini | **corretto** (ADR-0038 §2.1) |
 | 3 | Medio | Nessun CSP / anti-clickjacking | **corretto** (ADR-0038 §2.2) |
 | 4 | Medio | Signup senza CAPTCHA e senza conferma email | aperto |
@@ -31,7 +31,7 @@ I problemi reali sono tre e uno è potenzialmente critico: la registrazione non 
 
 ## 2. Finding 1 — Pre-account takeover via auto-confirm + auto-link
 
-**Gravità:** critica **se** l'auto-link è attivo. **Stato:** da verificare.
+**Gravità:** critica. **Stato:** confermato e corretto il 06/11/2026 (ADR-0038 §2.6).
 
 ### Evidenza
 
@@ -55,15 +55,28 @@ Con auto-confirm Supabase marca l'email come verificata implicitamente. La docum
 
 Il signup è aperto a 1000 utenti e la conferma email è spenta proprio per non dipendere dall'SMTP, che però dal 06/11/2026 funziona.
 
-### Verifica da eseguire
+### Verifica eseguita
 
-Registrare un account con un'email, poi accedere con Google sulla stessa email da un secondo browser. Se si entra nell'account esistente senza conferma, la vulnerabilità è confermata.
+Codice di GoTrue v2.197.0 — la stessa versione in produzione secondo `/auth/v1/health` — nel punto decisivo:
 
-### Rimedio
+```go
+if email.Verified || config.Mailer.Autoconfirm {
+    verifiedEmails = append(verifiedEmails, strings.ToLower(email.Email))
+}
+...
+if hasEmails && !user.IsConfirmed() {
+    // ...to prevent pre-account takeover attacks from happening.
+    user.RemoveUnconfirmedIdentities(tx, identity)
+} else {
+    // utente confermato: nessuna pulizia
+}
+```
 
-1. **Attivare la conferma email** (`mailer_autoconfirm = false`): ora l'SMTP è affidabile. Costo: un click in più alla registrazione.
-2. In parallelo, verificare e se serve disattivare l'auto-link; il pulsante "Collega Google" resta la via esplicita e sicura.
-3. In alternativa, rimuovere Google dal signup per i nuovi utenti: è l'unica combinazione sicura con auto-confirm.
+Con `mailer_autoconfirm = true` l'utente nasce confermato, quindi la protezione non viene **mai** eseguita. Riprodotto sul backend locale: l'attaccante registra l'email della vittima, arriva l'identità Google, l'attaccante rientra con email+password → accesso riuscito.
+
+### Rimedio applicato
+
+`mailer_autoconfirm = false` in produzione e in `supabase/config.toml`; gateway e store distinguono `confirmEmail` da `signedIn`; la pagina di accesso mostra «Controlla la posta». Verificato: l'utente resta non confermato, il login prima della conferma risponde `email_not_confirmed`, il link reale da Mailpit conferma e apre la sessione. Due test unitari nuovi bloccano la regressione.
 
 ---
 

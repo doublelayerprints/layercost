@@ -8,6 +8,12 @@ export const authIt = {
   'auth.signup.description':
     'Crea un account per sincronizzare configurazione e preventivi tra i tuoi dispositivi. Ogni account ha uno spazio personale nel cloud.',
   'auth.signup.passwordHint': 'Almeno 12 caratteri.',
+  'auth.confirm.title': 'Controlla la posta',
+  'auth.confirm.body':
+    'Abbiamo inviato un link di conferma a {email}. Aprilo per attivare l’account: senza conferma non puoi accedere.',
+  'auth.confirm.hint':
+    'Non arriva nulla? Controlla la cartella spam e verifica di aver scritto l’indirizzo corretto.',
+  'auth.confirm.goToSignIn': 'Vai all’accesso',
   'auth.signup.submit': 'Crea account',
   'auth.signup.submitting': 'Creazione account…',
   'auth.signup.hint':

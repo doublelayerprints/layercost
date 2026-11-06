@@ -11,6 +11,7 @@ interface FakeGateway {
   gateway: AuthGateway
   emit: (session: AuthSession | null, event: AuthChangeEvent) => void
   signIn: ReturnType<typeof vi.fn>
+  signUp: ReturnType<typeof vi.fn>
   signInWithOAuth: ReturnType<typeof vi.fn>
   linkIdentity: ReturnType<typeof vi.fn>
   exchangeCodeForSession: ReturnType<typeof vi.fn>
@@ -24,7 +25,10 @@ function createFakeGateway(initialSession: AuthSession | null = null): FakeGatew
   let listener: ((session: AuthSession | null, event: AuthChangeEvent) => void) | undefined
   const getSession = vi.fn(async () => initialSession)
   const signIn = vi.fn(async () => initialSession as AuthSession)
-  const signUp = vi.fn(async () => initialSession as AuthSession)
+  const signUp = vi.fn(async () => ({
+    session: initialSession as AuthSession,
+    needsConfirmation: false,
+  }))
   const signInWithOAuth = vi.fn(async () => {})
   const linkIdentity = vi.fn(async () => {})
   const exchangeCodeForSession = vi.fn(async () => ({
@@ -56,6 +60,7 @@ function createFakeGateway(initialSession: AuthSession | null = null): FakeGatew
     gateway,
     emit: (session, event) => listener?.(session, event),
     signIn,
+    signUp,
     signInWithOAuth,
     linkIdentity,
     exchangeCodeForSession,
@@ -465,5 +470,43 @@ describe('recupero della password (EVO-11)', () => {
 
     store.getState().cancelPasswordReset()
     expect(store.getState().recovery).toBe('idle')
+  })
+})
+
+/**
+ * Audit 06/11/2026, finding 1 (ADR-0038 §2.6). With email confirmation enabled
+ * a fresh signup has no session: it must NOT be treated as a login, otherwise
+ * the pre-account-takeover protection in GoTrue never applies.
+ */
+describe('signUp con conferma email attiva', () => {
+  it('restituisce confirmEmail e non autentica quando manca la sessione', async () => {
+    const fake = createFakeGateway(user)
+    fake.signUp.mockResolvedValueOnce({ session: null, needsConfirmation: true })
+    const store = createAuthStore({
+      isConfigured: () => true,
+      createGateway: async () => fake.gateway,
+      oauth: oauthDeps,
+    })
+
+    const outcome = await store.getState().signUp('nuovo@example.test', 'Password-lunga-123')
+
+    expect(outcome).toBe('confirmEmail')
+    expect(store.getState().status).not.toBe('authenticated')
+    expect(store.getState().user).toBeNull()
+    expect(store.getState().error).toBeUndefined()
+  })
+
+  it('autentica quando la conferma è disattivata e la sessione esiste', async () => {
+    const fake = createFakeGateway(user)
+    const store = createAuthStore({
+      isConfigured: () => true,
+      createGateway: async () => fake.gateway,
+      oauth: oauthDeps,
+    })
+
+    const outcome = await store.getState().signUp('nuovo@example.test', 'Password-lunga-123')
+
+    expect(outcome).toBe('signedIn')
+    expect(store.getState().status).toBe('authenticated')
   })
 })

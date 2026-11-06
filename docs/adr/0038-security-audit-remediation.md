@@ -55,12 +55,27 @@ Un trigger `before insert` (`set_created_fields`) imposta `created_by = auth.uid
 
 `enforce_workspace_quote_cap` esceva subito per gli `UPDATE`, salvo il ripristino di un tombstone. Uno spostamento verso un workspace pieno passava. Ora la condizione include `new.workspace_id is distinct from old.workspace_id`: lo spostamento è trattato come un inserimento nella destinazione.
 
+### 2.6 La conferma email è obbligatoria (finding 1)
+
+**Problema confermato.** Letto il codice di GoTrue v2.197.0, la stessa versione in produzione (`/auth/v1/health`), e riprodotto sul backend locale:
+
+1. `DetermineAccountLinking` tratta un'email come verificata quando `email.Verified || config.Mailer.Autoconfirm`. Con auto-confirm **ogni** indirizzo è "verificato".
+2. Il signup nasce quindi con `IsConfirmed() = true`.
+3. In `createAccountFromExternalIdentity` la protezione anti-takeover è dentro `if hasEmails && !user.IsConfirmed()`: con l'utente già confermato **non viene eseguita**. Niente `RemoveUnconfirmedIdentities`, niente azzeramento della password lasciata dall'attaccante.
+4. Prova empirica: l'attaccante registra l'email della vittima, arriva l'identità Google della vittima, l'attaccante rientra con email+password → **accesso riuscito**.
+
+**Decisione.** `mailer_autoconfirm = false` in produzione e in `supabase/config.toml`. La conferma email era stata disattivata in EVO-2 perché l'SMTP non funzionava; dal 06/11/2026 funziona (ADR-0037 §3.1), quindi l'ostacolo è caduto.
+
+**Conseguenza sul codice.** Con la conferma attiva `signUp` non restituisce una sessione. Prima il gateway trattava l'assenza di sessione come `emailNotConfirmed`, cioè un errore; ora restituisce `{ session, needsConfirmation }` e lo store espone `SignUpOutcome = 'signedIn' | 'confirmEmail' | 'failed'`. La pagina di accesso mostra «Controlla la posta» con l'indirizzo, il suggerimento di guardare lo spam e un pulsante verso l'accesso, al posto del calcolatore. Google non è toccato: le email Google arrivano già verificate.
+
+**Verifica.** La registrazione lascia l'utente `NON CONFERMATA` e il login prima della conferma risponde `email_not_confirmed`; il link reale da Mailpit conferma l'account e apre la sessione. Due test unitari nuovi bloccano la regressione: `confirmEmail` non deve autenticare.
+
 ## 3. Conseguenze
 
 - `vercel.json` non è più solo tre header: la CSP va aggiornata se cambia l'hash del JSON-LD (il test lo ricorda) o se si aggiunge un host di rete.
 - `QuoteOverview` e `QuotePrint` accettano `Quote | SharedQuote`: le figure interne sono raggiungibili solo tramite `internalResult`, che esiste solo quando l'audience è `internal` e il risultato è quello completo.
 - Migrazione `20261106120000_security_hardening.sql`: cinque trigger `before insert`, due funzioni ridefinite (`protect_locked_quote`, `enforce_workspace_quote_cap`). Nessuna tabella nuova, nessuna RLS modificata, nessun dato riscritto.
-- 336 unitari (+8: sei su link e proiezione, quattro sulla CSP), 159 pgTAP (+11 su `hardening.test.sql`).
+- 338 unitari (+10: sei su link e proiezione, quattro sulla CSP, due sul signup con conferma), 159 pgTAP (+11 su `hardening.test.sql`), 5 E2E auth con il nuovo flusso di conferma reale da Mailpit.
 - Nessun cambio a formule, `engineVersion`, snapshot economici, schema locale v4 o sync.
 
 ## 4. Alternative considerate
@@ -81,7 +96,7 @@ Un trigger `before insert` (`set_created_fields`) imposta `created_by = auth.uid
 
 | Finding | Stato | Perché non qui |
 | --- | --- | --- |
-| 1. Auto-confirm + auto-link | **da verificare** | Richiede una prova con due account Google reali; l'esito decide fra conferma email e rimozione di Google dal signup |
+| 1. Auto-confirm + auto-link | **confermato e corretto** | §2.6 |
 | 4. CAPTCHA sul signup | aperto | Richiede il widget Turnstile nella UI e le chiavi del provider |
 | 5. Integrità dell'inviato | parziale | Chiusa la collocazione; archiviazione e cancellazione restano per scelta (§2.4) |
 | 8. Password compromesse | aperto | Si attiva dal dashboard Supabase (HaveIBeenPwned), nessun codice |

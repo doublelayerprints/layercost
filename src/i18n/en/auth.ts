@@ -10,6 +10,12 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'auth.signup.description':
     'Create an account to sync configuration and quotes across your devices. Every account gets a personal cloud workspace.',
   'auth.signup.passwordHint': 'At least 12 characters.',
+  'auth.confirm.title': 'Check your inbox',
+  'auth.confirm.body':
+    'We sent a confirmation link to {email}. Open it to activate the account: you cannot sign in before confirming.',
+  'auth.confirm.hint':
+    'Nothing yet? Check the spam folder and make sure the address is spelled correctly.',
+  'auth.confirm.goToSignIn': 'Go to sign in',
   'auth.signup.submit': 'Create account',
   'auth.signup.submitting': 'Creating account…',
   'auth.signup.hint':

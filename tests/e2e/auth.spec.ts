@@ -136,9 +136,43 @@ test('signup: crea un account, apre la sessione e mostra la quota dello spazio',
     await expect(page.getByText('La password deve avere almeno 12 caratteri.')).toBeVisible()
     await audit(page)
 
-    // Happy path: with auto-confirm the session starts immediately.
+    // Happy path: email confirmation is on (ADR-0038 §2.6), so the account
+    // waits for the link and the page shows the neutral confirmation state.
     await page.getByLabel('Password').fill(password)
     await page.getByRole('button', { name: 'Crea account' }).click()
+    await expect(page.getByText('Controlla la posta').first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Vai all’accesso' })).toBeVisible()
+    await audit(page)
+
+    // Follow the real confirmation link from the local Mailpit inbox.
+    const mailpit = process.env.MAILPIT_URL ?? 'http://127.0.0.1:54324'
+    let confirmUrl: string | undefined
+    for (let attempt = 0; attempt < 20 && !confirmUrl; attempt += 1) {
+      const search = await fetch(
+        `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`,
+      )
+      if (search.ok) {
+        const list = (await search.json()) as { messages?: Array<{ ID: string }> }
+        const id = list.messages?.[0]?.ID
+        if (id) {
+          const message = (await fetch(`${mailpit}/api/v1/message/${id}`).then((response) =>
+            response.json(),
+          )) as { HTML?: string; Text?: string }
+          const body = `${message.HTML ?? ''}${message.Text ?? ''}`
+          const match = body.match(/https?:\/\/[^"'\s<>]+type=signup[^"'\s<>]*/)
+          confirmUrl = match?.[0]?.replaceAll('&amp;', '&')
+        }
+      }
+      if (!confirmUrl) await new Promise((resolve) => setTimeout(resolve, 250))
+    }
+    expect(confirmUrl, 'email di conferma non trovata in Mailpit').toBeTruthy()
+
+    const verify = new URL(confirmUrl as string)
+    const localOrigin = new URL(page.url()).origin
+    const verifyResponse = await fetch(verify.toString(), { redirect: 'manual' })
+    const location = verifyResponse.headers.get('location') ?? ''
+    expect(location, 'GoTrue non ha restituito un redirect').toContain('code=')
+    await page.goto(location.replace(/^https?:\/\/[^/]+/, localOrigin))
     await page.waitForURL(/#\/calculator$/)
 
     await page.goto('/#/settings')

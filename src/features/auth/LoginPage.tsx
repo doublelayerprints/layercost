@@ -92,7 +92,10 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<'email' | 'password', MessageKey>>>({})
+  const [confirmSent, setConfirmSent] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<'email' | 'password', MessageKey>>>(
+    {},
+  )
 
   // The URL is the source of truth for the entry mode: navigating to /#/login
   // without ?mode=signup goes back to the sign-in form (the manual switch does
@@ -150,15 +153,22 @@ export function LoginPage() {
     event.preventDefault()
     if (mode === 'signup' && !validate()) return
     setSubmitting(true)
-    const ok =
-      mode === 'signup' ? await signUp(email, password) : await signIn(email, password)
+    if (mode === 'signup') {
+      const outcome = await signUp(email, password)
+      setSubmitting(false)
+      if (outcome === 'signedIn') navigate('/calculator', { replace: true })
+      // Email confirmation is on (ADR-0038 §2.6): the account exists, the
+      // session starts only after the link in the inbox is followed.
+      if (outcome === 'confirmEmail') setConfirmSent(true)
+      return
+    }
+    const ok = await signIn(email, password)
     setSubmitting(false)
     if (ok) navigate('/calculator', { replace: true })
   }
 
   const title = mode === 'signup' ? t('auth.mode.signup') : t('auth.title')
-  const description =
-    mode === 'signup' ? t('auth.signup.description') : t('auth.description')
+  const description = mode === 'signup' ? t('auth.signup.description') : t('auth.description')
   const passwordError = fieldErrors.password
 
   return (
@@ -185,7 +195,33 @@ export function LoginPage() {
       ) : null}
 
       <Card className="mt-6 p-5 sm:p-6">
-        {displayError && status !== 'error' ? (
+        {confirmSent ? (
+          <div className="space-y-4" role="status">
+            <Alert tone="success" title={t('auth.confirm.title')}>
+              {t('auth.confirm.body', { email })}
+            </Alert>
+            <p className="text-sm text-muted">{t('auth.confirm.hint')}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setConfirmSent(false)
+                  switchMode('signin')
+                }}
+              >
+                {t('auth.confirm.goToSignIn')}
+              </Button>
+              <Link
+                to="/calculator"
+                className="text-sm text-muted underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
+              >
+                {t('auth.backToApp')}
+              </Link>
+            </div>
+          </div>
+        ) : null}
+
+        {!confirmSent && displayError && status !== 'error' ? (
           <div role="alert" className="mb-5">
             <Alert tone="danger" title={t('common.error')}>
               {t(authErrorKeys[displayError])}
@@ -193,126 +229,132 @@ export function LoginPage() {
           </div>
         ) : null}
 
-        <ModeSwitch mode={mode} onChange={switchMode} disabled={busy} />
+        {confirmSent ? null : (
+          <>
+            <ModeSwitch mode={mode} onChange={switchMode} disabled={busy} />
 
-        {googleEnabled ? (
-          <div className="mt-5 space-y-4">
-            <Button
-              variant="secondary"
-              className="w-full"
-              disabled={busy}
-              onClick={() => void signInWithGoogle()}
+            {googleEnabled ? (
+              <div className="mt-5 space-y-4">
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => void signInWithGoogle()}
+                >
+                  <GoogleIcon />
+                  {oauth === 'redirecting'
+                    ? t('auth.google.redirecting')
+                    : t('auth.google.continue')}
+                </Button>
+                <div className="flex items-center gap-3 text-xs text-muted">
+                  <span className="h-px flex-1 bg-line" aria-hidden="true" />
+                  <span>{t('auth.google.or')}</span>
+                  <span className="h-px flex-1 bg-line" aria-hidden="true" />
+                </div>
+              </div>
+            ) : null}
+
+            <form
+              className={googleEnabled ? 'mt-5 space-y-5' : 'mt-5 space-y-5'}
+              onSubmit={(event) => void handleSubmit(event)}
+              noValidate={mode === 'signup'}
             >
-              <GoogleIcon />
-              {oauth === 'redirecting' ? t('auth.google.redirecting') : t('auth.google.continue')}
-            </Button>
-            <div className="flex items-center gap-3 text-xs text-muted">
-              <span className="h-px flex-1 bg-line" aria-hidden="true" />
-              <span>{t('auth.google.or')}</span>
-              <span className="h-px flex-1 bg-line" aria-hidden="true" />
-            </div>
-          </div>
-        ) : null}
+              <Field label={t('auth.email')} htmlFor="login-email" required>
+                <Input
+                  id="login-email"
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value)
+                    setFieldErrors((current) => ({ ...current, email: undefined }))
+                  }}
+                  required
+                  disabled={busy}
+                  aria-describedby={fieldErrors.email ? 'login-email-error' : undefined}
+                />
+                {fieldErrors.email ? (
+                  <p id="login-email-error" className="mt-1.5 text-xs text-negative">
+                    {t(fieldErrors.email)}
+                  </p>
+                ) : null}
+              </Field>
 
-        <form
-          className={googleEnabled ? 'mt-5 space-y-5' : 'mt-5 space-y-5'}
-          onSubmit={(event) => void handleSubmit(event)}
-          noValidate={mode === 'signup'}
-        >
-          <Field label={t('auth.email')} htmlFor="login-email" required>
-            <Input
-              id="login-email"
-              type="email"
-              name="email"
-              autoComplete="email"
-              autoCapitalize="none"
-              spellCheck={false}
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value)
-                setFieldErrors((current) => ({ ...current, email: undefined }))
-              }}
-              required
-              disabled={busy}
-              aria-describedby={fieldErrors.email ? 'login-email-error' : undefined}
-            />
-            {fieldErrors.email ? (
-              <p id="login-email-error" className="mt-1.5 text-xs text-negative">
-                {t(fieldErrors.email)}
-              </p>
-            ) : null}
-          </Field>
+              <Field label={t('auth.password')} htmlFor="login-password" required>
+                <Input
+                  id="login-password"
+                  type="password"
+                  name="password"
+                  autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value)
+                    setFieldErrors((current) => ({ ...current, password: undefined }))
+                  }}
+                  required
+                  disabled={busy}
+                  aria-describedby={
+                    passwordError
+                      ? 'login-password-error'
+                      : mode === 'signup'
+                        ? 'login-password-hint'
+                        : undefined
+                  }
+                />
+                {passwordError ? (
+                  <p id="login-password-error" className="mt-1.5 text-xs text-negative">
+                    {t(passwordError)}
+                  </p>
+                ) : null}
+                {mode === 'signup' && !passwordError ? (
+                  <p id="login-password-hint" className="mt-1.5 text-xs text-muted">
+                    {t('auth.signup.passwordHint')}
+                  </p>
+                ) : null}
+              </Field>
 
-          <Field label={t('auth.password')} htmlFor="login-password" required>
-            <Input
-              id="login-password"
-              type="password"
-              name="password"
-              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-              value={password}
-              onChange={(event) => {
-                setPassword(event.target.value)
-                setFieldErrors((current) => ({ ...current, password: undefined }))
-              }}
-              required
-              disabled={busy}
-              aria-describedby={
-                passwordError
-                  ? 'login-password-error'
-                  : mode === 'signup'
-                    ? 'login-password-hint'
-                    : undefined
-              }
-            />
-            {passwordError ? (
-              <p id="login-password-error" className="mt-1.5 text-xs text-negative">
-                {t(passwordError)}
-              </p>
-            ) : null}
-            {mode === 'signup' && !passwordError ? (
-              <p id="login-password-hint" className="mt-1.5 text-xs text-muted">
-                {t('auth.signup.passwordHint')}
-              </p>
-            ) : null}
-          </Field>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button type="submit" disabled={busy}>
+                  {emailBusy
+                    ? mode === 'signup'
+                      ? t('auth.signup.submitting')
+                      : t('auth.submitting')
+                    : mode === 'signup'
+                      ? t('auth.signup.submit')
+                      : t('auth.submit')}
+                </Button>
+                <Link
+                  to="/calculator"
+                  className="text-sm text-muted underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
+                >
+                  {t('auth.backToApp')}
+                </Link>
+              </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" disabled={busy}>
-              {emailBusy
-                ? mode === 'signup'
-                  ? t('auth.signup.submitting')
-                  : t('auth.submitting')
-                : mode === 'signup'
-                  ? t('auth.signup.submit')
-                  : t('auth.submit')}
-            </Button>
-            <Link
-              to="/calculator"
-              className="text-sm text-muted underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
-            >
-              {t('auth.backToApp')}
-            </Link>
-          </div>
-
-          <div className="space-y-1 border-t border-line pt-4 text-xs leading-relaxed text-muted">
-            {mode === 'signin' ? (
-              <>
-                <p>{t('auth.signup.hint')}</p>
-                <p>
-                  <Link
-                    to="/reset-password"
-                    className="underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
-                  >
-                    {t('auth.forgotPassword')}
-                  </Link>{' '}
-                  {t('auth.forgotPasswordGoogle')}
-                </p>
-              </>
-            ) : (
-              <p>{t('auth.signup.hint')}</p>
-            )}
-          </div>
-        </form>
+              <div className="space-y-1 border-t border-line pt-4 text-xs leading-relaxed text-muted">
+                {mode === 'signin' ? (
+                  <>
+                    <p>{t('auth.signup.hint')}</p>
+                    <p>
+                      <Link
+                        to="/reset-password"
+                        className="underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
+                      >
+                        {t('auth.forgotPassword')}
+                      </Link>{' '}
+                      {t('auth.forgotPasswordGoogle')}
+                    </p>
+                  </>
+                ) : (
+                  <p>{t('auth.signup.hint')}</p>
+                )}
+              </div>
+            </form>
+          </>
+        )}
       </Card>
     </div>
   )
