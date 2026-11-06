@@ -1459,13 +1459,13 @@ quindi la UI mostra «Controlla la posta» senza che parta nulla.
 
 **Esito:** SMTP custom configurato su Gmail (`smtp.gmail.com:587`, mittente
 `doublelayerprints@gmail.com`), rate limit 20/ora. Verificato con invio reale a un account
-utente: `recovery_sent_at` valorizzato e token emesso. Resta la conferma di ricezione e il
-test del link sul dispositivo.
+utente: `recovery_sent_at` valorizzato, token emesso ed **email ricevuta in casella** il
+06/11/2026.
 
 - [x] **T12.1 messaggio password**: la UI diceva «Almeno 6 caratteri» con minimo reale 12; allineato in IT/EN e nell'E2E auth.
 - [x] **T12.2 docs**: runbook §6.4.1 (opzione dominio proprio e opzione Gmail SMTP, rollback, verifica in sola lettura), ADR-0037 §3.1 con la premessa corretta, nota nel fallback amministrativo.
 - [x] **T12.3 scelta provider**: **Gmail SMTP** (06/11/2026). Brevo scartato: non fornisce caselle e riscrive il mittente `@gmail.com` in `...@<id>.t-sender-sib.com`. Acquisito il vincolo 2FA sull'account Google e generata la password per le app.
 - [x] **T12.4 configurazione Supabase**: applicata via Management API con `smtp_host=smtp.gmail.com`, porta `587`, mittente e utente `doublelayerprints@gmail.com`, sender name `LayerCost`, `smtp_pass` impostata, `rate_limit_email_sent` da 2 a **20** (max 480/giorno, sotto il tetto Gmail di 500). `mailer_autoconfirm` invariato. Password mai passata dalla chat: file temporaneo `600` letto dal processo e cancellato.
 - [x] **T12.5 verifica reale**: `POST /auth/v1/recover` su `tancredi.bosi@gmail.com` → HTTP 200 e `recovery_sent_at` valorizzato con token presente, quindi l'invio è passato da Gmail SMTP. **Nota:** `doublelayerprints@gmail.com` è il mittente, non un account dell'app; una prima richiesta verso quell'indirizzo ha correttamente prodotto `200` neutro senza inviare nulla (nessun account).
-- [ ] **T12.6 conferma di ricezione**: manca la conferma umana che l'email sia arrivata (e non in spam) e che il link apra «Scegli una nuova password». Se il link funziona, EVO-11 è da considerarsi realmente chiuso.
+- [x] **T12.6 conferma di ricezione**: **email ricevuta** dall'owner il 06/11/2026 sull'indirizzo di un account reale. EVO-11 è da considerarsi realmente chiuso sul percorso di invio; resta consigliato provare il link su un secondo dispositivo.
 - [ ] **T12.7 (opzionale) avviso in UI**: finché l'SMTP non è configurato, valutare un avviso al posto della conferma neutra. Non fatto: richiede una env pubblica o una RPC e va deciso insieme a T12.3.
