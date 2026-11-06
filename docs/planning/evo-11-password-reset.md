@@ -71,3 +71,9 @@ fallback.
 - Nessun cambio a formule, `engineVersion`, snapshot, schema v4, RLS, RPC, sync o seed.
 - Email: SMTP integrato di Supabase Free (3/ora), nessun provider esterno; il reset
   amministrativo del runbook §6.4 resta come fallback.
+- **Deploy e verifica (06/11/2026):** PR #68 mergiata (squash `25ff483`, build
+  `index-DttdebUs.js`), CI verde su check/database/e2e. In produzione il form di
+  richiesta risponde **200 neutro** anche per un indirizzo inesistente (nessuna
+  enumerazione) e la nuova pagina è nel bundle servito; il flusso end-to-end con email
+  reale è coperto dall'E2E su Mailpit locale. Gli account di prova usati per la verifica
+  sono stati rimossi (0 residui).
