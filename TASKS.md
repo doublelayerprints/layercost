@@ -1468,4 +1468,21 @@ utente: `recovery_sent_at` valorizzato, token emesso ed **email ricevuta in case
 - [x] **T12.4 configurazione Supabase**: applicata via Management API con `smtp_host=smtp.gmail.com`, porta `587`, mittente e utente `doublelayerprints@gmail.com`, sender name `LayerCost`, `smtp_pass` impostata, `rate_limit_email_sent` da 2 a **20** (max 480/giorno, sotto il tetto Gmail di 500). `mailer_autoconfirm` invariato. Password mai passata dalla chat: file temporaneo `600` letto dal processo e cancellato.
 - [x] **T12.5 verifica reale**: `POST /auth/v1/recover` su `tancredi.bosi@gmail.com` → HTTP 200 e `recovery_sent_at` valorizzato con token presente, quindi l'invio è passato da Gmail SMTP. **Nota:** `doublelayerprints@gmail.com` è il mittente, non un account dell'app; una prima richiesta verso quell'indirizzo ha correttamente prodotto `200` neutro senza inviare nulla (nessun account).
 - [x] **T12.6 conferma di ricezione**: **email ricevuta** dall'owner il 06/11/2026 sull'indirizzo di un account reale. EVO-11 è da considerarsi realmente chiuso sul percorso di invio; resta consigliato provare il link su un secondo dispositivo.
-- [ ] **T12.7 (opzionale) avviso in UI**: finché l'SMTP non è configurato, valutare un avviso al posto della conferma neutra. Non fatto: richiede una env pubblica o una RPC e va deciso insieme a T12.3.
+- [x] **T12.7 avviso in UI**: non serve più. L'SMTP è configurato e verificato, quindi la conferma neutra corrisponde alla realtà.
+
+## EVO-13 — Rimedi dell'audit di sicurezza
+
+**Data:** 06/11/2026 · **ADR:** 0038 · **Report:** `docs/engineering/security-audit-2026-11-06.md`
+
+**Punti chiusi in questa sessione (2, 3 e 6 del report).**
+
+- [x] **T13.1 proiezione cliente nei link** (finding 2): nuovo `src/lib/share-projection.ts` con `SharedQuote`/`SharedQuoteResult`; il payload non contiene più `snapshot`, `result` interno, `createdBy`/`updatedBy` né `status`. Per riga restano prezzo, sconto, durata, quantità e nomi dei materiali con i grammi; niente costi, margine, watt o tariffe. `QuoteOverview` e `QuotePrint` accettano `Quote | SharedQuote`: i campi interni passano solo da `internalResult`, che esiste solo in audience `internal`. Il preventivo importato viene ricalcolato con la configurazione locale. I link preesistenti vengono riproiettati in lettura.
+- [x] **T13.2 test dei link**: 6 unitari nuovi, incluso il controllo sul **payload compresso grezzo** (non solo sull'oggetto decodificato) e la compatibilità con i vecchi link completi.
+- [x] **T13.3 CSP e anti-framing** (finding 3): `vercel.json` con `Content-Security-Policy` (script solo self + hash del JSON-LD, `frame-ancestors 'none'`, `object-src 'none'`, `connect-src` limitato a Supabase e Formspree) e `X-Frame-Options: DENY`. `tests/config/csp.test.ts` ricalcola l'hash da `index.html` e verifica la policy; `vitest.config.ts` include `tests/config/**`.
+- [x] **T13.4 `created_by` non falsificabile** (finding 6): trigger `set_created_fields` su quotes, tariffe, stampanti, materiali ed extra. `created_at` resta scrivibile per non riscrivere le date all'import.
+- [x] **T13.5 integrità dell'inviato** (finding 5, parziale): `protect_locked_quote` blocca anche `workspace_id` e `schema_version` su `sent`/`completed`. Archiviazione e soft-delete restano permessi perché la UI li offre e AGENTS.md impone "archivia, non cancellare".
+- [x] **T13.6 tetto sugli spostamenti** (finding 7): `enforce_workspace_quote_cap` tratta lo spostamento come un inserimento nella destinazione.
+- [x] **T13.7 migrazione e test pgTAP**: `supabase/migrations/20261106120000_security_hardening.sql` e `supabase/tests/hardening.test.sql` (11 asserzioni). `npm run db:test`: **159 pgTAP** verdi su sei file.
+- [x] **T13.8 docs**: ADR-0038, report completo `security-audit-2026-11-06.md`, `data-model.md` §6 e invarianti 6/8/10, TASKS, STATUS, CHANGELOG.
+- [ ] **T13.9 verifica finding 1** (auto-confirm + auto-link): richiede due account Google reali. È il prossimo passo concordato.
+- [ ] **T13.10 finding aperti**: CAPTCHA/Turnstile (4), password compromesse via HaveIBeenPwned (8), audit log auth (9), poteri dell'owner (10), Dependabot e `npm audit` in CI (11).

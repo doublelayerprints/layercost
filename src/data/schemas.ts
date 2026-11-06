@@ -197,6 +197,46 @@ export const appDataSchema = z.object({
   draft: quoteSchema,
 })
 
+/**
+ * Customer-safe line result inside a share link (audit finding 2). Only the
+ * fields the customer view renders: costs, margins and tariff labels stay out.
+ */
+export const sharedLineResultSchema = z.object({
+  lineId: z.string().min(1),
+  name: z.string().min(1),
+  printerName: z.string(),
+  quantity: integer.positive(),
+  effectiveSeconds: nonNegativeInteger,
+  priceCents: nonNegativeInteger,
+  discount: nonNegativeInteger,
+  materialDetails: z.array(z.object({ name: z.string(), grams: nonNegativeInteger })),
+})
+
+export const sharedQuoteResultSchema = z.object({
+  lines: z.array(sharedLineResultSchema),
+  discount: nonNegativeInteger,
+  netPriceCents: nonNegativeInteger,
+  vatCents: nonNegativeInteger,
+  grossPriceCents: nonNegativeInteger,
+})
+
+/**
+ * Shape of a shared document: the economic snapshot and the audit metadata are
+ * absent by construction. Old links (schema v2/v4) carry the full quote and are
+ * still accepted so they never break.
+ */
+export const sharedQuoteSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  quoteDate: dateString,
+  customer: z.string().optional(),
+  locale: z.enum(['it', 'en']),
+  lines: z.array(printLineSchema),
+  job: jobCostsSchema,
+  pricing: quotePricingSchema,
+  result: sharedQuoteResultSchema.optional(),
+})
+
 export const exportEnvelopeSchema = z.object({
   app: z.string(),
   schemaVersion: z.number().int(),

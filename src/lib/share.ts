@@ -1,10 +1,11 @@
 import LZString from 'lz-string'
 import type { Quote } from '@/domain/types'
-import { quoteSchema } from '@/data/schemas'
+import { quoteSchema, sharedQuoteSchema } from '@/data/schemas'
+import { projectSharedQuote, type SharedQuote } from './share-projection'
 
 interface SharedPayload {
   app: 'LayerCost'
-  quote: Quote
+  quote: SharedQuote
 }
 
 export type ShareErrorCode = 'empty' | 'invalidData' | 'noQuote' | 'invalidQuote'
@@ -19,16 +20,23 @@ export class ShareError extends Error {
   }
 }
 
+/**
+ * Builds the public payload. It carries a customer projection, never the whole
+ * quote: the economic snapshot and the internal result stay in the workspace.
+ */
 export function encodeSharedQuote(quote: Quote): string {
   const payload: SharedPayload = {
     app: 'LayerCost',
-    // Audit metadata belongs to the workspace, not to the shared document.
-    quote: { ...quote, createdBy: undefined, updatedBy: undefined },
+    quote: projectSharedQuote(quote, quote.result),
   }
   return LZString.compressToEncodedURIComponent(JSON.stringify(payload))
 }
 
-export function decodeSharedQuote(encoded: string): Quote {
+/**
+ * Reads a shared document. New links carry the customer projection; links built
+ * before the audit fix carry the whole quote and are still accepted.
+ */
+export function decodeSharedQuote(encoded: string): SharedQuote {
   const decompressed = LZString.decompressFromEncodedURIComponent(encoded)
   if (!decompressed) {
     throw new ShareError('empty', 'Il link condiviso è vuoto o danneggiato.')
@@ -52,11 +60,17 @@ export function decodeSharedQuote(encoded: string): Quote {
       ? { locale: 'it', ...candidate }
       : candidate
 
-  const result = quoteSchema.safeParse(quote)
-  if (!result.success) {
-    throw new ShareError('invalidQuote', 'Il preventivo condiviso non è valido o è incompleto.')
+  const current = sharedQuoteSchema.safeParse(quote)
+  if (current.success) return current.data as SharedQuote
+
+  // Legacy links: re-project the old payload so the view receives the same
+  // customer-safe shape instead of the full internal quote.
+  const legacy = quoteSchema.safeParse(quote)
+  if (legacy.success) {
+    const full = legacy.data as unknown as Quote
+    return projectSharedQuote(full, full.result)
   }
-  return result.data as unknown as Quote
+  throw new ShareError('invalidQuote', 'Il preventivo condiviso non è valido o è incompleto.')
 }
 
 export function buildShareUrl(quote: Quote): string {

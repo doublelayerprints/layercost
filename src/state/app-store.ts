@@ -18,6 +18,7 @@ import { nowIso } from '@/lib/date'
 import { newId } from '@/lib/id'
 import { draftHasContent } from '@/lib/draft'
 import { canTransitionQuoteStatus, isQuoteEditable } from '@/lib/quote-status'
+import type { SharedQuote } from '@/lib/share-projection'
 import {
   EMPTY_DRAFT_NAMES,
   EMPTY_LINE_NAMES,
@@ -162,7 +163,7 @@ export interface AppState {
   refreshQuote: (quoteId: string) => void
   archiveQuote: (quoteId: string) => void
   deleteQuote: (quoteId: string) => void
-  importSharedQuote: (quote: Quote) => string
+  importSharedQuote: (quote: SharedQuote) => string
 
   importData: (data: AppData) => void
   exportData: () => Promise<boolean>
@@ -748,18 +749,25 @@ export const useAppStore = create<AppState>()((set, get) => {
       get().persist()
     },
 
-    importSharedQuote: (quote) => {
+    importSharedQuote: (shared) => {
       const now = nowIso()
+      // The link no longer carries the economic snapshot or the internal
+      // result: the imported quote is recomputed against the local config, so
+      // costs and margins come from the workspace that imports it.
       const imported: Quote = {
-        ...structuredClone(quote),
+        ...structuredClone(shared),
         id: newId(),
-        name: `${quote.name}${QUOTE_IMPORT_SUFFIX[quote.locale]}`,
+        name: `${shared.name}${QUOTE_IMPORT_SUFFIX[shared.locale]}`,
         status: 'saved',
         archived: false,
         createdAt: now,
         updatedAt: now,
+        result: undefined,
+        engineVersion: undefined,
       }
-      set((state) => ({ quotes: [imported, ...state.quotes] }))
+      set((state) => ({
+        quotes: [recomputeQuote(imported, get().config), ...state.quotes],
+      }))
       get().persist()
       return imported.id
     },
