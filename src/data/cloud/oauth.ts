@@ -3,7 +3,7 @@ import type { AuthErrorCode } from './auth'
 export type OAuthProvider = 'google'
 
 export type OAuthCallback =
-  | { kind: 'code'; code: string }
+  | { kind: 'code'; code: string; recovery: boolean }
   | { kind: 'error'; code: AuthErrorCode; description?: string }
 
 /**
@@ -55,7 +55,9 @@ export function parseOAuthCallback(search: string): OAuthCallback | undefined {
   }
 
   const code = params.get('code')
-  if (code) return { kind: 'code', code }
+  // A password-recovery link carries `type=recovery` (EVO-11); the code is
+  // exchanged the same way, then the app opens the "set a new password" form.
+  if (code) return { kind: 'code', code, recovery: params.get('type') === 'recovery' }
 
   return undefined
 }

@@ -1,3 +1,4 @@
+import type { AuthErrorCode } from '@/data/cloud/auth'
 import type { CloudConflictReason } from '@/data/cloud/gateway'
 import type { CloudEntity } from '@/data/cloud/sync'
 import type { MessageKey } from '@/i18n'
@@ -55,4 +56,29 @@ export const syncConflictReasonKeys: Record<CloudConflictReason, MessageKey> = {
   deleted: 'sync.conflict.deleted',
   exists: 'sync.conflict.exists',
   locked: 'sync.conflict.locked',
+}
+
+/**
+ * Auth error code → message. Kept typed so a new `AuthErrorCode` cannot be
+ * forgotten: TypeScript fails until the map covers it (the recovery codes use
+ * the `auth.recovery.*` keys, not `auth.error.*`).
+ */
+export const authErrorKeys: Record<AuthErrorCode, MessageKey> = {
+  invalidCredentials: 'auth.error.invalidCredentials',
+  emailNotConfirmed: 'auth.error.emailNotConfirmed',
+  tooManyRequests: 'auth.error.tooManyRequests',
+  network: 'auth.error.network',
+  notConfigured: 'auth.error.notConfigured',
+  signupLimitReached: 'auth.error.signupLimitReached',
+  emailExists: 'auth.error.emailExists',
+  oauthCancelled: 'auth.error.oauthCancelled',
+  oauthProviderDisabled: 'auth.error.oauthProviderDisabled',
+  oauthSignupDisabled: 'auth.error.oauthSignupDisabled',
+  oauthIdentityExists: 'auth.error.oauthIdentityExists',
+  oauthConfig: 'auth.error.oauthConfig',
+  oauthCallback: 'auth.error.oauthCallback',
+  manualLinkingDisabled: 'auth.error.manualLinkingDisabled',
+  weakPassword: 'auth.error.weakPassword',
+  recoveryLinkInvalid: 'auth.recovery.linkInvalid',
+  unknown: 'auth.error.unknown',
 }

@@ -27,7 +27,36 @@ export const authIt = {
     'Collega il tuo account Google per accedere senza password. Email e password restano disponibili.',
   'auth.google.linkedHint':
     'Puoi accedere con Google da questo e da altri dispositivi.',
-  'auth.forgotPassword': 'Password dimenticata? Chiedi all’amministratore.',
+  'auth.forgotPassword': 'Password dimenticata?',
+  'auth.forgotPasswordGoogle':
+    'Se hai collegato Google, puoi accedere da lì senza password. Il link via email funziona solo per gli account con password.',
+  'auth.passwordRule': 'Almeno 12 caratteri.',
+  'auth.recovery.title': 'Recupera la password',
+  'auth.recovery.description':
+    'Inserisci l’email del tuo account: riceverai un link per scegliere una nuova password. Il link scade dopo un’ora.',
+  'auth.recovery.send': 'Invia il link',
+  'auth.recovery.sending': 'Invio…',
+  'auth.recovery.sentTitle': 'Controlla la posta',
+  'auth.recovery.sentBody':
+    'Se esiste un account con quell’indirizzo, riceverai un’email con il link per reimpostare la password.',
+  'auth.recovery.sentHint':
+    'Non arriva nulla? Controlla la cartella spam e verifica di aver scritto l’indirizzo corretto.',
+  'auth.recovery.backToLogin': 'Torna all’accesso',
+  'auth.recovery.newTitle': 'Scegli una nuova password',
+  'auth.recovery.newDescription':
+    'Il link è valido: imposta la nuova password per questo account.',
+  'auth.recovery.forAccount': 'Account: {email}',
+  'auth.recovery.newPassword': 'Nuova password',
+  'auth.recovery.repeatPassword': 'Ripeti la password',
+  'auth.recovery.passwordMismatch': 'Le due password non coincidono.',
+  'auth.recovery.save': 'Salva la nuova password',
+  'auth.recovery.saving': 'Salvataggio…',
+  'auth.recovery.savedTitle': 'Password aggiornata',
+  'auth.recovery.savedBody': 'Da ora accedi con la nuova password. La sessione è già attiva.',
+  'auth.recovery.settings': 'Vai alle impostazioni',
+  'auth.recovery.linkInvalid':
+    'Il link non è più valido o è scaduto. Richiedine uno nuovo.',
+  'auth.error.weakPassword': 'La password non è abbastanza robusta. Usa almeno 12 caratteri.',
   'auth.backToApp': 'Torna al calcolatore',
   'auth.unconfigured.title': 'Cloud non configurato',
   'auth.unconfigured.body':

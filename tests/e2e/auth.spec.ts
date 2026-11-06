@@ -168,6 +168,101 @@ test('mostra un errore con credenziali errate', async ({ page }) => {
   }
 })
 
+test('recupero password: form, link dalla posta e nuova password', async ({ page }) => {
+  const account = await createUser()
+  try {
+    await page.setViewportSize({ width: 375, height: 844 })
+    await page.goto('/#/reset-password')
+    await expect(page.getByRole('heading', { name: 'Recupera la password' })).toBeVisible()
+    await audit(page)
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await audit(page)
+
+    // The form validates the address before calling the cloud.
+    await page.getByLabel('Email').fill('non-una-email')
+    await page.getByRole('button', { name: 'Invia il link' }).click()
+    await expect(page.getByText('Inserisci un indirizzo email valido.')).toBeVisible()
+
+    await page.getByLabel('Email').fill(account.email)
+    await page.getByRole('button', { name: 'Invia il link' }).click()
+    // Neutral confirmation: the page never reveals whether the account exists.
+    await expect(page.getByText('Controlla la posta').first()).toBeVisible()
+
+    // Read the real email from the local Mailpit inbox. Its link is a PKCE
+    // token bound to the browser that requested it, so it must be followed in
+    // this same page context (the code verifier lives in its storage).
+    const mailpit = process.env.MAILPIT_URL ?? 'http://127.0.0.1:54324'
+    let recoveryUrl: string | undefined
+    for (let attempt = 0; attempt < 20 && !recoveryUrl; attempt += 1) {
+      const search = await fetch(
+        `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:${account.email}`)}`,
+      )
+      if (search.ok) {
+        const list = (await search.json()) as { messages?: Array<{ ID: string }> }
+        const id = list.messages?.[0]?.ID
+        if (id) {
+          const message = (await fetch(`${mailpit}/api/v1/message/${id}`).then((response) =>
+            response.json(),
+          )) as { HTML?: string; Text?: string }
+          const body = `${message.HTML ?? ''}${message.Text ?? ''}`
+          const match = body.match(/https?:\/\/[^"'\s<>]+type=recovery[^"'\s<>]*/)
+          recoveryUrl = match?.[0]?.replaceAll('&amp;', '&')
+        }
+      }
+      if (!recoveryUrl) await new Promise((resolve) => setTimeout(resolve, 250))
+    }
+    expect(recoveryUrl, 'email di recupero non trovata in Mailpit').toBeTruthy()
+
+    // Follow the link: GoTrue verifies the token and redirects to the
+    // configured site URL with a PKCE `?code=…` (no `type` parameter: the
+    // recovery flag travels in the exchange result, see `exchangeCodeForSession`).
+    // The test config's site_url is the dev server, so rewrite the origin to
+    // the preview server before navigating: the code verifier that matters is
+    // in this browser context.
+    const verify = new URL(recoveryUrl as string)
+    const localOrigin = new URL(page.url()).origin
+    const verifyResponse = await fetch(verify.toString(), { redirect: 'manual' })
+    const location = verifyResponse.headers.get('location') ?? ''
+    expect(location, 'GoTrue non ha restituito un redirect').toContain('code=')
+    await page.goto(location.replace(/^https?:\/\/[^/]+/, localOrigin))
+    await expect(page.getByRole('heading', { name: 'Scegli una nuova password' })).toBeVisible()
+    await audit(page)
+
+    // Too short: rejected before reaching the cloud.
+    await page.getByLabel('Nuova password').fill('corta')
+    await page.getByLabel('Ripeti la password').fill('corta')
+    await page.getByRole('button', { name: 'Salva la nuova password' }).click()
+    await expect(page.getByText('Almeno 12 caratteri.')).toBeVisible()
+
+    const newPassword = 'Nuova-password-456!'
+    await page.getByLabel('Nuova password').fill(newPassword)
+    await page.getByLabel('Ripeti la password').fill('altro-valore-lungo')
+    await page.getByRole('button', { name: 'Salva la nuova password' }).click()
+    await expect(page.getByText('Le due password non coincidono.')).toBeVisible()
+
+    await page.getByLabel('Nuova password').fill(newPassword)
+    await page.getByLabel('Ripeti la password').fill(newPassword)
+    await page.getByRole('button', { name: 'Salva la nuova password' }).click()
+    await expect(page.getByText('Password aggiornata').first()).toBeVisible()
+
+    // The new password works once the recovery session is signed out.
+    await page.getByRole('link', { name: 'Vai alle impostazioni' }).click()
+    await page.getByRole('button', { name: 'Esci', exact: true }).first().click()
+    const confirmLogout = page.getByRole('dialog', { name: 'Uscire dall’account?' })
+    if (await confirmLogout.isVisible()) {
+      await confirmLogout.getByRole('button', { name: 'Esci' }).click()
+    }
+    await expect(page.getByRole('button', { name: 'Accedi' })).toBeVisible()
+    await page.goto('/#/login')
+    await page.getByLabel('Email').fill(account.email)
+    await page.getByLabel('Password').fill(newPassword)
+    await page.getByRole('button', { name: 'Accedi' }).click()
+    await page.waitForURL(/#\/calculator$/)
+  } finally {
+    await deleteUser(account.id)
+  }
+})
+
 test('Google: apre il provider e gestisce l’annullamento', async ({ page }) => {
   let authorizeUrl = ''
 

@@ -14,6 +14,8 @@ interface FakeGateway {
   signInWithOAuth: ReturnType<typeof vi.fn>
   linkIdentity: ReturnType<typeof vi.fn>
   exchangeCodeForSession: ReturnType<typeof vi.fn>
+  requestPasswordReset: ReturnType<typeof vi.fn>
+  updatePassword: ReturnType<typeof vi.fn>
   signOut: ReturnType<typeof vi.fn>
   getSession: ReturnType<typeof vi.fn>
 }
@@ -25,7 +27,12 @@ function createFakeGateway(initialSession: AuthSession | null = null): FakeGatew
   const signUp = vi.fn(async () => initialSession as AuthSession)
   const signInWithOAuth = vi.fn(async () => {})
   const linkIdentity = vi.fn(async () => {})
-  const exchangeCodeForSession = vi.fn(async () => initialSession as AuthSession)
+  const exchangeCodeForSession = vi.fn(async () => ({
+    session: initialSession as AuthSession,
+    recovery: false,
+  }))
+  const requestPasswordReset = vi.fn(async () => {})
+  const updatePassword = vi.fn(async () => {})
   const signOut = vi.fn(async () => {})
   const gateway: AuthGateway = {
     getSession,
@@ -34,6 +41,8 @@ function createFakeGateway(initialSession: AuthSession | null = null): FakeGatew
     signInWithOAuth,
     linkIdentity,
     exchangeCodeForSession,
+    requestPasswordReset,
+    updatePassword,
     signOut,
     onChange: (callback) => {
       listener = callback
@@ -50,6 +59,8 @@ function createFakeGateway(initialSession: AuthSession | null = null): FakeGatew
     signInWithOAuth,
     linkIdentity,
     exchangeCodeForSession,
+    requestPasswordReset,
+    updatePassword,
     signOut,
     getSession,
   }
@@ -259,14 +270,14 @@ describe('auth store', () => {
 
   it('scambia il codice del callback e apre la sessione', async () => {
     const fake = createFakeGateway(null)
-    fake.exchangeCodeForSession.mockResolvedValueOnce(user)
+    fake.exchangeCodeForSession.mockResolvedValueOnce({ session: user, recovery: false })
     const clearParams = vi.fn()
     const store = createAuthStore({
       isConfigured: () => true,
       createGateway: async () => fake.gateway,
       oauth: {
         ...oauthDeps,
-        readCallback: () => ({ kind: 'code', code: 'auth-code' }),
+        readCallback: () => ({ kind: 'code', code: 'auth-code', recovery: false }),
         clearParams,
       },
     })
@@ -317,7 +328,7 @@ describe('auth store', () => {
       createGateway: async () => fake.gateway,
       oauth: {
         ...oauthDeps,
-        readCallback: () => ({ kind: 'code', code: 'expired-code' }),
+        readCallback: () => ({ kind: 'code', code: 'expired-code', recovery: false }),
       },
     })
 
@@ -379,5 +390,80 @@ describe('auth store', () => {
 
     expect(store.getState().oauth).toBe('idle')
     expect(store.getState().error).toBe('manualLinkingDisabled')
+  })
+})
+
+describe('recupero della password (EVO-11)', () => {
+  it('richiede il link e mostra la conferma neutra', async () => {
+    const fake = createFakeGateway(null)
+    const store = createAuthStore({
+      isConfigured: () => true,
+      createGateway: async () => fake.gateway,
+      oauth: oauthDeps,
+    })
+    await store.getState().initialize()
+
+    const ok = await store.getState().requestPasswordReset('  Utente@Example.com ')
+
+    expect(ok).toBe(true)
+    expect(fake.requestPasswordReset).toHaveBeenCalledWith('Utente@Example.com', expect.any(String))
+    expect(store.getState().recovery).toBe('requested')
+    expect(store.getState().error).toBeUndefined()
+  })
+
+  it('un link di recupero chiede la nuova password invece di entrare nell’app', async () => {
+    const fake = createFakeGateway(user)
+    fake.exchangeCodeForSession.mockResolvedValueOnce({ session: user, recovery: true })
+    const store = createAuthStore({
+      isConfigured: () => true,
+      createGateway: async () => fake.gateway,
+      oauth: {
+        ...oauthDeps,
+        readCallback: () => ({ kind: 'code', code: 'recovery-code', recovery: true }),
+      },
+    })
+
+    await store.getState().initialize()
+
+    expect(store.getState().status).toBe('authenticated')
+    expect(store.getState().recovery).toBe('pending')
+  })
+
+  it('salva la nuova password e azzera lo stato di recupero', async () => {
+    const fake = createFakeGateway(user)
+    const store = createAuthStore({
+      isConfigured: () => true,
+      createGateway: async () => fake.gateway,
+      oauth: oauthDeps,
+    })
+    await store.getState().initialize()
+
+    const ok = await store.getState().completePasswordReset('Password-lunga-123')
+
+    expect(ok).toBe(true)
+    expect(fake.updatePassword).toHaveBeenCalledWith('Password-lunga-123')
+    expect(store.getState().recovery).toBe('saved')
+    expect(store.getState().error).toBeUndefined()
+  })
+
+  it('mappa una password debole e un link scaduto', async () => {
+    const fake = createFakeGateway(user)
+    const store = createAuthStore({
+      isConfigured: () => true,
+      createGateway: async () => fake.gateway,
+      oauth: oauthDeps,
+    })
+    await store.getState().initialize()
+
+    fake.updatePassword.mockRejectedValueOnce(new AuthError('weakPassword'))
+    expect(await store.getState().completePasswordReset('corta')).toBe(false)
+    expect(store.getState().error).toBe('weakPassword')
+
+    fake.updatePassword.mockRejectedValueOnce(new AuthError('recoveryLinkInvalid'))
+    expect(await store.getState().completePasswordReset('Password-lunga-123')).toBe(false)
+    expect(store.getState().error).toBe('recoveryLinkInvalid')
+
+    store.getState().cancelPasswordReset()
+    expect(store.getState().recovery).toBe('idle')
   })
 })

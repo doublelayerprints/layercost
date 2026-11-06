@@ -2,32 +2,14 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Navigate, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '@/app/i18n-context'
 import { Alert, Button, Card, EmptyState, Field, Input, PageHeader } from '@/components/ui'
-import type { AuthErrorCode } from '@/data/cloud/auth'
 import { isGoogleAuthEnabled } from '@/data/cloud/client'
 import { useAuthStore } from '@/state/auth-store'
+import { authErrorKeys } from '@/features/sync/messages'
 import type { MessageKey } from '@/i18n'
-
-const errorKeys: Record<AuthErrorCode, MessageKey> = {
-  invalidCredentials: 'auth.error.invalidCredentials',
-  emailNotConfirmed: 'auth.error.emailNotConfirmed',
-  tooManyRequests: 'auth.error.tooManyRequests',
-  network: 'auth.error.network',
-  notConfigured: 'auth.error.notConfigured',
-  signupLimitReached: 'auth.error.signupLimitReached',
-  emailExists: 'auth.error.emailExists',
-  oauthCancelled: 'auth.error.oauthCancelled',
-  oauthProviderDisabled: 'auth.error.oauthProviderDisabled',
-  oauthSignupDisabled: 'auth.error.oauthSignupDisabled',
-  oauthIdentityExists: 'auth.error.oauthIdentityExists',
-  oauthConfig: 'auth.error.oauthConfig',
-  oauthCallback: 'auth.error.oauthCallback',
-  manualLinkingDisabled: 'auth.error.manualLinkingDisabled',
-  unknown: 'auth.error.unknown',
-}
 
 type LoginMode = 'signin' | 'signup'
 
-const MIN_PASSWORD_LENGTH = 6
+const MIN_PASSWORD_LENGTH = 12
 
 function GoogleIcon() {
   return (
@@ -194,7 +176,7 @@ export function LoginPage() {
       {status === 'error' ? (
         <div className="mt-6">
           <Alert tone="danger" title={t('common.error')}>
-            <p>{error ? t(errorKeys[error]) : t('auth.error.unknown')}</p>
+            <p>{error ? t(authErrorKeys[error]) : t('auth.error.unknown')}</p>
             <Button className="mt-3" variant="secondary" onClick={() => void initialize()}>
               {t('sync.retry')}
             </Button>
@@ -206,7 +188,7 @@ export function LoginPage() {
         {displayError && status !== 'error' ? (
           <div role="alert" className="mb-5">
             <Alert tone="danger" title={t('common.error')}>
-              {t(errorKeys[displayError])}
+              {t(authErrorKeys[displayError])}
             </Alert>
           </div>
         ) : null}
@@ -316,7 +298,15 @@ export function LoginPage() {
             {mode === 'signin' ? (
               <>
                 <p>{t('auth.signup.hint')}</p>
-                <p>{t('auth.forgotPassword')}</p>
+                <p>
+                  <Link
+                    to="/reset-password"
+                    className="underline decoration-line underline-offset-2 hover:text-ink hover:decoration-ink"
+                  >
+                    {t('auth.forgotPassword')}
+                  </Link>{' '}
+                  {t('auth.forgotPasswordGoogle')}
+                </p>
               </>
             ) : (
               <p>{t('auth.signup.hint')}</p>

@@ -59,14 +59,20 @@ const checks = [
     // keys live in the eager dictionaries and the admin store is wired into the
     // session bootstrap for the sidebar flag. The console itself stays lazy
     // (17.9 KB / 3.8 KB gzip): measured 239.0 KB gzip, limit raised to 240 KB.
-    limit: 240 * KB,
+    // EVO-11 (ADR-0037) adds password recovery: the `auth.recovery.*` IT/EN
+    // keys and the two auth-store actions sit in the eager auth bootstrap
+    // (measured 241.1 KB). The form page stays lazy; the limit is raised to
+    // 243 KB to keep the same margin as before.
+    limit: 243 * KB,
   },
   {
     label: 'Chunk lazy',
     bytes: lazyBytes,
     // ADR-0033 adds the lazy printer catalog page (+4.5 KB gzip); the measured
     // lazy total is 77.7 KB, so the limit stays at 80 KB.
-    limit: 80 * KB,
+    // EVO-11 (ADR-0037) adds the lazy password-recovery page (1.4 KB gzip):
+    // measured 80.5 KB, limit raised to 82 KB.
+    limit: 82 * KB,
   },
   {
     label: 'Worker .3mf',
