@@ -9,7 +9,7 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'auth.mode.signup': 'Sign up',
   'auth.signup.description':
     'Create an account to sync configuration and quotes across your devices. Every account gets a personal cloud workspace.',
-  'auth.signup.passwordHint': 'At least 6 characters.',
+  'auth.signup.passwordHint': 'At least 12 characters.',
   'auth.signup.submit': 'Create account',
   'auth.signup.submitting': 'Creating account…',
   'auth.signup.hint':
@@ -75,7 +75,7 @@ export const authEn: Record<keyof typeof authIt, string> = {
   'auth.error.emailRequired': 'Enter your email.',
   'auth.error.emailInvalid': 'Enter a valid email address.',
   'auth.error.passwordRequired': 'Enter a password.',
-  'auth.error.passwordTooShort': 'The password must be at least 6 characters.',
+  'auth.error.passwordTooShort': 'The password must be at least 12 characters.',
   'auth.error.oauthCancelled': 'Google sign-in was cancelled.',
   'auth.error.oauthProviderDisabled': 'Google sign-in is not enabled. Use email and password.',
   'auth.error.oauthSignupDisabled':

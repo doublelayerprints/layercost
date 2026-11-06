@@ -7,7 +7,7 @@ export const authIt = {
   'auth.mode.signup': 'Registrati',
   'auth.signup.description':
     'Crea un account per sincronizzare configurazione e preventivi tra i tuoi dispositivi. Ogni account ha uno spazio personale nel cloud.',
-  'auth.signup.passwordHint': 'Almeno 6 caratteri.',
+  'auth.signup.passwordHint': 'Almeno 12 caratteri.',
   'auth.signup.submit': 'Crea account',
   'auth.signup.submitting': 'Creazione account…',
   'auth.signup.hint':
@@ -75,7 +75,7 @@ export const authIt = {
   'auth.error.emailRequired': 'Inserisci la tua email.',
   'auth.error.emailInvalid': 'Inserisci un indirizzo email valido.',
   'auth.error.passwordRequired': 'Inserisci una password.',
-  'auth.error.passwordTooShort': 'La password deve avere almeno 6 caratteri.',
+  'auth.error.passwordTooShort': 'La password deve avere almeno 12 caratteri.',
   'auth.error.oauthCancelled': 'Accesso con Google annullato.',
   'auth.error.oauthProviderDisabled':
     'L’accesso con Google non è abilitato. Usa email e password.',

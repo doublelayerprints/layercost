@@ -181,13 +181,101 @@ Non lasciare il workspace senza owner. Se l'update riguarda l'ultimo owner, il t
 un'ora. Il link apre la schermata «Scegli una nuova password»; al salvataggio la sessione
 è già attiva. Non serve l'intervento dell'owner.
 
-- L'email parte dall'SMTP integrato di Supabase Free (**3 email/ora**): sufficiente per
-  l'uso reale. Se un giorno il volume crescerà, si cambia solo la configurazione del
-  progetto (Brevo/Resend), senza toccare il codice.
+- L'email parte da un **SMTP custom** (vedi §6.4.1). L'SMTP integrato di Supabase **non è
+  utilizzabile**: consegna solo agli indirizzi dell'organizzazione (2 email/ora) e dal
+  06/11/2026 è bloccato per bounce rate. Non riattivarlo.
 - La conferma a schermo è neutra («se esiste un account…»): non rivela se l'indirizzo è
   registrato.
 - Requisito password: **12 caratteri** (UI e backend allineati).
 - Chi ha Google può evitare del tutto la password e accedere da lì.
+
+#### 6.4.1 Configurare l'SMTP custom (una-tantum)
+
+> **Vincolo verificato il 06/11/2026.** Un mittente `@gmail.com` non è autenticabile con
+> SPF/DKIM propri: Brevo ne riscrive il dominio e Gmail/Yahoo dal 2024 richiedono
+> allineamento. Resend accetta solo il proprio indirizzo di test
+> (`onboarding@resend.dev`) verso la casella dell'account. Le due vie praticabili sono
+> quindi **Gmail SMTP** (mittente reale, nessuna autenticazione da configurare) o un
+> **dominio proprio** con Brevo/Resend. Lo stack attuale usa Gmail SMTP.
+
+Indirizzi di riscrittura Brevo, dalla guida ufficiale *Comply with Gmail, Yahoo, and
+Microsoft's requirements*: marketing `mittente@<id>.brevosend.com`, transazionale/SMTP
+`mittente@<id>.t-sender-sib.com`. Brevo lo descrive come misura temporanea e avverte che
+i destinatari possono non riconoscere il mittente e segnare l'email come spam: per un
+link di reset password è la combinazione peggiore.
+
+| Opzione | Costo | Mittente visibile | Pronta |
+| --- | --- | --- | --- |
+| Gmail SMTP | 0 € | `doublelayerprints@gmail.com` (reale) | subito |
+| Brevo con mittente Gmail | 0 € | `...@<id>.t-sender-sib.com` (riscritto) | sconsigliata |
+| Dominio proprio + Brevo/Resend | ~10–15 €/anno | `no-reply@<dominio>` | dopo il DNS |
+
+Gmail SMTP è preferibile a Brevo quando il mittente è Gmail: l'invio Gmail→Gmail è
+autenticato nativamente da Google, senza riscritture, e il destinatario riconosce
+l'indirizzo.
+
+**Opzione A — dominio proprio (definitiva, ~10–15 €/anno).** È l'unica che dà un mittente
+`no-reply@` con SPF/DKIM/DMARC propri.
+
+1. Registrare un dominio. `doublelayerprints.com` e `layercost.it` sono **liberi**
+   (verificato il 06/11/2026); `doublelayerprints.it` è libero su NIC.it.
+2. Creare un account Brevo Free (300 email/giorno) o Resend Free (100/giorno).
+3. Autenticare il dominio nel provider: record **SPF**, **DKIM** e **DMARC**
+   (`v=DMARC1; p=none; rua=mailto:...` per iniziare, poi `p=quarantine`).
+4. In Supabase: **Authentication → Emails → SMTP Settings** → *Enable Custom SMTP*.
+
+   | Campo | Valore |
+   | --- | --- |
+   | Sender email | `no-reply@<dominio>` (deve stare sul dominio autenticato) |
+   | Sender name | `LayerCost` |
+   | Host | `smtp-relay.brevo.com` (Brevo) o `smtp.resend.com` (Resend) |
+   | Port | `587` (STARTTLS) |
+   | Username | login SMTP Brevo / `resend` per Resend |
+   | Password | chiave SMTP Brevo / API key `re_...` per Resend |
+
+5. Alzare il limite in **Authentication → Rate Limits → Emails per hour** (default 2,
+   limitato solo dal servizio integrato) a un valore adeguato, per esempio **30**.
+6. Verificare con un invio reale: `/#/reset-password` → indirizzo dell'owner → link
+   ricevuto → nuova password → login. Controllare che `recovery_sent_at` sia valorizzato
+   e che l'email non finisca in spam.
+
+**Opzione B — Gmail SMTP (attiva dal 06/11/2026).** Il flusso funziona, ma il mittente
+resta `@gmail.com` e il limite è di ~500 destinatari/giorno.
+
+Configurazione applicata in produzione (via Management API):
+
+| Campo | Valore |
+| --- | --- |
+| Sender email | `doublelayerprints@gmail.com` |
+| Sender name | `LayerCost` |
+| Host | `smtp.gmail.com` |
+| Port | `587` |
+| Username | `doublelayerprints@gmail.com` |
+| Password | password per le app Google (16 caratteri), nel password manager |
+| Emails per hour | `20` (max 480/giorno, sotto il tetto Gmail di 500) |
+
+Prerequisito: **verifica in due passaggi** attiva sull'account Google e password per le
+app generata da `myaccount.google.com/apppasswords` (Google l'ha rimossa dalla pagina
+Sicurezza). Se si cambia la password dell'account Google, tutte le password per le app
+vengono revocate e l'invio si ferma: va generata una nuova password e reimmessa in
+Supabase.
+
+**Nota.** `doublelayerprints@gmail.com` è il mittente, **non** un account dell'app: gli
+account utente sono altri indirizzi. Non inviare richieste di reset verso il mittente
+stesso, non esiste come utente.
+
+**Rollback:** disattivare *Enable Custom SMTP*. Con l'SMTP integrato bloccato il recupero
+torna al fallback amministrativo qui sotto.
+
+**Verifica tecnica senza inviare email** (solo lettura della configurazione):
+
+```bash
+curl -s "https://api.supabase.com/v1/projects/<ref>/config/auth" \
+  -H "Authorization: Bearer <access-token>" \
+  | jq '{smtp_host, smtp_port, smtp_admin_email, rate_limit_email_sent}'
+```
+
+`smtp_host` nullo significa che l'SMTP custom non è attivo.
 
 **Fallback amministrativo** (solo se l'email non arriva o l'account non ha accesso alla
 casella):
@@ -205,8 +293,15 @@ curl -X PUT "$SUPABASE_URL/auth/v1/admin/users/<uuid-utente>" \
 ```
 
 3. Comunicare la password temporanea per un canale sicuro e invitare l'utente a
-   impostarne una propria dal link «Password dimenticata?».
+   impostarne una propria dal link «Password dimenticata?» quando l'SMTP è configurato.
+   Finché non lo è, la password temporanea resta quella in uso e va conservata nel
+   password manager.
 4. Non usare lo SQL editor per modificare `auth.users.encrypted_password`.
+
+**Nota del 06/11/2026.** Il flusso self-service è stato attivato lo stesso giorno con
+Gmail SMTP (§6.4.1). Prima di quella configurazione `/auth/v1/recover` rispondeva `200`
+neutro senza inviare nulla, quindi l'app mostrava «Controlla la posta» a vuoto: se
+l'SMTP custom viene disattivato, il reset torna amministrativo.
 
 **Verifica in locale:** le email finiscono in Mailpit (`http://127.0.0.1:54324`); la
 suite `npm run test:e2e:auth` segue il link reale dall'inbox e copre il flusso completo.

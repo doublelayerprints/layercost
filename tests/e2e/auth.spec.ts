@@ -133,7 +133,7 @@ test('signup: crea un account, apre la sessione e mostra la quota dello spazio',
     await page.getByLabel('Email').fill(email)
     await page.getByLabel('Password').fill('abc')
     await page.getByRole('button', { name: 'Crea account' }).click()
-    await expect(page.getByText('La password deve avere almeno 6 caratteri.')).toBeVisible()
+    await expect(page.getByText('La password deve avere almeno 12 caratteri.')).toBeVisible()
     await audit(page)
 
     // Happy path: with auto-confirm the session starts immediately.

@@ -38,9 +38,14 @@ esplicitamente), ma serve un fallback per gli account con password.
    caratteri (il valore che il progetto ha già in `supabase/config.toml` e che
    l'Admin API impone): prima la UI accettava password che il backend avrebbe poi
    rifiutato.
-6. **SMTP = quello integrato di Supabase Free** (3 email/ora). Nessun provider
-   esterno, nessun secret in più, nessun costo. Se il volume crescerà, si valuterà
-   Brevo/Resend senza cambiare codice: cambia solo la configurazione del progetto.
+6. **SMTP = servizio integrato di Supabase Free** (2 email/ora, non 3). ~~Nessun
+   provider esterno, nessun secret in più, nessun costo.~~ **Superato il 06/11/2026:**
+   quel servizio consegna solo agli indirizzi dell'organizzazione e non è utilizzabile
+   per utenti reali; è stato inoltre bloccato per bounce rate. Il flusso in-app resta
+   valido, ma richiede un **SMTP custom**: dal 06/11/2026 è attivo Gmail SMTP
+   (`smtp.gmail.com:587`, mittente `doublelayerprints@gmail.com`), documentato nel
+   runbook §6.4.1. L'ADR-0037 resta corretto sul codice e sbagliato sulla premessa
+   infrastrutturale.
 7. **La pagina pubblica di reset non è indicizzabile e non tocca i dati dell'app**:
    è dentro `AppShell` come il login, non crea `layercost:data`, non chiama il sync.
 
@@ -56,6 +61,29 @@ esplicitamente), ma serve un fallback per gli account con password.
   backend. Chi ha Google può evitare del tutto la password.
 - **Non preso ora:** cambio password dalla pagina Impostazioni per chi è già
   autenticato (utile, ma separato: oggi si passa dal link email), 2FA, passkeys.
+
+## 3.1 Aggiornamento del 06/11/2026 — SMTP custom obbligatorio
+
+Verificato sul progetto di produzione:
+
+- L'SMTP integrato consegna **solo agli indirizzi dei membri dell'organizzazione**
+  Supabase: gli utenti reali ricevono `Email address not authorized`.
+- Il limite è **2 email/ora** (`rate_limit_email_sent = 2`), non 3 come scritto sopra e
+  nel runbook.
+- Il 06/11/2026 Supabase ha **bloccato l'invio** dal servizio integrato per bounce rate
+  elevato: nessun flusso email funziona finché non si configura un SMTP custom.
+
+Il flusso applicativo (PKCE, `exchangeCodeForSession`, `redirectType`, pagina lazy,
+minimo 12) non cambia: cambia solo la configurazione del progetto. Le opzioni valutate
+sono tre. **Gmail SMTP** (attiva dal 06/11/2026) funziona subito a costo zero, con
+mittente reale `@gmail.com` e il tetto di ~500 destinatari/giorno di Google. **Brevo con
+mittente Gmail** è stata scartata: non fornisce caselle e riscrive il mittente in
+`...@<id>.t-sender-sib.com`. **Dominio proprio + Brevo/Resend** (~10–15 €/anno) resta la
+scelta definitiva per un mittente `no-reply@` con SPF/DKIM/DMARC corretti. Procedura
+completa nel runbook §6.4.1.
+
+**Correzione collegata:** la UI diceva «Almeno 6 caratteri» mentre il minimo reale era
+12. Messaggio allineato in IT/EN e nell'E2E auth.
 
 ## 4. Riferimenti
 
