@@ -18,7 +18,7 @@ I problemi reali sono tre e uno è potenzialmente critico: la registrazione non 
 | 1 | **Critico** | Auto-confirm email + auto-link Google | **confermato e corretto** (ADR-0038 §2.6) |
 | 2 | Alto | Link condiviso con snapshot e margini | **corretto** (ADR-0038 §2.1) |
 | 3 | Medio | Nessun CSP / anti-clickjacking | **corretto** (ADR-0038 §2.2) |
-| 4 | Medio | Signup senza CAPTCHA | **aperto**: richiede le chiavi del provider |
+| 4 | Medio | Signup senza CAPTCHA | **gestito senza CAPTCHA**: conferma email + pulizia automatica (ADR-0038 §2.10) |
 | 5 | Medio | Integrità del preventivo inviato incompleta | **parziale, per scelta** (ADR-0038 §2.4) |
 | 6 | Medio | `created_by` falsificabile all'inserimento | **corretto** (ADR-0038 §2.3) |
 | 7 | Medio | Tetto preventivi aggirabile con lo spostamento | **corretto** (ADR-0038 §2.5) |
@@ -116,13 +116,17 @@ Applicati CSP e `X-Frame-Options: DENY`, con `script-src` basato sull'hash del J
 
 ---
 
-## 5. Finding 4 — Signup senza CAPTCHA (aperto)
+## 5. Finding 4 — Signup senza CAPTCHA (gestito senza CAPTCHA)
 
-**Gravità:** media. **Stato:** aperto, richiede le chiavi del provider.
+**Gravità:** media. **Stato:** gestito con conferma email obbligatoria e pulizia automatica; CAPTCHA non adottato per decisione dell'owner.
 
 Tetto 1000 utenti, `auth.captcha` non configurato, rate limit `sign_in_sign_ups = 30` per 5 minuti per IP. Un bot può esaurire il tetto con indirizzi inventati, bloccando le registrazioni legittime (`signup_limit_reached`). La conferma email (finding 1) ha aggiunto un attrito reale: senza link l'account non è utilizzabile, e la mail parte solo verso indirizzi validi.
 
-**Rimedio:** Cloudflare Turnstile o hCaptcha. Serve un sito dal provider, poi `security_captcha_provider` e `security_captcha_secret`, e **solo alla fine** `security_captcha_enabled = true`: il flag senza secret blocca tutte le registrazioni. Procedura nel runbook §19.
+**Perché il rischio è accettabile.** Con la conferma email attiva l'account viene creato solo se l'email parte: in `signup.go` la `sendConfirmation` è dentro la transazione e un suo errore fa rollback. Un bot non riempie il database con indirizzi inventati; il vincolo reale diventa l'SMTP, già limitato a 20 email/ora.
+
+**Rimedio adottato.** Job `pg_cron` giornaliero che cancella gli account non confermati dopo 48 ore, solo se non hanno mai fatto accesso e non hanno lasciato tracce (membership, profilo, preventivi, workspace). Migrazione `20261106160000_cleanup_unconfirmed_users.sql`, 12 asserzioni pgTAP, dry run disponibile. Dettagli nel runbook §19.1.
+
+**Se in futuro servisse:** Turnstile o hCaptcha richiedono un sito dal provider, poi `security_captcha_provider` e `security_captcha_secret`, e **solo alla fine** `security_captcha_enabled = true`: il flag senza secret blocca tutte le registrazioni.
 
 ---
 

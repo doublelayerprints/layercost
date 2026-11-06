@@ -87,16 +87,27 @@ Revocati `INSERT`/`UPDATE`/`DELETE` generici su `workspace_members`; restano `SE
 
 Entrambi sono documentati come limiti di piano, non come debito tecnico del codice.
 
-### 2.10 CAPTCHA sul signup (finding 4)
+### 2.10 CAPTCHA sul signup (finding 4) — non adottato, pulizia al suo posto
 
-Richiede un sito hCaptcha o Cloudflare Turnstile (chiavi pubbliche e segrete) e il widget nel form. Non è stato attivato: senza una secret valida il flag `security_captcha_enabled` **blocca tutte le registrazioni**. L'ordine corretto è nel runbook §19.
+Il CAPTCHA richiede un sito hCaptcha o Cloudflare Turnstile (chiavi pubbliche e segrete) e il widget nel form. **Decisione dell'owner: farne a meno** per ora, e gestire il rischio con la pulizia automatica.
+
+Perché è accettabile: con la conferma email attiva (ADR-0038 §2.6) l'account viene creato **solo se** l'email di conferma parte, perché l'invio è dentro la stessa transazione (`signup.go`: `sendConfirmation` restituisce l'errore, la transazione fa rollback). Un bot non riempie quindi il database con indirizzi inventati: al più genera bounce, già limitati dal tetto di 20 email/ora dell'SMTP.
+
+Il rischio residuo è che indirizzi reali ma non posseduti creino account non confermati che consumano il tetto globale di 1000 utenti (`max_users()` conta ogni riga di `auth.users`). Contro questo, migrate `20261106160000_cleanup_unconfirmed_users.sql`:
+
+- `delete_unconfirmed_users(grace_hours, limit, dry_run)`, `SECURITY DEFINER`, eseguibile solo da `service_role`/`postgres`/`supabase_admin`; `anon` e `authenticated` non hanno grant.
+- Cancella **solo** utenti con `email_confirmed_at is null`, più vecchi della finestra di grazia (default 48 ore) e **mai** con `last_sign_in_at`, membership, profilo, preventivi o workspace a loro nome: se hanno lasciato traccia, non sono abbandonati.
+- Job `pg_cron` `layercost-cleanup-unconfirmed` alle 03:41 UTC, limite 500 per esecuzione per non tenere la cancellazione in una transazione lunga.
+- 12 asserzioni pgTAP (`supabase/tests/cleanup.test.sql`) coprono grazia, utenti confermati, chi ha fatto accesso e chi ha lasciato tracce.
+
+**Non adottati per scelta dell'owner:** rate limit email più stretto (resta 20/ora) e blocco dei domini usa-e-getta. Restano possibili se il volume crescerà.
 
 ## 3. Conseguenze
 
 - `vercel.json` non è più solo tre header: la CSP va aggiornata se cambia l'hash del JSON-LD (il test lo ricorda) o se si aggiunge un host di rete.
 - `QuoteOverview` e `QuotePrint` accettano `Quote | SharedQuote`: le figure interne sono raggiungibili solo tramite `internalResult`, che esiste solo quando l'audience è `internal` e il risultato è quello completo.
 - Migrazione `20261106120000_security_hardening.sql`: cinque trigger `before insert`, due funzioni ridefinite (`protect_locked_quote`, `enforce_workspace_quote_cap`). Nessuna tabella nuova, nessuna RLS modificata, nessun dato riscritto.
-- 338 unitari (+10: sei su link e proiezione, quattro sulla CSP, due sul signup con conferma), 164 pgTAP (+17 su `hardening.test.sql`, 22 su `caps.test.sql` dopo la rimozione degli insert diretti), 5 E2E auth con il nuovo flusso di conferma reale da Mailpit.
+- 338 unitari (+10: sei su link e proiezione, quattro sulla CSP, due sul signup con conferma), 176 pgTAP (+12 su `cleanup.test.sql`, 17 su `hardening.test.sql`, 22 su `caps.test.sql` dopo la rimozione degli insert diretti), 5 E2E auth con il nuovo flusso di conferma reale da Mailpit.
 - Nessun cambio a formule, `engineVersion`, snapshot economici, schema locale v4 o sync.
 
 ## 4. Alternative considerate
@@ -118,7 +129,7 @@ Richiede un sito hCaptcha o Cloudflare Turnstile (chiavi pubbliche e segrete) e 
 | Finding | Stato | Perché non qui |
 | --- | --- | --- |
 | 1. Auto-confirm + auto-link | **confermato e corretto** | §2.6 |
-| 4. CAPTCHA sul signup | aperto | Richiede un sito hCaptcha/Turnstile e la sua secret; il flag da solo blocca le registrazioni (§2.10) |
+| 4. CAPTCHA sul signup | **gestito senza CAPTCHA** | Pulizia automatica degli account non confermati + conferma email obbligatoria (§2.10) |
 | 5. Integrità dell'inviato | parziale, per scelta | Chiusa la collocazione; archiviazione e cancellazione restano permesse (§2.4) |
 | 8. Password compromesse | **non applicabile al piano Free** | L'API risponde `402`: HIBP è riservato ai piani Pro. Resta il minimo di 12 caratteri (§2.9) |
 | 9. Audit log auth | **non configurabile via API** | `audit_log_disable_postgres` resta `true` e non è scrivibile dal Management API (§2.9) |

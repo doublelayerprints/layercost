@@ -742,6 +742,27 @@ Riferimento: `docs/engineering/security-audit-2026-11-06.md`. Stato al 06/11/202
 | 11 | Dipendenze | **chiuso**: Dependabot + `npm audit --omit=dev` in CI |
 | 8 | Password compromesse | **non applicabile al piano Free**: l'API risponde `402` («available on Pro Plans and up»). Restano minimo 12 caratteri |
 | 9 | Audit log auth | **non configurabile via API**: `audit_log_disable_postgres` resta `true` e non è scrivibile dal Management API. Da valutare in dashboard o con il piano Pro |
-| 4 | CAPTCHA sul signup | **aperto, richiede le chiavi**: va creato un sito hCaptcha o Turnstile, poi `security_captcha_provider` + `security_captcha_secret` e solo alla fine `security_captcha_enabled = true` |
+| 4 | CAPTCHA sul signup | **gestito senza CAPTCHA** (decisione dell'owner): conferma email obbligatoria + pulizia automatica degli account non confermati |
 
-> **Attenzione su CAPTCHA (finding 4).** Attivare `security_captcha_enabled` **senza** una secret valida blocca tutte le registrazioni. L'ordine corretto è: creare il sito dal provider, impostare provider e secret, verificare un signup reale, e solo allora attivare il flag. Durante l'audit il flag è stato attivato per errore senza secret ed è stato ripristinato subito dopo la verifica (signup di nuovo funzionante).
+### 19.1 Pulizia degli account non confermati (finding 4)
+
+Con la conferma email attiva un account nasce solo se l'email di conferma parte (l'invio è nella stessa transazione del signup). Resta il caso di indirizzi reali mai confermati, che consumano il tetto globale di 1000 utenti.
+
+Job `pg_cron` **`layercost-cleanup-unconfirmed`**, ogni giorno alle **03:41 UTC**:
+
+```sql
+select * from public.delete_unconfirmed_users(48, 500, true);   -- dry run
+select * from public.delete_unconfirmed_users(48, 500, false);  -- esegue
+```
+
+Cancella solo utenti con `email_confirmed_at is null`, più vecchi di **48 ore**, mai entrati e **senza tracce** (membership, profilo, preventivi, workspace). La funzione è `SECURITY DEFINER` e hanno il grant solo `service_role`, `postgres` e `supabase_admin`: `anon` e `authenticated` non possono chiamarla.
+
+Monitoraggio:
+
+```sql
+select jobid, jobname, schedule, active from cron.job;
+select jobname, status, start_time, return_message
+from cron.job_run_details order by start_time desc limit 10;
+```
+
+Se il tetto utenti si avvicina a 1000, il dry run dice quanti candidati ci sono prima di qualunque cancellazione. Non è stata adottata alcuna misura anti-CAPTCHA: né rate limit più stretto (resta 20 email/ora) né blocco dei domini usa-e-getta.
