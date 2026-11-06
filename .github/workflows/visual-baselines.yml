@@ -55,13 +55,13 @@ jobs:
           SUPABASE_URL: ${{ env.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_DB_URL: ${{ env.SUPABASE_DB_URL }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: visual-baselines
           path: tests/e2e/visual.spec.ts-snapshots/
           retention-days: 7
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: visual-cloud-baselines
           path: tests/e2e/visual-cloud.spec.ts-snapshots/
