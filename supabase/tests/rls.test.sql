@@ -376,10 +376,14 @@ select is(
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
 
-select lives_ok(
+-- Audit 06/11/2026 (ADR-0038 §2.7): direct membership inserts are denied to
+-- every application role, an owner included. Members join through an invite.
+select throws_ok(
   $$ insert into public.workspace_members (workspace_id, user_id, role)
      values ('ws-a', '44444444-4444-4444-4444-444444444444', 'editor') $$,
-  'an owner can add a member'
+  '42501',
+  null,
+  'an owner cannot add a member without an invite'
 );
 
 set local request.jwt.claims = '{"sub":"33333333-3333-3333-3333-333333333333","role":"authenticated"}';

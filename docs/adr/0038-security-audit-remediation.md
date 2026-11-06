@@ -70,12 +70,33 @@ Un trigger `before insert` (`set_created_fields`) imposta `created_by = auth.uid
 
 **Verifica.** La registrazione lascia l'utente `NON CONFERMATA` e il login prima della conferma risponde `email_not_confirmed`; il link reale da Mailpit conferma l'account e apre la sessione. Due test unitari nuovi bloccano la regressione: `confirmEmail` non deve autenticare.
 
+### 2.7 Membership e identità del workspace (finding 10)
+
+Un owner poteva inserire una membership arbitraria con un `INSERT` diretto, aggirando inviti (scadenza, revoca, `max_uses`) e pre-check del tetto, e riscrivere `kind` e `created_by` del workspace, eludendo il tetto dei 10 spazi condivisi e falsificando l'audit.
+
+Revocati `INSERT`/`UPDATE`/`DELETE` generici su `workspace_members`; restano `SELECT`, `UPDATE (role)` e `DELETE`, che coprono ciò che la UI fa davvero. Le RPC `create_workspace`, `ensure_personal_workspace` e `redeem_invite` sono `SECURITY DEFINER` e continuano a funzionare. Su `workspaces` un trigger blocca la modifica di `id`, `kind`, `created_by` e `created_at`; `renameWorkspace` tocca solo `name` e continua a funzionare.
+
+### 2.8 Dipendenze (finding 11)
+
+`.github/dependabot.yml` con aggiornamenti npm settimanali raggruppati e GitHub Actions mensili; il job `check` esegue `npm audit --omit=dev --audit-level=moderate` prima di `npm run check`. Le advisory sulle sole dipendenze di sviluppo restano non bloccanti: si correggono con Dependabot senza fermare una release.
+
+### 2.9 Finding non chiudibili dal progetto (8 e 9)
+
+- **Password compromesse (8).** `PATCH /config/auth` con `password_hibp_enabled: true` risponde **`402 Payment Required`**: «Configuring leaked password protection via HaveIBeenPwned.org is available on Pro Plans and up». Non è una scelta di implementazione: sul piano Free la funzione non esiste. Resta il minimo di 12 caratteri, allineato tra UI e backend.
+- **Audit log (9).** `audit_log_disable_postgres` è `true` e il Management API ignora il valore inviato (la risposta lo riporta invariato). `auth.audit_log_entries` resta vuoto. Va verificato dalla dashboard o sbloccato con il piano Pro.
+
+Entrambi sono documentati come limiti di piano, non come debito tecnico del codice.
+
+### 2.10 CAPTCHA sul signup (finding 4)
+
+Richiede un sito hCaptcha o Cloudflare Turnstile (chiavi pubbliche e segrete) e il widget nel form. Non è stato attivato: senza una secret valida il flag `security_captcha_enabled` **blocca tutte le registrazioni**. L'ordine corretto è nel runbook §19.
+
 ## 3. Conseguenze
 
 - `vercel.json` non è più solo tre header: la CSP va aggiornata se cambia l'hash del JSON-LD (il test lo ricorda) o se si aggiunge un host di rete.
 - `QuoteOverview` e `QuotePrint` accettano `Quote | SharedQuote`: le figure interne sono raggiungibili solo tramite `internalResult`, che esiste solo quando l'audience è `internal` e il risultato è quello completo.
 - Migrazione `20261106120000_security_hardening.sql`: cinque trigger `before insert`, due funzioni ridefinite (`protect_locked_quote`, `enforce_workspace_quote_cap`). Nessuna tabella nuova, nessuna RLS modificata, nessun dato riscritto.
-- 338 unitari (+10: sei su link e proiezione, quattro sulla CSP, due sul signup con conferma), 159 pgTAP (+11 su `hardening.test.sql`), 5 E2E auth con il nuovo flusso di conferma reale da Mailpit.
+- 338 unitari (+10: sei su link e proiezione, quattro sulla CSP, due sul signup con conferma), 164 pgTAP (+17 su `hardening.test.sql`, 22 su `caps.test.sql` dopo la rimozione degli insert diretti), 5 E2E auth con il nuovo flusso di conferma reale da Mailpit.
 - Nessun cambio a formule, `engineVersion`, snapshot economici, schema locale v4 o sync.
 
 ## 4. Alternative considerate
@@ -97,11 +118,11 @@ Un trigger `before insert` (`set_created_fields`) imposta `created_by = auth.uid
 | Finding | Stato | Perché non qui |
 | --- | --- | --- |
 | 1. Auto-confirm + auto-link | **confermato e corretto** | §2.6 |
-| 4. CAPTCHA sul signup | aperto | Richiede il widget Turnstile nella UI e le chiavi del provider |
-| 5. Integrità dell'inviato | parziale | Chiusa la collocazione; archiviazione e cancellazione restano per scelta (§2.4) |
-| 8. Password compromesse | aperto | Si attiva dal dashboard Supabase (HaveIBeenPwned), nessun codice |
-| 9. Audit log auth | aperto | `auth.audit_log_entries` vuoto: verifica di configurazione/retention lato piattaforma |
-| 11. Dipendenze | aperto | Dependabot e `npm audit` in CI: fuori dallo scope di questo ADR |
+| 4. CAPTCHA sul signup | aperto | Richiede un sito hCaptcha/Turnstile e la sua secret; il flag da solo blocca le registrazioni (§2.10) |
+| 5. Integrità dell'inviato | parziale, per scelta | Chiusa la collocazione; archiviazione e cancellazione restano permesse (§2.4) |
+| 8. Password compromesse | **non applicabile al piano Free** | L'API risponde `402`: HIBP è riservato ai piani Pro. Resta il minimo di 12 caratteri (§2.9) |
+| 9. Audit log auth | **non configurabile via API** | `audit_log_disable_postgres` resta `true` e non è scrivibile dal Management API (§2.9) |
+| 11. Dipendenze | **chiuso** | Dependabot settimanale e `npm audit --omit=dev` in CI (§2.8) |
 
 ## 7. Riferimenti
 

@@ -18,6 +18,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Audit finding 11 (ADR-0038 §2.8): fail on a vulnerable runtime
+      # dependency. Dev-only advisories stay non-blocking because they can be
+      # fixed out of band by Dependabot without stopping a release.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=moderate
       - run: npm run check
 
   e2e:

@@ -281,6 +281,7 @@ L'import accetta anche un `AppData` diretto. Dopo la validazione, i preventivi v
 - Svuotare i dati del browser cancella i dati: il backup JSON è l'unica copia esterna.
 - L'export `.xlsx` è locale e di sola lettura: serve per analisi e non sostituisce il backup JSON.
 - `vercel.json` impone CSP con `script-src` basato sull'hash del JSON-LD, `frame-ancestors 'none'` e `connect-src` limitato a Supabase e Formspree (ADR-0038 §2.2). Un test ricalcola l'hash da `index.html`.
+- La registrazione richiede la **conferma email** (`mailer_autoconfirm = false`, ADR-0038 §2.6): senza il link l'account resta non confermato e il login risponde `email_not_confirmed`. È la protezione contro il pre-account takeover via auto-link Google.
 
 ---
 
@@ -310,7 +311,7 @@ Invarianti cloud:
 
 1. Le bozze restano locali: `quotes.status` ammette solo `saved`, `sent` e `completed`.
 2. RLS su ogni tabella; l'accesso è consentito solo ai membri del workspace tramite `is_workspace_member`.
-3. `workspace_members` è gestito dagli owner e dalle RPC degli inviti; l'ultimo owner non può essere rimosso.
+3. `workspace_members` si modifica solo tramite le RPC degli inviti per l'ingresso: `authenticated` non ha `INSERT` diretto e conserva `SELECT`, `UPDATE (role)` e `DELETE` (ADR-0038 §2.7). L'ultimo owner non può essere rimosso. Le colonne `id`, `kind`, `created_by` e `created_at` di `workspaces` sono immutabili per i ruoli applicativi; la rinomina tocca solo `name`.
 4. Un utente può appartenere a più workspace e ha uno spazio personale automatico (`kind = 'personal'`), creato dalla RPC `ensure_personal_workspace` se manca. Gli spazi condivisi si creano con `create_workspace`; il tetto è 10 spazi condivisi posseduti per utente, più il personale.
 5. Gli inviti sono codici da 16 byte mostrati una sola volta; il database conserva solo l'hash, la scadenza (1–30 giorni) e il ruolo. Il riscatto crea la membership con la RPC `redeem_invite`; il tetto membri è configurabile in `workspace_limits` (default 20) e i pre-check delle RPC usano lo stesso valore.
 6. I preventivi `sent`/`completed` non cambiano i campi economici, `workspace_id` o `schema_version`; un trigger blocca anche le transizioni all'indietro. Archiviazione e soft-deletion restano permesse per ogni stato (ADR-0038 §2.4).

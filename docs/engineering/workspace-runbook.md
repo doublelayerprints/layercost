@@ -723,3 +723,25 @@ Dal 4 novembre 2026 l'app ha una console di amministrazione su `/#/admin`, visib
 - `supabase/tests/admin.test.sql` — 34 asserzioni sulla console admin (EVO-8).
 - `docs/adr/0027-signup-cap-and-workspace-limits.md` e `docs/planning/evo-2-user-quote-caps.md` — decisioni e spec.
 - `docs/adr/0034-admin-console.md` e `docs/planning/evo-8-admin-console.md` — console admin: flag `is_admin`, RPC e perimetro.
+- `docs/adr/0038-security-audit-remediation.md` e `docs/engineering/security-audit-2026-11-06.md` — audit di sicurezza: rimedi applicati e finding aperti.
+- `supabase/migrations/20261106140000_close_audit_findings.sql` e `supabase/tests/hardening.test.sql` — grant delle membership, immutabilità identità del workspace, `created_by`, cap sugli spostamenti.
+
+## 19. Stato dei finding dell'audit (06/11/2026)
+
+Riferimento: `docs/engineering/security-audit-2026-11-06.md`. Stato al 06/11/2026.
+
+| # | Finding | Stato |
+| --- | --- | --- |
+| 1 | Auto-confirm + auto-link | **chiuso**: `mailer_autoconfirm = false`; la UI mostra «Controlla la posta» |
+| 2 | Link condivisi con snapshot e margini | **chiuso**: proiezione cliente |
+| 3 | CSP e anti-framing | **chiuso**: `vercel.json` |
+| 5 | Integrità preventivo inviato | **parziale, per scelta**: `workspace_id` e `schema_version` bloccati; archiviazione e soft-delete restano permessi (UI e AGENTS.md §9) |
+| 6 | `created_by` falsificabile | **chiuso**: trigger `set_created_fields` |
+| 7 | Tetto aggirabile con lo spostamento | **chiuso**: il cap vale anche per i movimenti |
+| 10 | Poteri dell'owner oltre il documentato | **chiuso**: niente `INSERT` diretto sulle membership, identità del workspace immutabile |
+| 11 | Dipendenze | **chiuso**: Dependabot + `npm audit --omit=dev` in CI |
+| 8 | Password compromesse | **non applicabile al piano Free**: l'API risponde `402` («available on Pro Plans and up»). Restano minimo 12 caratteri |
+| 9 | Audit log auth | **non configurabile via API**: `audit_log_disable_postgres` resta `true` e non è scrivibile dal Management API. Da valutare in dashboard o con il piano Pro |
+| 4 | CAPTCHA sul signup | **aperto, richiede le chiavi**: va creato un sito hCaptcha o Turnstile, poi `security_captcha_provider` + `security_captcha_secret` e solo alla fine `security_captcha_enabled = true` |
+
+> **Attenzione su CAPTCHA (finding 4).** Attivare `security_captcha_enabled` **senza** una secret valida blocca tutte le registrazioni. L'ordine corretto è: creare il sito dal provider, impostare provider e secret, verificare un signup reale, e solo allora attivare il flag. Durante l'audit il flag è stato attivato per errore senza secret ed è stato ripristinato subito dopo la verifica (signup di nuovo funzionante).

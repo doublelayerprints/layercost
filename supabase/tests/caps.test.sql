@@ -2,7 +2,7 @@ begin;
 
 set search_path = public, extensions;
 
-select plan(23);
+select plan(22);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as postgres, bypassing RLS). The cap triggers fire on these
@@ -143,32 +143,26 @@ select throws_ok(
 -- 5-7. Member cap trigger
 -- ---------------------------------------------------------------------------
 
-select lives_ok(
-  $$ insert into public.workspace_members (workspace_id, user_id, role)
-     values ('ws-caps', '22222222-2222-2222-2222-222222222222', 'editor') $$,
-  'a member under the cap is inserted'
-);
-
+-- Audit 06/11/2026 (ADR-0038 §2.7): the client can no longer insert a
+-- membership directly, so the only way in is the invite RPC. A direct insert
+-- is now rejected before the cap trigger even runs.
 select throws_ok(
   $$ insert into public.workspace_members (workspace_id, user_id, role)
-     values ('ws-caps', '33333333-3333-3333-3333-333333333333', 'editor') $$,
-  'P0001',
-  'member_limit_reached',
-  'a member at the cap is rejected'
+     values ('ws-caps', '22222222-2222-2222-2222-222222222222', 'editor') $$,
+  '42501',
+  null,
+  'a direct membership insert is denied: members join through an invite'
 );
 
-set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","role":"authenticated"}';
-
-select lives_ok(
-  $$ insert into public.workspace_members (workspace_id, user_id, role)
-     values ('ws-caps-other', '22222222-2222-2222-2222-222222222222', 'editor') $$,
-  'another workspace is not affected by the cap of ws-caps'
-);
-
+-- The cap is still the source of truth for the invite path. `create_invite`
+-- reads the configured limit (fallback 20) and refuses at the cap; the trigger
+-- enforces it for the redeem that would follow. Tighten the limit to the
+-- current usage so the refusal is exercised.
+reset role;
+update public.workspace_limits set max_members = 1 where workspace_id = 'ws-caps';
+set local role authenticated;
 set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
 
--- The RPC pre-check reads the configurable limit (fallback 20) and raises the
--- historical message; the trigger remains the source of truth.
 select throws_ok(
   $$ select public.create_invite('ws-caps', 'editor', 7) $$,
   'P0001',
@@ -176,13 +170,24 @@ select throws_ok(
   'create_invite respects the configured member limit'
 );
 
+-- A workspace with room still accepts an invite; this one is owned by the
+-- fourth user.
+set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","role":"authenticated"}';
+
+select lives_ok(
+  $$ select public.create_invite('ws-caps-other', 'editor', 7) $$,
+  'a workspace under the cap issues an invite'
+);
+
+set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
+
 -- ---------------------------------------------------------------------------
 -- 8-10. workspace_limits is read-only for the client
 -- ---------------------------------------------------------------------------
 
 select is(
   (select max_members from public.workspace_limits where workspace_id = 'ws-caps'),
-  2,
+  1,
   'members can read the workspace limits'
 );
 
@@ -239,9 +244,11 @@ select throws_ok(
   'restoring a tombstone at the cap is rejected'
 );
 
+-- ws-caps has a single member (the owner): the direct insert above is denied
+-- and members can only join through an invite, which is not redeemed here.
 select is(
   (select members from public.workspace_usage('ws-caps')),
-  2::integer,
+  1::integer,
   'the usage reflects the current members'
 );
 

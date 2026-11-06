@@ -11,7 +11,7 @@ begin;
 
 set search_path = public, extensions;
 
-select plan(11);
+select plan(17);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures
@@ -174,6 +174,55 @@ select is(
   (select created_by::text from public.quotes where id = 'q-hard-admin'),
   'aa111111-1111-1111-1111-111111111111',
   'a request without a JWT keeps the supplied created_by'
+);
+
+-- ---------------------------------------------------------------------------
+-- 5. Workspace identity is immutable (finding 10b)
+-- ---------------------------------------------------------------------------
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"aa111111-1111-1111-1111-111111111111","role":"authenticated"}';
+
+select throws_ok(
+  $$ update public.workspaces set kind = 'personal' where id = 'ws-hard-b' $$,
+  'P0001', 'workspace_identity_locked',
+  'an owner cannot turn a shared workspace into a personal one'
+);
+
+select throws_ok(
+  $$ update public.workspaces set created_by = 'bb222222-2222-2222-2222-222222222222'
+     where id = 'ws-hard-b' $$,
+  'P0001', 'workspace_identity_locked',
+  'an owner cannot rewrite the workspace creator'
+);
+
+select lives_ok(
+  $$ update public.workspaces set name = 'Hardening B renamed' where id = 'ws-hard-b' $$,
+  'an owner can still rename the workspace'
+);
+
+-- ---------------------------------------------------------------------------
+-- 6. Membership writes only through the invite RPCs (finding 10a)
+-- ---------------------------------------------------------------------------
+
+select throws_ok(
+  $$ insert into public.workspace_members (workspace_id, user_id, role)
+     values ('ws-hard-b', 'bb222222-2222-2222-2222-222222222222', 'editor') $$,
+  '42501',
+  null,
+  'an owner cannot insert a membership directly'
+);
+
+select lives_ok(
+  $$ update public.workspace_members set role = 'owner'
+     where workspace_id = 'ws-hard-a' and user_id = 'bb222222-2222-2222-2222-222222222222' $$,
+  'an owner can still promote an existing member'
+);
+
+select lives_ok(
+  $$ delete from public.workspace_members
+     where workspace_id = 'ws-hard-a' and user_id = 'bb222222-2222-2222-2222-222222222222' $$,
+  'an owner can still remove a member'
 );
 
 select * from finish();

@@ -18,14 +18,14 @@ I problemi reali sono tre e uno è potenzialmente critico: la registrazione non 
 | 1 | **Critico** | Auto-confirm email + auto-link Google | **confermato e corretto** (ADR-0038 §2.6) |
 | 2 | Alto | Link condiviso con snapshot e margini | **corretto** (ADR-0038 §2.1) |
 | 3 | Medio | Nessun CSP / anti-clickjacking | **corretto** (ADR-0038 §2.2) |
-| 4 | Medio | Signup senza CAPTCHA e senza conferma email | aperto |
-| 5 | Medio | Integrità del preventivo inviato incompleta | **parziale** (ADR-0038 §2.4) |
+| 4 | Medio | Signup senza CAPTCHA | **aperto**: richiede le chiavi del provider |
+| 5 | Medio | Integrità del preventivo inviato incompleta | **parziale, per scelta** (ADR-0038 §2.4) |
 | 6 | Medio | `created_by` falsificabile all'inserimento | **corretto** (ADR-0038 §2.3) |
 | 7 | Medio | Tetto preventivi aggirabile con lo spostamento | **corretto** (ADR-0038 §2.5) |
-| 8 | Medio | Nessun controllo sulle password compromesse | aperto |
-| 9 | Basso | `auth.audit_log_entries` vuoto | aperto |
-| 10 | Basso | Poteri dell'owner oltre il documentato | aperto |
-| 11 | Basso | Dipendenze dev vulnerabili, nessun Dependabot | aperto |
+| 8 | Medio | Nessun controllo sulle password compromesse | **non applicabile al piano Free** (402) |
+| 9 | Basso | `auth.audit_log_entries` vuoto | **non configurabile via API** |
+| 10 | Basso | Poteri dell'owner oltre il documentato | **corretto** (ADR-0038 §2.7) |
+| 11 | Basso | Dipendenze dev vulnerabili, nessun Dependabot | **corretto** (ADR-0038 §2.8) |
 
 ---
 
@@ -116,13 +116,13 @@ Applicati CSP e `X-Frame-Options: DENY`, con `script-src` basato sull'hash del J
 
 ---
 
-## 5. Finding 4 — Signup senza CAPTCHA e senza conferma (aperto)
+## 5. Finding 4 — Signup senza CAPTCHA (aperto)
 
-**Gravità:** media. **Stato:** aperto.
+**Gravità:** media. **Stato:** aperto, richiede le chiavi del provider.
 
-Tetto 1000 utenti, `auth.captcha` non configurato, rate limit `sign_in_sign_ups = 30` per 5 minuti per IP. Un bot può esaurire il tetto in poche ore con indirizzi inventati, bloccando le registrazioni legittime (`signup_limit_reached`). Con auto-confirm non c'è nemmeno l'attrito dell'email.
+Tetto 1000 utenti, `auth.captcha` non configurato, rate limit `sign_in_sign_ups = 30` per 5 minuti per IP. Un bot può esaurire il tetto con indirizzi inventati, bloccando le registrazioni legittime (`signup_limit_reached`). La conferma email (finding 1) ha aggiunto un attrito reale: senza link l'account non è utilizzabile, e la mail parte solo verso indirizzi validi.
 
-**Rimedio:** Cloudflare Turnstile (gratuito), supportato nativamente da Supabase; richiede il widget nel form. In alternativa, abbassare il tetto e monitorarlo dalla console admin.
+**Rimedio:** Cloudflare Turnstile o hCaptcha. Serve un sito dal provider, poi `security_captcha_provider` e `security_captcha_secret`, e **solo alla fine** `security_captcha_enabled = true`: il flag senza secret blocca tutte le registrazioni. Procedura nel runbook §19.
 
 ---
 
@@ -167,23 +167,25 @@ Workspace A con `max_quotes = 1` e un preventivo; workspace B libero. Lo spostam
 
 ---
 
-## 9. Finding 8 — Nessun controllo sulle password compromesse (aperto)
+## 9. Finding 8 — Password compromesse (non applicabile al piano Free)
 
-**Gravità:** media. **Stato:** aperto.
+**Gravità:** media. **Stato:** non applicabile senza piano Pro.
 
 `password_requirements` è vuoto e non c'è verifica sulle password violate: `aaaaaaaaaaaa` viene accettata, anche in fase di cambio password. Il minimo di 12 caratteri è allineato tra UI e backend (e il messaggio contraddittorio «6 caratteri» è stato corretto il 06/11/2026).
 
-**Rimedio:** attivare in Supabase "Check for leaked passwords" (HaveIBeenPwned, integrato e gratuito). Nessun codice.
+**Verifica.** `PATCH /v1/projects/<ref>/config/auth` con `password_hibp_enabled: true` risponde **`402`**: «Configuring leaked password protection via HaveIBeenPwned.org is available on Pro Plans and up». Non è debito tecnico: sul piano Free la funzione non esiste.
+
+**Rimedio possibile senza Pro:** alzare `password_requirements` (per esempio `lower_upper_letters_digits`) e mantenere il minimo a 12. Valutare il piano Pro se il servizio cresce.
 
 ---
 
-## 10. Finding 9–11 — Minori
+## 10. Finding 10 e 11 — Chiusi
 
-**9. Nessun audit log.** `auth.audit_log_entries` contiene **0 righe** in produzione, nonostante decine di login. Nessuna traccia di tentativi falliti, reset o cambi password: in caso di incidente manca la forensic. Da verificare la configurazione e la retention in dashboard.
+**9. Audit log auth (non configurabile via API).** `auth.audit_log_entries` contiene **0 righe** in produzione. La causa è `audit_log_disable_postgres = true`, e il Management API ignora il valore inviato: la risposta riporta il campo invariato. Va verificato dalla dashboard o sbloccato con il piano Pro; nel frattempo non c'è forensic su login falliti, reset e cambi password.
 
-**10. Poteri dell'owner oltre il documentato.** Un owner può inserire un membro arbitrario senza passare da `create_invite` (aggirando scadenza, revoca e `max_uses`), cambiare `kind` da `shared` a `personal` (eludendo il tetto di 10 spazi) e riscrivere `created_by` del workspace. Impatto limitato al proprio spazio, ma smentisce invarianti di `data-model.md`.
+**10. Poteri dell'owner (corretto).** Un owner poteva inserire un membro arbitrario senza `create_invite` (aggirando scadenza, revoca e `max_uses`), cambiare `kind` da `shared` a `personal` (eludendo il tetto di 10 spazi) e riscrivere `created_by` del workspace. Revocati `INSERT`/`UPDATE`/`DELETE` generici su `workspace_members` (restano `SELECT`, `UPDATE (role)`, `DELETE`) e aggiunto il trigger `protect_workspace_identity`. Le RPC `SECURITY DEFINER` continuano a funzionare.
 
-**11. Dipendenze.** `npm audit --omit=dev`: 0. Dev: 2 moderate su `vitest`/`@vitest/mocker` (code injection via mock manuale, solo in test). Nessun Dependabot/Renovate attivo, nessun `npm audit` in CI.
+**11. Dipendenze (corretto).** `npm audit --omit=dev`: 0. Restano 2 moderate su `vitest`/`@vitest/mocker` (code injection via mock manuale, solo in test). Aggiunti `.github/dependabot.yml` (npm settimanale raggruppato, Actions mensile) e `npm audit --omit=dev --audit-level=moderate` nel job `check`.
 
 ---
 
