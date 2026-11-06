@@ -1,6 +1,6 @@
 # LayerCost — Task
 
-**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata, distribuita e attiva in produzione il 04/11/2026** (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni chiuse, runbook §17.2); **EVO-9 landing inglese `/en` chiusa il 05/11/2026** (ADR-0035: `/en/` pre-renderizzata con hreflang, boot inglese dal path, budget HTML EN, sitemap alternati); **EVO-10 seed localizzati chiusi il 05/11/2026** (ADR-0036: tariffe, stampanti, materiali ed extra nascono nella lingua della sessione, ID e valori identici); CI verde; deploy Vercel live
+**Stato:** v1.0.0 rilasciata (fasi 0–4); fase 5 chiusa; EVO-7, rifiniture post-EVO-7 (ADR-0032), catalogo stampanti (ADR-0033) e lista stampanti compatta distribuiti e verificati in produzione; **EVO-2 (ADR-0027) distribuito e attivo in produzione il 03/11/2026** (PR #62, squash `e50c719`; operazioni cloud chiuse, runbook §16.3); **EVO-8 console admin (ADR-0034) implementata, distribuita e attiva in produzione il 04/11/2026** (PR #63, squash `8cfe37c`, build `index-D6ixFw48.js` / `index-DMAw7o4c.css`; operazioni chiuse, runbook §17.2); **EVO-9 landing inglese `/en` chiusa il 05/11/2026** (ADR-0035: `/en/` pre-renderizzata con hreflang, boot inglese dal path, budget HTML EN, sitemap alternati); **EVO-10 seed localizzati chiusi il 05/11/2026** (ADR-0036: tariffe, stampanti, materiali ed extra nascono nella lingua della sessione, ID e valori identici); **EVO-11 recupero password self-service implementata il 06/11/2026** (ADR-0037: link PKCE via SMTP Supabase Free, pagina `/#/reset-password` lazy, minimo password 12); CI verde; deploy Vercel live
 **Repo:** https://github.com/doublelayerprints/layercost (privata)
 **Data:** 2 novembre 2026
 **Uso:** il coding agent prende il primo task non bloccato, rispetta le dipendenze, aggiorna lo stato e chiude solo quando i criteri di accettazione sono soddisfatti.
@@ -1426,6 +1426,18 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 - [x] **T10.5 docs**: ADR-0036, piano, testing, data-model, i18n inventory, architecture, TASKS, STATUS, CHANGELOG.
 - [x] **T10.6 merge e CI**: PR #67 (squash `0be2ff9`, build `index-BUyuaNKz.js`); primo run `e2e` rosso per le baseline `en-materiali` cambiate legittimamente dal seed inglese («Generic» al posto di «Generico») → workflow Visual baselines sul branch, 3 PNG committati, secondo run tutto verde; altre 60 baseline byte-identiche.
 
+## EVO-11 — Recupero password self-service
+
+**Data:** 06/11/2026 · **ADR:** 0037 · **Piano:** `docs/planning/evo-11-password-reset.md`
+
+- [x] **T11.1 gateway**: `requestPasswordReset(email, redirectTo)`, `updatePassword(password)`; `exchangeCodeForSession` restituisce `{ session, recovery }` leggendo `data.redirectType` (il redirect PKCE non contiene `type=recovery`, verificato sul campo); errori `weak_password` → `weakPassword` e token scaduto → `recoveryLinkInvalid`.
+- [x] **T11.2 store**: stato `recovery` (`idle|requested|pending|saved`), azioni `requestPasswordReset`/`completePasswordReset`/`cancelPasswordReset`; un link di recupero non porta al calcolatore, chiede prima la nuova password.
+- [x] **T11.3 UI**: `PasswordResetPage` su `/#/reset-password`, **lazy** (1,4 KB gzip): form email con validazione, conferma neutra che non rivela se l'account esiste, form nuova password con ripetizione, conferma finale; link «Password dimenticata?» nella login con nota su Google; axe a 375/1440.
+- [x] **T11.4 password**: minimo portato da 6 a **12** nella UI, allineato al backend (`config.toml` e Admin API).
+- [x] **T11.5 E2E**: `auth.spec.ts` legge l'email reale da **Mailpit locale**, segue il link PKCE nello stesso contesto, verifica validazione e mismatch, salva la nuova password, esce e rientra con quella nuova; **5/5 E2E auth verdi** (+1). Nota: l'Admin API `generate_link` produce un link *implicit* inutilizzabile con PKCE, per questo si usa l'inbox reale.
+- [x] **T11.6 verifiche e docs**: `npm run check` verde (**328 unitari**, parità i18n **1426**, +23 chiavi), budget JS iniziale **241,1/243 KB** e lazy **80,5/82 KB** (aumenti motivati in `scripts/check-budget.mjs`); ADR-0037, piano, runbook §6.4 riscritto (self-service come via normale, admin come fallback), testing, i18n inventory, architecture, TASKS, STATUS, CHANGELOG. Nessun cambio a formule, `engineVersion`, snapshot, schema v4, RLS, RPC, sync o seed.
+- [ ] **T11.7 deploy**: merge e verifica in produzione (richiesta link su account reale, arrivo email, nuova password, accesso Google invariato).
+
 ## Prossimi task
 
 **Storia recente:** EVO-8 console admin (ADR-0034, PR #63, `8cfe37c`, live in produzione), follow-up baseline visual cloud/login/docs/feedback (PR #64, `596456c`) e CLI Supabase v3.0.0 (PR #65, `caea2c3`) sono chiusi; il registro completo resta in `STATUS.md`.
@@ -1433,5 +1445,5 @@ Non iniziare la UI prima che il motore e la persistenza siano stabili. Non inizi
 **EVO-9 — Indicizzazione inglese della landing** è chiusa il 05/11/2026 (ADR-0035, PR #66 squash `4db1acd`, build `index-DQLqfdfo.js`): pagina `en/index.html` pre-renderizzata con testa inglese (canonical `/en/`, hreflang a tre vie, OG/Twitter/JSON-LD EN, `og-image-en.jpg`), boot inglese dal path (l'URL vince sulla preferenza salvata), capture bilingue con `public/landing/en/`, sitemap con alternate `xhtml:link`, budget `HTML EN` a 10 KB. **Produzione verificata dopo il merge**: `/en/` 200 con lang/canonical/hreflang/JSON-LD corretti, asset EN 200, sitemap live, root italiana invariata. Nessun cambio a formule, `engineVersion`, snapshot, schema locale v4, auth, RLS, sync o seed. **Nota del follow-up:** i seed localizzati erano la nota conservata da EVO-9 e sono chiusi con EVO-10 (ADR-0036, stesso giorno, PR #67 `0be2ff9`).
 
 **Residuo della roadmap:**
-- Verifiche manuali: prova su stampante fisica, NVDA su Windows (Safari/VoiceOver già provati il 02/11/2026).
-- Evolutive candidate: reset password self-service via SMTP gratuito (EVO-11), dominio personalizzato solo se l'apertura lo richiede, fixture Bambu committabile con autorizzazione del modello.
+- Verifiche manuali: NVDA su Windows (Safari/VoiceOver provati il 02/11/2026; **prova su stampante fisica superata il 06/11/2026**).
+- Evolutive candidate: cambio password dall'interno dell'app per chi è già autenticato, 2FA/passkey, dominio personalizzato (solo se l'apertura lo richiede), fixture Bambu committabile con autorizzazione del modello.

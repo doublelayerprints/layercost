@@ -174,12 +174,27 @@ where workspace_id = 'ws-doublelayer'
 
 Non lasciare il workspace senza owner. Se l'update riguarda l'ultimo owner, il trigger blocca l'operazione.
 
-### 6.4 Reset password amministrativo
+### 6.4 Reset password
 
-Nella prima iterazione non c'è SMTP e non c'è un link “Password dimenticata”. Il reset è amministrativo:
+**Self-service (via normale, EVO-11 / ADR-0037).** L'utente apre `/#/reset-password`
+(link «Password dimenticata?» nella login), inserisce l'email e riceve un link valido
+un'ora. Il link apre la schermata «Scegli una nuova password»; al salvataggio la sessione
+è già attiva. Non serve l'intervento dell'owner.
+
+- L'email parte dall'SMTP integrato di Supabase Free (**3 email/ora**): sufficiente per
+  l'uso reale. Se un giorno il volume crescerà, si cambia solo la configurazione del
+  progetto (Brevo/Resend), senza toccare il codice.
+- La conferma a schermo è neutra («se esiste un account…»): non rivela se l'indirizzo è
+  registrato.
+- Requisito password: **12 caratteri** (UI e backend allineati).
+- Chi ha Google può evitare del tutto la password e accedere da lì.
+
+**Fallback amministrativo** (solo se l'email non arriva o l'account non ha accesso alla
+casella):
 
 1. Generare una password temporanea robusta nel password manager.
-2. Aggiornarla con la Admin API di Supabase, da una macchina amministrativa e con la service role key in una variabile d'ambiente non salvata nel repository:
+2. Aggiornarla con la Admin API di Supabase, da una macchina amministrativa e con la
+   service role key in una variabile d'ambiente non salvata nel repository:
 
 ```bash
 curl -X PUT "$SUPABASE_URL/auth/v1/admin/users/<uuid-utente>" \
@@ -189,10 +204,12 @@ curl -X PUT "$SUPABASE_URL/auth/v1/admin/users/<uuid-utente>" \
   -d '{"password":"<password-temporanea>"}'
 ```
 
-3. Comunicare la password temporanea per un canale sicuro. Nella prima iterazione non c'è una UI di cambio password: se serve, l'amministratore la reimposta con lo stesso metodo.
+3. Comunicare la password temporanea per un canale sicuro e invitare l'utente a
+   impostarne una propria dal link «Password dimenticata?».
 4. Non usare lo SQL editor per modificare `auth.users.encrypted_password`.
 
-Se in futuro servirà il reset self-service, si aggiungerà un SMTP gratuito (Brevo/Resend) senza cambiare schema o RLS.
+**Verifica in locale:** le email finiscono in Mailpit (`http://127.0.0.1:54324`); la
+suite `npm run test:e2e:auth` segue il link reale dall'inbox e copre il flusso completo.
 
 ### 6.5 Rinominare il workspace
 

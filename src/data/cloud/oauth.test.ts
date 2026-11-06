@@ -7,11 +7,19 @@ import {
 
 describe('OAuth callback', () => {
   it('legge il codice PKCE dal query string', () => {
-    expect(parseOAuthCallback('?code=abc123')).toEqual({ kind: 'code', code: 'abc123' })
+    expect(parseOAuthCallback('?code=abc123')).toEqual({
+      kind: 'code',
+      code: 'abc123',
+      recovery: false,
+    })
   })
 
   it('accetta il query string senza punto interrogativo', () => {
-    expect(parseOAuthCallback('code=abc123&state=x')).toEqual({ kind: 'code', code: 'abc123' })
+    expect(parseOAuthCallback('code=abc123&state=x')).toEqual({
+      kind: 'code',
+      code: 'abc123',
+      recovery: false,
+    })
   })
 
   it('ignora parametri non OAuth', () => {
@@ -91,5 +99,18 @@ describe('OAuth redirect URL', () => {
     expect(buildOAuthRedirectUrl('http://127.0.0.1:5173/')).toBe(
       'http://127.0.0.1:5173/',
     )
+  })
+
+  it('riconosce il link di recupero password', () => {
+    expect(parseOAuthCallback('?code=rec123&type=recovery')).toEqual({
+      kind: 'code',
+      code: 'rec123',
+      recovery: true,
+    })
+    expect(parseOAuthCallback('?code=sig123&type=signup')).toEqual({
+      kind: 'code',
+      code: 'sig123',
+      recovery: false,
+    })
   })
 })

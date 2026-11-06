@@ -45,6 +45,14 @@ const AdminPage = lazy(() =>
   })),
 )
 
+// Password recovery is a rare screen: keep its form out of the initial chunk
+// (EVO-11 kept the initial JS budget at 240 KB).
+const PasswordResetPage = lazy(() =>
+  import('@/features/auth/PasswordResetPage').then((module) => ({
+    default: module.PasswordResetPage,
+  })),
+)
+
 function RouteLoading() {
   const { t } = useI18n()
   return (
@@ -101,6 +109,14 @@ export default function App() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="compare" element={<ComparePage />} />
             <Route path="login" element={<LoginPage />} />
+            <Route
+              path="reset-password"
+              element={
+                <Suspense fallback={<RouteLoading />}>
+                  <PasswordResetPage />
+                </Suspense>
+              }
+            />
             <Route
               path="docs"
               element={

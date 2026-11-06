@@ -8,7 +8,7 @@ import { useAppStore } from '@/state/app-store'
 import { useAuthStore } from '@/state/auth-store'
 import { useSyncStore, type SyncStatus } from '@/state/sync-store'
 import { useWorkspaceStore } from '@/state/workspace-store'
-import { syncErrorKeys, syncStatusKeys } from '@/features/sync/messages'
+import { authErrorKeys, syncErrorKeys, syncStatusKeys } from '@/features/sync/messages'
 
 const statusTones: Record<SyncStatus, 'neutral' | 'success' | 'warning' | 'info' | 'danger'> = {
   disabled: 'neutral',
@@ -113,7 +113,7 @@ export function SyncSettings() {
 
           {authStatus === 'error' ? (
             <Alert tone="danger" title={t('sync.status.error')}>
-              <p>{authError ? t(`auth.error.${authError}`) : t('auth.error.unknown')}</p>
+              <p>{authError ? t(authErrorKeys[authError]) : t('auth.error.unknown')}</p>
               <Button className="mt-3" variant="secondary" onClick={() => void initialize()}>
                 {t('sync.retry')}
               </Button>
@@ -182,7 +182,7 @@ export function SyncSettings() {
 
               {authError ? (
                 <Alert tone="danger" title={t('common.error')}>
-                  <p>{t(`auth.error.${authError}`)}</p>
+                  <p>{t(authErrorKeys[authError])}</p>
                 </Alert>
               ) : null}
 

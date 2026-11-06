@@ -29,7 +29,34 @@ export const authEn: Record<keyof typeof authIt, string> = {
     'Link your Google account to sign in without a password. Email and password stay available.',
   'auth.google.linkedHint':
     'You can sign in with Google on this and other devices.',
-  'auth.forgotPassword': 'Forgot your password? Ask the administrator.',
+  'auth.forgotPassword': 'Forgot your password?',
+  'auth.forgotPasswordGoogle':
+    'If you linked Google, you can sign in there without a password. The email link only works for accounts with a password.',
+  'auth.passwordRule': 'At least 12 characters.',
+  'auth.recovery.title': 'Reset your password',
+  'auth.recovery.description':
+    'Enter your account email: we will send you a link to choose a new password. The link expires after one hour.',
+  'auth.recovery.send': 'Send the link',
+  'auth.recovery.sending': 'Sending…',
+  'auth.recovery.sentTitle': 'Check your inbox',
+  'auth.recovery.sentBody':
+    'If an account exists for that address, you will receive an email with the link to reset the password.',
+  'auth.recovery.sentHint':
+    'Nothing yet? Check the spam folder and make sure the address is correct.',
+  'auth.recovery.backToLogin': 'Back to sign in',
+  'auth.recovery.newTitle': 'Choose a new password',
+  'auth.recovery.newDescription': 'The link is valid: set the new password for this account.',
+  'auth.recovery.forAccount': 'Account: {email}',
+  'auth.recovery.newPassword': 'New password',
+  'auth.recovery.repeatPassword': 'Repeat the password',
+  'auth.recovery.passwordMismatch': 'The two passwords do not match.',
+  'auth.recovery.save': 'Save the new password',
+  'auth.recovery.saving': 'Saving…',
+  'auth.recovery.savedTitle': 'Password updated',
+  'auth.recovery.savedBody': 'From now on sign in with the new password. The session is already active.',
+  'auth.recovery.settings': 'Go to settings',
+  'auth.recovery.linkInvalid': 'The link is no longer valid or has expired. Request a new one.',
+  'auth.error.weakPassword': 'That password is not strong enough. Use at least 12 characters.',
   'auth.backToApp': 'Back to the calculator',
   'auth.unconfigured.title': 'Cloud not configured',
   'auth.unconfigured.body':

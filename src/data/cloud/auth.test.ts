@@ -97,8 +97,9 @@ describe('Supabase auth gateway', () => {
     const result = await gateway.exchangeCodeForSession('auth-code')
 
     expect(auth.exchangeCodeForSession).toHaveBeenCalledWith('auth-code')
-    expect(result.user.id).toBe('user-1')
-    expect(result.user.providers).toEqual(['email', 'google'])
+    expect(result.session.user.id).toBe('user-1')
+    expect(result.session.user.providers).toEqual(['email', 'google'])
+    expect(result.recovery).toBe(false)
   })
 })
 

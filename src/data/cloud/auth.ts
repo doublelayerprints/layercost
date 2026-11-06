@@ -19,6 +19,7 @@ export type AuthChangeEvent =
   | 'signedOut'
   | 'tokenRefreshed'
   | 'userUpdated'
+  | 'passwordRecovery'
   | 'other'
 
 export type AuthErrorCode =
@@ -36,6 +37,8 @@ export type AuthErrorCode =
   | 'oauthConfig'
   | 'oauthCallback'
   | 'manualLinkingDisabled'
+  | 'weakPassword'
+  | 'recoveryLinkInvalid'
   | 'unknown'
 
 export class AuthError extends Error {
@@ -54,7 +57,19 @@ export interface AuthGateway {
   signUp: (email: string, password: string) => Promise<AuthSession>
   signInWithOAuth: (provider: OAuthProvider, redirectTo: string) => Promise<void>
   linkIdentity: (provider: OAuthProvider, redirectTo: string) => Promise<void>
-  exchangeCodeForSession: (code: string) => Promise<AuthSession>
+  /**
+   * Exchanges the PKCE code and reports whether the link was a password
+   * recovery: GoTrue's `redirectType` is the authoritative signal (the URL
+   * carries no `type` for PKCE links), so the store never guesses.
+   */
+  exchangeCodeForSession: (code: string) => Promise<{ session: AuthSession; recovery: boolean }>
+  /**
+   * Sends the recovery email (EVO-11). `redirectTo` must be an allow-listed
+   * URL: Supabase appends `?code=…` and the app exchanges it with PKCE.
+   */
+  requestPasswordReset: (email: string, redirectTo: string) => Promise<void>
+  /** Sets a new password for the user of the current (recovery) session. */
+  updatePassword: (password: string) => Promise<void>
   signOut: () => Promise<void>
   onChange: (listener: (session: AuthSession | null, event: AuthChangeEvent) => void) => () => void
 }
@@ -94,6 +109,8 @@ function mapEvent(event: string): AuthChangeEvent {
       return 'tokenRefreshed'
     case 'USER_UPDATED':
       return 'userUpdated'
+    case 'PASSWORD_RECOVERY':
+      return 'passwordRecovery'
     default:
       return 'other'
   }
@@ -128,6 +145,13 @@ export function mapAuthError(error: unknown): AuthError {
       return new AuthError('emailNotConfirmed')
     case 'user_already_exists':
       return new AuthError('emailExists')
+    case 'weak_password':
+      return new AuthError('weakPassword')
+    case 'otp_expired':
+    case 'flow_state_expired':
+    case 'flow_state_not_found':
+    case 'bad_code_verifier':
+      return new AuthError('recoveryLinkInvalid')
     case 'over_request_rate_limit':
     case 'over_email_send_rate_limit':
     case 'too_many_requests':
@@ -187,7 +211,20 @@ export async function createSupabaseAuthGateway(): Promise<AuthGateway> {
       if (error) throw mapAuthError(error)
       const session = toSession(data.session)
       if (!session) throw new AuthError('oauthCallback')
-      return session
+      // `redirectType` is present on the PKCE exchange result but missing from
+      // the emitted types; read it defensively and fall back to the URL marker.
+      const redirectType = (data as { redirectType?: string | null }).redirectType
+      return { session, recovery: redirectType === 'recovery' }
+    },
+
+    async requestPasswordReset(email, redirectTo) {
+      const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo })
+      if (error) throw mapAuthError(error)
+    },
+
+    async updatePassword(password) {
+      const { error } = await client.auth.updateUser({ password })
+      if (error) throw mapAuthError(error)
     },
 
     async signOut() {

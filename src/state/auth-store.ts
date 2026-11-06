@@ -27,6 +27,13 @@ export type AuthStatus =
 
 export type OAuthStatus = 'idle' | 'redirecting' | 'linking'
 
+/**
+ * Password recovery (EVO-11): `requested` is the neutral confirmation shown
+ * after the email request, `pending` means the recovery link was consumed and
+ * the user must choose a new password.
+ */
+export type RecoveryStatus = 'idle' | 'requested' | 'pending' | 'saved'
+
 export interface OAuthCallbackState {
   error: AuthErrorCode
   navigateToLogin: boolean
@@ -38,11 +45,15 @@ export interface AuthState {
   error?: AuthErrorCode
   oauth: OAuthStatus
   oauthCallback?: OAuthCallbackState
+  recovery: RecoveryStatus
   initialized: boolean
 
   initialize: () => Promise<void>
   signIn: (email: string, password: string) => Promise<boolean>
   signUp: (email: string, password: string) => Promise<boolean>
+  requestPasswordReset: (email: string) => Promise<boolean>
+  completePasswordReset: (password: string) => Promise<boolean>
+  cancelPasswordReset: () => void
   signInWithGoogle: () => Promise<void>
   linkGoogle: () => Promise<void>
   signOut: () => Promise<void>
@@ -195,6 +206,7 @@ export function createAuthStore(deps: AuthStoreDeps) {
       error: undefined,
       oauth: 'idle',
       oauthCallback: undefined,
+      recovery: 'idle',
       initialized: false,
 
       initialize: () => {
@@ -230,9 +242,11 @@ export function createAuthStore(deps: AuthStoreDeps) {
               }
 
               try {
-                const session = await client.exchangeCodeForSession(callback.code)
+                const { session, recovery } = await client.exchangeCodeForSession(callback.code)
                 applySession(session, 'signedIn')
-                set({ initialized: true })
+                // A recovery link signs the user in only to change the password
+                // (EVO-11): keep the session but ask for a new password first.
+                set({ initialized: true, recovery: recovery ? 'pending' : 'idle' })
               } catch (error) {
                 await failCallback(client, errorCode(error))
               }
@@ -305,6 +319,42 @@ export function createAuthStore(deps: AuthStoreDeps) {
           return false
         }
       },
+
+      requestPasswordReset: async (email) => {
+        if (!deps.isConfigured()) {
+          set({ status: 'unconfigured', error: 'notConfigured', user: null, oauth: 'idle' })
+          return false
+        }
+
+        set({ error: undefined, oauthCallback: undefined })
+        try {
+          const client = await ensureGateway()
+          // The recovery link returns to the site root with `?type=recovery`,
+          // reusing the allow-listed redirect URL of the OAuth flow.
+          await client.requestPasswordReset(email.trim(), oauth.redirectTo())
+          set({ recovery: 'requested', error: undefined })
+          return true
+        } catch (error) {
+          set({ error: errorCode(error), recovery: 'idle' })
+          return false
+        }
+      },
+
+      completePasswordReset: async (password) => {
+        if (!deps.isConfigured()) return false
+        set({ error: undefined })
+        try {
+          const client = await ensureGateway()
+          await client.updatePassword(password)
+          set({ recovery: 'saved', error: undefined })
+          return true
+        } catch (error) {
+          set({ error: errorCode(error) })
+          return false
+        }
+      },
+
+      cancelPasswordReset: () => set({ recovery: 'idle', error: undefined }),
 
       signInWithGoogle: () =>
         startOAuth('redirecting', (client, redirectTo) =>
